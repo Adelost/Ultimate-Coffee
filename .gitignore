@@ -1,8 +1,10 @@
 #VISUAL STUDIO JUNK
+#==================
 *.user
 *.suo
 
 #FOLDERS
+#==================
 Assets/*
 Binaries/
 Libs/*
