@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source\Managers">
+      <UniqueIdentifier>{961fd7fc-2da9-48fe-aca3-ab782033a806}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Entity">
+      <UniqueIdentifier>{2f8a5866-3113-4cff-9ee9-383d6793b237}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Data">
+      <UniqueIdentifier>{fe01fc03-b9e2-4ba0-9767-7b20f3793fcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Systems">
+      <UniqueIdentifier>{e57bf39a-287e-40ff-9d25-6e22b9ad4ce4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Batch">
+      <UniqueIdentifier>{bcf7b205-eb80-432b-97ae-d72bb14b4d07}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Data.cpp">
+      <Filter>Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Entity.cpp">
+      <Filter>Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DataMapper.cpp">
+      <Filter>Source\Data</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Util.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Data.h">
+      <Filter>Source\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager_Data.h">
+      <Filter>Source\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="IData.h">
+      <Filter>Source\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Source\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager_Entity.h">
+      <Filter>Source\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="ISystem.h">
+      <Filter>Source\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Source\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager_Systems.h">
+      <Filter>Source\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataMapper.h">
+      <Filter>Source\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Init_DataMapper.h">
+      <Filter>Source\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="DataBatch.h">
+      <Filter>Source\Batch</Filter>
+    </ClInclude>
+    <ClInclude Include="Batch.h">
+      <Filter>Source\Batch</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
