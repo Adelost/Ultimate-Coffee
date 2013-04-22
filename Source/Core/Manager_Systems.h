@@ -8,6 +8,10 @@ private:
 	std::vector<ISystem*> m_systems;
 
 public:
+	Manager_Systems()
+	{
+	}
+
 	~Manager_Systems()
 	{
 		for(int i=0; i<(int)m_systems.size(); i++)

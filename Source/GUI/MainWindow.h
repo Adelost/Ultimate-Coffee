@@ -4,10 +4,11 @@
 #include <QTimer.h>
 #include <QMessageBox.h>
 #include <QDockWidget.h>
-#include <Core/World.h>
 
 #include "ui_MainWindow.h"
 #include "UpdateTimer.h"
+
+class World;
 
 class MainWindow : public QMainWindow
 {

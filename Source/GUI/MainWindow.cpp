@@ -1,5 +1,7 @@
 #include "MainWindow.h"
-
+// Our architecture
+#include <Core/World.h>
+#include <System_Render/System_Render.h>
 // Stuff used to allocate console
 // no idea what most of it does
 #include <io.h>
@@ -17,8 +19,7 @@ MainWindow::MainWindow()
 
 	// Init game
 	setupConsole();
-	
-	world = WORLD();
+	setupGame();
 
 	// Start update loop
 	updateTimer.reset();
@@ -35,7 +36,9 @@ MainWindow::~MainWindow()
 void MainWindow::setupGame()
 {
 	// Init systems
-	world->addSystem(new System::Translation);
+	world = WORLD();
+	world->addSystem(new System::Translation());
+	world->addSystem(new System::Render());
 
 	// Create Entities
 	Entity e(0);
@@ -158,7 +161,11 @@ void MainWindow::setupToolBar()
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Scene"), this);
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
+	dock->resize(4000, dock->height());
+
 	dock = new QDockWidget(tr("Inspector"), this);
+	addDockWidget(Qt::RightDockWidgetArea, dock);
+	dock = new QDockWidget(tr("Hierarchy"), this);
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	//dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 }
