@@ -1,5 +1,10 @@
-Assets/
+#VISUAL STUDIO JUNK
+*.user
+*.suo
+
+#FOLDERS
+Assets/*
 Binaries/
-Libs/
+Libs/*
 Temp/
 Source/GUI/GeneratedFiles/
