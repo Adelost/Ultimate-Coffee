@@ -36,9 +36,9 @@ public:
 		// Map to corresponding Data
 		Init_DataMapper init;
 		mapToData<T>(&init);
-		m_data_list = init.dataList<T>();
-		m_owner_list = init.owner_list;
-		m_index_lastGap = init.index_lastGap;
+		//m_data_list = init.dataList<T>();
+		//m_owner_list = init.owner_list;
+		//m_index_lastGap = init.index_lastGap;
 	}
 
 	bool hasNext()

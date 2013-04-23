@@ -9,20 +9,32 @@ class DataBatch
 private:
 	IBatch* m_batch;
 	std::vector<int> m_owner_list;
-	// The index where data is stored, corresponding
-	// to each EntityId
+	/**
+	The index where data is stored, corresponding
+	to each EntityId
+	*/
 	std::vector<int> m_dataIndexFromEntityId_list;
-
+	
 public:
-	DataBatch(IBatch* p_batch)
+	DataBatch()
 	{
-		m_batch = p_batch;
+		m_batch = nullptr;
+	}
+	~DataBatch()
+	{
+		delete m_batch;
+	}
+	
+	template<typename T>
+	void init()
+	{
+		m_batch = new Batch<T>();
 	}
 
 	/**
-	// Fetches the dataIndex of a certain data (Batch)
-	// belonging to the entity. Returns NULL if the 
-	// Data is missing.
+	Fetches the dataIndex of a certain data (Batch)
+	belonging to the entity. Returns NULL if the 
+	Data is missing.
 	*/
 	int dataIndexFromEntityId(int p_entityId)
 	{
@@ -98,7 +110,8 @@ public:
 	void mapToData(Init_DataMapper* p_init)
 	{
 		Batch<T>* batch = static_cast<Batch<T>*>(m_batch);
-		batch->mapToData(p_init);
+		p_init->setDataList(batch->itemList());
+		p_init->index_lastGap = batch->lastGap();
 		p_init->owner_list = &m_owner_list;
 	}
 };

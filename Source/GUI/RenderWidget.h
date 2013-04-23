@@ -2,20 +2,19 @@
 
 #include <QWidget>
 
-class RenderWidget : public QWidget
+#include <Core/IObserver.h>
+
+class IEvent;
+
+class RenderWidget : public QWidget, public IObserver
 {
 	Q_OBJECT
 
 public:
-	RenderWidget(QWidget* parent) : QWidget(parent)
-	{
-		// make widget non-transparent & draw directly onto screen
-		setAttribute(Qt::WA_OpaquePaintEvent);
-		setAttribute(Qt::WA_PaintOnScreen);
-	}
-	~RenderWidget()
-	{
-	}
+	RenderWidget(QWidget* parent);
+	~RenderWidget();
+
+	void onEvent(IEvent* e);
 
 	 // Overrides Qt:s own paint engine. Prevents flicker.
 	QPaintEngine* paintEngine() const {return 0;}
@@ -23,4 +22,8 @@ public:
 protected:
 	// should not be implemented
 	void paintEvent(QPaintEvent* e){}
+	void resizeEvent(QResizeEvent* e)
+	{
+		QWidget::resizeEvent(e);
+	}
 };

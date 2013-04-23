@@ -83,6 +83,8 @@
   <ItemGroup>
     <ClCompile Include="DataMapper.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EventManager.cpp" />
+    <ClCompile Include="Events.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager_Data.cpp" />
     <ClCompile Include="Manager_Entity.cpp" />
@@ -93,8 +95,11 @@
     <ClInclude Include="DataBatch.h" />
     <ClInclude Include="DataMapper.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="EventManager.h" />
+    <ClInclude Include="Events.h" />
     <ClInclude Include="IData.h" />
     <ClInclude Include="Init_DataMapper.h" />
+    <ClInclude Include="IObserver.h" />
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="System.h" />

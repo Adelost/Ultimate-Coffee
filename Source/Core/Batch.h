@@ -1,12 +1,13 @@
 #pragma once
 
 #include <vector>
-#include "Init_DataMapper.h"
 
 // Interface class used to provide a common
 // access pattern for all Batch-templates
 class IBatch
 {
+public:
+	virtual ~IBatch(){}
 };
 
 // Class storing items in batched manner
@@ -27,14 +28,18 @@ public:
 		m_index_firstGap = 0;
 		m_index_lastGap = 0;
 	}
+	// Index of the last gap in the vector
+	int* lastGap()
+	{
+		return &m_index_firstGap;
+	}
+	std::vector<T>* itemList()
+	{
+		return &m_item_list;
+	}
 	int nextAvailableIndex()
 	{
 		return m_index_firstGap;
-	}
-	void mapToData(Init_DataMapper* p_init)
-	{
-		p_init->setDataList(&m_item_list);
-		p_init->index_lastGap = m_index_lastGap;
 	}
 	int itemCount()
 	{

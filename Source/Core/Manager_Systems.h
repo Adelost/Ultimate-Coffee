@@ -17,6 +17,7 @@ public:
 		for(int i=0; i<(int)m_systems.size(); i++)
 			delete m_systems[i];
 	}
+
 	// Adds system to manager and saves the index
 	// inside the System to make it easier to identify
 	// and lookup later

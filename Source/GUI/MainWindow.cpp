@@ -1,7 +1,9 @@
 #include "MainWindow.h"
-// Our architecture
+
+// Architecture
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
+
 // Stuff used to allocate console
 // no idea what most of it does
 #include <io.h>
@@ -12,10 +14,12 @@ MainWindow::MainWindow()
 {
 	// Init window
 	ui.setupUi(this);
+	renderWidget = new RenderWidget(this);
 	setWindowTitle("Ultimate Coffee");
 	setupToolBar();
 	setupDockWidgets();
 	setDockOptions(AllowNestedDocks | AllowTabbedDocks);
+	//setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North); // Flip tab location
 
 	// Init game
 	setupConsole();
@@ -117,9 +121,6 @@ void MainWindow::setupToolBar()
 	connect(a, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 	ui.menuHelp->addAction(a);
 
-
-
-
 	// Toolbar
 	ui.toolBar->setAllowedAreas(Qt::LeftToolBarArea | Qt::RightToolBarArea);
 	path = iconPath + "Tools/translate";
@@ -138,36 +139,41 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), tr("&Entity"), this);
 	ui.toolBar->addAction(a);
 
-	// Contextbar
+	// Context bar
 	ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 	path = iconPath + "Tools/toast";
-	a = new QAction(QIcon(path.c_str()), tr("&toast"), this);
+	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
 	ui.contextBar->addAction(a);
 	path = iconPath + "Tools/coffee";
-	a = new QAction(QIcon(path.c_str()), tr("&coffee"), this);
+	a = new QAction(QIcon(path.c_str()), tr("coffee"), this);
 	ui.contextBar->addAction(a);
 	path = iconPath + "Tools/wine";
-	a = new QAction(QIcon(path.c_str()), tr("&wine"), this);
+	a = new QAction(QIcon(path.c_str()), tr("wine"), this);
 	ui.contextBar->addAction(a);
 	path = iconPath + "Tools/experiment";
-	a = new QAction(QIcon(path.c_str()), tr("&experiment"), this);
+	a = new QAction(QIcon(path.c_str()), tr("experiment"), this);
 	ui.contextBar->addAction(a);
 	path = iconPath + "Tools/tool";
-	a = new QAction(QIcon(path.c_str()), tr("&tool"), this);
+	a = new QAction(QIcon(path.c_str()), tr("tool"), this);
 	ui.contextBar->addAction(a);
 
-	
 	// DOCK WIDGETS
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Scene"), this);
+	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
 	dock->resize(4000, dock->height());
-
+	dock->setWidget(renderWidget);
 	dock = new QDockWidget(tr("Inspector"), this);
+	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	dock = new QDockWidget(tr("Hierarchy"), this);
+	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	//dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+	// BLARG
+
 }
 
 

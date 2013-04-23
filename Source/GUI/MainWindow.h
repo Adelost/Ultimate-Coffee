@@ -7,6 +7,7 @@
 
 #include "ui_MainWindow.h"
 #include "UpdateTimer.h"
+#include "RenderWidget.h"
 
 class World;
 
@@ -18,6 +19,7 @@ private:
 	Ui::MainWindowUi ui;
 	QTimer refreshTimer;
 	UpdateTimer updateTimer;
+	RenderWidget* renderWidget;
 	World* world;
 
 public:

@@ -43,7 +43,9 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)../Binaries/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)../Temp/$(Configuration)/$(ProjectName)/</IntDir>
-    <IncludePath>../;$(IncludePath)</IncludePath>
+    <IncludePath>../;$(WindowsSDK_IncludePath);$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

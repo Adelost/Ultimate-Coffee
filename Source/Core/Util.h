@@ -10,13 +10,12 @@
 // components an Entity can have
 #define BITSET_CAPACITY 64
 
-
 // Prints the supplied string to console
 #define DEBUGPRINT(DATA_STREAM)									\
 	{															\
-	std::ostringstream oss;										\
-	oss << DATA_STREAM << std::endl;							\
-	printf(oss.str().c_str());									\
+		std::ostringstream oss;									\
+		oss << DATA_STREAM << std::endl;						\
+		printf(oss.str().c_str());								\
 	}
 
 // Prints the supplied string to console

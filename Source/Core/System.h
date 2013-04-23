@@ -12,16 +12,12 @@ namespace System
 		std::vector<int>* m_owner_list;
 
 	public:
-		Translation()
-		{
-		}
-
 		void update()
 		{
-			while(m_mapper_position.hasNext())
+			/*while(m_mapper_position.hasNext())
 			{
-				Data::Position* position = m_mapper_position.next();
-			}
+			Data::Position* position = m_mapper_position.next();
+			}*/
 		}
 
 		void process()

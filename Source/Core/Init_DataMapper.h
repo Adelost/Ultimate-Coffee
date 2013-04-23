@@ -9,7 +9,7 @@ private:
 
 public:
 	std::vector<int>* owner_list;
-	int index_lastGap;
+	int* index_lastGap;
 
 public:
 	void setDataList(void* p_data_list)

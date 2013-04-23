@@ -10,6 +10,10 @@ private:
 	std::vector<DataBatch> m_dataBatch_list;
 
 public:
+	~Manager_Data()
+	{
+	}
+
 	template<typename T>
 	void addData(int p_entityId, Data::Type<T>& p_data)
 	{
@@ -52,7 +56,8 @@ public:
 		Data::Type<T>::setClassId(batchIndex);
 
 		// Add new Batch
-		m_dataBatch_list.push_back(new Batch<T>());
+		m_dataBatch_list.push_back(DataBatch());
+		m_dataBatch_list[batchIndex].init<T>();
 
 		return batchIndex;
 	}

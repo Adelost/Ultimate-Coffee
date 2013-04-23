@@ -3,8 +3,8 @@
 
 
 /**
-// If you can't tell what the main() is for
-// you should have your programming license revoked
+If you can't tell what the main() is for
+you should have your programming license revoked
 */
 int main(int argc, char *argv[])
 {

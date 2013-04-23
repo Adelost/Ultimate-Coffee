@@ -20,6 +20,9 @@
     <Filter Include="Source\Batch">
       <UniqueIdentifier>{bcf7b205-eb80-432b-97ae-d72bb14b4d07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Events">
+      <UniqueIdentifier>{86b64153-594e-42cb-abb6-0eff3835c6af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,6 +42,12 @@
     </ClCompile>
     <ClCompile Include="DataMapper.cpp">
       <Filter>Source\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="EventManager.cpp">
+      <Filter>Source\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Events.cpp">
+      <Filter>Source\Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +95,15 @@
     </ClInclude>
     <ClInclude Include="Settings.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="EventManager.h">
+      <Filter>Source\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="IObserver.h">
+      <Filter>Source\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events.h">
+      <Filter>Source\Events</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

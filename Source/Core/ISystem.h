@@ -4,6 +4,7 @@
 class ISystem
 {
 public:
+	virtual ~ISystem(){}
 	virtual void update() = 0;
 	virtual int classId() = 0;
 	virtual void setClassId(int p_id) = 0;
