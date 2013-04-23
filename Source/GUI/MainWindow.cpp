@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 // Architecture
+#include <Qlabel.h>
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
 
@@ -167,7 +168,15 @@ void MainWindow::setupToolBar()
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
 	dock->resize(4000, dock->height());
-	dock->setWidget(renderWidget);
+	QLabel* mockup = new QLabel(this);
+	path = iconPath + "mock";
+	mockup->setPixmap(QPixmap(path.c_str()));
+	mockup->setScaledContents(true);
+	mockup->setMinimumSize(0, 0);
+	mockup->setMaximumSize(10000, 10000);
+	dock->setWidget(mockup);
+
+	renderWidget->hide();
 	dock = new QDockWidget(tr("Inspector"), this);
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
