@@ -4,6 +4,7 @@
 #include <Windows.h>
 
 #include <d3d11.h>
+#include <d3dcompiler.h>
 
 #include <vector>
 
@@ -29,6 +30,8 @@
 #define ReleaseCOM(x){if(x){x->Release(); x = 0;}}
 #define SafeDelete(x) { delete x; x = 0; }
 
+#pragma comment(lib, "d3dcompiler.lib")
+
 class DXRenderer
 {
 public:
@@ -51,6 +54,9 @@ private:
 	ID3D11DepthStencilView* view_depthStencil;
 	ID3D11Texture2D* tex_depthStencil;
 	D3D11_VIEWPORT viewport_screen;
+
+	ID3D11VertexShader* vertexShader_;
+	ID3D11PixelShader* pixelShader_;
 
 	UINT msaa_quality;
 

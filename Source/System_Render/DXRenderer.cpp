@@ -1,7 +1,5 @@
 #include "DXRenderer.h"
 
-#include "Effects.h"
-
 DXRenderer::DXRenderer()
 {
 	dxDevice_ = nullptr;
@@ -39,7 +37,7 @@ void DXRenderer::renderFrame()
 {
 	//mSmap->BindDsvAndSetNullRenderTarget(dxDeviceContext_);
 	//DrawSceneToShadowMap();
-	dxDeviceContext_->RSSetState(0);
+	//dxDeviceContext_->RSSetState(0);
 
 	// Restore the back and depth buffer to the OM stage.
 	ID3D11RenderTargetView* renderTargets[1] = {view_renderTarget};
@@ -56,30 +54,30 @@ void DXRenderer::renderFrame()
 	//fx->SetEyePosW(mCam.GetPosition());
 	//fx->SetCubeMap(mSky->CubeMapSRV());
 	//fx->SetShadowMap(mSmap->DepthMapSRV());
-
+	//
 	// Tessellation settings
 	//fx->SetHeightScale(tess_heightScale);
 	//fx->SetMaxTessDistance(tess_maxTessDistance);
 	//fx->SetMinTessDistance(tess_minTessDistance);
 	//fx->SetMinTessFactor(tess_minTessFactor);
 	//fx->SetMaxTessFactor(tess_maxTessFactor);
-
-	dxDeviceContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	//
+	//dxDeviceContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	//dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	//
 	//drawManager->prepareFrame();
-
+	//
 	//if(wireframe_enable)
 	//	dxDeviceContext->RSSetState(shaderManager->states.WireframeRS);
-
-
+	//
+	//
 	//
 	// Draw
 	// 
-
+	//
 	//drawGame();
-	
-	
+	//
+	//
 	//if(drawTerrain)
 	//	mTerrain.draw(dxDeviceContext, &mCam);
 
@@ -96,10 +94,10 @@ void DXRenderer::renderFrame()
 	//{
 	//	DrawScreenQuad(mSmap->DepthMapSRV());
 	//}
-
+	//
 	//if(drawSky)
 	//	mSky->Draw(dxDeviceContext_, &mCam);
-
+	//
 	// restore default states, as the SkyFX changes them in the effect file.
 	dxDeviceContext_->RSSetState(0);
 	dxDeviceContext_->OMSetDepthStencilState(0, 0);
@@ -187,6 +185,22 @@ bool DXRenderer::initDX()
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdapter);
 	ReleaseCOM(dxgiFactory);
+
+	ID3DBlob *PS_Buffer, *VS_Buffer;
+
+	D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
+	dxDevice_->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &pixelShader_);
+
+	//D3DCompileFromFile(L"PixelShader.hlsl", NULL, 
+
+	D3DReadFileToBlob(L"VertexShader.cso", &VS_Buffer);
+	dxDevice_->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &vertexShader_);
+
+	delete PS_Buffer;
+	delete VS_Buffer;
+
+	dxDeviceContext_->PSSetShader(pixelShader_, 0, 0);
+	dxDeviceContext_->VSSetShader(vertexShader_, 0, 0);
 
 	// Resize
 	resizeDX();
