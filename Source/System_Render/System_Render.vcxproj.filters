@@ -10,10 +10,21 @@
     <ClInclude Include="System_Render.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="DXRenderer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="DXRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="effect.fx">
+      <Filter>Source</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
