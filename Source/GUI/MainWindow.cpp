@@ -141,6 +141,10 @@ void MainWindow::setupToolBar()
 
 	// Context bar
 	ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+	path = iconPath + "Tools/translate";
+	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
+	ui.contextBar->addAction(a);
+	ui.contextBar->addSeparator();
 	path = iconPath + "Tools/toast";
 	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
 	ui.contextBar->addAction(a);
