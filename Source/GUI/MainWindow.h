@@ -9,6 +9,7 @@
 #include "UpdateTimer.h"
 #include "RenderWidget.h"
 
+class Commander;
 class World;
 
 class MainWindow : public QMainWindow
@@ -22,6 +23,8 @@ private:
 	RenderWidget* renderWidget;
 	World* world;
 
+	Commander* commander;
+
 public:
 	MainWindow();
 	~MainWindow();
@@ -32,9 +35,13 @@ public:
 	void setupDockWidgets();
 	void computeFPS();
 
-public  slots:
+public slots:
 	void update();
 	void act_about();
-
+	void setBackBufferColorToRed();
+	void setBackBufferColorToGreen();
+	void setBackBufferColorToBlue();
+	void undoLatestCommand();
+	void redoLatestCommand();
 
 };

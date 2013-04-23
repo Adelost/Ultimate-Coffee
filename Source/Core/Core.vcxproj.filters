@@ -49,6 +49,10 @@
     <ClCompile Include="Events.cpp">
       <Filter>Source\Events</Filter>
     </ClCompile>
+    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
+    <ClCompile Include="Commander.cpp" />
+    <ClCompile Include="Serializable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util.h">
@@ -105,5 +109,10 @@
     <ClInclude Include="Events.h">
       <Filter>Source\Events</Filter>
     </ClInclude>
+    <ClInclude Include="Serializable.h" />
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="Command_ChangeBackBufferColor.h" />
+    <ClInclude Include="Commander.h" />
+    <ClInclude Include="Enums.h" />
   </ItemGroup>
 </Project>

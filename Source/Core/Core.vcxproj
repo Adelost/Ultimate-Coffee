@@ -144,6 +144,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Commander.cpp" />
+    <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
     <ClCompile Include="DataMapper.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -151,19 +154,25 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager_Data.cpp" />
     <ClCompile Include="Manager_Entity.cpp" />
+    <ClCompile Include="Serializable.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="Commander.h" />
+    <ClInclude Include="Command_ChangeBackBufferColor.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="DataBatch.h" />
     <ClInclude Include="DataMapper.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Enums.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="IData.h" />
     <ClInclude Include="Init_DataMapper.h" />
     <ClInclude Include="IObserver.h" />
     <ClInclude Include="ISystem.h" />
+    <ClInclude Include="Serializable.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Manager_Data.h" />

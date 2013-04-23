@@ -4,6 +4,10 @@
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
 
+//Commands
+#include <Core/Commander.h>
+#include <Core/Command_ChangeBackBufferColor.h>
+
 // Stuff used to allocate console
 // no idea what most of it does
 #include <io.h>
@@ -34,7 +38,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-	
+	delete commander; //check crash here
 }
 
 void MainWindow::setupGame()
@@ -49,6 +53,13 @@ void MainWindow::setupGame()
 	e.fetchData<Data::Position>();
 	e.removeData<Data::Position>();
 	e.addData(Data::Position());
+
+	// Init undo/redo system
+	commander = new Commander();
+	if(!commander->init())
+	{
+		//check, print fail message
+	}
 }
 
 
@@ -59,6 +70,7 @@ void MainWindow::update()
 	updateTimer.tick();
 	SETTINGS()->deltaTime = updateTimer.deltaTime();
 	world->update();
+	commander->update();
 }
 
 void MainWindow::setupToolBar()
@@ -103,11 +115,16 @@ void MainWindow::setupToolBar()
 	a->setShortcuts(QKeySequence::Undo);
 	a->setStatusTip(tr("Undo the last editing action"));
 	ui.menuEdit->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(undoLatestCommand()));
+
 	// Redo
 	a = new QAction(tr("&Redo"), this);
 	a->setShortcuts(QKeySequence::Redo);
 	a->setStatusTip(tr("Redo editing action"));
 	ui.menuEdit->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(redoLatestCommand()));
 	
 	// HELP					
 	// About
@@ -141,15 +158,31 @@ void MainWindow::setupToolBar()
 
 	// Context bar
 	ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+	path = iconPath + "Tools/translate";
+	a = new QAction(QIcon(path.c_str()), tr("info"), this);
+	ui.contextBar->addAction(a);
+	ui.contextBar->addSeparator();
 	path = iconPath + "Tools/toast";
 	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
 	ui.contextBar->addAction(a);
+	
+	//TEMP
+	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToRed()));
+
 	path = iconPath + "Tools/coffee";
 	a = new QAction(QIcon(path.c_str()), tr("coffee"), this);
 	ui.contextBar->addAction(a);
+
+	//TEMP
+	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToGreen()));
+
 	path = iconPath + "Tools/wine";
 	a = new QAction(QIcon(path.c_str()), tr("wine"), this);
 	ui.contextBar->addAction(a);
+
+	//TEMP
+	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToBlue()));
+
 	path = iconPath + "Tools/experiment";
 	a = new QAction(QIcon(path.c_str()), tr("experiment"), this);
 	ui.contextBar->addAction(a);
@@ -261,3 +294,42 @@ void MainWindow::act_about()
 		"Coffee... is a feeling.");
 }
 
+void MainWindow::setBackBufferColorToRed()
+{
+	Command_ChangeBackBufferColor* red = new Command_ChangeBackBufferColor();
+	red->setDoColor(1.0f, 0.0f, 0.0f);
+	red->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
+	commander->doRedo(red);
+}
+
+void MainWindow::setBackBufferColorToGreen()
+{
+	Command_ChangeBackBufferColor* green = new Command_ChangeBackBufferColor();
+	green->setDoColor(0.0f, 1.0f, 0.0f);
+	green->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
+	commander->doRedo(green);
+}
+
+void MainWindow::setBackBufferColorToBlue()
+{
+	Command_ChangeBackBufferColor* blue = new Command_ChangeBackBufferColor();
+	blue->setDoColor(0.0f, 0.0f, 1.0f);
+	blue->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
+	commander->doRedo(blue);
+}
+
+void MainWindow::undoLatestCommand()
+{
+	if(!commander->tryToUndoLatestCommand())
+	{
+		//check, add feedback
+	}
+}
+
+void MainWindow::redoLatestCommand()
+{
+	if(!commander->tryToRedoLatestUndoCommand())
+	{
+		//check, add feedback
+	}
+}

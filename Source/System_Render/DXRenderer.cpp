@@ -2,8 +2,14 @@
 
 #include "Effects.h"
 
+#include <Core/EventManager.h>
+#include <Core/Events.h>
+#include <Core/World.h>
+
 DXRenderer::DXRenderer()
 {
+	SUBSCRIBE_TO_EVENT(this, EVENT_SET_BACKBUFFER_COLOR);
+
 	dxDevice_ = nullptr;
 	dxDeviceContext_ = nullptr;
 	dxSwapChain_ = nullptr;
@@ -35,6 +41,24 @@ bool DXRenderer::init(HWND windowHandle)
 	return initDX();
 }
 
+void DXRenderer::onEvent(IEvent* e)
+{
+	EventType type = e->type();
+	switch (type) 
+	{
+	case EVENT_SET_BACKBUFFER_COLOR:
+		{
+			Event_SetBackBufferColor* backbufferColorEvent = static_cast<Event_SetBackBufferColor*>(e);
+			SETTINGS()->backBufferColorX = backbufferColorEvent->x;
+			SETTINGS()->backBufferColorY = backbufferColorEvent->y;
+			SETTINGS()->backBufferColorZ = backbufferColorEvent->z;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
 void DXRenderer::renderFrame()
 {
 	//mSmap->BindDsvAndSetNullRenderTarget(dxDeviceContext_);
@@ -47,7 +71,8 @@ void DXRenderer::renderFrame()
 	dxDeviceContext_->RSSetViewports(1, &viewport_screen);
 
 	// Clear render target & depth/stencil
-	float color[] = {0.14f, 0.42f, 0.56f, 1.0f};
+	//float color[] = {0.14f, 0.42f, 0.56f, 1.0f};
+	float color[] = {SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ, 1.0f};
 	dxDeviceContext_->ClearRenderTargetView(view_renderTarget, reinterpret_cast<const float*>(color));
 	dxDeviceContext_->ClearDepthStencilView(view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 

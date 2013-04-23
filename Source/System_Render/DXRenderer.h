@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include <Core/IObserver.h>
+
 // DirectX error checking macro
 //#if defined(DEBUG) | defined(_DEBUG)
 //	#ifndef HR
@@ -30,11 +32,11 @@
 #define SafeDelete(x) { delete x; x = 0; }
 
 class DXRenderer
+	: public IObserver
 {
 public:
 	DXRenderer();
 	~DXRenderer();
-
 	bool init(HWND windowHandle);
 	void renderFrame();
 
@@ -43,6 +45,7 @@ private:
 	int clientHeight_;
 	HWND windowHandle_;
 
+	static DXRenderer* instance;
 	ID3D11Device* dxDevice_;
 	ID3D11DeviceContext* dxDeviceContext_;
 	IDXGISwapChain* dxSwapChain_;
@@ -56,4 +59,5 @@ private:
 
 	bool initDX();
 	void resizeDX(); 
+	void onEvent(IEvent* e);
 };
