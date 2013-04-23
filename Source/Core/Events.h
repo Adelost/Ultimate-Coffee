@@ -7,6 +7,7 @@ enum EventType
 	// Normal events
 	EVENT_QUIT_TO_DESKTOP,
 	EVENT_WINDOW_RESIZE,
+	EVENT_SETBACKBUFFERCOLOR,
 	
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -66,5 +67,19 @@ public:
 	float aspectRatio()
 	{
 		return (float)width/(float)height;
+	}
+};
+
+class Event_SetBackBufferColor : public IEvent
+{
+public:
+	float x,y,z;
+
+public:
+	Event_SetBackBufferColor(float x, float y, float z) : IEvent(EVENT_SETBACKBUFFERCOLOR)
+	{
+		this->x = x;
+		this->y = y;
+		this->z = z;
 	}
 };
