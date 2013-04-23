@@ -43,5 +43,7 @@ public slots:
 	void setBackBufferColorToBlue();
 	void undoLatestCommand();
 	void redoLatestCommand();
+	void loadCommandHistory();
+	void saveCommandHistory();
 
 };

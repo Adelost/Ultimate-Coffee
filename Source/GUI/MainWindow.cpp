@@ -93,6 +93,9 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), "&Open...", this);
 	a->setShortcuts(QKeySequence::Open);
 	ui.menuFile->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
+
 	// Save
 	path = iconPath + "Menu/save";
 	a = new QAction(QIcon(path.c_str()), "&Save", this);
@@ -101,6 +104,9 @@ void MainWindow::setupToolBar()
 	// Save as
 	a = new QAction("&Save As...", this);
 	ui.menuFile->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+
 	// Quit
 	a = new QAction("&Quit", this);
 	a->setShortcuts(QKeySequence::Quit);
@@ -196,16 +202,8 @@ void MainWindow::setupToolBar()
 	dock = new QDockWidget(tr("Scene"), this);
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
-	dock->resize(4000, dock->height());
-	QLabel* mockup = new QLabel(this);
-	path = iconPath + "mock";
-	mockup->setPixmap(QPixmap(path.c_str()));
-	mockup->setScaledContents(true);
-	mockup->setMinimumSize(0, 0);
-	mockup->setMaximumSize(10000, 10000);
-	dock->setWidget(mockup);
+	dock->setWidget(renderWidget);
 
-	renderWidget->hide();
 	dock = new QDockWidget(tr("Inspector"), this);
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
@@ -340,5 +338,23 @@ void MainWindow::redoLatestCommand()
 	if(!commander->tryToRedoLatestUndoCommand())
 	{
 		//check, add feedback
+	}
+}
+
+void MainWindow::loadCommandHistory()
+{
+	std::string path = "CommandHistory.789";
+	if(!commander->tryToLoadCommandHistory(path))
+	{
+		//check, add error feedback
+	}
+}
+
+void MainWindow::saveCommandHistory()
+{
+	std::string path = "CommandHistory.789";
+	if(!commander->tryToSaveCommandHistory(path))
+	{
+		//check, add error feedback
 	}
 }
