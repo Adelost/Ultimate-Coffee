@@ -9,8 +9,6 @@
 
 #FOLDERS
 #==================
-Assets/*
 Binaries/
-Libs/*
 Temp/
 Source/GUI/GeneratedFiles/
