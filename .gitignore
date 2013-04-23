@@ -5,6 +5,7 @@
 *.suo
 *.opensdf
 *.sdf
+*.autosave
 
 #FOLDERS
 #==================
