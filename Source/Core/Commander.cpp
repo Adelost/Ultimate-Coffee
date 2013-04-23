@@ -36,9 +36,14 @@ void Commander::update()
 	}
 }
 
-void Commander::doRedo(Command* command)
+void Commander::addToHistoryAndExecute(Command* command)
 {
 	command->doRedo();
+	commandHistory_->addCommand(command);
+}
+
+void Commander::addToHistory(Command* command)
+{
 	commandHistory_->addCommand(command);
 }
 
@@ -113,7 +118,7 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	bool result = commandHistory_->loadFromSerializationByteFormat(readData, bufferSize);
 	delete[] readData;
 
-	//commandHistory_->executeAllCommandsUpAndUntilCurrent(); //check, do or don't?
+	commandHistory_->executeAllCommandsUpAndUntilCurrent();
 
 	return result;
 }
@@ -281,12 +286,17 @@ bool CommandHistory::loadFromSerializationByteFormat(char* bytes, int byteSize)
 		{
 		case Enum::CommandType::TRANSLATE:
 			{
-				command = new Command_ChangeBackBufferColor();
+				//command = new Command_Translate();
 				break;
 			}
 		case Enum::CommandType::ROTATE:
 			{
 				//command = new Command_Rotate();
+				break;
+			}
+		case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+			{
+				command = new Command_ChangeBackBufferColor();
 				break;
 			}
 		default:
@@ -307,6 +317,8 @@ bool CommandHistory::loadFromSerializationByteFormat(char* bytes, int byteSize)
 		}
 	}
 
+	setCurrentCommand(indexOfCurrentCommand_);
+
 	return true;
 }
 
@@ -326,6 +338,9 @@ std::string* CommandHistory::getCommandList(int& nrOfCommands)
 		case Enum::CommandType::ROTATE:
 			currentCommand = "Rotate";
 			break;
+		case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+			currentCommand = "Backbuffer color";
+			break;
 		}
 		listOfCommands[i] = currentCommand;
 	}
@@ -335,7 +350,7 @@ std::string* CommandHistory::getCommandList(int& nrOfCommands)
 void CommandHistory::executeAllCommandsUpAndUntilCurrent()
 {
 	int nrOfCommands = commands_.size();
-	for(int i=0;i<nrOfCommands;i++)
+	for(int i=0;i<indexOfCurrentCommand_;i++)
 	{
 		Command* command = commands_.at(i);
 		command->doRedo();

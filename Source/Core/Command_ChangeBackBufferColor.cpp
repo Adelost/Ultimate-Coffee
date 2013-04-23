@@ -10,6 +10,8 @@ Command_ChangeBackBufferColor::Command_ChangeBackBufferColor()
 	commandData_.undoX=0.0f;
 	commandData_.undoY=0.0f;
 	commandData_.undoZ=0.0f;
+
+	setType(Enum::CommandType::CHANGEBACKBUFFERCOLOR);
 }
 
 Command_ChangeBackBufferColor::~Command_ChangeBackBufferColor(void)
