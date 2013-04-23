@@ -10,6 +10,9 @@
     <ClInclude Include="System_Render.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Util.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">

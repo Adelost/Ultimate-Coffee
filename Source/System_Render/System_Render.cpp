@@ -2,49 +2,30 @@
 
 #include "Core/EventManager.h"
 
-// include the basic windows header files and the Direct3D header files
-#include <windows.h>
-#include <windowsx.h>
-#include <d3d10.h>
-#include <d3dx10.h>
-
-// include the Direct3D Library file
-#pragma comment (lib, "d3d10.lib")
-#pragma comment (lib, "d3dx10.lib")
-
-// define the screen resolution
-#define SCREEN_WIDTH  800
-#define SCREEN_HEIGHT 600
-
-// global declarations
-ID3D10Device* device;    // the pointer to our Direct3D device interface
-ID3D10RenderTargetView* rtv;    // the pointer to the render target view
-IDXGISwapChain* swapchain;    // the pointer to the swap chain class
-ID3D10Buffer* pBuffer;    // the pointer to the vertex buffer
-ID3D10Effect* pEffect;    // the pointer to the effect file interface
-ID3D10EffectTechnique* pTechnique;    // the pointer to the technique interface
-ID3D10EffectPass* pPass;    // the pointer to the pass interface
-ID3D10InputLayout* pVertexLayout;    // the pointer to the input layout interface
-ID3D10EffectMatrixVariable* pTransform;    // the pointer to the effect variable interface
-ID3D10EffectScalarVariable* pTimeElapsed;    // the pointer to the effect variable interface
-D3D10_PASS_DESC PassDesc;    // the pass description struct
-
-struct VERTEX {D3DXVECTOR3 Position; D3DXCOLOR Color;};
-
-// function prototypes
-void render_frame(void);    // renders a single frame
-void cleanD3D(void);    // closes Direct3D and releases memory
-void init_geometry(void);    // creates geometry to render
-void init_pipeline(void);    // sets up the pipeline for rendering
-
-
 System::Render::Render()
 {
+	// DX init
+	dxDevice = 0;
+	dxDeviceContext = 0,
+		dxSwapChain = 0;
+	tex_depthStencil = 0;
+	view_renderTarget = 0;
+	view_depthStencil = 0;
+
+	// DX settings
+	msaa_quality = 0;
+	msaa_enable = true;
+	wireframe_enable = false;
+	clientWidth = 800;
+	clientHeight = 600;
+
+
 	setupDirectX();
 }
 
 void System::Render::setupDirectX()
 {
+	// Get window handle
 	HWND windowHandle;
 	{
 		Event_GetWindowHandle e;
@@ -52,113 +33,81 @@ void System::Render::setupDirectX()
 		windowHandle = e.handle;
 	}
 
-	// this function initializes and prepares Direct3D for use
-
-	DXGI_SWAP_CHAIN_DESC scd;    // create a struct to hold various swap chain information
-
-	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));    // clear out the struct for use
-
-	scd.BufferCount = 1;    // c to be used by Direct3D
-	scd.SampleDesc.Count = 1;    // set the level of multi-sampling
-	scd.SampleDesc.Quality = 0;    // set the quality of multi-samplingreate two buffers, one for the front, one for the back
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;    // use 32-bit color
-	scd.BufferDesc.Width = SCREEN_WIDTH;    // set the back buffer width
-	scd.BufferDesc.Height = SCREEN_HEIGHT;    // set the back buffer height
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;    // tell how the chain is to be used
-	scd.OutputWindow = windowHandle;    // set the window
-	scd.Windowed = TRUE;    // set to windowed or full-screen mode at startup
-	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;    // allow full-screen switching
-
-	// create a device class and swap chain class using the information in the scd struct
-	D3D10CreateDeviceAndSwapChain(NULL,
-		D3D10_DRIVER_TYPE_HARDWARE,
-		NULL,
-		0,
-		D3D10_SDK_VERSION,
-		&scd,
-		&swapchain,
-		&device);
-
-
-	// get the address of the back buffer and use it to create the render target
-	ID3D10Texture2D* pBackBuffer;
-	swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)&pBackBuffer);
-	device->CreateRenderTargetView(pBackBuffer, NULL, &rtv);
-	pBackBuffer->Release();
-
-	// set the back buffer as the render target
-	device->OMSetRenderTargets(1, &rtv, NULL);
-
-
-	D3D10_VIEWPORT viewport;    // create a struct to hold the viewport data
-
-	ZeroMemory(&viewport, sizeof(D3D10_VIEWPORT));    // clear out the struct for use
-
-	viewport.TopLeftX = 0;    // set the left to 0
-	viewport.TopLeftY = 0;    // set the top to 0
-	viewport.Width = SCREEN_WIDTH;    // set the width to the window's width
-	viewport.Height = SCREEN_HEIGHT;    // set the height to the window's height
-
-	device->RSSetViewports(1, &viewport);    // set the viewport
-
-	// create three vertices using the VERTEX struct built earlier
-	VERTEX OurVertices[] =
+	// Create Device
+	UINT createDeviceFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)  
+	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+	D3D_FEATURE_LEVEL featureLevel;
+	HRESULT hr = D3D11CreateDevice(
+		0,							// use primary Display adapter
+		D3D_DRIVER_TYPE_HARDWARE,	// use hardware acceleration
+		0,							// no software device
+		createDeviceFlags,			// set debug flag
+		0,							// feature level array
+		0,							// feature level array size     
+		D3D11_SDK_VERSION,			// SDK version
+		&dxDevice,					// returns d3dDevice
+		&featureLevel,				// returns feature level
+		&dxDeviceContext);			// returns device context
+	if(FAILED(hr))
 	{
-		{D3DXVECTOR3(0.0f, 0.5f, 0.0f), D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{D3DXVECTOR3(0.45f, -0.5f, 0.0f), D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
-		{D3DXVECTOR3(-0.45f, -0.5f, 0.0f), D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
-	};
-
-	// create the vertex buffer and store the pointer into pBuffer, which is created globally
-	D3D10_BUFFER_DESC bd;
-	bd.Usage = D3D10_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(VERTEX) * 3;
-	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
-	bd.MiscFlags = 0;
-
-	device->CreateBuffer(&bd, NULL, &pBuffer);
-
-	void* pVoid;    // the void pointer
-
-	pBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, &pVoid);    // map the vertex buffer
-	memcpy(pVoid, OurVertices, sizeof(OurVertices));    // copy the vertices to the buffer
-	pBuffer->Unmap();
-
-	// load the effect file
-	D3DX10CreateEffectFromFile(L"effect.fx", 0, 0,
-		"fx_4_0", 0, 0,
-		device, 0, 0,
-		&pEffect, 0, 0);
-
-	// get the technique and the pass
-	pTechnique = pEffect->GetTechniqueByIndex(0);
-	pPass = pTechnique->GetPassByIndex(0);
-	pPass->GetDesc(&PassDesc);
-
-	// get the TimeElapsed effect variable
-	//pTimeElapsed = pEffect->GetVariableByName("TimeElapsed")->AsScalar();
-	pTransform = pEffect->GetVariableByName("Transform")->AsMatrix();
-
-	// create the input element descriptions
-	D3D10_INPUT_ELEMENT_DESC Layout[] =
+		//QMessageBox::information(0, "Error", "D3D11CreateDevice Failed.");
+		return;
+	}
+	if(featureLevel != D3D_FEATURE_LEVEL_11_0 )
 	{
-		// first input element: position
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT,
-		D3D10_INPUT_PER_VERTEX_DATA, 0},
+		//QMessageBox::information(0, "Error", "Direct3D Feature Level 11 unsupported.");
+		return;
+	}
 
-		// second input element: color
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT,
-		D3D10_INPUT_PER_VERTEX_DATA, 0}
-	};
+	// Describe swap chain.
+	DXGI_SWAP_CHAIN_DESC desc_sc;
+	// buffer description = back buffer properties
+	desc_sc.BufferDesc.Width = clientWidth;						// width
+	desc_sc.BufferDesc.Height = clientHeight;					// height
+	desc_sc.BufferDesc.RefreshRate.Numerator = 60;
+	desc_sc.BufferDesc.RefreshRate.Denominator = 1;
+	desc_sc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;		// set pixel format
+	desc_sc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	desc_sc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	// sample description, used to set MSAA
+	HR(dxDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &msaa_quality));
+	assert(msaa_quality > 0);
+	if(msaa_enable)
+	{
+		desc_sc.SampleDesc.Count   = 4;
+		desc_sc.SampleDesc.Quality = msaa_quality-1;
+	}
+	else
+	{
+		desc_sc.SampleDesc.Count   = 1;
+		desc_sc.SampleDesc.Quality = 0;
+	}
+	desc_sc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	// set backbuffer as render target 
+	desc_sc.BufferCount = 1;								// nr of backbuffers
+	desc_sc.OutputWindow = windowHandle;					// set output window
+	desc_sc.Windowed = true;								// set window mode/fullscreen
+	desc_sc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;			// let display driver select most efficient presentation method
+	desc_sc.Flags = 0;										// optional flags, such as DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 
-	// use the input element descriptions to create the input layout
-	device->CreateInputLayout(Layout,
-		2,
-		PassDesc.pIAInputSignature,
-		PassDesc.IAInputSignatureSize,
-		&pVertexLayout);
-	
+	// Use IDXGIFactory to create swap chain
+	IDXGIDevice* dxgiDevice = 0;
+	HR(dxDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice));
+	IDXGIAdapter* dxgiAdapter = 0;
+	HR(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter));
+	// finally the IDXGIFactory interface
+	IDXGIFactory* dxgiFactory = 0;
+	HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory));
+	// create swap chain
+	HR(dxgiFactory->CreateSwapChain(dxDevice, &desc_sc, &dxSwapChain));
+	// release acquired COM interfaces since we're done with them
+	ReleaseCOM(dxgiDevice);
+	ReleaseCOM(dxgiAdapter);
+	ReleaseCOM(dxgiFactory);
+
+	// Resize
+	onResize(800, 600);
 }
 
 void System::Render::process()
@@ -168,7 +117,15 @@ void System::Render::process()
 
 System::Render::~Render()
 {
-	cleanD3D();
+	// Release DX
+	ReleaseCOM(view_renderTarget);
+	ReleaseCOM(view_depthStencil);
+	ReleaseCOM(dxSwapChain);
+	ReleaseCOM(tex_depthStencil);
+	if(dxDeviceContext)
+		dxDeviceContext->ClearState();
+	ReleaseCOM(dxDeviceContext);
+	ReleaseCOM(dxDevice);
 }
 
 void System::Render::update()
@@ -178,63 +135,131 @@ void System::Render::update()
 		Data::Position* position = m_mapper_position.next();
 	}
 
-	// clear the window to a deep blue
-	device->ClearRenderTargetView(rtv, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f));
+	dxDeviceContext->RSSetState(0);
 
-	// select which input layout we are using
-	device->IASetInputLayout(pVertexLayout);
+	// Restore the back and depth buffer to the OM stage.
+	ID3D11RenderTargetView* renderTargets[1] = {view_renderTarget};
+	dxDeviceContext->OMSetRenderTargets(1, renderTargets, view_depthStencil);
+	dxDeviceContext->RSSetViewports(1, &viewport_screen);
 
-	// select which primtive type we are using
-	device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// Clear render target & depth/stencil
+	dxDeviceContext->ClearRenderTargetView(view_renderTarget, reinterpret_cast<const float*>(&Colors::DeepBlue));
+	dxDeviceContext->ClearDepthStencilView(view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// select which vertex buffer to display
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	device->IASetVertexBuffers(0, 1, &pBuffer, &stride, &offset);
 
-	// increase the time variable and send to the effect
-	static float Time = 0.0f; Time += 0.001f;
+	dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	D3DXMATRIX matRotate, matView, matProjection, matFinal;
 
-	// create a rotation matrix
-	D3DXMatrixRotationY(&matRotate, Time);
 
-	// create a view matrix
-	D3DXMatrixLookAtLH(&matView,
-		&D3DXVECTOR3(0.0f, 0.0f, 2.0f),    // the camera position
-		&D3DXVECTOR3(0.0f, 0.0f, 0.0f),    // the look-at position
-		&D3DXVECTOR3(0.0f, 1.0f, 0.0f));    // the up direction
 
-	// create a projection matrix
-	D3DXMatrixPerspectiveFovLH(&matProjection,
-		(float)D3DXToRadian(45),    // the horizontal field of view
-		(FLOAT)SCREEN_WIDTH / (FLOAT)SCREEN_HEIGHT, // aspect ratio
-		1.0f,    // the near view-plane
-		100.0f);    // the far view-plane
 
-	// combine and set the final transform
-	matFinal = matRotate * matView * matProjection;
-	pTransform->SetMatrix(&matFinal._11); 
+	//
+	// Draw
+	// 
 
-	// apply the appropriate pass
-	pPass->Apply(0);
 
-	// draw the vertex buffer to the back buffer
-	device->Draw(3, 0);
+	dxDeviceContext->RSSetState(0);
 
-	// display the rendered frame
-	swapchain->Present(0, 0);
+	// FX sets tessellation stages, but it does not disable them.  So do that here
+	// to turn off tessellation.
+	dxDeviceContext->HSSetShader(0, 0, 0);
+	dxDeviceContext->DSSetShader(0, 0, 0);
+	dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//Sleep(10);
+
+	// restore default states, as the SkyFX changes them in the effect file.
+	dxDeviceContext->RSSetState(0);
+	dxDeviceContext->OMSetDepthStencilState(0, 0);
+
+	// Unbind shadow map as a shader input because we are going to render to it next frame.
+	// The shadow might be at any slot, so clear all slots.
+	ID3D11ShaderResourceView* nullSRV[16] = { 0 };
+	dxDeviceContext->PSSetShaderResources(0, 16, nullSRV);
+
+	// Draw menu
+
+	// Show the finished frame
+	dxSwapChain->Present(0, 0);
+	//HR(dxSwapChain->Present(0, 0));
 }
 
-void cleanD3D( void )
+void System::Render::onResize( int width, int height )
 {
-	swapchain->SetFullscreenState(FALSE, NULL);    // switch to windowed mode
-	pBuffer->Release();    // close and release the vertex buffer
-	pVertexLayout->Release();    // close and release the input layout object
-	swapchain->Release();    // close and release the swap chain
-	rtv->Release();    // close and release the render target view
-	device->Release();    // close and release the 3D device
+	this->clientWidth = width;
+	this->clientHeight = height;
+
+	// Resize directx
+	resizeDirectX();
+
+
+}
+
+void System::Render::resizeDirectX()
+{
+	// Release old views, they hold references to buffers we will be destroying; release the old depth/stencil buffer
+	ReleaseCOM(view_renderTarget);
+	ReleaseCOM(view_depthStencil);
+	ReleaseCOM(tex_depthStencil);
+	assert(dxDeviceContext);
+	assert(dxDevice);
+	assert(dxSwapChain);
+
+	// Resize the swap chain
+	HR(dxSwapChain->ResizeBuffers(1, clientWidth, clientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+
+	// Create render target view
+	ID3D11Texture2D* backBuffer;
+	// get pointer to backbuffer
+	HR(dxSwapChain->GetBuffer(
+		0,											// backbuffer index (in case there is more than one)
+		__uuidof(ID3D11Texture2D),					// interface type of the buffer
+		reinterpret_cast<void**>(&backBuffer)));	// returns backbuffer pointer
+	// create render target view
+	HR(dxDevice->CreateRenderTargetView(
+		backBuffer,				// resource to be used as render target
+		0,						// pointer to D3D11_RENDER_TARGET_VIEW_DESC (only needed when using typless format)
+		&view_renderTarget));	// returns pointer to render target view
+	ReleaseCOM(backBuffer);
+
+	// Create the depth/stencil buffer and view.
+	D3D11_TEXTURE2D_DESC desc_depthStencil; 
+	desc_depthStencil.Width     = clientWidth;						// width
+	desc_depthStencil.Height    = clientHeight;						// height
+	desc_depthStencil.MipLevels = 1;								// nr of mipmap levels
+	desc_depthStencil.ArraySize = 1;								// nr of textures in a texture array
+	desc_depthStencil.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;	// format
+	// set MSSA, settings must match those in swap chain
+	if(msaa_enable)
+	{
+		desc_depthStencil.SampleDesc.Count   = 4;
+		desc_depthStencil.SampleDesc.Quality = msaa_quality-1;
+	}
+	else
+	{
+		desc_depthStencil.SampleDesc.Count   = 1;
+		desc_depthStencil.SampleDesc.Quality = 0;
+	}
+	desc_depthStencil.Usage          = D3D11_USAGE_DEFAULT;			// specify how the depth buffer will be used
+	desc_depthStencil.BindFlags      = D3D11_BIND_DEPTH_STENCIL;	// specify where resource will be bound to pipline
+	desc_depthStencil.CPUAccessFlags = 0;							// specify if cpu will read resource
+	desc_depthStencil.MiscFlags      = 0;							// flags; not appliable to depth buffer
+	HR(dxDevice->CreateTexture2D(&desc_depthStencil, 0, &tex_depthStencil));
+	HR(dxDevice->CreateDepthStencilView(tex_depthStencil, 0, &view_depthStencil));
+
+	// Bind render target view and depth/stencil view to pipeline
+	dxDeviceContext->OMSetRenderTargets(
+		1,						// nr of render targets
+		&view_renderTarget,		// first element of array of rendertargets
+		view_depthStencil);		// pointer to depth/stencil view
+
+	// Set viewport transform.
+	viewport_screen.TopLeftX = 0;
+	viewport_screen.TopLeftY = 0;
+	viewport_screen.Width    = static_cast<float>(clientWidth);
+	viewport_screen.Height   = static_cast<float>(clientHeight);
+	viewport_screen.MinDepth = 0.0f;
+	viewport_screen.MaxDepth = 1.0f;
+	dxDeviceContext->RSSetViewports(
+		1,								// nr of viewports
+		&viewport_screen);				// viewport array
 }
