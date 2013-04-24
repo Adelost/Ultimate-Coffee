@@ -9,8 +9,10 @@
 
 #FOLDERS
 #==================
-Assets/*
 Binaries/
-Libs/*
 Temp/
 Source/GUI/GeneratedFiles/
+
+#SAVED COMMAND HISTORY EXTENSION
+#==================
+*.789

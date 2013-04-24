@@ -1,9 +1,14 @@
 #include "MainWindow.h"
 
 // Architecture
-#include <Qlabel.h>
+#include <QLabel.h>
+#include <QGraphicsBlurEffect>
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
+
+//Commands
+#include <Core/Commander.h>
+#include <Core/Command_ChangeBackBufferColor.h>
 
 // Stuff used to allocate console
 // no idea what most of it does
@@ -35,7 +40,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-	
+	delete commander; //check crash here
 }
 
 void MainWindow::setupGame()
@@ -50,6 +55,13 @@ void MainWindow::setupGame()
 	e.fetchData<Data::Position>();
 	e.removeData<Data::Position>();
 	e.addData(Data::Position());
+
+	// Init undo/redo system
+	commander = new Commander();
+	if(!commander->init())
+	{
+		//check, print fail message
+	}
 }
 
 
@@ -60,6 +72,7 @@ void MainWindow::update()
 	updateTimer.tick();
 	SETTINGS()->deltaTime = updateTimer.deltaTime();
 	world->update();
+	commander->update();
 }
 
 void MainWindow::setupToolBar()
@@ -81,20 +94,29 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), "&Open...", this);
 	a->setShortcuts(QKeySequence::Open);
 	ui.menuFile->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
+
 	// Save
 	path = iconPath + "Menu/save";
 	a = new QAction(QIcon(path.c_str()), "&Save", this);
 	a->setShortcuts(QKeySequence::Save);
 	ui.menuFile->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+
 	// Save as
 	a = new QAction("&Save As...", this);
 	ui.menuFile->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+
 	// Quit
 	a = new QAction("&Quit", this);
 	a->setShortcuts(QKeySequence::Quit);
 	a->setStatusTip(tr("Quit the application"));
 	connect(a, SIGNAL(triggered()), this, SLOT(close()));
-	ui.menuFile->addSeparator();
+	//ui.menuFile->addSeparator();
 	ui.menuFile->addAction(a);
 
 	// EDIT
@@ -104,11 +126,16 @@ void MainWindow::setupToolBar()
 	a->setShortcuts(QKeySequence::Undo);
 	a->setStatusTip(tr("Undo the last editing action"));
 	ui.menuEdit->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(undoLatestCommand()));
+
 	// Redo
 	a = new QAction(tr("&Redo"), this);
 	a->setShortcuts(QKeySequence::Redo);
 	a->setStatusTip(tr("Redo editing action"));
 	ui.menuEdit->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(redoLatestCommand()));
 	
 	// HELP					
 	// About
@@ -123,38 +150,56 @@ void MainWindow::setupToolBar()
 	ui.menuHelp->addAction(a);
 
 	// Toolbar
-	ui.toolBar->setAllowedAreas(Qt::LeftToolBarArea | Qt::RightToolBarArea);
+	//ui.toolBar->setAllowedAreas(Qt::LeftToolBarArea | Qt::RightToolBarArea);
 	path = iconPath + "Tools/translate";
 	a = new QAction(QIcon(path.c_str()), tr("&Translate"), this);
+	a->setCheckable(true);
+	a->setChecked(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/rotate";
 	a = new QAction(QIcon(path.c_str()), tr("&Rotate"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/scale";
 	a = new QAction(QIcon(path.c_str()), tr("&Scale"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/geometry";
 	a = new QAction(QIcon(path.c_str()), tr("&Geometry"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/entity";
 	a = new QAction(QIcon(path.c_str()), tr("&Entity"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 
 	// Context bar
 	ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 	path = iconPath + "Tools/translate";
-	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
+	a = new QAction(QIcon(path.c_str()), tr("info"), this);
 	ui.contextBar->addAction(a);
 	ui.contextBar->addSeparator();
 	path = iconPath + "Tools/toast";
 	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
 	ui.contextBar->addAction(a);
+	
+	//TEMP
+	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToRed()));
+
 	path = iconPath + "Tools/coffee";
 	a = new QAction(QIcon(path.c_str()), tr("coffee"), this);
 	ui.contextBar->addAction(a);
+
+	//TEMP
+	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToGreen()));
+
 	path = iconPath + "Tools/wine";
 	a = new QAction(QIcon(path.c_str()), tr("wine"), this);
 	ui.contextBar->addAction(a);
+
+	//TEMP
+	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToBlue()));
+
 	path = iconPath + "Tools/experiment";
 	a = new QAction(QIcon(path.c_str()), tr("experiment"), this);
 	ui.contextBar->addAction(a);
@@ -163,20 +208,13 @@ void MainWindow::setupToolBar()
 	ui.contextBar->addAction(a);
 
 	// DOCK WIDGETS
+	this->centralWidget()->hide();
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Scene"), this);
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
-	dock->resize(4000, dock->height());
-	QLabel* mockup = new QLabel(this);
-	path = iconPath + "mock";
-	mockup->setPixmap(QPixmap(path.c_str()));
-	mockup->setScaledContents(true);
-	mockup->setMinimumSize(0, 0);
-	mockup->setMaximumSize(10000, 10000);
-	dock->setWidget(mockup);
+	dock->setWidget(renderWidget);
 
-	renderWidget->hide();
 	dock = new QDockWidget(tr("Inspector"), this);
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
@@ -274,3 +312,60 @@ void MainWindow::act_about()
 		"Coffee... is a feeling.");
 }
 
+void MainWindow::setBackBufferColorToRed()
+{
+	Command_ChangeBackBufferColor* red = new Command_ChangeBackBufferColor();
+	red->setDoColor(1.0f, 0.0f, 0.0f);
+	red->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
+	commander->addToHistoryAndExecute(red);
+}
+
+void MainWindow::setBackBufferColorToGreen()
+{
+	Command_ChangeBackBufferColor* green = new Command_ChangeBackBufferColor();
+	green->setDoColor(0.0f, 1.0f, 0.0f);
+	green->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
+	commander->addToHistoryAndExecute(green);
+}
+
+void MainWindow::setBackBufferColorToBlue()
+{
+	Command_ChangeBackBufferColor* blue = new Command_ChangeBackBufferColor();
+	blue->setDoColor(0.0f, 0.0f, 1.0f);
+	blue->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
+	commander->addToHistoryAndExecute(blue);
+}
+
+void MainWindow::undoLatestCommand()
+{
+	if(!commander->tryToUndoLatestCommand())
+	{
+		//check, add feedback
+	}
+}
+
+void MainWindow::redoLatestCommand()
+{
+	if(!commander->tryToRedoLatestUndoCommand())
+	{
+		//check, add feedback
+	}
+}
+
+void MainWindow::loadCommandHistory()
+{
+	std::string path = "CommandHistory.789";
+	if(!commander->tryToLoadCommandHistory(path))
+	{
+		//check, add error feedback
+	}
+}
+
+void MainWindow::saveCommandHistory()
+{
+	std::string path = "CommandHistory.789";
+	if(!commander->tryToSaveCommandHistory(path))
+	{
+		//check, add error feedback
+	}
+}

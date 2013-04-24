@@ -7,16 +7,12 @@ class Settings
 public:
 	float deltaTime;
 	HWND windowHandle;
+	float backBufferColorX;
+	float backBufferColorY;
+	float backBufferColorZ;
 
 public:
-	Settings()
-	{
-		deltaTime = 0.0f;
-		windowHandle = nullptr;
-	}
+	Settings();
 
-	~Settings()
-	{
-		delete windowHandle;
-	}
+	~Settings();
 };

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindowUi</class>
- <widget class="QMainWindow" name="MainWindowUi">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>1018</width>
+    <height>738</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,48 +23,98 @@
      opacity: 100;
 }
 
+#MainWindow
+{
+  	background-color: #282828;
+}
+
 QWidget
 {
-    color: #b1b1b1;
-    background-color: #323232;
+   	color: #f5f5f5;
+}
+
+QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
+{
+ 	background-color: #535353;
+	border: 1px solid #282828;
+	border-top: 1px solid #6a6a6a;
 }
 
 QWidget:item:hover
 {
-    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #ca0619);
-    color: #000000;
+	
 }
+
+QWidget:item
+{
+}
+
 
 QWidget:item:selected
 {
-    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
+	background-color: #f0f0f0;
+}
+
+QToolBar
+{
+	padding: 4px;
+}
+
+QToolButton
+{
+	border: 0px;
+}
+
+QToolBar::handle:horizontal
+{
+	spacing: 3px; /* spacing between items in the tool bar */
+	background: url(../../Assets/GUI/Icons/misc/handle_horz.png);
+	color: #282828;
+}
+
+QToolBar::vertical
+{
+	border-top: 5px solid #282828;
+	border-top: 4px solid #353535;
+}
+
+QToolBar::handle:vertical
+{
+	spacing: 3px; /* spacing between items in the tool bar */
+ 	background: url(../../Assets/GUI/Icons/misc/handle_vert.png);
+    color: #282828;
+}
+
+QMenuBar
+{
+	padding: 4px;
 }
 
 QMenuBar::item
 {
     background: transparent;
+
+	padding: 6px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+
+	margin: 1px;
+	margin-top: 3px;
+	margin-bottom: 0px;
 }
 
 QMenuBar::item:selected
 {
-    background: transparent;
-    border: 1px solid #ffaa00;
+   	background:  #727272;
+    border: 1px solid #282828;
+	border-radius: 2px;
 }
 
 QMenuBar::item:pressed
 {
-    background: #444;
-    border: 1px solid #000;
-    background-color: QLinearGradient(
-        x1:0, y1:0,
-        x2:0, y2:1,
-        stop:1 #212121,
-        stop:0.4 #343434/*,
-        stop:0.2 #343434,
-        stop:0.1 #ffaa00*/
-    );
-    margin-bottom:-1px;
-    padding-bottom:1px;
+    border: 1px solid #282828;
+	border-radius: 2px;
+	background: #393939;
 }
 
 QMenu
@@ -166,6 +216,7 @@ QComboBox::drop-down
      border-left-style: solid; /* just a single line */
      border-top-right-radius: 3px; /* same radius as the QComboBox */
      border-bottom-right-radius: 3px;
+	
  }
 
 QComboBox::down-arrow
@@ -300,29 +351,7 @@ QCheckBox:disabled
 color: #414141;
 }
 
-QDockWidget::title
-{
-    text-align: center;
-    spacing: 3px; /* spacing between items in the tool bar */
-    background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #323232, stop: 0.5 #242424, stop:1 #323232);
-}
 
-QDockWidget::close-button, QDockWidget::float-button
-{
-    text-align: center;
-    spacing: 1px; /* spacing between items in the tool bar */
-    background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #323232, stop: 0.5 #242424, stop:1 #323232);
-}
-
-QDockWidget::close-button:hover, QDockWidget::float-button:hover
-{
-    background: #242424;
-}
-
-QDockWidget::close-button:pressed, QDockWidget::float-button:pressed
-{
-    padding: 1px -1px -1px 1px;
-}
 
 QMainWindow::separator
 {
@@ -331,22 +360,6 @@ QMainWindow::separator
     padding-left: 4px;
     border: 1px solid #4c4c4c;
     spacing: 3px; /* spacing between items in the tool bar */
-}
-
-QMainWindow::separator:hover
-{
-
-    background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #d7801a, stop:0.5 #b56c17 stop:1 #ffa02f);
-    color: white;
-    padding-left: 4px;
-    border: 1px solid #6c6c6c;
-    spacing: 3px; /* spacing between items in the tool bar */
-}
-
-QToolBar::handle
-{
-     spacing: 3px; /* spacing between items in the tool bar */
-     background: url(:/images/handle.png);
 }
 
 QMenu::separator
@@ -472,6 +485,53 @@ QCheckBox::indicator:checked
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 {
     border: 1px solid #444;
+}
+
+QStatusBar::indicator
+{
+   	color: #ff0000;
+	background-color: #ff0000;
+}
+
+QWidget::handle
+{
+   	color: #ff0000;
+	background-color: #ff0000;
+}
+
+QMenu:item
+{
+	color: #282828;
+	background-color: #f0f0f0;
+}
+
+QMenu:item:selected
+{
+	color: #f5f5f5;
+	background-color: #3399ff;
+	margin: 0px;
+}
+
+QDockWidget
+{
+    font-weight: bold;
+}
+
+QDockWidget::title
+{
+    text-align: center;
+	background-color: #434343;
+	border-left: 0px solid #6a6a6a;
+	border-right: 0px solid #6a6a6a;
+}
+
+QDockWidget::close-button:hover, QDockWidget::float-button:hover
+{
+    background: #242424;
+
+	background-color: #535353;
+	border: 1px solid #282828;
+	border-top: 1px solid #6a6a6a;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget"/>
@@ -500,8 +560,8 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
-     <height>21</height>
+     <width>1018</width>
+     <height>35</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -521,7 +581,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      <addaction name="actionSave_Layout"/>
     </widget>
     <addaction name="menuLayout"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -537,6 +596,15 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
    <addaction name="menuEdit"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="windowTitle">
+    <string>Coffee</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
   <action name="actionReset_Layout">
    <property name="text">

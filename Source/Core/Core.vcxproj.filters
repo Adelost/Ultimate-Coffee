@@ -23,8 +23,8 @@
     <Filter Include="Source\Events">
       <UniqueIdentifier>{86b64153-594e-42cb-abb6-0eff3835c6af}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Math">
-      <UniqueIdentifier>{d174458a-aa81-41e8-8f69-11c96e77a2d4}</UniqueIdentifier>
+    <Filter Include="Source\Commander %28redo/undo, save/load%29">
+      <UniqueIdentifier>{4dc9ad30-ce9a-4a1e-b262-d2e5cc4a48de}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +51,18 @@
     </ClCompile>
     <ClCompile Include="Events.cpp">
       <Filter>Source\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Command.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Command_ChangeBackBufferColor.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Commander.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Serializable.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,13 +120,20 @@
     <ClInclude Include="Events.h">
       <Filter>Source\Events</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleMath.h">
-      <Filter>Source\Math</Filter>
+    <ClInclude Include="Command.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SimpleMath.inl">
-      <Filter>Source\Math</Filter>
-    </None>
+    <ClInclude Include="Command_ChangeBackBufferColor.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Commander.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Serializable.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
