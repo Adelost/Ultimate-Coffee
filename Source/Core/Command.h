@@ -25,10 +25,10 @@ public:
 	virtual ~Command(void){};
 	
 	Enum::CommandType getType(){return type_;}
-	
-	virtual void doRedo() = 0;
-	virtual void undo() = 0;
 
 	//virtual overload from "Serializable"
 	void prependSerializationDataHook(char*& data, int& currentByteIndex); //Add the command type before the struct data
+
+	virtual void doRedo() = 0;
+	virtual void undo() = 0;
 };

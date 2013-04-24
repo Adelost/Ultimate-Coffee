@@ -20,7 +20,8 @@ public:
 	
 	void update();										//Informs GUI about current state
 	
-	void doRedo(Command* command);						//Executes argument and stores it in the command history
+	void addToHistoryAndExecute(Command* command);		//Executes "Command" and stores it in the command history
+	void addToHistory(Command* command);				//Stores "Command" in the command history, without executing it
 	
 	bool tryToUndoLatestCommand();						//Returns true if undo was sucessful, otherwise false
 	bool tryToRedoLatestUndoCommand();					//Returns true if redo was sucessful, otherwise false

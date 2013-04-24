@@ -4,6 +4,7 @@ namespace Enum
 	enum CommandType
 	{
 		TRANSLATE,
-		ROTATE
+		ROTATE,
+		CHANGEBACKBUFFERCOLOR
 	};
 }

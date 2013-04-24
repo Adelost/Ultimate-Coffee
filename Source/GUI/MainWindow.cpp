@@ -102,6 +102,9 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), "&Save", this);
 	a->setShortcuts(QKeySequence::Save);
 	ui.menuFile->addAction(a);
+
+	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+
 	// Save as
 	a = new QAction("&Save As...", this);
 	ui.menuFile->addAction(a);
@@ -314,7 +317,7 @@ void MainWindow::setBackBufferColorToRed()
 	Command_ChangeBackBufferColor* red = new Command_ChangeBackBufferColor();
 	red->setDoColor(1.0f, 0.0f, 0.0f);
 	red->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
-	commander->doRedo(red);
+	commander->addToHistoryAndExecute(red);
 }
 
 void MainWindow::setBackBufferColorToGreen()
@@ -322,7 +325,7 @@ void MainWindow::setBackBufferColorToGreen()
 	Command_ChangeBackBufferColor* green = new Command_ChangeBackBufferColor();
 	green->setDoColor(0.0f, 1.0f, 0.0f);
 	green->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
-	commander->doRedo(green);
+	commander->addToHistoryAndExecute(green);
 }
 
 void MainWindow::setBackBufferColorToBlue()
@@ -330,7 +333,7 @@ void MainWindow::setBackBufferColorToBlue()
 	Command_ChangeBackBufferColor* blue = new Command_ChangeBackBufferColor();
 	blue->setDoColor(0.0f, 0.0f, 1.0f);
 	blue->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
-	commander->doRedo(blue);
+	commander->addToHistoryAndExecute(blue);
 }
 
 void MainWindow::undoLatestCommand()
