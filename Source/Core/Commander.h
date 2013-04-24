@@ -18,7 +18,8 @@ public:
 	
 	bool init();
 	
-	void update();										//Informs GUI about current state
+	bool redoIsPossible();
+	bool undoIsPossible();
 	
 	void addToHistoryAndExecute(Command* command);		//Executes "Command" and stores it in the command history
 	void addToHistory(Command* command);				//Stores "Command" in the command history, without executing it

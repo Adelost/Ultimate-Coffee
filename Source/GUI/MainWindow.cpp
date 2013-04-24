@@ -1,15 +1,21 @@
 #include "MainWindow.h"
 
 //Qt
+#include <QMessageBox.h>
 #include <QFileDialog>
 #include <QLabel.h>
 #include <QGraphicsBlurEffect>
 #include <QShortcut.h>
+
+#include <Qsound.h>
+#include <Qtimer.h>
+
+//Application
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
+#include <Core/EventManager.h>
 
 // Commands
-#include <Core/EventManager.h>
 #include <Core/Commander.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 
@@ -21,6 +27,10 @@
 
 MainWindow::MainWindow()
 {
+	undo = NULL;
+	redo = NULL;
+	//nrOfSoundsPlayedSinceLastReset = 0;
+
 	SUBSCRIBE_TO_EVENT(this, EVENT_SHOW_MESSAGEBOX);
 
 	// Init window
@@ -45,7 +55,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-	delete commander; //check crash here
+	delete commander;
 }
 
 void MainWindow::setupGame()
@@ -65,7 +75,7 @@ void MainWindow::setupGame()
 	commander = new Commander();
 	if(!commander->init())
 	{
-		//check, print fail message
+		MESSAGEBOX("Commander failed to init.");
 	}
 
 	lastValidProjectPath = "";
@@ -79,7 +89,27 @@ void MainWindow::update()
 	updateTimer.tick();
 	SETTINGS()->deltaTime = updateTimer.deltaTime();
 	world->update();
-	commander->update();
+
+    //connect(&soundTimer, SIGNAL(timeout()), this, SLOT(timer()));
+    //soundTimer.start(1000);
+
+	//if(commander->redoIsPossible())
+	//{
+	//	redo->setDisabled(false);
+	//}
+	//else
+	//{
+	//	redo->setDisabled(true);
+	//}
+
+	//if(commander->undoIsPossible())
+	//{
+	//	undo->setDisabled(false);
+	//}
+	//else
+	//{
+	//	undo->setDisabled(true);
+	//}
 }
 
 void MainWindow::setupToolBar()
@@ -95,10 +125,12 @@ void MainWindow::setupToolBar()
 	path = iconPath + "Menu/new";
 	a = new QAction(QIcon(path.c_str()), "&New", this);
 	a->setShortcuts(QKeySequence::New);
+	a->setStatusTip(tr("NO FUNCTIONALITY YET (2013-04-24, 14.51)"));
 	ui.menuFile->addAction(a);
 	// Open
 	path = iconPath + "Menu/open";
 	a = new QAction(QIcon(path.c_str()), "&Open...", this);
+	a->setStatusTip(tr("Open existing project"));
 	a->setShortcuts(QKeySequence::Open);
 	ui.menuFile->addAction(a);
 
@@ -108,12 +140,14 @@ void MainWindow::setupToolBar()
 	path = iconPath + "Menu/save";
 	a = new QAction(QIcon(path.c_str()), "&Save", this);
 	a->setShortcuts(QKeySequence::Save);
+	a->setStatusTip(tr("Save project"));
 	ui.menuFile->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
 
 	// Save as
 	a = new QAction("&Save As...", this);
+	a->setStatusTip(tr("Save project to..."));
 	ui.menuFile->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistoryAs()));
@@ -121,7 +155,7 @@ void MainWindow::setupToolBar()
 	// Quit
 	a = new QAction("&Quit", this);
 	a->setShortcut(QKeySequence("Ctrl+Q"));
-	a->setStatusTip(tr("Quit the application"));
+	a->setStatusTip(tr("Quit application"));
 	connect(a, SIGNAL(triggered()), this, SLOT(close()));
 	//ui.menuFile->addSeparator();
 	ui.menuFile->addAction(a);
@@ -131,7 +165,10 @@ void MainWindow::setupToolBar()
 	path = iconPath + "Menu/undo";
 	a = new QAction(QIcon(path.c_str()), tr("&Undo"), this);
 	a->setShortcuts(QKeySequence::Undo);
-	a->setStatusTip(tr("Undo the last editing action"));
+	a->setStatusTip(tr("Undo last editing action"));
+	
+	undo = a;
+	//undo->setDisabled(true);
 	ui.menuEdit->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(undoLatestCommand()));
@@ -139,7 +176,10 @@ void MainWindow::setupToolBar()
 	// Redo
 	a = new QAction(tr("&Redo"), this);
 	a->setShortcuts(QKeySequence::Redo);
-	a->setStatusTip(tr("Redo editing action"));
+	a->setStatusTip(tr("Redo last undone editing action"));
+	
+	redo = a;
+	//redo->setDisabled(true);
 	ui.menuEdit->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(redoLatestCommand()));
@@ -147,12 +187,12 @@ void MainWindow::setupToolBar()
 	// HELP					
 	// About
 	a = new QAction("&About", this);
-	a->setStatusTip("Show the application's About box");
+	a->setStatusTip("Show application info");
 	connect(a, SIGNAL(triggered()), this, SLOT(act_about()));
 	ui.menuHelp->addAction(a);
 	// About Qt
 	a = new QAction(tr("About &Qt"), this);
-	a->setStatusTip(tr("Show the Qt library's About box"));
+	a->setStatusTip(tr("This GUI was made in Qt"));
 	connect(a, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 	ui.menuHelp->addAction(a);
 
@@ -326,7 +366,9 @@ void MainWindow::computeFPS()
 		//static int debugId = StopWatch::getUniqueId();
 		//SEND_EVENT(&Event_PostDebugMessage(debugId, "Total: " + Converter::IntToStr(fps) + " (fps)"));
 
-		statusBar()->showMessage(stats);
+		//statusBar()->showMessage(stats);
+
+		setWindowTitle("Ultimate Coffee - " + stats);
 
 		// reset stats for next average.
 		num_frames = 0;
@@ -368,7 +410,12 @@ void MainWindow::undoLatestCommand()
 {
 	if(!commander->tryToUndoLatestCommand())
 	{
-		//check, add feedback
+		QSound sound = QSound("Windows Ding.wav");
+		//if(nrOfSoundsPlayedSinceLastReset < 1)
+		//{
+			sound.play();
+		//}
+		//nrOfSoundsPlayedSinceLastReset++;
 	}
 }
 
@@ -376,14 +423,15 @@ void MainWindow::redoLatestCommand()
 {
 	if(!commander->tryToRedoLatestUndoCommand())
 	{
-		//check, add feedback
+		QSound sound = QSound("Windows Ding.wav");
+		sound.play();
 	}
 }
 
 void MainWindow::loadCommandHistory()
 {
 	//Opens standard Windows "open file" dialog
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject.uc", tr("Ultimate Coffee Project (*.uc)"));
 	
 	//If the user clicks "Open"
 	if(!fileName.isEmpty())
@@ -391,7 +439,7 @@ void MainWindow::loadCommandHistory()
 		std::string path = fileName.toLocal8Bit();
 		if(!commander->tryToLoadCommandHistory(path))
 		{
-			//check, add error feedback
+			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger.");
 		}
 		else
 		{
@@ -410,7 +458,7 @@ void MainWindow::saveCommandHistory()
 	{
 		if(!commander->tryToSaveCommandHistory(lastValidProjectPath))
 		{
-			//check, add error feedback
+			MESSAGEBOX("Failed to save project.");
 		}
 	}
 }
@@ -426,7 +474,7 @@ void MainWindow::saveCommandHistoryAs()
 		std::string path = fileName.toLocal8Bit();
 		if(!commander->tryToSaveCommandHistory(path))
 		{
-			//check, add error feedback
+			MESSAGEBOX("Failed to save project.");
 		}
 		else
 		{
@@ -480,3 +528,7 @@ void MainWindow::setMaximizeScene( bool checked )
 		sceneDock->showNormal();
 	}
 }
+//void MainWindow::timer()
+//{
+//	nrOfSoundsPlayedSinceLastReset = 0;
+//}

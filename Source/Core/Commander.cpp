@@ -6,6 +6,9 @@
 #include <iostream> //console output
 #include <memory> //memcpy
 
+#include "EventManager.h"
+#include "Events.h"
+
 Commander::Commander(void)
 {
 	commandHistory_ = NULL;
@@ -22,18 +25,14 @@ bool Commander::init()
 	return true;
 }
 
-void Commander::update()
+bool Commander::undoIsPossible()
 {
-	if(commandHistory_->thereExistsCommandsAfterCurrentCommand())
-	{
-		//redo is possible
-		//check, add code to inform GUI
-	}
-	if(commandHistory_->thereExistsCommandsBeforeCurrentCommand())
-	{
-		//undo is possible
-		//check, add code to inform GUI
-	}
+	return commandHistory_->thereExistsCommandsBeforeCurrentCommand();
+}
+
+bool Commander::redoIsPossible()
+{
+	return commandHistory_->thereExistsCommandsAfterCurrentCommand();
 }
 
 void Commander::addToHistoryAndExecute(Command* command)
@@ -105,8 +104,7 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	}
 	else
 	{
-		//check, notify that "struct stat" did not work
-		//hope that a bufferSize of 10000 is enough
+		MESSAGEBOX("Struct stat did not work. Inform Henrik.")
 	}
 
 	char* readData = new char[bufferSize];
