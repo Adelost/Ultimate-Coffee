@@ -26,6 +26,9 @@
     <Filter Include="Source\Commander %28redo/undo, save/load%29">
       <UniqueIdentifier>{4dc9ad30-ce9a-4a1e-b262-d2e5cc4a48de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Math">
+      <UniqueIdentifier>{23325fda-77e7-402e-b224-abe9d308372a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -63,6 +66,9 @@
     </ClCompile>
     <ClCompile Include="Serializable.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -135,5 +141,13 @@
     <ClInclude Include="Serializable.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleMath.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl">
+      <Filter>Source\Math</Filter>
+    </None>
   </ItemGroup>
 </Project>

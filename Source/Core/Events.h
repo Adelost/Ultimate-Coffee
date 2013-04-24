@@ -8,7 +8,7 @@ enum EventType
 	EVENT_QUIT_TO_DESKTOP,
 	EVENT_WINDOW_RESIZE,
 	EVENT_SET_BACKBUFFER_COLOR,
-	
+
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
 

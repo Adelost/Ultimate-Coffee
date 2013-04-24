@@ -61,6 +61,9 @@ private:
 	ID3D11VertexShader* vertexShader_;
 	ID3D11PixelShader* pixelShader_;
 
+	ID3D11InputLayout* inputLayout_;
+	ID3D11Buffer* vertexBuffer_;
+
 	UINT msaa_quality;
 
 	bool initDX();

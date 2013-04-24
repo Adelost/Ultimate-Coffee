@@ -13,6 +13,12 @@
     <ClInclude Include="DXRenderer.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -21,13 +27,5 @@
     <ClCompile Include="DXRenderer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Source</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Source</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
