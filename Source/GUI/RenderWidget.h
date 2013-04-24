@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-
 #include <Core/IObserver.h>
 #include <Core/EventManager.h>
 #include <Core/Events.h>

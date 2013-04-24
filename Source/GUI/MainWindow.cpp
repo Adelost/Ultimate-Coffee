@@ -1,12 +1,15 @@
 #include "MainWindow.h"
 
-// Architecture
+//Qt
+#include <QFileDialog>
 #include <QLabel.h>
 #include <QGraphicsBlurEffect>
+#include <QShortcut.h>
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
 
-//Commands
+// Commands
+#include <Core/EventManager.h>
 #include <Core/Commander.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 
@@ -18,6 +21,8 @@
 
 MainWindow::MainWindow()
 {
+	SUBSCRIBE_TO_EVENT(this, EVENT_SHOW_MESSAGEBOX);
+
 	// Init window
 	ui.setupUi(this);
 	renderWidget = new RenderWidget(this);
@@ -62,6 +67,8 @@ void MainWindow::setupGame()
 	{
 		//check, print fail message
 	}
+
+	lastValidProjectPath = "";
 }
 
 
@@ -109,11 +116,11 @@ void MainWindow::setupToolBar()
 	a = new QAction("&Save As...", this);
 	ui.menuFile->addAction(a);
 
-	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistoryAs()));
 
 	// Quit
 	a = new QAction("&Quit", this);
-	a->setShortcuts(QKeySequence::Quit);
+	a->setShortcut(QKeySequence("Ctrl+Q"));
 	a->setStatusTip(tr("Quit the application"));
 	connect(a, SIGNAL(triggered()), this, SLOT(close()));
 	//ui.menuFile->addSeparator();
@@ -173,6 +180,7 @@ void MainWindow::setupToolBar()
 	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 
+
 	// Context bar
 	ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 	path = iconPath + "Tools/translate";
@@ -211,7 +219,9 @@ void MainWindow::setupToolBar()
 	this->centralWidget()->hide();
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Scene"), this);
-	ui.menuWindow->addAction(dock->toggleViewAction());
+	sceneDock = dock;
+	a = dock->toggleViewAction();
+	ui.menuWindow->addAction(a);
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
 	dock->setWidget(renderWidget);
 
@@ -222,6 +232,24 @@ void MainWindow::setupToolBar()
 	ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	//dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+	// WINDOW
+	a = new QAction("Fullscreen", this);
+	a->setCheckable(true);
+	a->setShortcut(QKeySequence("F1"));
+	connect(a, SIGNAL(toggled(bool)), this, SLOT(setFullscreen(bool)));
+	ui.menuWindow->addAction(a);
+	a = new QAction("Maximize Scene", this);
+	a->setCheckable(true);
+	a->setShortcut(QKeySequence("Ctrl+G"));
+	ui.menuWindow->addAction(a);
+	connect(a, SIGNAL(toggled(bool)), this, SLOT(setMaximizeScene(bool)));
+
+
+	a = new QAction("Create Dock", this);
+	a->setShortcuts(QKeySequence::AddTab);
+	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
+	ui.menuWindow->addAction(a);
 
 	// BLARG
 
@@ -354,18 +382,87 @@ void MainWindow::redoLatestCommand()
 
 void MainWindow::loadCommandHistory()
 {
-	std::string path = "CommandHistory.789";
-	if(!commander->tryToLoadCommandHistory(path))
+	//Opens standard Windows "open file" dialog
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
+	
+	//If the user clicks "Open"
+	if(!fileName.isEmpty())
 	{
-		//check, add error feedback
+		std::string path = fileName.toLocal8Bit();
+		if(!commander->tryToLoadCommandHistory(path))
+		{
+			//check, add error feedback
+		}
+		else
+		{
+			lastValidProjectPath = path;
+		}
 	}
 }
 
 void MainWindow::saveCommandHistory()
 {
-	std::string path = "CommandHistory.789";
-	if(!commander->tryToSaveCommandHistory(path))
+	if(lastValidProjectPath == "")
 	{
-		//check, add error feedback
+		saveCommandHistoryAs();
+	}
+	else
+	{
+		if(!commander->tryToSaveCommandHistory(lastValidProjectPath))
+		{
+			//check, add error feedback
+		}
+	}
+}
+
+void MainWindow::saveCommandHistoryAs()
+{
+	//Opens standard Windows "save file" dialog
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
+
+	//If the user clicks "Save"
+	if(!fileName.isEmpty())
+	{
+		std::string path = fileName.toLocal8Bit();
+		if(!commander->tryToSaveCommandHistory(path))
+		{
+			//check, add error feedback
+		}
+		else
+		{
+			lastValidProjectPath = path;
+		}
+	}
+}
+
+void MainWindow::setFullscreen( bool checked )
+{
+	if(checked)
+		this->showFullScreen();
+	else
+		this->showNormal();
+}
+
+void MainWindow::createDockWidget()
+{
+	QDockWidget* dock;
+	dock = new QDockWidget(tr("Foo"), this);
+	ui.menuWindow->addAction(dock->toggleViewAction());
+	addDockWidget(Qt::RightDockWidgetArea, dock);
+}
+
+void MainWindow::onEvent( IEvent* e )
+{
+	EventType type = e->type();
+	switch (type) 
+	{
+	case EVENT_SHOW_MESSAGEBOX:
+		{
+			QString message(static_cast<Event_ShowMessageBox*>(e)->message.c_str());
+			QMessageBox::information(0, " ", message);
+		}
+		break;
+	default:
+		break;
 	}
 }
