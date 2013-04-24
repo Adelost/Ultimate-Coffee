@@ -23,6 +23,9 @@
     <Filter Include="Source\Events">
       <UniqueIdentifier>{86b64153-594e-42cb-abb6-0eff3835c6af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Math">
+      <UniqueIdentifier>{d174458a-aa81-41e8-8f69-11c96e77a2d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -105,5 +108,13 @@
     <ClInclude Include="Events.h">
       <Filter>Source\Events</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleMath.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl">
+      <Filter>Source\Math</Filter>
+    </None>
   </ItemGroup>
 </Project>

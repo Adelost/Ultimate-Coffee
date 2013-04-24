@@ -13,6 +13,8 @@ DXRenderer::DXRenderer()
 
 DXRenderer::~DXRenderer()
 {
+	ReleaseCOM(pixelShader_);
+	ReleaseCOM(vertexShader_);
 	ReleaseCOM(view_renderTarget);
 	ReleaseCOM(view_depthStencil);
 	ReleaseCOM(dxSwapChain_);
@@ -70,18 +72,15 @@ void DXRenderer::renderFrame()
 	//if(wireframe_enable)
 	//	dxDeviceContext->RSSetState(shaderManager->states.WireframeRS);
 	//
-	//
-	//
 	// Draw
-	// 
 	//
 	//drawGame();
 	//
 	//
 	//if(drawTerrain)
 	//	mTerrain.draw(dxDeviceContext, &mCam);
-
-	dxDeviceContext_->RSSetState(0);
+	//
+	//dxDeviceContext_->RSSetState(0);
 
 	// FX sets tessellation stages, but it does not disable them.  So do that here
 	// to turn off tessellation.
@@ -97,7 +96,7 @@ void DXRenderer::renderFrame()
 	//
 	//if(drawSky)
 	//	mSky->Draw(dxDeviceContext_, &mCam);
-	//
+
 	// restore default states, as the SkyFX changes them in the effect file.
 	dxDeviceContext_->RSSetState(0);
 	dxDeviceContext_->OMSetDepthStencilState(0, 0);
@@ -188,16 +187,12 @@ bool DXRenderer::initDX()
 
 	ID3DBlob *PS_Buffer, *VS_Buffer;
 
-	D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
-	dxDevice_->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &pixelShader_);
+	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
+	HR(D3DCompileFromFile(L"PixelShader.hlsl", NULL, NULL, "main", "ps_5_0", NULL, NULL, &PS_Buffer, NULL));
+	HR(dxDevice_->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &pixelShader_));
 
-	//D3DCompileFromFile(L"PixelShader.hlsl", NULL, 
-
-	D3DReadFileToBlob(L"VertexShader.cso", &VS_Buffer);
-	dxDevice_->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &vertexShader_);
-
-	delete PS_Buffer;
-	delete VS_Buffer;
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "main", "vs_5_0", NULL, NULL, &VS_Buffer, NULL));
+	HR(dxDevice_->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &vertexShader_));
 
 	dxDeviceContext_->PSSetShader(pixelShader_, 0, 0);
 	dxDeviceContext_->VSSetShader(vertexShader_, 0, 0);

@@ -165,6 +165,7 @@
     <ClInclude Include="IObserver.h" />
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Manager_Data.h" />
     <ClInclude Include="Manager_Entity.h" />
@@ -172,6 +173,9 @@
     <ClInclude Include="Batch.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
