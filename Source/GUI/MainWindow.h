@@ -4,6 +4,7 @@
 #include <QTimer.h>
 #include <QMessageBox.h>
 #include <QDockWidget.h>
+#include <Core/IObserver.h>
 
 #include "ui_MainWindow.h"
 #include "UpdateTimer.h"
@@ -12,7 +13,7 @@
 class Commander;
 class World;
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public IObserver
 {
 	Q_OBJECT
 
@@ -22,12 +23,14 @@ private:
 	UpdateTimer updateTimer;
 	RenderWidget* renderWidget;
 	World* world;
-
+	QDockWidget* sceneDock;
 	Commander* commander;
 
 public:
 	MainWindow();
 	~MainWindow();
+
+	void onEvent(IEvent* e);
 	
 	void setupGame();
 	void setupToolBar();
@@ -37,6 +40,15 @@ public:
 
 public slots:
 	void update();
+	void setFullscreen(bool checked);
+	void setMaximizeScene(bool checked)
+	{
+		if(checked)
+			sceneDock->showFullScreen();
+		else
+			sceneDock->showNormal();
+	}
+	void createDockWidget();
 	void act_about();
 	void setBackBufferColorToRed();
 	void setBackBufferColorToGreen();

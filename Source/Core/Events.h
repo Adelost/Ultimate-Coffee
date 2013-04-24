@@ -1,12 +1,15 @@
 #pragma once
 
+#include <string>
 #include <windows.h>
+
 
 enum EventType
 {
 	// Normal events
 	EVENT_QUIT_TO_DESKTOP,
 	EVENT_WINDOW_RESIZE,
+	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_BACKBUFFER_COLOR,
 	
 	// Events used to retrieve something
@@ -76,10 +79,22 @@ public:
 	float x,y,z;
 
 public:
-	Event_SetBackBufferColor(float x, float y, float z) : IEvent(EVENT_SET_BACKBUFFER_COLOR)
+	Event_SetBackBufferColor(float p_x, float p_y, float p_z) : IEvent(EVENT_SET_BACKBUFFER_COLOR)
 	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
+		x = p_x;
+		y = p_y;
+		z = p_z;
+	}
+};
+
+class Event_ShowMessageBox : public IEvent
+{
+public:
+	std::string message;
+
+public:
+	Event_ShowMessageBox(std::string p_message) : IEvent(EVENT_SHOW_MESSAGEBOX)
+	{
+		message = p_message;
 	}
 };
