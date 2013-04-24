@@ -1,4 +1,5 @@
 #pragma once
+
 //--------------------------------------------------------------------------------------
 // Functionality:
 // * Outputs a struct containing plain old data (no pointers) as a byte array (char array): "receiveDataStructInSerializationFormat".
@@ -13,13 +14,13 @@ public:
 	Serializable(void){};
 	virtual ~Serializable(void){};
 
-	virtual void prependSerializationDataHook(char*& data, int& writeNextByteToThisIndex){} //Hook in before "receiveDataStructInSerializationFormat"
-	void receiveDataStructInSerializationFormat(char*& data, int& writeNextByteToThisIndex);//Template function. The data struct is stored in the byte array "data" at "currentByteIndex"
-	virtual void appendSerializationDataHook(char*& data, int& currentByteIndex){}			//Hook in after "receiveDataStructInSerializationFormat"
+	virtual void prependSerializationDataHook(char*& p_data, int& p_writeNextByteToThisIndex){} // Hook in before "receiveDataStructInSerializationFormat"
+	void receiveDataStructInSerializationFormat(char*& p_data, int& p_writeNextByteToThisIndex);// Template function. The data struct is stored in the byte array "data" at "currentByteIndex"
+	virtual void appendSerializationDataHook(char*& p_data, int& p_currentByteIndex){}			// Hook in after "receiveDataStructInSerializationFormat"
 
-	//Called in "receiveDataStructInSerializationFormat"
-	virtual void* accessDerivedClassDataStruct() = 0;		//What derived class should do:	reinterpret_cast<void*>(&dataStruct_);
-	virtual int getByteSizeOfDataStruct() = 0;				//What derived class should do:	sizeof(dataStruct_);
+	// Called in "receiveDataStructInSerializationFormat"
+	virtual void* accessDerivedClassDataStruct() = 0;		// What derived class should do: reinterpret_cast<void*>(&dataStruct_);
+	virtual int getByteSizeOfDataStruct() = 0;				// What derived class should do: sizeof(dataStruct_);
 
-	virtual void loadDataStructFromBytes(char* data) = 0;	//What derived class should do:	dataStruct_ = *reinterpret_cast<DataStruct*>(&dataStruct);
+	virtual void loadDataStructFromBytes(char* p_data) = 0;	// What derived class should do: dataStruct_ = *reinterpret_cast<DataStruct*>(&dataStruct);
 };

@@ -154,6 +154,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager_Data.cpp" />
     <ClCompile Include="Manager_Entity.cpp" />
+    <ClCompile Include="Math.cpp" />
     <ClCompile Include="Serializable.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="World.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Init_DataMapper.h" />
     <ClInclude Include="IObserver.h" />
     <ClInclude Include="ISystem.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="Serializable.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SimpleMath.h" />

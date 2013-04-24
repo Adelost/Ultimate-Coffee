@@ -2,11 +2,9 @@
 
 Settings::Settings()
 {
-	backBufferColorX = 0.4f;
-	backBufferColorY = 0.6f;
-	backBufferColorZ = 0.9f;
 	deltaTime = 0.0f;
 	windowHandle = nullptr;
+	backBufferColor = Color(0.4f, 0.6f, 0.9f);
 }
 
 Settings::~Settings()

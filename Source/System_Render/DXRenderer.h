@@ -1,72 +1,40 @@
 #pragma once
 
-//Move include elsewhere
-#include <Windows.h>
-
-#include <d3d11.h>
-#include <d3dcompiler.h>
-
-#include <vector>
-
+// Move include elsewhere
 #include <Core/IObserver.h>
+#include "Util.h"
 
-// DirectX error checking macro
-//#if defined(DEBUG) | defined(_DEBUG)
-//	#ifndef HR
-//	#define HR(x)												\
-//	{															\
-///*		HRESULT hr = (x);										\
-//		if(FAILED(hr))											\
-//		{														\
-//			DXTrace(__FILE__, (DWORD)__LINE__, hr, L#x, true);	\
-//		}	*/													\
-//	}
-//	#endif
-//#else
-	#ifndef HR
-		#define HR(x) (x)
-	#endif
-//#endif 
-
-#define assert(_Expression)     ((void)0)
-#define ReleaseCOM(x){if(x){x->Release(); x = 0;}}
-#define SafeDelete(x) { delete x; x = 0; }
-
-#pragma comment(lib, "d3dcompiler.lib")
 
 class DXRenderer
 	: public IObserver
 {
+private:
+	HWND m_windowHandle;
+	D3D11_VIEWPORT m_viewport_screen;
+	ID3D11Buffer* m_vertexBuffer;
+	ID3D11DepthStencilView* m_view_depthStencil;
+	ID3D11Device* m_dxDevice;
+	ID3D11DeviceContext* m_dxDeviceContext;
+	ID3D11InputLayout* m_inputLayout;
+	ID3D11PixelShader* m_pixelShader;
+	ID3D11RenderTargetView* m_view_renderTarget;
+	ID3D11Texture2D* m_tex_depthStencil;
+	ID3D11VertexShader* m_vertexShader;
+	IDXGISwapChain* m_dxSwapChain;
+
+	UINT m_msaa_quality;
+	int m_clientHeight;
+	int m_clientWidth;
+	static DXRenderer* s_instance;
+
 public:
 	DXRenderer();
 	~DXRenderer();
-	bool init(HWND windowHandle);
+
+	bool init(HWND p_windowHandle);
+	void onEvent(IEvent* p_event);
 	void renderFrame();
-
-private:
-	int clientWidth_;
-	int clientHeight_;
-	HWND windowHandle_;
-
-	static DXRenderer* instance;
-	ID3D11Device* dxDevice_;
-	ID3D11DeviceContext* dxDeviceContext_;
-	IDXGISwapChain* dxSwapChain_;
-
-	ID3D11RenderTargetView* view_renderTarget;
-	ID3D11DepthStencilView* view_depthStencil;
-	ID3D11Texture2D* tex_depthStencil;
-	D3D11_VIEWPORT viewport_screen;
-
-	ID3D11VertexShader* vertexShader_;
-	ID3D11PixelShader* pixelShader_;
-
-	ID3D11InputLayout* inputLayout_;
-	ID3D11Buffer* vertexBuffer_;
-
-	UINT msaa_quality;
 
 	bool initDX();
 	void resizeDX(); 
-	void onEvent(IEvent* e);
 };

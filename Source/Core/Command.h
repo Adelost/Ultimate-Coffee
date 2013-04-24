@@ -1,8 +1,9 @@
 #pragma once
+
 #include "Enums.h"
 #include "Serializable.h"
 //--------------------------------------------------------------------------------------
-// Excapsulates doings and undoings of an operation,
+// Encapsulates doings and undoings of an operation,
 // by storing the data needed when doing the operation
 // and the data needed when undoing the operation, in a struct.
 //
@@ -15,19 +16,19 @@ class Command :
 	public Serializable
 {
 private:
-	Enum::CommandType type_;
+	Enum::CommandType m_type;
 
 protected:
-	void setType(Enum::CommandType type){type_=type;}
+	void setType(Enum::CommandType p_type){m_type = p_type;}
 
 public:
-	Command(void){type_=Enum::CommandType::TRANSLATE;} //Default command: Enum::CommandType::TRANSLATE. May be changed by derived classes by calling "setType"
+	Command(void){m_type=Enum::CommandType::TRANSLATE;} // Default command: Enum::CommandType::TRANSLATE. May be changed by derived classes by calling "setType"
 	virtual ~Command(void){};
 	
-	Enum::CommandType getType(){return type_;}
+	Enum::CommandType getType(){return m_type;}
 
-	//virtual overload from "Serializable"
-	void prependSerializationDataHook(char*& data, int& currentByteIndex); //Add the command type before the struct data
+	// virtual overload from "Serializable"
+	void prependSerializationDataHook(char*& data, int& currentByteIndex); // Add the command type before the struct data
 
 	virtual void doRedo() = 0;
 	virtual void undo() = 0;

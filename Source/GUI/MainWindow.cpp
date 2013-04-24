@@ -1,18 +1,15 @@
 #include "MainWindow.h"
 
-//Qt
+// Qt
 #include <QMessageBox.h>
 #include <QFileDialog>
 #include <QLabel.h>
 #include <QGraphicsBlurEffect>
 #include <QShortcut.h>
+#include <QSound.h>
+#include <QTimer.h>
 
-#include <Qsound.h>
-#include <Qtimer.h>
-
-//Application
-#include <Core/World.h>
-#include <System_Render/System_Render.h>
+// Application
 #include <Core/EventManager.h>
 
 // Commands
@@ -25,17 +22,22 @@
 #include <fcntl.h>
 #include <Windows.h>
 
+// Normal includes
+#include "UpdateLoop.h"
+
 MainWindow::MainWindow()
 {
-	undo = NULL;
-	redo = NULL;
+	m_action_undo = NULL;
+	m_action_redo = NULL;
 	//nrOfSoundsPlayedSinceLastReset = 0;
-
+	
+	// Init achitecture
+	Math::init();
 	SUBSCRIBE_TO_EVENT(this, EVENT_SHOW_MESSAGEBOX);
 
 	// Init window
-	ui.setupUi(this);
-	renderWidget = new RenderWidget(this);
+	m_ui.setupUi(this);
+	m_renderWidget = new RenderWidget(this);
 	setWindowTitle("Ultimate Coffee");
 	setupToolBar();
 	setupDockWidgets();
@@ -44,51 +46,42 @@ MainWindow::MainWindow()
 
 	// Init game
 	setupConsole();
+	m_updateLoop = new UpdateLoop();
+	m_updateLoop->init();
 	setupGame();
 
 	// Start update loop
-	updateTimer.reset();
-	refreshTimer.setInterval(0);
-	connect(&refreshTimer, SIGNAL(timeout()), this, SLOT(update()));
-	refreshTimer.start();
+	m_updateTimer.reset();
+	m_refreshTimer.setInterval(0);
+	connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(update()));
+	m_refreshTimer.start();
 }
 
 MainWindow::~MainWindow()
 {
-	delete commander;
+	delete m_commander;
+	delete m_updateLoop;
 }
 
 void MainWindow::setupGame()
 {
-	// Init systems
-	world = WORLD();
-	world->addSystem(new System::Translation());
-	world->addSystem(new System::Render());
-
-	// Create Entities
-	Entity e(0);
-	e.fetchData<Data::Position>();
-	e.removeData<Data::Position>();
-	e.addData(Data::Position());
-
 	// Init undo/redo system
-	commander = new Commander();
-	if(!commander->init())
+	m_commander = new Commander();
+	if(!m_commander->init())
 	{
 		MESSAGEBOX("Commander failed to init.");
 	}
 
-	lastValidProjectPath = "";
+	m_lastValidProjectPath = "";
 }
 
 
 void MainWindow::update()
 {
-	// Update game
 	computeFPS();
-	updateTimer.tick();
-	SETTINGS()->deltaTime = updateTimer.deltaTime();
-	world->update();
+	m_updateTimer.tick();
+	SETTINGS()->deltaTime = m_updateTimer.deltaTime();
+	m_updateLoop->update();
 
     //connect(&soundTimer, SIGNAL(timeout()), this, SLOT(timer()));
     //soundTimer.start(1000);
@@ -126,13 +119,13 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), "&New", this);
 	a->setShortcuts(QKeySequence::New);
 	a->setStatusTip(tr("NO FUNCTIONALITY YET (2013-04-24, 14.51)"));
-	ui.menuFile->addAction(a);
+	m_ui.menuFile->addAction(a);
 	// Open
 	path = iconPath + "Menu/open";
 	a = new QAction(QIcon(path.c_str()), "&Open...", this);
 	a->setStatusTip(tr("Open existing project"));
 	a->setShortcuts(QKeySequence::Open);
-	ui.menuFile->addAction(a);
+	m_ui.menuFile->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
 
@@ -141,14 +134,14 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), "&Save", this);
 	a->setShortcuts(QKeySequence::Save);
 	a->setStatusTip(tr("Save project"));
-	ui.menuFile->addAction(a);
+	m_ui.menuFile->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
 
 	// Save as
 	a = new QAction("&Save As...", this);
 	a->setStatusTip(tr("Save project to..."));
-	ui.menuFile->addAction(a);
+	m_ui.menuFile->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistoryAs()));
 
@@ -158,7 +151,7 @@ void MainWindow::setupToolBar()
 	a->setStatusTip(tr("Quit application"));
 	connect(a, SIGNAL(triggered()), this, SLOT(close()));
 	//ui.menuFile->addSeparator();
-	ui.menuFile->addAction(a);
+	m_ui.menuFile->addAction(a);
 
 	// EDIT
 	// Undo
@@ -167,9 +160,9 @@ void MainWindow::setupToolBar()
 	a->setShortcuts(QKeySequence::Undo);
 	a->setStatusTip(tr("Undo last editing action"));
 	
-	undo = a;
+	m_action_undo = a;
 	//undo->setDisabled(true);
-	ui.menuEdit->addAction(a);
+	m_ui.menuEdit->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(undoLatestCommand()));
 
@@ -178,9 +171,9 @@ void MainWindow::setupToolBar()
 	a->setShortcuts(QKeySequence::Redo);
 	a->setStatusTip(tr("Redo last undone editing action"));
 	
-	redo = a;
+	m_action_redo = a;
 	//redo->setDisabled(true);
-	ui.menuEdit->addAction(a);
+	m_ui.menuEdit->addAction(a);
 
 	connect(a, SIGNAL(triggered()), this, SLOT(redoLatestCommand()));
 	
@@ -188,13 +181,13 @@ void MainWindow::setupToolBar()
 	// About
 	a = new QAction("&About", this);
 	a->setStatusTip("Show application info");
-	connect(a, SIGNAL(triggered()), this, SLOT(act_about()));
-	ui.menuHelp->addAction(a);
+	connect(a, SIGNAL(triggered()), this, SLOT(action_about()));
+	m_ui.menuHelp->addAction(a);
 	// About Qt
 	a = new QAction(tr("About &Qt"), this);
 	a->setStatusTip(tr("This GUI was made in Qt"));
 	connect(a, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-	ui.menuHelp->addAction(a);
+	m_ui.menuHelp->addAction(a);
 
 	// Toolbar
 	//ui.toolBar->setAllowedAreas(Qt::LeftToolBarArea | Qt::RightToolBarArea);
@@ -202,74 +195,74 @@ void MainWindow::setupToolBar()
 	a = new QAction(QIcon(path.c_str()), tr("&Translate"), this);
 	a->setCheckable(true);
 	a->setChecked(true);
-	ui.toolBar->addAction(a);
+	m_ui.toolBar->addAction(a);
 	path = iconPath + "Tools/rotate";
 	a = new QAction(QIcon(path.c_str()), tr("&Rotate"), this);
 	a->setCheckable(true);
-	ui.toolBar->addAction(a);
+	m_ui.toolBar->addAction(a);
 	path = iconPath + "Tools/scale";
 	a = new QAction(QIcon(path.c_str()), tr("&Scale"), this);
 	a->setCheckable(true);
-	ui.toolBar->addAction(a);
+	m_ui.toolBar->addAction(a);
 	path = iconPath + "Tools/geometry";
 	a = new QAction(QIcon(path.c_str()), tr("&Geometry"), this);
 	a->setCheckable(true);
-	ui.toolBar->addAction(a);
+	m_ui.toolBar->addAction(a);
 	path = iconPath + "Tools/entity";
 	a = new QAction(QIcon(path.c_str()), tr("&Entity"), this);
 	a->setCheckable(true);
-	ui.toolBar->addAction(a);
+	m_ui.toolBar->addAction(a);
 
 
 	// Context bar
-	ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+	m_ui.contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 	path = iconPath + "Tools/translate";
 	a = new QAction(QIcon(path.c_str()), tr("info"), this);
-	ui.contextBar->addAction(a);
-	ui.contextBar->addSeparator();
+	m_ui.contextBar->addAction(a);
+	m_ui.contextBar->addSeparator();
 	path = iconPath + "Tools/toast";
 	a = new QAction(QIcon(path.c_str()), tr("toast"), this);
-	ui.contextBar->addAction(a);
+	m_ui.contextBar->addAction(a);
 	
 	//TEMP
 	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToRed()));
 
 	path = iconPath + "Tools/coffee";
 	a = new QAction(QIcon(path.c_str()), tr("coffee"), this);
-	ui.contextBar->addAction(a);
+	m_ui.contextBar->addAction(a);
 
 	//TEMP
 	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToGreen()));
 
 	path = iconPath + "Tools/wine";
 	a = new QAction(QIcon(path.c_str()), tr("wine"), this);
-	ui.contextBar->addAction(a);
+	m_ui.contextBar->addAction(a);
 
 	//TEMP
 	connect(a, SIGNAL(triggered()), this, SLOT(setBackBufferColorToBlue()));
 
 	path = iconPath + "Tools/experiment";
 	a = new QAction(QIcon(path.c_str()), tr("experiment"), this);
-	ui.contextBar->addAction(a);
+	m_ui.contextBar->addAction(a);
 	path = iconPath + "Tools/tool";
 	a = new QAction(QIcon(path.c_str()), tr("tool"), this);
-	ui.contextBar->addAction(a);
+	m_ui.contextBar->addAction(a);
 
 	// DOCK WIDGETS
 	this->centralWidget()->hide();
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Scene"), this);
-	sceneDock = dock;
+	m_sceneDock = dock;
 	a = dock->toggleViewAction();
-	ui.menuWindow->addAction(a);
+	m_ui.menuWindow->addAction(a);
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
-	dock->setWidget(renderWidget);
+	dock->setWidget(m_renderWidget);
 
 	dock = new QDockWidget(tr("Inspector"), this);
-	ui.menuWindow->addAction(dock->toggleViewAction());
+	m_ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	dock = new QDockWidget(tr("Hierarchy"), this);
-	ui.menuWindow->addAction(dock->toggleViewAction());
+	m_ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	//dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -278,18 +271,18 @@ void MainWindow::setupToolBar()
 	a->setCheckable(true);
 	a->setShortcut(QKeySequence("F1"));
 	connect(a, SIGNAL(toggled(bool)), this, SLOT(setFullscreen(bool)));
-	ui.menuWindow->addAction(a);
+	m_ui.menuWindow->addAction(a);
 	a = new QAction("Maximize Scene", this);
 	a->setCheckable(true);
 	a->setShortcut(QKeySequence("Ctrl+G"));
-	ui.menuWindow->addAction(a);
+	m_ui.menuWindow->addAction(a);
 	connect(a, SIGNAL(toggled(bool)), this, SLOT(setMaximizeScene(bool)));
 
 
 	a = new QAction("Create Dock", this);
 	a->setShortcuts(QKeySequence::AddTab);
 	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
-	ui.menuWindow->addAction(a);
+	m_ui.menuWindow->addAction(a);
 
 	// BLARG
 
@@ -350,7 +343,7 @@ void MainWindow::computeFPS()
 	num_frames++;
 
 	// Compute averages FPS and ms over one second period.
-	if((updateTimer.totalTime()-timeElapsed) >= 1.0f)
+	if((m_updateTimer.totalTime()-timeElapsed) >= 1.0f)
 	{
 		// calculate statistics
 		float fps = (float)num_frames; // fps = frameCnt / 1
@@ -376,7 +369,7 @@ void MainWindow::computeFPS()
 	}
 }
 
-void MainWindow::act_about()
+void MainWindow::action_about()
 {
 	QMessageBox::about(this, "About Ultimate Coffee",
 		"Coffee... is a feeling.");
@@ -386,29 +379,29 @@ void MainWindow::setBackBufferColorToRed()
 {
 	Command_ChangeBackBufferColor* red = new Command_ChangeBackBufferColor();
 	red->setDoColor(1.0f, 0.0f, 0.0f);
-	red->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
-	commander->addToHistoryAndExecute(red);
+	red->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
+	m_commander->addToHistoryAndExecute(red);
 }
 
 void MainWindow::setBackBufferColorToGreen()
 {
 	Command_ChangeBackBufferColor* green = new Command_ChangeBackBufferColor();
 	green->setDoColor(0.0f, 1.0f, 0.0f);
-	green->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
-	commander->addToHistoryAndExecute(green);
+	green->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
+	m_commander->addToHistoryAndExecute(green);
 }
 
 void MainWindow::setBackBufferColorToBlue()
 {
 	Command_ChangeBackBufferColor* blue = new Command_ChangeBackBufferColor();
 	blue->setDoColor(0.0f, 0.0f, 1.0f);
-	blue->setUndoColor(SETTINGS()->backBufferColorX, SETTINGS()->backBufferColorY, SETTINGS()->backBufferColorZ);
-	commander->addToHistoryAndExecute(blue);
+	blue->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
+	m_commander->addToHistoryAndExecute(blue);
 }
 
 void MainWindow::undoLatestCommand()
 {
-	if(!commander->tryToUndoLatestCommand())
+	if(!m_commander->tryToUndoLatestCommand())
 	{
 		QSound sound = QSound("Windows Ding.wav");
 		//if(nrOfSoundsPlayedSinceLastReset < 1)
@@ -421,7 +414,7 @@ void MainWindow::undoLatestCommand()
 
 void MainWindow::redoLatestCommand()
 {
-	if(!commander->tryToRedoLatestUndoCommand())
+	if(!m_commander->tryToRedoLatestUndoCommand())
 	{
 		QSound sound = QSound("Windows Ding.wav");
 		sound.play();
@@ -437,26 +430,26 @@ void MainWindow::loadCommandHistory()
 	if(!fileName.isEmpty())
 	{
 		std::string path = fileName.toLocal8Bit();
-		if(!commander->tryToLoadCommandHistory(path))
+		if(!m_commander->tryToLoadCommandHistory(path))
 		{
 			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger.");
 		}
 		else
 		{
-			lastValidProjectPath = path;
+			m_lastValidProjectPath = path;
 		}
 	}
 }
 
 void MainWindow::saveCommandHistory()
 {
-	if(lastValidProjectPath == "")
+	if(m_lastValidProjectPath == "")
 	{
 		saveCommandHistoryAs();
 	}
 	else
 	{
-		if(!commander->tryToSaveCommandHistory(lastValidProjectPath))
+		if(!m_commander->tryToSaveCommandHistory(m_lastValidProjectPath))
 		{
 			MESSAGEBOX("Failed to save project.");
 		}
@@ -472,13 +465,13 @@ void MainWindow::saveCommandHistoryAs()
 	if(!fileName.isEmpty())
 	{
 		std::string path = fileName.toLocal8Bit();
-		if(!commander->tryToSaveCommandHistory(path))
+		if(!m_commander->tryToSaveCommandHistory(path))
 		{
 			MESSAGEBOX("Failed to save project.");
 		}
 		else
 		{
-			lastValidProjectPath = path;
+			m_lastValidProjectPath = path;
 		}
 	}
 }
@@ -495,18 +488,18 @@ void MainWindow::createDockWidget()
 {
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Foo"), this);
-	ui.menuWindow->addAction(dock->toggleViewAction());
+	m_ui.menuWindow->addAction(dock->toggleViewAction());
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 }
 
-void MainWindow::onEvent( IEvent* e )
+void MainWindow::onEvent( IEvent* p_event )
 {
-	EventType type = e->type();
+	EventType type = p_event->type();
 	switch (type) 
 	{
 	case EVENT_SHOW_MESSAGEBOX:
 		{
-			QString message(static_cast<Event_ShowMessageBox*>(e)->message.c_str());
+			QString message(static_cast<Event_ShowMessageBox*>(p_event)->message.c_str());
 			QMessageBox::information(0, " ", message);
 		}
 		break;
@@ -515,17 +508,17 @@ void MainWindow::onEvent( IEvent* e )
 	}
 }
 
-void MainWindow::setMaximizeScene( bool checked )
+void MainWindow::setMaximizeScene( bool p_checked )
 {
-	if(checked)
+	if(p_checked)
 	{
-		sceneDock->setFloating(true);
-		sceneDock->showFullScreen();
+		m_sceneDock->setFloating(true);
+		m_sceneDock->showFullScreen();
 	}
 	else
 	{
-		sceneDock->setFloating(false);
-		sceneDock->showNormal();
+		m_sceneDock->setFloating(false);
+		m_sceneDock->showNormal();
 	}
 }
 //void MainWindow::timer()

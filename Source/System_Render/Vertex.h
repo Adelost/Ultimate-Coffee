@@ -1,6 +1,6 @@
-#include <Core/SimpleMath.h>
+#include <Core/Util.h>
 
 struct VertexPos
 {
-	DirectX::SimpleMath::Vector3 pos;
+	Vector3 pos;
 };

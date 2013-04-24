@@ -65,6 +65,12 @@ QToolButton
 	border: 0px;
 }
 
+	
+QToolBar::horizontal
+{
+
+}
+
 QToolBar::handle:horizontal
 {
 	spacing: 3px; /* spacing between items in the tool bar */

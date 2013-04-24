@@ -32,6 +32,9 @@
     <Filter Include="Source\Utilities">
       <UniqueIdentifier>{81418743-bfd0-4d9b-9157-89ed93cb0787}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Tools">
+      <UniqueIdentifier>{d8e84f86-8c72-4d8c-a51a-5daba3f9a70f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -82,6 +85,12 @@
     </ClInclude>
     <ClInclude Include="UpdateTimer.h">
       <Filter>Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdateLoop.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager_Tools.h">
+      <Filter>Source\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

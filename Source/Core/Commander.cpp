@@ -2,56 +2,56 @@
 #include "Command.h"
 #include <fstream>
 #include "Command_ChangeBackBufferColor.h"
-#include <sys/stat.h> //struct stat
-#include <iostream> //console output
-#include <memory> //memcpy
+#include <sys/stat.h> // struct stat
+#include <iostream> // console output
+#include <memory> // memcpy
 
 #include "EventManager.h"
 #include "Events.h"
 
 Commander::Commander(void)
 {
-	commandHistory_ = NULL;
+	m_commandHistory = NULL;
 }
 
 Commander::~Commander(void)
 {
-	delete commandHistory_;
+	delete m_commandHistory;
 }
 
 bool Commander::init()
 {
-	commandHistory_ = new CommandHistory();
+	m_commandHistory = new CommandHistory();
 	return true;
 }
 
 bool Commander::undoIsPossible()
 {
-	return commandHistory_->thereExistsCommandsBeforeCurrentCommand();
+	return m_commandHistory->thereExistsCommandsBeforeCurrentCommand();
 }
 
 bool Commander::redoIsPossible()
 {
-	return commandHistory_->thereExistsCommandsAfterCurrentCommand();
+	return m_commandHistory->thereExistsCommandsAfterCurrentCommand();
 }
 
-void Commander::addToHistoryAndExecute(Command* command)
+void Commander::addToHistoryAndExecute( Command* p_command )
 {
-	command->doRedo();
-	commandHistory_->addCommand(command);
+	p_command->doRedo();
+	m_commandHistory->addCommand(p_command);
 }
 
-void Commander::addToHistory(Command* command)
+void Commander::addToHistory( Command* p_command )
 {
-	commandHistory_->addCommand(command);
+	m_commandHistory->addCommand(p_command);
 }
 
 bool Commander::tryToUndoLatestCommand()
 {
 	bool undoSucessful = false;
-	if(commandHistory_->thereExistsCommandsBeforeCurrentCommand())
+	if(m_commandHistory->thereExistsCommandsBeforeCurrentCommand())
 	{
-		Command* command = commandHistory_->getCurrentCommandAndDecrementCurrent();
+		Command* command = m_commandHistory->getCurrentCommandAndDecrementCurrent();
 		command->undo();
 		undoSucessful = true;
 	}
@@ -61,24 +61,24 @@ bool Commander::tryToUndoLatestCommand()
 bool Commander::tryToRedoLatestUndoCommand()
 {
 	bool redoSucessful = false;
-	if(commandHistory_->thereExistsCommandsAfterCurrentCommand())
+	if(m_commandHistory->thereExistsCommandsAfterCurrentCommand())
 	{
-		Command* command = commandHistory_->incrementCurrentAndGetCurrentCommand();
+		Command* command = m_commandHistory->incrementCurrentAndGetCurrentCommand();
 		command->doRedo();
 		redoSucessful = true;
 	}
 	return redoSucessful;
 }
 
-bool Commander::tryToSaveCommandHistory(std::string path)
+bool Commander::tryToSaveCommandHistory( std::string p_path )
 {
-	std::ofstream outputFile(path, std::ios::binary);
+	std::ofstream outputFile(p_path, std::ios::binary);
 	if(!outputFile.is_open())
 	{
 		return false;
 	}
 	int byteSize;
-	char* byteData = commandHistory_->receiveSerializedByteFormat(byteSize);
+	char* byteData = m_commandHistory->receiveSerializedByteFormat(byteSize);
 
 	outputFile.write(reinterpret_cast<const char*>(byteData), byteSize);
 	outputFile.close();
@@ -88,19 +88,19 @@ bool Commander::tryToSaveCommandHistory(std::string path)
 	return true;
 }
 
-bool Commander::tryToLoadCommandHistory(std::string path)
+bool Commander::tryToLoadCommandHistory( std::string p_path )
 {
-	std::ifstream inputFile(path, std::ios::binary);
+	std::ifstream inputFile(p_path, std::ios::binary);
 	if(!inputFile.is_open())
 	{
 		return false;
 	}
 
-	int bufferSize = 10000; //Standard size
+	int bufferSize = 10000; // Standard size
 	struct stat results;
-	if(stat(path.c_str(), &results) == 0)
+	if(stat(p_path.c_str(), &results) == 0)
 	{
-		bufferSize = results.st_size; //size of file, if "struct stat" succeeded
+		bufferSize = results.st_size; // size of file, if "struct stat" succeeded
 	}
 	else
 	{
@@ -111,12 +111,12 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	inputFile.read(readData, bufferSize);
 	inputFile.close();
 
-	delete commandHistory_;
-	commandHistory_ = new CommandHistory();
-	bool result = commandHistory_->loadFromSerializationByteFormat(readData, bufferSize);
+	delete m_commandHistory;
+	m_commandHistory = new CommandHistory();
+	bool result = m_commandHistory->loadFromSerializationByteFormat(readData, bufferSize);
 	delete[] readData;
 
-	commandHistory_->executeAllCommandsUpAndUntilCurrent();
+	m_commandHistory->executeAllCommandsUpAndUntilCurrent();
 
 	return result;
 }
@@ -124,7 +124,7 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 void Commander::displayCommandList()
 {
 	int nrOfCommands = 0;
-	std::string* commandList = commandHistory_->getCommandList(nrOfCommands);
+	std::string* commandList = m_commandHistory->getCommandList(nrOfCommands);
 
 	for(int i=0;i<nrOfCommands;i++)
 	{
@@ -138,158 +138,158 @@ void Commander::displayCommandList()
 
 CommandHistory::CommandHistory(void)
 {
-	indexOfCurrentCommand_ = -1;
+	m_indexOfCurrentCommand = -1;
 }
 
 CommandHistory::~CommandHistory(void)
 {
-	int nrOfCommands = commands_.size();
+	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
-		Command* command = commands_.at(i);
+		Command* command = m_commands.at(i);
 		delete command;
 	}
-	indexOfCurrentCommand_ = -1;
+	m_indexOfCurrentCommand = -1;
 }
 
 int CommandHistory::calculateSerializedByteSize()
 {
 	int serializedByteSize = 0;
-	int nrOfCommands = commands_.size();
+	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
-		Command* command = commands_.at(i);
+		Command* command = m_commands.at(i);
 		serializedByteSize += command->getByteSizeOfDataStruct();
 		serializedByteSize += sizeof(command->getType());
 	}
 	return serializedByteSize;
 }
 
-void CommandHistory::setCurrentCommand(int index)
+void CommandHistory::setCurrentCommand( int p_index )
 {
-	int nrOfCommands = commands_.size();
-	if(index > -2 && index < nrOfCommands) //bounds checking
+	int nrOfCommands = m_commands.size();
+	if(p_index > -2 && p_index < nrOfCommands) //bounds checking
 	{
-		indexOfCurrentCommand_ = index;
+		m_indexOfCurrentCommand = p_index;
 	}
 }
 
-void CommandHistory::addCommand(Command* command)
+void CommandHistory::addCommand( Command* p_command )
 {
-	int nrOfCommands = commands_.size();
-	if(indexOfCurrentCommand_ == nrOfCommands-1) //expand vector
+	int nrOfCommands = m_commands.size();
+	if(m_indexOfCurrentCommand == nrOfCommands-1) //expand vector
 	{
-		commands_.push_back(command);
-		setCurrentCommand(indexOfCurrentCommand_+1);
+		m_commands.push_back(p_command);
+		setCurrentCommand(m_indexOfCurrentCommand+1);
 	}
-	else //overwrite old command and forget about history after this point
+	else // overwrite old command and forget about history after this point
 	{
-		setCurrentCommand(indexOfCurrentCommand_+1);
-		Command* oldCommand = commands_.at(indexOfCurrentCommand_);
+		setCurrentCommand(m_indexOfCurrentCommand+1);
+		Command* oldCommand = m_commands.at(m_indexOfCurrentCommand);
 		delete oldCommand;
-		commands_.at(indexOfCurrentCommand_) = command;
+		m_commands.at(m_indexOfCurrentCommand) = p_command;
 
-		int newSize = (indexOfCurrentCommand_+1);
+		int newSize = (m_indexOfCurrentCommand+1);
 		int nrOfRemovedCommands = nrOfCommands - newSize;
 		for(int i=0;i<nrOfRemovedCommands;i++)
 		{
-			Command* removedCommand = commands_.at(newSize+i);
+			Command* removedCommand = m_commands.at(newSize+i);
 			delete removedCommand;
 		}
-		commands_.resize(newSize);
+		m_commands.resize(newSize);
 	}
 }
 
 Command* CommandHistory::getCurrentCommandAndDecrementCurrent()
 {
-	Command* command = commands_.at(indexOfCurrentCommand_);
-	setCurrentCommand(indexOfCurrentCommand_-1);
+	Command* command = m_commands.at(m_indexOfCurrentCommand);
+	setCurrentCommand(m_indexOfCurrentCommand-1);
 	return command;
 }
 
 Command* CommandHistory::incrementCurrentAndGetCurrentCommand()
 {
-	setCurrentCommand(indexOfCurrentCommand_+1);
-	Command* command = commands_.at(indexOfCurrentCommand_);
+	setCurrentCommand(m_indexOfCurrentCommand+1);
+	Command* command = m_commands.at(m_indexOfCurrentCommand);
 	return command;
 }
 
 bool CommandHistory::thereExistsCommandsAfterCurrentCommand()
 {
-	int nrOfCommands = commands_.size();
-	int differance = abs(indexOfCurrentCommand_-nrOfCommands);
+	int nrOfCommands = m_commands.size();
+	int differance = abs(m_indexOfCurrentCommand-nrOfCommands);
 	return (differance > 1 && nrOfCommands > 0);
 }
 
 bool CommandHistory::thereExistsCommandsBeforeCurrentCommand()
 {
-	return (indexOfCurrentCommand_ > -1);
+	return (m_indexOfCurrentCommand > -1);
 }
 
-char* CommandHistory::receiveSerializedByteFormat(int& byteSize)
+char* CommandHistory::receiveSerializedByteFormat( int& p_byteSize )
 {
-//--------------------------------------------------------------------------------------
-// Format description: the index of the current command comes first,
-// followed by each "Command", which consist of a type and a data struct.
-// Illustrating example of format:
-// 2
-// 0
-// {data from a translate command struct}
-// 0
-// {data from a translate command struct}
-// 1
-// {data from a rotate command struct}
-//--------------------------------------------------------------------------------------
-	int sizeOfIndexOfCurrentCommandVariable = sizeof(indexOfCurrentCommand_);
-	byteSize = calculateSerializedByteSize() + sizeOfIndexOfCurrentCommandVariable;
-	char* byteData = new char[byteSize];
+	//--------------------------------------------------------------------------------------
+	// Format description: the index of the current command comes first,
+	// followed by each "Command", which consist of a type and a data struct.
+	// Illustrating example of format:
+	// 2
+	// 0
+	// {data from a translate command struct}
+	// 0
+	// {data from a translate command struct}
+	// 1
+	// {data from a rotate command struct}
+	//--------------------------------------------------------------------------------------
+	int sizeOfIndexOfCurrentCommandVariable = sizeof(m_indexOfCurrentCommand);
+	p_byteSize = calculateSerializedByteSize() + sizeOfIndexOfCurrentCommandVariable;
+	char* byteData = new char[p_byteSize];
 	int writeNextByteToThisIndex = 0;
 
-	//First, insert "indexOfCurrentCommand_" into the byte array
-	memcpy(byteData+writeNextByteToThisIndex, &indexOfCurrentCommand_, sizeOfIndexOfCurrentCommandVariable); //Copy "indexOfCurrentCommand_" into the byte array
+	// First, insert "indexOfCurrentCommand_" into the byte array
+	memcpy(byteData+writeNextByteToThisIndex, &m_indexOfCurrentCommand, sizeOfIndexOfCurrentCommandVariable); //Copy "indexOfCurrentCommand_" into the byte array
 	writeNextByteToThisIndex += sizeOfIndexOfCurrentCommandVariable; //Increment byte array index counter
 
-	//Then, insert data of all "Command"s into the byte array
-	int nrOfCommands = commands_.size();
+	// Then, insert data of all "Command"s into the byte array
+	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
-		Command* command = commands_.at(i);
-		//Insert command data into byte array
+		Command* command = m_commands.at(i);
+		// Insert command data into byte array
 		command->receiveDataStructInSerializationFormat(byteData, writeNextByteToThisIndex);
 	}
 
 	return byteData;
 }
 
-bool CommandHistory::loadFromSerializationByteFormat(char* bytes, int byteSize)
+bool CommandHistory::loadFromSerializationByteFormat( char* p_bytes, int p_byteSize )
 {
-	//Refer to "receiveSerializedByteFormat" for format description
-	//The byte array "bytes" is navigated using the index "nextByte"
+	// Refer to "receiveSerializedByteFormat" for format description
+	// The byte array "bytes" is navigated using the index "nextByte"
 	int nextByte = 0;
 
-	//First, load index of current command
-	int indexOfCurrentCommand_ = *reinterpret_cast<int*>(bytes+nextByte);
+	// First, load index of current command
+	int indexOfCurrentCommand_ = *reinterpret_cast<int*>(p_bytes+nextByte);
 	nextByte += sizeof(indexOfCurrentCommand_);
 
 	int sizeOfTypeVarible = sizeof(Enum::CommandType);
-	while(nextByte < byteSize)
+	while(nextByte < p_byteSize)
 	{
-		//Interpret command type and command data struct from the byte array "bytes"
+		// Interpret command type and command data struct from the byte array "bytes"
 		Command* command = NULL;
-		Enum::CommandType commandType = *reinterpret_cast<Enum::CommandType*>(bytes+nextByte);
+		Enum::CommandType commandType = *reinterpret_cast<Enum::CommandType*>(p_bytes+nextByte);
 		nextByte += sizeOfTypeVarible;
-		char* commandDataStructBytes = reinterpret_cast<char*>(bytes+nextByte);
+		char* commandDataStructBytes = reinterpret_cast<char*>(p_bytes+nextByte);
 
-		switch(commandType) //Create command according to its type
+		switch(commandType) // Create command according to its type
 		{
 		case Enum::CommandType::TRANSLATE:
 			{
-				//command = new Command_Translate();
+				// command = new Command_Translate();
 				break;
 			}
 		case Enum::CommandType::ROTATE:
 			{
-				//command = new Command_Rotate();
+				// command = new Command_Rotate();
 				break;
 			}
 		case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
@@ -303,7 +303,7 @@ bool CommandHistory::loadFromSerializationByteFormat(char* bytes, int byteSize)
 				break;
 			}
 		}
-		if(command!=NULL) //Load command data, as interpreted from the byte array, and add the command to the command history
+		if(command!=NULL) // Load command data, as interpreted from the byte array, and add the command to the command history
 		{
 			command->loadDataStructFromBytes(commandDataStructBytes);
 			addCommand(command);
@@ -320,14 +320,14 @@ bool CommandHistory::loadFromSerializationByteFormat(char* bytes, int byteSize)
 	return true;
 }
 
-std::string* CommandHistory::getCommandList(int& nrOfCommands)
+std::string* CommandHistory::getCommandList( int& p_nrOfCommands )
 {
-	nrOfCommands = commands_.size();
-	std::string* listOfCommands = new std::string[nrOfCommands];
+	p_nrOfCommands = m_commands.size();
+	std::string* listOfCommands = new std::string[p_nrOfCommands];
 	std::string currentCommand = "Undefined";
-	for(int i=0;i<nrOfCommands;i++)
+	for(int i=0;i<p_nrOfCommands;i++)
 	{
-		Enum::CommandType commandType = commands_.at(i)->getType();
+		Enum::CommandType commandType = m_commands.at(i)->getType();
 		switch(commandType)
 		{
 		case Enum::CommandType::TRANSLATE:
@@ -347,10 +347,10 @@ std::string* CommandHistory::getCommandList(int& nrOfCommands)
 
 void CommandHistory::executeAllCommandsUpAndUntilCurrent()
 {
-	int nrOfCommands = commands_.size();
-	for(int i=0;i<indexOfCurrentCommand_;i++)
+	int nrOfCommands = m_commands.size();
+	for(int i=0;i<m_indexOfCurrentCommand;i++)
 	{
-		Command* command = commands_.at(i);
+		Command* command = m_commands.at(i);
 		command->doRedo();
 	}
 }
