@@ -466,3 +466,17 @@ void MainWindow::onEvent( IEvent* e )
 		break;
 	}
 }
+
+void MainWindow::setMaximizeScene( bool checked )
+{
+	if(checked)
+	{
+		sceneDock->setFloating(true);
+		sceneDock->showFullScreen();
+	}
+	else
+	{
+		sceneDock->setFloating(false);
+		sceneDock->showNormal();
+	}
+}

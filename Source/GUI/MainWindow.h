@@ -42,13 +42,7 @@ public:
 public slots:
 	void update();
 	void setFullscreen(bool checked);
-	void setMaximizeScene(bool checked)
-	{
-		if(checked)
-			sceneDock->showFullScreen();
-		else
-			sceneDock->showNormal();
-	}
+	void setMaximizeScene(bool checked);
 	void createDockWidget();
 	void act_about();
 	void setBackBufferColorToRed();
