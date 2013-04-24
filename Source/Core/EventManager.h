@@ -133,3 +133,10 @@ public:
 // Unsubscribes a IObserver to all events.
 #define UNSUBSCRIBE_TO_ALL_EVENT(SUBSCRIBER)							\
 	EventManager::getInstance()->removeObserver(SUBSCRIBER);
+
+// Fetches a owners of a specific Attribute from AttributeManager
+#define MESSAGEBOX(MESSAGE)									\
+{																	\
+	Event_ShowMessageBox e(MESSAGE);								\
+	EventManager::getInstance()->sendEvent(&e);						\
+}
