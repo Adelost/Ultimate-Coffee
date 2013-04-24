@@ -4,9 +4,12 @@
 #include <Core/Events.h>
 #include <Core/World.h>
 
+#include "Box.h"
+
 DXRenderer::DXRenderer()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_BACKBUFFER_COLOR);
+	SUBSCRIBE_TO_EVENT(this, EVENT_WINDOW_RESIZE);
 
 	dxDevice_ = nullptr;
 	dxDeviceContext_ = nullptr;
@@ -54,6 +57,13 @@ void DXRenderer::onEvent(IEvent* e)
 			SETTINGS()->backBufferColorZ = backbufferColorEvent->z;
 		}
 		break;
+	case EVENT_WINDOW_RESIZE:
+		{
+			Event_WindowResize* windowResizeEvent = static_cast<Event_WindowResize*>(e);
+			clientWidth_ = windowResizeEvent->width;
+			clientHeight_ = windowResizeEvent->height;
+			resizeDX();
+		}
 	default:
 		break;
 	}
@@ -111,7 +121,7 @@ void DXRenderer::renderFrame()
 	// to turn off tessellation.
 	dxDeviceContext_->HSSetShader(0, 0, 0);
 	dxDeviceContext_->DSSetShader(0, 0, 0);
-	dxDeviceContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	dxDeviceContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Debug view depth buffer.
 	//if(GetAsyncKeyState('Z') & 0x8000)
@@ -121,6 +131,8 @@ void DXRenderer::renderFrame()
 	//
 	//if(drawSky)
 	//	mSky->Draw(dxDeviceContext_, &mCam);
+
+	dxDeviceContext_->Draw(8, 0);
 
 	// restore default states, as the SkyFX changes them in the effect file.
 	dxDeviceContext_->RSSetState(0);
@@ -210,6 +222,8 @@ bool DXRenderer::initDX()
 	ReleaseCOM(dxgiAdapter);
 	ReleaseCOM(dxgiFactory);
 
+	////////////////////////////////////////////////////////////////////////////////////////////
+
 	ID3DBlob *PS_Buffer, *VS_Buffer;
 
 	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
@@ -221,6 +235,37 @@ bool DXRenderer::initDX()
 
 	dxDeviceContext_->PSSetShader(pixelShader_, 0, 0);
 	dxDeviceContext_->VSSetShader(vertexShader_, 0, 0);
+
+	D3D11_INPUT_ELEMENT_DESC inputElementDesc [] = 
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},		
+	};
+
+	HR(dxDevice_->CreateInputLayout(inputElementDesc, 1, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &inputLayout_));
+
+	ReleaseCOM(VS_Buffer);
+	ReleaseCOM(PS_Buffer);
+
+	dxDeviceContext_->IASetInputLayout(inputLayout_);
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.ByteWidth = sizeof(VertexPos) * 8;
+	bufferDesc.StructureByteStride = sizeof(VertexPos);
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	D3D11_SUBRESOURCE_DATA subresourceData;
+	memset(&subresourceData, 0, sizeof(subresourceData));
+	subresourceData.pSysMem = Shape::BoxVertices;
+
+	HR(dxDevice_->CreateBuffer(&bufferDesc, &subresourceData, &vertexBuffer_));
+
+	UINT stride = sizeof(VertexPos);
+	UINT offset = 0;
+	dxDeviceContext_->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
+
+	////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Resize
 	resizeDX();

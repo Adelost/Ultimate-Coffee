@@ -11,7 +11,7 @@ enum EventType
 	EVENT_WINDOW_RESIZE,
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_BACKBUFFER_COLOR,
-	
+
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
 
