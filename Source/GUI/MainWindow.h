@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 private:
-	Ui::MainWindowUi ui;
+	Ui::MainWindow ui;
 	QTimer refreshTimer;
 	UpdateTimer updateTimer;
 	RenderWidget* renderWidget;

@@ -1,7 +1,8 @@
 #include "MainWindow.h"
 
 // Architecture
-#include <Qlabel.h>
+#include <QLabel.h>
+#include <QGraphicsBlurEffect>
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
 
@@ -112,7 +113,7 @@ void MainWindow::setupToolBar()
 	a->setShortcuts(QKeySequence::Quit);
 	a->setStatusTip(tr("Quit the application"));
 	connect(a, SIGNAL(triggered()), this, SLOT(close()));
-	ui.menuFile->addSeparator();
+	//ui.menuFile->addSeparator();
 	ui.menuFile->addAction(a);
 
 	// EDIT
@@ -146,21 +147,27 @@ void MainWindow::setupToolBar()
 	ui.menuHelp->addAction(a);
 
 	// Toolbar
-	ui.toolBar->setAllowedAreas(Qt::LeftToolBarArea | Qt::RightToolBarArea);
+	//ui.toolBar->setAllowedAreas(Qt::LeftToolBarArea | Qt::RightToolBarArea);
 	path = iconPath + "Tools/translate";
 	a = new QAction(QIcon(path.c_str()), tr("&Translate"), this);
+	a->setCheckable(true);
+	a->setChecked(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/rotate";
 	a = new QAction(QIcon(path.c_str()), tr("&Rotate"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/scale";
 	a = new QAction(QIcon(path.c_str()), tr("&Scale"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/geometry";
 	a = new QAction(QIcon(path.c_str()), tr("&Geometry"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 	path = iconPath + "Tools/entity";
 	a = new QAction(QIcon(path.c_str()), tr("&Entity"), this);
+	a->setCheckable(true);
 	ui.toolBar->addAction(a);
 
 	// Context bar
@@ -198,6 +205,7 @@ void MainWindow::setupToolBar()
 	ui.contextBar->addAction(a);
 
 	// DOCK WIDGETS
+	this->centralWidget()->hide();
 	QDockWidget* dock;
 	dock = new QDockWidget(tr("Scene"), this);
 	ui.menuWindow->addAction(dock->toggleViewAction());

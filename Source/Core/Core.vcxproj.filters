@@ -53,6 +53,9 @@
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="Serializable.cpp" />
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util.h">

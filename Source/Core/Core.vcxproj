@@ -155,6 +155,7 @@
     <ClCompile Include="Manager_Data.cpp" />
     <ClCompile Include="Manager_Entity.cpp" />
     <ClCompile Include="Serializable.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
