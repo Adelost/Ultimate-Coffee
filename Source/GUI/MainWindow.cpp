@@ -1,8 +1,11 @@
 #include "MainWindow.h"
 
-// Architecture
+//Qt
+#include <QFileDialog>
 #include <QLabel.h>
 #include <QGraphicsBlurEffect>
+
+// Architecture
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
 
@@ -62,6 +65,8 @@ void MainWindow::setupGame()
 	{
 		//check, print fail message
 	}
+
+	lastValidProjectPath = "";
 }
 
 
@@ -109,7 +114,7 @@ void MainWindow::setupToolBar()
 	a = new QAction("&Save As...", this);
 	ui.menuFile->addAction(a);
 
-	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistoryAs()));
 
 	// Quit
 	a = new QAction("&Quit", this);
@@ -354,18 +359,55 @@ void MainWindow::redoLatestCommand()
 
 void MainWindow::loadCommandHistory()
 {
-	std::string path = "CommandHistory.789";
-	if(!commander->tryToLoadCommandHistory(path))
+	//Opens standard Windows "open file" dialog
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
+	
+	//If the user clicks "Open"
+	if(!fileName.isEmpty())
 	{
-		//check, add error feedback
+		std::string path = fileName.toLocal8Bit();
+		if(!commander->tryToLoadCommandHistory(path))
+		{
+			//check, add error feedback
+		}
+		else
+		{
+			lastValidProjectPath = path;
+		}
 	}
 }
 
 void MainWindow::saveCommandHistory()
 {
-	std::string path = "CommandHistory.789";
-	if(!commander->tryToSaveCommandHistory(path))
+	if(lastValidProjectPath == "")
 	{
-		//check, add error feedback
+		saveCommandHistoryAs();
+	}
+	else
+	{
+		if(!commander->tryToSaveCommandHistory(lastValidProjectPath))
+		{
+			//check, add error feedback
+		}
+	}
+}
+
+void MainWindow::saveCommandHistoryAs()
+{
+	//Opens standard Windows "save file" dialog
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
+
+	//If the user clicks "Save"
+	if(!fileName.isEmpty())
+	{
+		std::string path = fileName.toLocal8Bit();
+		if(!commander->tryToSaveCommandHistory(path))
+		{
+			//check, add error feedback
+		}
+		else
+		{
+			lastValidProjectPath = path;
+		}
 	}
 }

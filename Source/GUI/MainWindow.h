@@ -23,6 +23,7 @@ private:
 	RenderWidget* renderWidget;
 	World* world;
 
+	std::string lastValidProjectPath;
 	Commander* commander;
 
 public:
@@ -45,5 +46,6 @@ public slots:
 	void redoLatestCommand();
 	void loadCommandHistory();
 	void saveCommandHistory();
+	void saveCommandHistoryAs();
 
 };
