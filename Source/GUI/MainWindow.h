@@ -1,8 +1,7 @@
 #pragma once
 
-#include <QMainWindow>
 #include <QTimer.h>
-#include <QMessageBox.h>
+#include <QMainWindow>
 #include <QDockWidget.h>
 #include <Core/IObserver.h>
 
@@ -25,7 +24,12 @@ private:
 	World* world;
 	QDockWidget* sceneDock;
 	std::string lastValidProjectPath;
+
+	//QTimer soundTimer;
+	//int nrOfSoundsPlayedSinceLastReset;
 	Commander* commander;
+	QAction* undo;
+	QAction* redo;
 
 public:
 	MainWindow();
@@ -59,5 +63,6 @@ public slots:
 	void loadCommandHistory();
 	void saveCommandHistory();
 	void saveCommandHistoryAs();
+	//void timer();
 
 };

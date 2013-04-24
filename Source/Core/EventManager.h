@@ -137,6 +137,6 @@ public:
 // Fetches a owners of a specific Attribute from AttributeManager
 #define MESSAGEBOX(MESSAGE)									\
 {																	\
-	Event_ShowMessageBox e(MESSAGE);								\
-	EventManager::getInstance()->sendEvent(&e);						\
+	Event_ShowMessageBox IF_YOU_CAN_READ_THIS_TRY_INCLUDING_EVENT_H_FOUND_IN_CORE (MESSAGE);							\
+	EventManager::getInstance()->sendEvent(&IF_YOU_CAN_READ_THIS_TRY_INCLUDING_EVENT_H_FOUND_IN_CORE);					\
 }
