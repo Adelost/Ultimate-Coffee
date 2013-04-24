@@ -70,9 +70,9 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)../Binaries/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)../Temp/$(Configuration)/$(ProjectName)/</IntDir>
-    <IncludePath>../;$(WindowsSDK_IncludePath);$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
-    <LibraryPath>$(DXSDK_DIR)Lib\x86\;$(LibraryPath);C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86\</LibraryPath>
+    <IncludePath>../;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>../;$(WindowsSDK_IncludePath);$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
@@ -103,7 +103,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3dx11.lib;d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
