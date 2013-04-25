@@ -63,6 +63,7 @@ private:
 
 	ID3D11InputLayout* inputLayout_;
 	ID3D11Buffer* vertexBuffer_;
+	ID3D11Buffer* indexBuffer_;
 
 	UINT msaa_quality;
 
