@@ -1,9 +1,13 @@
-#include <vector>
-#include <queue>
-#include <string>
+#pragma once
+
 #include <bitset>
 #include <iostream>
+#include <queue>
 #include <sstream>
+#include <string>
+#include <vector>
+#include <windows.h>
+#include "Math.h"
 
 // The maximum capacity of "std::bitset"
 // and thereby the maximum number of 

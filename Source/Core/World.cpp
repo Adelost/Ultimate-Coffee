@@ -46,3 +46,8 @@ void World::update()
 	m_manager_systems->update();
 }
 
+Entity* World::createEntity()
+{
+	return m_manager_entity->create();
+}
+

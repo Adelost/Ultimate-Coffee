@@ -12,7 +12,7 @@ class World;
 class Manager_Entity
 {
 private:
-	Batch<Entity> entity_list;
+	Batch<Entity> m_entity_list;
 	World* m_world;
 
 public:
@@ -22,14 +22,14 @@ public:
 
 	Entity* create()
 	{
-		int entityId = entity_list.nextAvailableIndex();
-		entity_list.addItem(Entity(entityId));
+		int entityId = m_entity_list.nextAvailableIndex();
+		m_entity_list.addItem(Entity(entityId));
 
-		return entity_list.itemAt(entityId);
+		return m_entity_list.itemAt(entityId);
 	}
 
 	void remove(Entity* entity)
 	{
-		entity_list.removeItemAt(entity->id());
+		m_entity_list.removeItemAt(entity->id());
 	}
 };

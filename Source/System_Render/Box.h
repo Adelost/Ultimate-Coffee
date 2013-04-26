@@ -2,9 +2,7 @@
 
 namespace Shape
 {
-#define NR_OF_BOX_VERTICES = 8;
-
-	VertexPos BoxVertices[NR_OF_BOX_VERTICES] = 
+	VertexPos BoxVertices[8] = 
 	{														//Index:
 		{DirectX::SimpleMath::Vector3( 0.5f,  0.5,  0.5)},	//0
 		{DirectX::SimpleMath::Vector3( 0.5f, -0.5,  0.5)},	//1

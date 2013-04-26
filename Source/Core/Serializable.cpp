@@ -1,14 +1,14 @@
 #include "Serializable.h"
-#include <memory> //memcpy
+#include <memory> // memcpy
 
-void Serializable::receiveDataStructInSerializationFormat(char*& data, int& writeNextByteToThisIndex)
+void Serializable::receiveDataStructInSerializationFormat( char*& p_data, int& p_writeNextByteToThisIndex )
 {
-	prependSerializationDataHook(data, writeNextByteToThisIndex);
+	prependSerializationDataHook(p_data, p_writeNextByteToThisIndex);
 
 	void* dataStructPointer = accessDerivedClassDataStruct();
 	int dataStructByteSize = getByteSizeOfDataStruct();
-	memcpy(data+writeNextByteToThisIndex, dataStructPointer, dataStructByteSize); //Copy the struct into the byte array
-	writeNextByteToThisIndex += dataStructByteSize; //Increment byte array index counter
+	memcpy(p_data+p_writeNextByteToThisIndex, dataStructPointer, dataStructByteSize); // Copy the struct into the byte array
+	p_writeNextByteToThisIndex += dataStructByteSize; // Increment byte array index counter
 
-	appendSerializationDataHook(data, writeNextByteToThisIndex);
+	appendSerializationDataHook(p_data, p_writeNextByteToThisIndex);
 }

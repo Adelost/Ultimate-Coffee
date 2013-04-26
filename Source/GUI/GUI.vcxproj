@@ -220,6 +220,8 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Manager_Tools.h" />
+    <ClInclude Include="UpdateLoop.h" />
     <ClInclude Include="UpdateTimer.h" />
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <CustomBuild Include="RenderWidget.h">

@@ -70,6 +70,9 @@
     <ClCompile Include="Settings.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util.h">
@@ -142,6 +145,9 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
     <ClInclude Include="SimpleMath.h">
+      <Filter>Source\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
       <Filter>Source\Math</Filter>
     </ClInclude>
   </ItemGroup>

@@ -29,6 +29,7 @@ public:
 	void update();
 	
 	void addSystem(ISystem* p_system);
+	Entity* createEntity();
 
 public:
 	Manager_Data* manager_data();

@@ -157,6 +157,7 @@
     <ClInclude Include="Box.h" />
     <ClInclude Include="DXRenderer.h" />
     <ClInclude Include="System_Render.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>

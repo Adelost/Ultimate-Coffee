@@ -1,8 +1,7 @@
 #pragma once
 
-#include <QMainWindow>
 #include <QTimer.h>
-#include <QMessageBox.h>
+#include <QMainWindow>
 #include <QDockWidget.h>
 #include <Core/IObserver.h>
 
@@ -11,53 +10,53 @@
 #include "RenderWidget.h"
 
 class Commander;
-class World;
+class UpdateLoop;
 
 class MainWindow : public QMainWindow, public IObserver
 {
 	Q_OBJECT
 
 private:
-	Ui::MainWindow ui;
-	QTimer refreshTimer;
-	UpdateTimer updateTimer;
-	RenderWidget* renderWidget;
-	World* world;
-	QDockWidget* sceneDock;
-	std::string lastValidProjectPath;
-	Commander* commander;
+	Ui::MainWindow m_ui;
+	//QTimer soundTimer;
+	//int nrOfSoundsPlayedSinceLastReset;
+	Commander* m_commander;
+	QAction* m_action_redo;
+	QAction* m_action_undo;
+	QDockWidget* m_sceneDock;
+	QTimer m_refreshTimer;
+	RenderWidget* m_renderWidget;
+	UpdateLoop* m_updateLoop;
+	UpdateTimer m_updateTimer;
+	std::string m_lastValidProjectPath;
+
+
 
 public:
 	MainWindow();
 	~MainWindow();
 
-	void onEvent(IEvent* e);
-	
-	void setupGame();
-	void setupToolBar();
+	void onEvent(IEvent* p_event);
+	void computeFPS();
 	void setupConsole();
 	void setupDockWidgets();
-	void computeFPS();
+	void setupGame();
+	void setupToolBar();
 
 public slots:
 	void update();
-	void setFullscreen(bool checked);
-	void setMaximizeScene(bool checked)
-	{
-		if(checked)
-			sceneDock->showFullScreen();
-		else
-			sceneDock->showNormal();
-	}
+	void action_about();
 	void createDockWidget();
-	void act_about();
-	void setBackBufferColorToRed();
-	void setBackBufferColorToGreen();
-	void setBackBufferColorToBlue();
-	void undoLatestCommand();
-	void redoLatestCommand();
 	void loadCommandHistory();
+	void redoLatestCommand();
 	void saveCommandHistory();
 	void saveCommandHistoryAs();
+	void setBackBufferColorToBlue();
+	void setBackBufferColorToGreen();
+	void setBackBufferColorToRed();
+	void setFullscreen(bool p_checked);
+	void setMaximizeScene(bool p_checked);
+	void undoLatestCommand();
+	//void timer();
 
 };

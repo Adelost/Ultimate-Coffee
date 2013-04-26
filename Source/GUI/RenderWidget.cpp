@@ -19,13 +19,13 @@ RenderWidget::~RenderWidget()
 
 }
 
-void RenderWidget::onEvent(IEvent* e)
+void RenderWidget::onEvent( IEvent* p_event )
 {
-	EventType type = e->type();
+	EventType type = p_event->type();
 	switch (type) 
 	{
 	case EVENT_GET_WINDOW_HANDLE:
-		static_cast<Event_GetWindowHandle*>(e)->handle = winId();
+		static_cast<Event_GetWindowHandle*>(p_event)->handle = winId();
 		break;
 	default:
 		break;

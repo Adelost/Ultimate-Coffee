@@ -15,7 +15,7 @@ public:
 	RenderWidget(QWidget* parent);
 	~RenderWidget();
 
-	void onEvent(IEvent* e);
+	void onEvent(IEvent* p_event);
 
 	 // Overrides Qt:s own paint engine. Prevents flicker.
 	QPaintEngine* paintEngine() const {return 0;}

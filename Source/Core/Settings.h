@@ -1,18 +1,15 @@
 #pragma once
 
-#include "windows.h"
+#include "Util.h"
 
 class Settings
 {
 public:
 	float deltaTime;
 	HWND windowHandle;
-	float backBufferColorX;
-	float backBufferColorY;
-	float backBufferColorZ;
+	Color backBufferColor;
 
 public:
 	Settings();
-
 	~Settings();
 };
