@@ -22,6 +22,8 @@ DXRenderer::DXRenderer()
 
 DXRenderer::~DXRenderer()
 {
+	ReleaseCOM(m_vertexBuffer);
+	ReleaseCOM(m_indexBuffer);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
 	ReleaseCOM(m_view_renderTarget);
@@ -130,7 +132,8 @@ void DXRenderer::renderFrame()
 	//if(drawSky)
 	//	mSky->Draw(dxDeviceContext_, &mCam);
 
-	m_dxDeviceContext->Draw(8, 0);
+	m_dxDeviceContext->DrawIndexed(36, 0, 0);
+	//m_dxDeviceContext->Draw(8, 0);
 
 	// restore default states, as the SkyFX changes them in the effect file.
 	m_dxDeviceContext->RSSetState(0);
@@ -246,22 +249,37 @@ bool DXRenderer::initDX()
 
 	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
 
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.ByteWidth = sizeof(VertexPos) * 8;
-	bufferDesc.StructureByteStride = sizeof(VertexPos);
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	memset(&vertexBufferDesc, 0, sizeof(vertexBufferDesc));
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.ByteWidth = sizeof(VertexPos) * 8;
+	vertexBufferDesc.StructureByteStride = sizeof(VertexPos);
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	D3D11_SUBRESOURCE_DATA subresourceData;
-	memset(&subresourceData, 0, sizeof(subresourceData));
-	subresourceData.pSysMem = Shape::BoxVertices;
+	D3D11_SUBRESOURCE_DATA vertexData;
+	memset(&vertexData, 0, sizeof(vertexData));
+	vertexData.pSysMem = Shape::BoxVertices;
 
-	HR(m_dxDevice->CreateBuffer(&bufferDesc, &subresourceData, &m_vertexBuffer));
+	HR(m_dxDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
 
 	UINT stride = sizeof(VertexPos);
 	UINT offset = 0;
 	m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+
+	D3D11_BUFFER_DESC indexBufferDesc;
+	memset(&indexBufferDesc, 0, sizeof(indexBufferDesc));
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.ByteWidth = sizeof(unsigned int) * 36;
+	indexBufferDesc.StructureByteStride = sizeof(unsigned int);
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	D3D11_SUBRESOURCE_DATA indexData;
+	memset(&indexData, 0, sizeof(indexData));
+	indexData.pSysMem = Shape::BoxIndex;
+
+	HR(m_dxDevice->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer));
+
+	m_dxDeviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -340,3 +358,4 @@ void DXRenderer::resizeDX()
 		1,								// nr of viewports
 		&m_viewport_screen);			// viewport array
 }
+

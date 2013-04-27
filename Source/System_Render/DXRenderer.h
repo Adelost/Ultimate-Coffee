@@ -11,7 +11,6 @@ class DXRenderer
 private:
 	HWND m_windowHandle;
 	D3D11_VIEWPORT m_viewport_screen;
-	ID3D11Buffer* m_vertexBuffer;
 	ID3D11DepthStencilView* m_view_depthStencil;
 	ID3D11Device* m_dxDevice;
 	ID3D11DeviceContext* m_dxDeviceContext;
@@ -21,6 +20,8 @@ private:
 	ID3D11Texture2D* m_tex_depthStencil;
 	ID3D11VertexShader* m_vertexShader;
 	IDXGISwapChain* m_dxSwapChain;
+	ID3D11Buffer* m_vertexBuffer;
+	ID3D11Buffer* m_indexBuffer;
 
 	UINT m_msaa_quality;
 	int m_clientHeight;
@@ -38,3 +39,4 @@ public:
 	bool initDX();
 	void resizeDX(); 
 };
+
