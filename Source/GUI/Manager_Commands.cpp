@@ -1,10 +1,13 @@
+#include "Manager_Commands.h"
 #include "Manager_Docks.h"
-
-#include <Core/Command_ChangeBackBufferColor.h>
-#include <Core/Events.h>
-#include <QSignalMapper>
 #include "Window.h"
 
+#include <Core/World.h> //SETTINGS
+#include <Core/Commander.h>
+#include <Core/Command_ChangeBackBufferColor.h>
+#include <Core/Events.h>
+#include "Util.h"
+#include "ui_MainWindow.h"
 
 void Manager_Commands::init()
 {
@@ -116,7 +119,6 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	m_commander->addToHistoryAndExecute(command);
 }
 
-
 Manager_Commands::~Manager_Commands()
 {
 	delete m_commander;
@@ -201,7 +203,7 @@ void Manager_Commands::undoLatestCommand()
 
 void Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
 {
-	QAction* a = new QAction(m_window->createIcon(QColor(color)), color, m_window);
+	QAction* a = new QAction(m_window->createIcon(&QColor(color)), color, m_window);
 	m_toolbar_commands->addAction(a);
 	connect(a, SIGNAL(triggered()), mapper, SLOT(map()));
 	mapper->setMapping(a, color);

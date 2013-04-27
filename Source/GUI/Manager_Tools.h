@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Util.h"
+#include <QObject.h>
+
 class Window;
 namespace Ui{class MainWindow;}
-
+class QAction;
+class QActionGroup;
 
 class Manager_Tools : QObject
 {

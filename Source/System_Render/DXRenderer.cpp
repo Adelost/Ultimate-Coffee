@@ -1,10 +1,10 @@
 #include "DXRenderer.h"
+#include "Box.h"
+#include "Util.h"
 
 #include <Core/EventManager.h>
 #include <Core/Events.h>
 #include <Core/World.h>
-
-#include "Box.h"
 
 DXRenderer::DXRenderer()
 {
@@ -18,6 +18,7 @@ DXRenderer::DXRenderer()
 	m_view_renderTarget = nullptr;
 	m_view_depthStencil = nullptr;
 	m_tex_depthStencil = nullptr;
+	m_viewport_screen = nullptr;
 }
 
 DXRenderer::~DXRenderer()
@@ -34,6 +35,7 @@ DXRenderer::~DXRenderer()
 		m_dxDeviceContext->ClearState();
 	ReleaseCOM(m_dxDeviceContext);
 	ReleaseCOM(m_dxDevice);
+	delete m_viewport_screen;
 }
 
 bool DXRenderer::init( HWND p_windowHandle )
@@ -42,6 +44,8 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_clientWidth = 800;
 	m_clientHeight = 600;
+
+	m_viewport_screen = new D3D11_VIEWPORT();
 
 	return initDX();
 }
@@ -78,7 +82,7 @@ void DXRenderer::renderFrame()
 	// Restore the back and depth buffer to the OM stage.
 	ID3D11RenderTargetView* renderTargets[1] = {m_view_renderTarget};
 	m_dxDeviceContext->OMSetRenderTargets(1, renderTargets, m_view_depthStencil);
-	m_dxDeviceContext->RSSetViewports(1, &m_viewport_screen);
+	m_dxDeviceContext->RSSetViewports(1, m_viewport_screen);
 
 	// Clear render target & depth/stencil
 	//float color[] = {0.14f, 0.42f, 0.56f, 1.0f};
@@ -348,14 +352,14 @@ void DXRenderer::resizeDX()
 		m_view_depthStencil);		// pointer to depth/stencil view
 
 	// Set viewport transform.
-	m_viewport_screen.TopLeftX = 0;
-	m_viewport_screen.TopLeftY = 0;
-	m_viewport_screen.Width    = static_cast<float>(m_clientWidth);
-	m_viewport_screen.Height   = static_cast<float>(m_clientHeight);
-	m_viewport_screen.MinDepth = 0.0f;
-	m_viewport_screen.MaxDepth = 1.0f;
+	m_viewport_screen->TopLeftX = 0;
+	m_viewport_screen->TopLeftY = 0;
+	m_viewport_screen->Width    = static_cast<float>(m_clientWidth);
+	m_viewport_screen->Height   = static_cast<float>(m_clientHeight);
+	m_viewport_screen->MinDepth = 0.0f;
+	m_viewport_screen->MaxDepth = 1.0f;
 	m_dxDeviceContext->RSSetViewports(
 		1,								// nr of viewports
-		&m_viewport_screen);			// viewport array
+		m_viewport_screen);			// viewport array
 }
 

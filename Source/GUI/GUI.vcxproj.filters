@@ -35,9 +35,6 @@
     <Filter Include="Source\Window">
       <UniqueIdentifier>{d8e84f86-8c72-4d8c-a51a-5daba3f9a70f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Window\Tools">
-      <UniqueIdentifier>{56149493-0feb-4d96-ad36-820e97d50ff7}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,12 +52,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_RenderWidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Commands.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Commands.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Docks.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -71,12 +62,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_Window.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Tools.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Tools.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="Manager_Docks.cpp">
@@ -97,8 +82,20 @@
     <ClCompile Include="Manager_Console.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Commands.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Commands.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
     <ClCompile Include="Manager_Tools.cpp">
-      <Filter>Source\Window\Tools</Filter>
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Tools.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Tools.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,14 +111,14 @@
     <CustomBuild Include="Manager_Commands.h">
       <Filter>Source\Window</Filter>
     </CustomBuild>
-    <CustomBuild Include="Manager_Tools.h">
-      <Filter>Source\Window\Tools</Filter>
-    </CustomBuild>
     <CustomBuild Include="Window.h">
       <Filter>Source\Window</Filter>
     </CustomBuild>
     <CustomBuild Include="RenderWidget.h">
       <Filter>Source\Utilities</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Manager_Tools.h">
+      <Filter>Source</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

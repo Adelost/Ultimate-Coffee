@@ -1,11 +1,13 @@
 #pragma once
 
-#include <Core/Commander.h>
-#include <Core/World.h>
-#include "Util.h"
+#include "QObject.h"
+
 class Window;
 namespace Ui{class MainWindow;}
-
+class QToolBar;
+class Commander;
+class QAction;
+class QSignalMapper;
 
 class Manager_Commands : QObject
 {

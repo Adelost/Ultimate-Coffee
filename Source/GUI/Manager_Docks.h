@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Util.h"
-#include "RenderWidget.h"
-class Window;
+#include "QObject.h"
 
+class RenderWidget;
+class Window;
+class QDockWidget;
+class QMenu;
 
 class Manager_Docks : QObject
 {

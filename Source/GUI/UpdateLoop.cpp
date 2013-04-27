@@ -1,11 +1,21 @@
 #include "UpdateLoop.h"
-
+#include "UpdateTimer.h"
+#include "Util.h"
 #include "Window.h"
+
+#include <Core/World.h>
+#include <System_Render/System_Render.h>
 
 UpdateLoop::UpdateLoop()
 {
-	m_updateTimer.reset();
+	m_updateTimer = new UpdateTimer();
+	m_updateTimer->reset();
 	m_world = WORLD();
+}
+
+UpdateLoop::~UpdateLoop()
+{
+	delete m_updateTimer;
 }
 
 void UpdateLoop::init()
@@ -25,8 +35,8 @@ void UpdateLoop::update()
 {
 	// Update game
 	computeFPS();
-	m_updateTimer.tick();
-	SETTINGS()->deltaTime = m_updateTimer.deltaTime();
+	m_updateTimer->tick();
+	SETTINGS()->deltaTime = m_updateTimer->deltaTime();
 	m_world->update();
 }
 
@@ -40,7 +50,7 @@ void UpdateLoop::computeFPS()
 	num_frames++;
 
 	// Compute averages FPS and ms over one second period.
-	if((m_updateTimer.totalTime()-timeElapsed) >= 1.0f)
+	if((m_updateTimer->totalTime()-timeElapsed) >= 1.0f)
 	{
 		// calculate statistics
 		float fps = (float)num_frames; // fps = frameCnt / 1

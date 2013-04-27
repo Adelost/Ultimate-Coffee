@@ -1,16 +1,28 @@
 #pragma once
 
+typedef struct HWND__* HWND;
+typedef unsigned int UINT;
+struct D3D11_VIEWPORT;
+struct ID3D11DepthStencilView;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11InputLayout;
+struct ID3D11PixelShader;
+struct ID3D11RenderTargetView;
+struct ID3D11Texture2D;
+struct ID3D11VertexShader;
+struct IDXGISwapChain;
+struct ID3D11Buffer;
+
 // Move include elsewhere
 #include <Core/IObserver.h>
-#include "Util.h"
-
 
 class DXRenderer
 	: public IObserver
 {
 private:
 	HWND m_windowHandle;
-	D3D11_VIEWPORT m_viewport_screen;
+	D3D11_VIEWPORT* m_viewport_screen;
 	ID3D11DepthStencilView* m_view_depthStencil;
 	ID3D11Device* m_dxDevice;
 	ID3D11DeviceContext* m_dxDeviceContext;
