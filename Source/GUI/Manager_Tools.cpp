@@ -1,6 +1,7 @@
 #include "Manager_Tools.h"
 
 #include "Window.h"
+#include "Util.h"
 #include "ui_MainWindow.h"
 
 void Manager_Tools::init()
