@@ -16,6 +16,7 @@
 #include <QString>
 #include <QTimer.h>
 
+
 // Path to icons
 #define ICON_PATH												\
 	"../../Assets/GUI/Icons/"

@@ -8,6 +8,7 @@ Window::Window()
 	// Init window
 	m_ui.setupUi(this);
 	setDockOptions(AllowNestedDocks | AllowTabbedDocks);
+	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
 	m_manager_tools.init();
 	m_manager_docks.init();

@@ -12,6 +12,7 @@ class Manager_Tools : QObject
 private:
 	Window* m_window;
 	Ui::MainWindow* m_ui;
+	QActionGroup* toolGroup;
 
 public:
 	void init();

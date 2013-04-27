@@ -59,12 +59,6 @@ QToolBar
 {
 	padding: 4px;
 }
-
-QToolButton
-{
-	border: 0px;
-}
-
 	
 QToolBar::horizontal, QMenuBar
 {
@@ -111,6 +105,14 @@ QMenuBar::item
 	margin-bottom: 0px;
 }
 
+QToolButton
+{
+	padding: 2px 4px;
+	margin: 1px;
+	border: 0px;
+	border: 1px solid transparent;
+}
+
 QMenuBar::item:selected
 {
    	background:  #727272;
@@ -118,7 +120,16 @@ QMenuBar::item:selected
 	border-radius: 2px;
 }
 
-QMenuBar::item:pressed
+QToolButton::hover
+{
+   	background:  #727272;
+    border: 1px solid #282828;
+	border-radius: 2px;
+}
+
+
+
+QMenuBar::item:pressed, QToolButton::checked, QToolButton::pressed
 {
     border: 1px solid #282828;
 	border-radius: 2px;
@@ -542,6 +553,9 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 	border-top: 1px solid #6a6a6a;
 }</string>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QToolBar" name="contextBar">
    <attribute name="toolBarArea">
@@ -555,6 +569,12 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>18</width>
+     <height>18</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>LeftToolBarArea</enum>
@@ -622,6 +642,9 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
    <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
   <action name="actionReset_Layout">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Reset Layout</string>
    </property>
@@ -664,6 +687,27 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
   <action name="actionRedo">
    <property name="text">
     <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionTest1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="MainWindow.qrc">
+     <normaloff>:/MainWindow/Assets/GUI/Icons/Tools/test1.png</normaloff>:/MainWindow/Assets/GUI/Icons/Tools/test1.png</iconset>
+   </property>
+   <property name="text">
+    <string>Test1</string>
+   </property>
+  </action>
+  <action name="actionTest2">
+   <property name="icon">
+    <iconset resource="MainWindow.qrc">
+     <normaloff>:/MainWindow/Assets/GUI/Icons/Tools/test2.png</normaloff>:/MainWindow/Assets/GUI/Icons/Tools/test2.png</iconset>
+   </property>
+   <property name="text">
+    <string>test2</string>
    </property>
   </action>
  </widget>

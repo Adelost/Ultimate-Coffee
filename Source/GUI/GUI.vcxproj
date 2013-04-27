@@ -148,7 +148,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Core\Manager_Tools.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Commands.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -192,6 +191,7 @@
     <ClCompile Include="Manager_Commands.cpp" />
     <ClCompile Include="Manager_Console.cpp" />
     <ClCompile Include="Manager_Docks.cpp" />
+    <ClCompile Include="Manager_Tools.cpp" />
     <ClCompile Include="RenderWidget.cpp" />
     <ClCompile Include="UpdateLoop.cpp" />
     <ClCompile Include="UpdateTimer.cpp" />

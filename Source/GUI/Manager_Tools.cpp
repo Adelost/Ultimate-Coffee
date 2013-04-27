@@ -21,8 +21,8 @@ void Manager_Tools::setupToolbar()
 	// FILE
 	// New
 	a = m_ui->actionNew;
-	path = iconPath + "Menu/new";
-	a->setIcon(QIcon(path.c_str())); 
+	//path = iconPath + "Menu/new";
+	//a->setIcon(QIcon(path.c_str())); 
 	a->setShortcuts(QKeySequence::New);
 	a->setStatusTip(tr("NO FUNCTIONALITY YET (2013-04-24, 14.51)"));
 
@@ -48,12 +48,9 @@ void Manager_Tools::setupToolbar()
 
 void Manager_Tools::setupActions()
 {
-	// Actions
-	QAction* a;
-	
-	std::string path;
-
 	// Toolbar
+	toolGroup = new QActionGroup(this);
+	m_ui->toolBar->setIconSize(QSize(18,18));
 	createToolIcon("translate")->setChecked(true);
 	createToolIcon("rotate");
 	createToolIcon("scale");
@@ -94,7 +91,9 @@ QAction* Manager_Tools::createToolIcon( std::string p_icon )
 
 	QAction* a = new QAction(QIcon(path.c_str()), p_icon.c_str(), m_window);
 	a->setCheckable(true);
+	toolGroup->addAction(a);
 	m_ui->toolBar->addAction(a);
+
 	return a;
 }
 

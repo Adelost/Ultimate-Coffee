@@ -73,9 +73,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_Window.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\Core\Manager_Tools.cpp">
-      <Filter>Source\Window\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Tools.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -99,6 +96,9 @@
     </ClCompile>
     <ClCompile Include="Manager_Console.cpp">
       <Filter>Source\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Tools.cpp">
+      <Filter>Source\Window\Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

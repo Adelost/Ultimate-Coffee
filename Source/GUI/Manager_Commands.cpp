@@ -49,16 +49,16 @@ void Manager_Commands::setupMenu()
 
 	// Open
 	a = m_ui->actionOpen;
-	path = iconPath + "Menu/open";
-	a->setIcon(QIcon(path.c_str())); 
+	/*path = iconPath + "Menu/open";
+	a->setIcon(QIcon(path.c_str())); */
 	a->setStatusTip(tr("Open existing project"));
 	a->setShortcuts(QKeySequence::Open);
 	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
 
 	// Save
 	a = m_ui->actionSave;
-	path = iconPath + "Menu/save";
-	a->setIcon(QIcon(path.c_str())); 
+	/*path = iconPath + "Menu/save";
+	a->setIcon(QIcon(path.c_str())); */
 	a->setShortcuts(QKeySequence::Save);
 	a->setStatusTip(tr("Save project"));
 	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
@@ -72,8 +72,8 @@ void Manager_Commands::setupMenu()
 	// Undo
 	a = m_ui->actionUndo;
 	m_action_undo = a;
-	path = iconPath + "Menu/undo";
-	a->setIcon(QIcon(path.c_str())); 
+	/*path = iconPath + "Menu/undo";
+	a->setIcon(QIcon(path.c_str())); */
 	a->setShortcuts(QKeySequence::Undo); 
 	a->setStatusTip(tr("Undo last editing action"));
 	connect(a, SIGNAL(triggered()), this, SLOT(undoLatestCommand()));
@@ -81,8 +81,8 @@ void Manager_Commands::setupMenu()
 	// Redo
 	a = m_ui->actionRedo;
 	m_action_undo = a;
-	path = iconPath + "Menu/redo";
-	a->setIcon(QIcon(path.c_str())); 
+	/*path = iconPath + "Menu/redo";
+	a->setIcon(QIcon(path.c_str())); */
 	a->setShortcuts(QKeySequence::Redo); 
 	a->setStatusTip(tr("Redo last undone editing action"));
 	connect(a, SIGNAL(triggered()), this, SLOT(redoLatestCommand()));
