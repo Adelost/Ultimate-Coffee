@@ -1,27 +1,26 @@
 #pragma once
 
+#include "Util.h"
+class Window;
+namespace Ui{class MainWindow;}
 
-class Manager_Tools
+
+class Manager_Tools : QObject
 {
+	Q_OBJECT
+
 private:
-	Batch<Entity> entity_list;
-	World* m_world;
+	Window* m_window;
+	Ui::MainWindow* m_ui;
 
 public:
-	Manager_Entity()
-	{
-	}
+	void init();
+	void setupToolbar();
+	void setupActions();
+	void createContextIcon( std::string p_icon );
+	QAction* createToolIcon( std::string p_icon );
 
-	Entity* create()
-	{
-		int entityId = entity_list.nextAvailableIndex();
-		entity_list.addItem(Entity(entityId));
 
-		return entity_list.itemAt(entityId);
-	}
-
-	void remove(Entity* entity)
-	{
-		entity_list.removeItemAt(entity->id());
-	}
+public slots:
+	void action_about();
 };

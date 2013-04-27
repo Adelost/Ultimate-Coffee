@@ -32,22 +32,16 @@
     <Filter Include="Source\Utilities">
       <UniqueIdentifier>{81418743-bfd0-4d9b-9157-89ed93cb0787}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Tools">
+    <Filter Include="Source\Window">
       <UniqueIdentifier>{d8e84f86-8c72-4d8c-a51a-5daba3f9a70f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Window\Tools">
+      <UniqueIdentifier>{56149493-0feb-4d96-ad36-820e97d50ff7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_MainWindow.cpp">
       <Filter>Generated Files</Filter>
@@ -61,8 +55,50 @@
     <ClCompile Include="GeneratedFiles\Release\moc_RenderWidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="RenderWidget.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Commands.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Commands.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Docks.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Docks.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Window.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Window.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Core\Manager_Tools.cpp">
+      <Filter>Source\Window\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Tools.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Manager_Tools.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Docks.cpp">
+      <Filter>Source\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateLoop.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderWidget.cpp">
+      <Filter>Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Commands.cpp">
+      <Filter>Source\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Console.cpp">
+      <Filter>Source\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -72,11 +108,20 @@
     <CustomBuild Include="MainWindow.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="MainWindow.h">
-      <Filter>Source</Filter>
+    <CustomBuild Include="Manager_Docks.h">
+      <Filter>Source\Window</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Manager_Commands.h">
+      <Filter>Source\Window</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Manager_Tools.h">
+      <Filter>Source\Window\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Window.h">
+      <Filter>Source\Window</Filter>
     </CustomBuild>
     <CustomBuild Include="RenderWidget.h">
-      <Filter>Source</Filter>
+      <Filter>Source\Utilities</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -89,8 +134,11 @@
     <ClInclude Include="UpdateLoop.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Manager_Tools.h">
-      <Filter>Source\Tools</Filter>
+    <ClInclude Include="Manager_Console.h">
+      <Filter>Source\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Util.h">
+      <Filter>Source\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

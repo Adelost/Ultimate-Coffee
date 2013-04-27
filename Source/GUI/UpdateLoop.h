@@ -2,35 +2,20 @@
 
 #include <Core/World.h>
 #include <System_Render/System_Render.h>
+#include "Util.h"
+#include "UpdateTimer.h"
 
 // Class 
 class UpdateLoop
 {
 private:
 	World* m_world;
+	UpdateTimer m_updateTimer;
 
 public:
-	UpdateLoop()
-	{
-		m_world = WORLD();
-	}
+	UpdateLoop();
 
-	void init()
-	{
-		// Init systems
-		m_world->addSystem(new System::Translation());
-		m_world->addSystem(new System::Render());
-
-		// Create Entities
-		Entity* e = m_world->createEntity();
-		e->fetchData<Data::Position>();
-		e->removeData<Data::Position>();
-		e->addData(Data::Position());
-	}
-
-	void update()
-	{
-		// Update game
-		m_world->update();
-	}
+	void init();
+	void update();
+	void computeFPS();
 };

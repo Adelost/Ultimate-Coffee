@@ -3,6 +3,7 @@
 #include <string>
 #include <windows.h>
 #include "Util.h"
+#include "EventManager.h"
 
 enum EventType
 {

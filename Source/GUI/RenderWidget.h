@@ -2,10 +2,9 @@
 
 #include <QWidget>
 #include <Core/IObserver.h>
-#include <Core/EventManager.h>
 #include <Core/Events.h>
-
 class IEvent;
+
 
 class RenderWidget : public QWidget, public IObserver
 {

@@ -21,7 +21,3 @@
 		oss << DATA_STREAM << std::endl;						\
 		printf(oss.str().c_str());								\
 	}
-
-// Prints the supplied string to console
-#define ICON_PATH												\
-"../../Assets/GUI/Icons/"

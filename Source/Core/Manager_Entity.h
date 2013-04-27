@@ -5,7 +5,6 @@
 #include "ISystem.h"
 #include "Batch.h"
 #include "Entity.h"
-
 class World;
 
 

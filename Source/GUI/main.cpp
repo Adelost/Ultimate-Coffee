@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "Window.h"
 #include <QApplication>
 
 
@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
 
 	// Create window
 	QApplication a(argc, argv);
-	MainWindow w;
-	w.show();
+	Window* w = Window::instance();
+	w->show();
 
 	return a.exec();
 }
