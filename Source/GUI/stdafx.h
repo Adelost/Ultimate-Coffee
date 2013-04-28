@@ -17,6 +17,7 @@
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QSound>
+#include <QPlainTextEdit>
 
 // Path to icons
 #define ICON_PATH												\

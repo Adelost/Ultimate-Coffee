@@ -130,6 +130,18 @@ void Manager_Docks::setupMenu()
 	tree->setModel(m_hierarchy);
 	dock->setWidget(tree);
 
+	// Coffee
+	QPlainTextEdit* textEdit = new QPlainTextEdit();
+	textEdit->setObjectName("Coffee Console");
+	textEdit->setPlainText("  	\n"
+		"  INITIALIZING	\n"
+		"\n"
+		"    ~-_  Steamin'	\n"
+		"     _-~    Hot\n"
+		"   c|_|   COFFEE	\n"
+		"  ");
+	m_window->ui()->dockWidget->setWidget(textEdit);
+
 	// Maximize scene
 	a = createAction("Maximize Scene");
 	a->setCheckable(true);

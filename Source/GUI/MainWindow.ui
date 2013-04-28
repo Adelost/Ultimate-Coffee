@@ -636,6 +636,25 @@ QTreeView::item:selected
      </item>
     </item>
    </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>70</y>
+      <width>201</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="plainText">
+     <string>  	
+  INITIALIZING	
+
+    ~-_  Steamin'	
+     _-~    Hot
+   c|_|   COFFEE	
+  </string>
+    </property>
+   </widget>
   </widget>
   <widget class="QToolBar" name="contextBar">
    <attribute name="toolBarArea">
