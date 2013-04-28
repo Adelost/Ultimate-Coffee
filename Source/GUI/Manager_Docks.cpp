@@ -15,6 +15,7 @@ void Manager_Docks::init()
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
 	m_renderWidget = new RenderWidget(m_window);
+	m_renderWidget->setMinimumSize(1, 1);
 	setupMenu();
 	setupHierarchy();
 }
