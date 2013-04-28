@@ -40,6 +40,10 @@ public:
 
 public slots:
 	void update();
+	void update2()
+	{
+
+	}
 	void setFullscreen(bool p_checked);
 
 };

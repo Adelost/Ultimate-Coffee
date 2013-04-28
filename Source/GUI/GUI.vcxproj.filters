@@ -97,6 +97,9 @@
     <ClCompile Include="Manager_Tools.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MainWindow.ui">
@@ -134,8 +137,8 @@
     <ClInclude Include="Manager_Console.h">
       <Filter>Source\Window</Filter>
     </ClInclude>
-    <ClInclude Include="Util.h">
-      <Filter>Source\Utilities</Filter>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

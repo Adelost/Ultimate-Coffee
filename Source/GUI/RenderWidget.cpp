@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "RenderWidget.h"
-
 #include <Core/Events.h>
 
 

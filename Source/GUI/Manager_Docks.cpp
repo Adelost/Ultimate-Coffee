@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "Manager_Docks.h"
 #include "RenderWidget.h"
 #include "Window.h"
 #include "ui_MainWindow.h"
-#include "Util.h"
+
 
 Manager_Docks::~Manager_Docks()
 {

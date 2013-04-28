@@ -1,6 +1,6 @@
+#include "stdafx.h"
 #include "UpdateLoop.h"
 #include "UpdateTimer.h"
-#include "Util.h"
 #include "Window.h"
 
 #include <Core/World.h>

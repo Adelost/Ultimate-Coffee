@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Manager_Console.h"
 
 #include <Core/EventManager.h>

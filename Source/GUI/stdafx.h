@@ -12,12 +12,11 @@
 #include <QMessageBox.h>
 #include <QShortcut.h>
 #include <QSignalMapper>
-#include <QSound>
 #include <QString>
 #include <QTimer.h>
 #include <QTreeView>
 #include <QStandardItemModel>
-
+#include <QSound>
 
 // Path to icons
 #define ICON_PATH												\

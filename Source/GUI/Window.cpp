@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Window.h"
 #include "UpdateLoop.h"
 #include "Manager_Commands.h"
@@ -5,7 +6,6 @@
 #include "Manager_Tools.h"
 #include "Manager_Console.h"
 #include "ui_MainWindow.h"
-#include "Util.h"
 
 #include <QTimer.h>
 #include <Core/Events.h>

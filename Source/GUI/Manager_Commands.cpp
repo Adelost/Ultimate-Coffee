@@ -1,13 +1,13 @@
+#include "stdafx.h"
 #include "Manager_Commands.h"
-#include "Manager_Docks.h"
-#include "Window.h"
 
 #include <Core/World.h> //SETTINGS
 #include <Core/Commander.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 #include <Core/Events.h>
-#include "Util.h"
 #include "ui_MainWindow.h"
+#include "Manager_Docks.h"
+#include "Window.h"
 
 void Manager_Commands::init()
 {
