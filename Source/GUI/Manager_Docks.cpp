@@ -101,9 +101,21 @@ void Manager_Docks::loadLayout()
 void Manager_Docks::setupMenu()
 {
 	m_window->centralWidget()->hide();
+	QAction* a;
+
+	// Fullscreen
+	a = createAction("Fullscreen");
+	a->setCheckable(true);
+	a->setShortcut(QKeySequence("F1"));
+	connect(a, SIGNAL(toggled(bool)), m_window, SLOT(setFullscreen(bool)));
+
+	// Maximize scene
+	a = createAction("Maximize Scene");
+	a->setCheckable(true);
+	a->setShortcut(QKeySequence("Ctrl+G"));
+	connect(a, SIGNAL(toggled(bool)), this, SLOT(setMaximizeScene(bool)));
 
 	// Add dock action
-	QAction* a;
 	a = new QAction("Create Dock", m_window);
 	a->setShortcuts(QKeySequence::AddTab);
 	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
@@ -111,6 +123,8 @@ void Manager_Docks::setupMenu()
 	connect(m_window->ui()->actionReset_Layout, SIGNAL(triggered()), this, SLOT(resetLayout()));
 	connect(m_window->ui()->actionSave_Layout, SIGNAL(triggered()), this, SLOT(saveLayout()));
 	connect(m_window->ui()->actionLoad_Layout, SIGNAL(triggered()), this, SLOT(loadLayout()));
+	m_menu->addSeparator();
+
 
 	QDockWidget* dock;
 
@@ -132,8 +146,9 @@ void Manager_Docks::setupMenu()
 	dock->setWidget(tree);
 
 	// Coffee
+	dock = createDock("Coffee", Qt::RightDockWidgetArea);
 	QPlainTextEdit* textEdit = new QPlainTextEdit();
-	textEdit->setObjectName("Coffee Console");
+	textEdit->setReadOnly(true);
 	textEdit->setPlainText("  	\n"
 		"  INITIALIZING	\n"
 		"\n"
@@ -141,19 +156,10 @@ void Manager_Docks::setupMenu()
 		"     _-~    Hot\n"
 		"   c|_|   COFFEE	\n"
 		"  ");
-	m_window->ui()->dockWidget->setWidget(textEdit);
+	dock->setWidget(textEdit);
 
-	// Maximize scene
-	a = createAction("Maximize Scene");
-	a->setCheckable(true);
-	a->setShortcut(QKeySequence("Ctrl+G"));
-	connect(a, SIGNAL(toggled(bool)), this, SLOT(setMaximizeScene(bool)));
-
-	// Fullscreen
-	a = createAction("Fullscreen");
-	a->setCheckable(true);
-	a->setShortcut(QKeySequence("F1"));
-	connect(a, SIGNAL(toggled(bool)), m_window, SLOT(setFullscreen(bool)));
+	// Console
+	dock = createDock("Console", Qt::LeftDockWidgetArea);
 }
 
 void Manager_Docks::createDockWidget()
