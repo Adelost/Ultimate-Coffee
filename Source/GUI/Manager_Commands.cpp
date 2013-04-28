@@ -115,7 +115,7 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	QColor color = (p_str_color);
 	Command_ChangeBackBufferColor* command = new Command_ChangeBackBufferColor();
 	command->setDoColor(color.red(), color.green(), color.blue());
-	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
+	command->setUndoColor(SETTINGS()->backBufferColor->x, SETTINGS()->backBufferColor->y, SETTINGS()->backBufferColor->z);
 	m_commander->addToHistoryAndExecute(command);
 }
 

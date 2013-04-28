@@ -2,7 +2,7 @@
 
 #include <string>
 #include <windows.h>
-#include "Util.h"
+#include "stdafx.h"//check
 #include "EventManager.h"
 
 enum EventType
@@ -77,19 +77,14 @@ public:
 class Event_SetBackBufferColor : public IEvent
 {
 public:
-	Color color;
+	float x,y,z;
 
 public:
 	Event_SetBackBufferColor(float p_x, float p_y, float p_z) : IEvent(EVENT_SET_BACKBUFFER_COLOR)
 	{
-		color.x = p_x;
-		color.y = p_y;
-		color.z = p_z;
-	}
-
-	Event_SetBackBufferColor(Color p_color) : IEvent(EVENT_SET_BACKBUFFER_COLOR)
-	{
-		color = p_color;
+		x = p_x;
+		y = p_y;
+		z = p_z;
 	}
 };
 

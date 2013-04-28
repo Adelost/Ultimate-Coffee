@@ -7,7 +7,9 @@
 #include <string>
 #include <vector>
 #include <windows.h>
+
 #include "Math.h"
+#include "Settings.h"
 
 // The maximum capacity of "std::bitset"
 // and thereby the maximum number of 

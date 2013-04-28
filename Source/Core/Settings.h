@@ -1,13 +1,14 @@
 #pragma once
 
-#include "Util.h"
+typedef struct HWND__* HWND;
+struct DirectX::SimpleMath::Color;
 
 class Settings
 {
 public:
 	float deltaTime;
 	HWND windowHandle;
-	Color backBufferColor;
+	Color* backBufferColor;
 
 public:
 	Settings();

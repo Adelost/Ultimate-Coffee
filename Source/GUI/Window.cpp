@@ -7,7 +7,6 @@
 #include "Manager_Console.h"
 #include "ui_MainWindow.h"
 
-#include <QTimer.h>
 #include <Core/Events.h>
 
 Window::Window()

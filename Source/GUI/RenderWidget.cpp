@@ -2,7 +2,6 @@
 #include "RenderWidget.h"
 #include <Core/Events.h>
 
-
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
 	// make widget non-transparent & draw directly onto screen
@@ -15,7 +14,6 @@ RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 
 RenderWidget::~RenderWidget()
 {
-
 }
 
 void RenderWidget::onEvent( IEvent* p_event )

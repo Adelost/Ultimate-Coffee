@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Commander.h"
 #include "Command.h"
 #include <fstream>
@@ -348,7 +349,7 @@ std::string* CommandHistory::getCommandList( int& p_nrOfCommands )
 void CommandHistory::executeAllCommandsUpAndUntilCurrent()
 {
 	int nrOfCommands = m_commands.size();
-	for(int i=0;i<m_indexOfCurrentCommand;i++)
+	for(int i=0;i<m_indexOfCurrentCommand+1;i++)
 	{
 		Command* command = m_commands.at(i);
 		command->doRedo();

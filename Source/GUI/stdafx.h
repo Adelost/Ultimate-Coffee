@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Core/IObserver.h>
-#include <Core/Util.h>
+//#include <Core/Util.h>
+#include <Core/stdafx.h>//check
 #include <QAction>
 #include <QDockWidget.h>
 #include <QFileDialog>

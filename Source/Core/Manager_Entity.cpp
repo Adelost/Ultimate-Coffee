@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Manager_Entity.h"
 
 #include "Manager_Systems.h"

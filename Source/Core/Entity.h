@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Util.h"
+#include "stdafx.h"//check
 #include "IData.h"
 #include "ISystem.h"
 #include "Manager_Data.h"

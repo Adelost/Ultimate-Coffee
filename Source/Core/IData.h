@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Util.h"
+//#include "Util.h"
+#include "stdafx.h"//check
 
 // Interface to all Data
 class IData

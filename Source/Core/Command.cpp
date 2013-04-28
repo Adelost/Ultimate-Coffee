@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Command.h"
 #include <memory> // memcpy
 
