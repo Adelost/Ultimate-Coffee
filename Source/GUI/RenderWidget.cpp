@@ -31,3 +31,9 @@ void RenderWidget::onEvent( IEvent* p_event )
 	}
 }
 
+void RenderWidget::resizeEvent(QResizeEvent* e)
+{
+	QWidget::resizeEvent(e);
+
+	SEND_EVENT(&Event_WindowResize(width(), height()));
+}

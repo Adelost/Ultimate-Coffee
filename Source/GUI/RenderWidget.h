@@ -2,9 +2,7 @@
 
 #include <QWidget>
 #include <Core/IObserver.h>
-#include <Core/Events.h>
 class IEvent;
-
 
 class RenderWidget : public QWidget, public IObserver
 {
@@ -22,10 +20,5 @@ public:
 protected:
 	// should not be implemented
 	void paintEvent(QPaintEvent* e){}
-	void resizeEvent(QResizeEvent* e)
-	{
-		QWidget::resizeEvent(e);
-
-		SEND_EVENT(&Event_WindowResize(width(), height()));
-	}
+	void resizeEvent(QResizeEvent* e);
 };
