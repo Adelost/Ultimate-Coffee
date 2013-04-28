@@ -29,6 +29,11 @@ void UpdateLoop::init()
 	e->fetchData<Data::Position>();
 	e->removeData<Data::Position>();
 	e->addData(Data::Position());
+	// Create Entities
+	e = m_world->createEntity();
+	e->fetchData<Data::Position>();
+	e->removeData<Data::Position>();
+	e->addData(Data::Position());
 }
 
 void UpdateLoop::update()

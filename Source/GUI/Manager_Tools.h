@@ -6,6 +6,7 @@ class Window;
 namespace Ui{class MainWindow;}
 class QAction;
 class QActionGroup;
+class QIcon;
 
 class Manager_Tools : QObject
 {
@@ -20,8 +21,9 @@ public:
 	void init();
 	void setupToolbar();
 	void setupActions();
-	void createContextIcon( std::string p_icon );
-	QAction* createToolIcon( std::string p_icon );
+	QAction* createContextIcon( std::string p_icon );
+	QAction* createToolAction( std::string p_icon );
+	QIcon createIcon( std::string p_icon );
 
 
 public slots:

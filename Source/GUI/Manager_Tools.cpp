@@ -33,7 +33,6 @@ void Manager_Tools::setupToolbar()
 	a->setStatusTip(tr("Quit application"));
 	connect(a, SIGNAL(triggered()), m_window, SLOT(close()));
 
-
 	// HELP					
 	// About
 	a = new QAction("&About", this);
@@ -49,24 +48,30 @@ void Manager_Tools::setupToolbar()
 
 void Manager_Tools::setupActions()
 {
+	QAction* a;
+
 	// Toolbar
 	toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
-	createToolIcon("translate")->setChecked(true);
-	createToolIcon("rotate");
-	createToolIcon("scale");
-	createToolIcon("geometry");
-	createToolIcon("entity");
+	createToolAction("Translate")->setChecked(true);
+	createToolAction("Rotate");
+	createToolAction("Scale");
+	createToolAction("Geometry");
+	createToolAction("Entity");
 
 	// Context bar
 	m_ui->contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-	createContextIcon("translate");
+	QMenu* menu;
+	menu = new QMenu("Info", m_window);
+	menu->setIcon(createIcon("Translate"));
+	m_ui->contextBar->addAction(menu->menuAction());
+
 	m_ui->contextBar->addSeparator();
-	createContextIcon("toast");
-	createContextIcon("coffee");
-	createContextIcon("wine");
-	createContextIcon("experiment");
-	createContextIcon("tool");
+	createContextIcon("Toast");
+	createContextIcon("Coffee");
+	createContextIcon("Wine");
+	createContextIcon("Experiment");
+	createContextIcon("Tool");
 
 }
 
@@ -76,16 +81,18 @@ void Manager_Tools::action_about()
 		"Coffee... is a feeling.");
 }
 
-void Manager_Tools::createContextIcon( std::string p_icon )
+QAction* Manager_Tools::createContextIcon( std::string p_icon )
 {
 	std::string path = "";
 	path = path + ICON_PATH + "Tools/" + p_icon;
 	
 	QAction* a = new QAction(QIcon(path.c_str()), p_icon.c_str(), m_window);
-	m_ui->contextBar->addAction(a);;
+	m_ui->contextBar->addAction(a);
+
+	return a;
 }
 
-QAction* Manager_Tools::createToolIcon( std::string p_icon )
+QAction* Manager_Tools::createToolAction( std::string p_icon )
 {
 	std::string path = "";
 	path = path + ICON_PATH + "Tools/" + p_icon;
@@ -96,5 +103,13 @@ QAction* Manager_Tools::createToolIcon( std::string p_icon )
 	m_ui->toolBar->addAction(a);
 
 	return a;
+}
+
+QIcon Manager_Tools::createIcon( std::string p_icon )
+{
+	std::string path = "";
+	path = path + ICON_PATH + "Tools/" + p_icon;
+
+	return QIcon(path.c_str());
 }
 

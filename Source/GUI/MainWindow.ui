@@ -551,6 +551,25 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 	background-color: #535353;
 	border: 1px solid #282828;
 	border-top: 1px solid #6a6a6a;
+}
+
+QHeaderView::section
+{
+   background-color: #535353;
+	border: 0px;
+}
+
+QTreeView
+{
+ 	background-color: #535353;
+	border: 1px solid #282828;
+	border-top: 1px solid #6a6a6a;
+}
+
+
+QTreeView
+{
+   background-color: #282828;
 }</string>
   </property>
   <property name="toolButtonStyle">
@@ -612,6 +631,7 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
      </property>
      <addaction name="actionReset_Layout"/>
      <addaction name="actionSave_Layout"/>
+     <addaction name="actionLoad_Layout"/>
     </widget>
     <addaction name="menuLayout"/>
    </widget>
@@ -643,7 +663,7 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
   </widget>
   <action name="actionReset_Layout">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Reset Layout</string>
@@ -708,6 +728,11 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
    </property>
    <property name="text">
     <string>test2</string>
+   </property>
+  </action>
+  <action name="actionLoad_Layout">
+   <property name="text">
+    <string>Load Layout</string>
    </property>
   </action>
  </widget>

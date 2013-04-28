@@ -15,6 +15,8 @@
 #include <QSound>
 #include <QString>
 #include <QTimer.h>
+#include <QTreeView>
+#include <QStandardItemModel>
 
 
 // Path to icons

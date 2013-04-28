@@ -88,14 +88,14 @@
     <ClCompile Include="GeneratedFiles\Release\moc_Manager_Commands.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Manager_Tools.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_Manager_Tools.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_Manager_Tools.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Tools.cpp">
+      <Filter>Source\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,7 +118,7 @@
       <Filter>Source\Utilities</Filter>
     </CustomBuild>
     <CustomBuild Include="Manager_Tools.h">
-      <Filter>Source</Filter>
+      <Filter>Source\Window</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

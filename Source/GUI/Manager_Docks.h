@@ -6,6 +6,8 @@ class RenderWidget;
 class Window;
 class QDockWidget;
 class QMenu;
+class QAction;
+class QStandardItemModel;
 
 class Manager_Docks : QObject
 {
@@ -14,6 +16,7 @@ class Manager_Docks : QObject
 private:
 	Window* m_window;
 	QDockWidget* m_scene;
+	QStandardItemModel* m_hierarchy;
 	QMenu* m_menu;
 	RenderWidget* m_renderWidget;
 
@@ -21,12 +24,17 @@ public:
 	~Manager_Docks();
 
 	void init();
-	void saveLayout();
-	void loadLayout();
 	void setupMenu();
+	void setupHierarchy();
+
+	QAction* createAction(QString p_name);
+	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
 
 public slots:
 	void setMaximizeScene( bool p_checked );
 
 	void createDockWidget();
+	void saveLayout();
+	void loadLayout();
+	void resetLayout();
 };

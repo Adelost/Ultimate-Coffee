@@ -1,22 +1,6 @@
 Ultimate-Coffee
 ===========
 
-Only source files is tracked in Git. 
-You will need to add two extra folders:
-
-Assets/
-Libs/
-
-Download them from here:
-https://dl.dropboxusercontent.com/u/12273871/%28Download%29/UltimateCoffee%20-%20Assets.zip
-
-
-
-
-
-
-
-
 Nothing to see here. Go back to the shadow.
 
 
