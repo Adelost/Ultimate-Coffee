@@ -148,6 +148,7 @@ void Manager_Docks::setupMenu()
 	// Coffee
 	dock = createDock("Coffee", Qt::RightDockWidgetArea);
 	QPlainTextEdit* textEdit = new QPlainTextEdit();
+	textEdit->setReadOnly(true);
 	textEdit->setPlainText("  	\n"
 		"  INITIALIZING	\n"
 		"\n"
