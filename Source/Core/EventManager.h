@@ -1,11 +1,8 @@
 #pragma once
 
-#include "stdafx.h"//check
-
 class IObserver;
 enum EventType;
 class IEvent;
-
 
 class DelayedEvent
 {

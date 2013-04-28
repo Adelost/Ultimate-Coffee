@@ -4,6 +4,7 @@
 #include "Window.h"
 
 #include <Core/World.h>
+#include <Core/System.h>
 #include <System_Render/System_Render.h>
 
 UpdateLoop::UpdateLoop()

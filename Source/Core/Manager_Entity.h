@@ -1,12 +1,8 @@
 #pragma once
 
-#include "stdafx.h"//check
-#include "IData.h"
-#include "ISystem.h"
-#include "Batch.h"
-#include "Entity.h"
+//#include "Batch.h" //check, explain this
+//#include "Entity.h" //check, explain this
 class World;
-
 
 class Manager_Entity
 {

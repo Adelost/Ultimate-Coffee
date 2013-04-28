@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <windows.h>
-#include "stdafx.h"//check
 #include "EventManager.h"
 
 enum EventType

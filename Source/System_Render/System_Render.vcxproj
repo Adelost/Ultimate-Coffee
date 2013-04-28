@@ -92,11 +92,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;WIN32_LEAN_AND_MEAN;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,8 +155,8 @@
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="DXRenderer.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="System_Render.h" />
-    <ClInclude Include="Util.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXRenderer.cpp" />
+    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="System_Render.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

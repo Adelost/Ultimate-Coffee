@@ -6,8 +6,6 @@
 #include <sys/stat.h> // struct stat
 #include <iostream> // console output
 #include <memory> // memcpy
-
-#include "EventManager.h"
 #include "Events.h"
 
 Commander::Commander(void)

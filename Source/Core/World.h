@@ -1,13 +1,11 @@
 #pragma once
 
-#include "Data.h"
-#include "System.h"
-#include "Entity.h"
-
 class Manager_Systems;
 class Manager_Data;
 class Manager_Entity;
 class Settings;
+class Entity;
+class ISystem;
 
 class World
 {

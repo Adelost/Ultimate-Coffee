@@ -1,6 +1,6 @@
+#include "stdafx.h"
 #include "DXRenderer.h"
 #include "Box.h"
-#include "Util.h"
 
 #include <Core/EventManager.h>
 #include <Core/Events.h>
