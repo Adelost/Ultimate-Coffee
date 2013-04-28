@@ -124,6 +124,7 @@ void Manager_Docks::setupMenu()
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
 	QTreeView* tree = new QTreeView(m_window);
+	tree->setAlternatingRowColors(true);
 	m_hierarchy = new QStandardItemModel(0, 1, this);
 	m_hierarchy->setHorizontalHeaderItem(0, new QStandardItem("Entity ID"));
 	tree->setModel(m_hierarchy);
@@ -234,7 +235,11 @@ void Manager_Docks::setupHierarchy()
 	for(int i=0; i<5; i++)
 	{
 		QStandardItem* item;
-		item = new QStandardItem("Foo");
+		item = new QStandardItem("Fii");
+		item->setChild(0, new QStandardItem("Foo"));
+		QStandardItem* item2 = new QStandardItem("Fuu");
+		item2->setChild(0, new QStandardItem("Foe"));
+		item->setChild(1, item2);
 		m_hierarchy->appendRow(item);
 	}
 }

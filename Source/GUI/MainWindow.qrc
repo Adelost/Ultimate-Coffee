@@ -1,6 +1,11 @@
 <RCC>
   <qresource prefix="MainWindow">
     <file>../../Assets/GUI/Icons/Tools/test1.png</file>
+    <file>../../Assets/GUI/Icons/Misc/branch-closed.png</file>
+    <file>../../Assets/GUI/Icons/Misc/branch-end.png</file>
+    <file>../../Assets/GUI/Icons/Misc/branch-more.png</file>
+    <file>../../Assets/GUI/Icons/Misc/branch-open.png</file>
+    <file>../../Assets/GUI/Icons/Misc/vline.png</file>
     <file>../../Assets/GUI/Icons/Tools/test2.png</file>
   </qresource>
 </RCC>
