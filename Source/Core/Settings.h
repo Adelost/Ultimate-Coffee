@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Math.h"
 typedef struct HWND__* HWND;
-struct DirectX::SimpleMath::Color;
 
 class Settings
 {
@@ -9,7 +9,7 @@ public:
 	float deltaTime;
 	HWND windowHandle;
 	bool leftMousePressed;
-	Color* backBufferColor;
+	Color backBufferColor;
 
 public:
 	Settings();

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Core/IObserver.h>
+#include "Math.h"
+
 typedef struct HWND__* HWND;
 typedef unsigned int UINT;
 struct D3D11_VIEWPORT;
@@ -14,8 +17,8 @@ struct ID3D11VertexShader;
 struct IDXGISwapChain;
 struct ID3D11Buffer;
 
-// Move include elsewhere
-#include <Core/IObserver.h>
+
+
 
 class DXRenderer
 	: public IObserver

@@ -59,9 +59,9 @@ void DXRenderer::onEvent(IEvent* p_event)
 	case EVENT_SET_BACKBUFFER_COLOR:
 		{
 			Event_SetBackBufferColor* backbufferColorEvent = static_cast<Event_SetBackBufferColor*>(p_event);
-			SETTINGS()->backBufferColor->x = backbufferColorEvent->x;
-			SETTINGS()->backBufferColor->y = backbufferColorEvent->y;
-			SETTINGS()->backBufferColor->z = backbufferColorEvent->z;
+			SETTINGS()->backBufferColor.x = backbufferColorEvent->x;
+			SETTINGS()->backBufferColor.y = backbufferColorEvent->y;
+			SETTINGS()->backBufferColor.z = backbufferColorEvent->z;
 		}
 		break;
 	case EVENT_WINDOW_RESIZE:
@@ -88,9 +88,7 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->RSSetViewports(1, m_viewport_screen);
 
 	// Clear render target & depth/stencil
-	//float color[] = {0.14f, 0.42f, 0.56f, 1.0f};
-	float color[] = {SETTINGS()->backBufferColor->x, SETTINGS()->backBufferColor->y, SETTINGS()->backBufferColor->z, 1.0f};
-	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, color);
+	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Set per frame constants.
