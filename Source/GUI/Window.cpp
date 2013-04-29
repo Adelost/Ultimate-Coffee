@@ -5,6 +5,7 @@
 #include "Manager_Docks.h"
 #include "Manager_Tools.h"
 #include "Manager_Console.h"
+#include "RenderWidget.h"
 #include "ui_MainWindow.h"
 
 #include <QTimer.h>
@@ -19,6 +20,9 @@ Window::Window()
 	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
 	
+	m_renderWidget = new RenderWidget(this);
+	m_renderWidget->setMinimumSize(1, 1);
+
 	m_manager_tools = new Manager_Tools();
 	m_manager_tools->init();
 
@@ -103,4 +107,9 @@ QIcon Window::createIcon( QColor* p_color )
 	QPixmap pixmap(16, 16);
 	pixmap.fill(*p_color);
 	return QIcon(pixmap);
+}
+
+QWidget* Window::renderWidget()
+{
+	return m_renderWidget;
 }

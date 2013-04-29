@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderWidget.h"
 #include <Core/Events.h>
+#include <Core/World.h>
 
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
@@ -29,5 +30,26 @@ void RenderWidget::onEvent( IEvent* p_event )
 	default:
 		break;
 	}
+}
+
+void RenderWidget::mousePressEvent( QMouseEvent* p_event )
+{
+	Qt::MouseButton button = p_event->button();
+	if(button == Qt::LeftButton)
+	{
+		SETTINGS()->leftMousePressed = true;
+	}
+	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
+	
+}
+
+void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
+{
+	Qt::MouseButton button = p_event->button();
+	if(button == Qt::LeftButton)
+	{
+		SETTINGS()->leftMousePressed = false;
+	}
+	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
 }
 

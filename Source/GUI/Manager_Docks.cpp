@@ -1,21 +1,17 @@
 #include "stdafx.h"
 #include "Manager_Docks.h"
-#include "RenderWidget.h"
 #include "Window.h"
 #include "ui_MainWindow.h"
 
 
 Manager_Docks::~Manager_Docks()
 {
-	delete m_renderWidget;
 }
 
 void Manager_Docks::init()
 {
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
-	m_renderWidget = new RenderWidget(m_window);
-	m_renderWidget->setMinimumSize(1, 1);
 	setupMenu();
 	setupHierarchy();
 }
@@ -130,7 +126,7 @@ void Manager_Docks::setupMenu()
 
 	// Scene
 	dock = createDock("Scene", Qt::LeftDockWidgetArea);
-	dock->setWidget(m_renderWidget);
+	dock->setWidget(m_window->renderWidget());
 	m_scene = dock;
 
 	// Inspector
@@ -254,10 +250,10 @@ void Manager_Docks::setupHierarchy()
 	for(int i=0; i<5; i++)
 	{
 		QStandardItem* item;
-		item = new QStandardItem("Fii");
-		item->setChild(0, new QStandardItem("Foo"));
-		QStandardItem* item2 = new QStandardItem("Fuu");
-		item2->setChild(0, new QStandardItem("Foe"));
+		item = new QStandardItem("Foo");
+		item->setChild(0, new QStandardItem("Fii"));
+		QStandardItem* item2 = new QStandardItem("Fum");
+		item2->setChild(0, new QStandardItem("Fuu"));
 		item->setChild(1, item2);
 		m_hierarchy->appendRow(item);
 	}

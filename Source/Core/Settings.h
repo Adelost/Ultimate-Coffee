@@ -8,6 +8,7 @@ public:
 	float deltaTime;
 	HWND windowHandle;
 	Color backBufferColor;
+	bool leftMousePressed;
 
 public:
 	Settings();

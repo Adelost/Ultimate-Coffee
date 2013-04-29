@@ -26,6 +26,7 @@ private:
 	Manager_Tools* m_manager_tools;
 	QTimer* m_refreshTimer;
 	UpdateLoop* m_updateLoop;
+	QWidget* m_renderWidget;
 
 private:
 	Window();
@@ -37,6 +38,7 @@ public:
 	void onEvent(IEvent* p_event);
 	Ui::MainWindow* ui();
 	QIcon createIcon(QColor* p_color);
+	QWidget* renderWidget();
 
 public slots:
 	void update();

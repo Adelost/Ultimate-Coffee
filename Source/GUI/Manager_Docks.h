@@ -2,7 +2,7 @@
 
 #include "QObject.h"
 
-class RenderWidget;
+
 class Window;
 class QDockWidget;
 class QMenu;
@@ -18,7 +18,6 @@ private:
 	QDockWidget* m_scene;
 	QStandardItemModel* m_hierarchy;
 	QMenu* m_menu;
-	RenderWidget* m_renderWidget;
 
 public:
 	~Manager_Docks();

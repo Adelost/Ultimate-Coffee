@@ -28,4 +28,9 @@ protected:
 
 		SEND_EVENT(&Event_WindowResize(width(), height()));
 	}
+
+protected:
+	void mousePressEvent(QMouseEvent* p_event);
+
+	void mouseReleaseEvent(QMouseEvent* p_event);
 };

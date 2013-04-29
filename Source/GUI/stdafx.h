@@ -10,14 +10,14 @@
 #include <QMainWindow.h>
 #include <QMenu.h>
 #include <QMessageBox.h>
+#include <QPlainTextEdit>
 #include <QShortcut.h>
 #include <QSignalMapper>
+#include <QSound>
+#include <QStandardItemModel>
 #include <QString>
 #include <QTimer.h>
 #include <QTreeView>
-#include <QStandardItemModel>
-#include <QSound>
-#include <QPlainTextEdit>
 
 // Path to icons
 #define ICON_PATH												\
