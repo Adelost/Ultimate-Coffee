@@ -1,7 +1,6 @@
+#include "stdafx.h"
 #include "Entity.h"
-
 #include "World.h"
-
 
 Entity::Entity( int p_id )
 {

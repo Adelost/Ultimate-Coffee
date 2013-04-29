@@ -70,11 +70,11 @@
     <ClCompile Include="Math.cpp">
       <Filter>Source\Math</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Util.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="World.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -146,6 +146,9 @@
     </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>Source\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

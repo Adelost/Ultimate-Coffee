@@ -3,7 +3,6 @@
 #include <Core/Events.h>
 #include <Core/World.h>
 
-
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
 	// make widget non-transparent & draw directly onto screen
@@ -16,7 +15,6 @@ RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 
 RenderWidget::~RenderWidget()
 {
-
 }
 
 void RenderWidget::onEvent( IEvent* p_event )
@@ -53,3 +51,9 @@ void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
 	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
 }
 
+void RenderWidget::resizeEvent(QResizeEvent* e)
+{
+	QWidget::resizeEvent(e);
+
+	SEND_EVENT(&Event_WindowResize(width(), height()));
+}

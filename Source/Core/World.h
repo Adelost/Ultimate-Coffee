@@ -1,14 +1,11 @@
 #pragma once
 
-#include "Data.h"
-#include "System.h"
-#include "Entity.h"
-#include "Settings.h"
-
 class Manager_Systems;
 class Manager_Data;
 class Manager_Entity;
-
+class Settings;
+class Entity;
+class ISystem;
 
 class World
 {
@@ -40,6 +37,6 @@ public:
 #define WORLD()	\
 	World::instance()
 
-// Access World
+// Access World Settings
 #define SETTINGS()	\
 	World::instance()->settings

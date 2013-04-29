@@ -1,4 +1,6 @@
-#include <Core/Util.h>
+#pragma once
+
+#include <Core/stdafx.h>
 
 struct VertexPos
 {

@@ -19,7 +19,7 @@
     <ClInclude Include="Vertex.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Util.h">
+    <ClInclude Include="stdafx.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
@@ -28,6 +28,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="DXRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

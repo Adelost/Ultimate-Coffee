@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DataMapper.h"
 
 #include "World.h"

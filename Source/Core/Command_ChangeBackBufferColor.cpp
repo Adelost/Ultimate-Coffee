@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "Command_ChangeBackBufferColor.h"
-#include "EventManager.h"
 #include "Events.h"
 
 Command_ChangeBackBufferColor::Command_ChangeBackBufferColor()

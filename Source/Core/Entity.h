@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Util.h"
-#include "IData.h"
-#include "ISystem.h"
-#include "Manager_Data.h"
+#include <bitset>			//check
+#define BITSET_CAPACITY 64	//check
 
 class World;
 

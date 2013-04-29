@@ -1,8 +1,10 @@
+#include "stdafx.h"
 #include "System_Render.h"
-
-#include "Core/EventManager.h"
-
 #include "DXRenderer.h"
+
+#include <Core/EventManager.h>
+#include <Core/World.h>
+#include <Core/Events.h>
 
 System::Render::Render()
 {

@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "World.h"
-
 #include "Manager_Data.h"
 #include "Manager_Systems.h"
 #include "Manager_Entity.h"
+#include "ISystem.h"
 
 void World::addSystem( ISystem* p_system )
 {

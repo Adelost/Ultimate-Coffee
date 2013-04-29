@@ -1,7 +1,4 @@
-#include "EventManager.h"
-
-#include "Util.h"
-
+#include "stdafx.h"
 #include "IObserver.h"
 #include "Events.h"
 

@@ -8,7 +8,6 @@
 #include "RenderWidget.h"
 #include "ui_MainWindow.h"
 
-#include <QTimer.h>
 #include <Core/Events.h>
 
 Window::Window()
