@@ -4,6 +4,7 @@
 #include "Window.h"
 
 #include <Core/World.h>
+#include <Core/Factory_Entity.h>
 #include <Core/System.h>
 #include <System_Render/System_Render.h>
 
@@ -26,15 +27,10 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Render());
 
 	// Create Entities
-	Entity* e = m_world->createEntity();
-	e->fetchData<Data::Position>();
-	e->removeData<Data::Position>();
-	e->addData(Data::Position());
-	// Create Entities
-	e = m_world->createEntity();
-	e->fetchData<Data::Position>();
-	e->removeData<Data::Position>();
-	e->addData(Data::Position());
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
 }
 
 void UpdateLoop::update()

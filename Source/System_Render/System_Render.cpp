@@ -26,7 +26,11 @@ void System::Render::setupDirectX()
 
 void System::Render::process()
 {
-
+	DataMapper<Data::Transform> m_mapper_position;
+	while(m_mapper_position.hasNext())
+	{
+		Data::Transform* transform = m_mapper_position.next();
+	}
 }
 
 System::Render::~Render()
@@ -37,4 +41,5 @@ System::Render::~Render()
 void System::Render::update()
 {
 	renderer->renderFrame();
+	// Render/Update tools
 }

@@ -3,7 +3,6 @@
 #include "DataBatch.h"
 
 
-
 class Manager_Data
 {
 private:

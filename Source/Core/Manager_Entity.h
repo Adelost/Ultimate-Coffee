@@ -8,7 +8,6 @@ class Manager_Entity
 {
 private:
 	Batch<Entity> m_entity_list;
-	World* m_world;
 
 public:
 	Manager_Entity()
