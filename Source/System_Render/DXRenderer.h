@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/IObserver.h>
-#include "Math.h"
+#include <Core/Math.h>
 
 typedef struct HWND__* HWND;
 typedef unsigned int UINT;

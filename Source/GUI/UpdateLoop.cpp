@@ -29,7 +29,7 @@ void UpdateLoop::init()
 	Entity* e;
 	e = m_world->createEntity();
 	e->addData(Data::Transform());
-	e->addData(Data::Render());
+	e->addData(Data::Camera());
 
 	//e = m_world->createEntity();
 	//e->addData(Data::Transform());

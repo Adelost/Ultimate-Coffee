@@ -29,6 +29,9 @@
     <Filter Include="Source\Math">
       <UniqueIdentifier>{23325fda-77e7-402e-b224-abe9d308372a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Temp">
+      <UniqueIdentifier>{9a49ec0e-3322-44a0-b51d-196b25979a95}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp">
@@ -75,6 +78,9 @@
     </ClCompile>
     <ClCompile Include="Factory_Entity.cpp">
       <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source\Temp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="Factory_Entity.h">
       <Filter>Source\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Source\Temp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

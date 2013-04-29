@@ -5,6 +5,7 @@
 // Incorporate DirectX namespace, to make it more user friendly, 
 // and easier to type.
 using namespace DirectX::SimpleMath;
+using namespace DirectX;
 
 class Math
 {
@@ -13,7 +14,9 @@ public:
 	static int randomInt(int p_value);
 	static int randomInt(int p_min, int p_max);
 	static float randomFloat(float p_min, float p_max);
+	static const float Pi;
 };
+
 
 class Int2
 {
@@ -32,4 +35,15 @@ public:
 		x = p_x;
 		y = p_y;
 	}
+};
+
+struct MyRectangle
+{
+	XMFLOAT3 P1, P2, P3, P4;
+};
+
+struct MyPlane
+{
+	XMFLOAT3 normal;
+	float offset;
 };

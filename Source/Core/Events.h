@@ -10,6 +10,9 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
+	EVENT_MOUSE_WHEEL,
+	EVENT_MOUSE_PRESS,
+	EVENT_MOUSE_MOVE,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -95,5 +98,49 @@ public:
 	Event_ShowMessageBox(std::string p_message) : IEvent(EVENT_SHOW_MESSAGEBOX)
 	{
 		message = p_message;
+	}
+};
+
+
+class Event_MouseMove : public IEvent
+{
+public:
+	int x;
+	int y;
+	int dx;
+	int dy;
+
+public:
+	Event_MouseMove(int x, int y, int dx, int dy) : IEvent(EVENT_MOUSE_MOVE)
+	{
+		this->x = x;
+		this->y = y;
+
+		this->dx = dx;
+		this->dy = dy;
+	}
+};
+
+class Event_MousePress : public IEvent
+{
+public:
+	int keyEnum;
+	bool isPressed;
+
+	Event_MousePress(int keyEnum, bool isPressed) : IEvent(EVENT_MOUSE_PRESS)
+	{
+		this->keyEnum = keyEnum;
+		this->isPressed = isPressed;
+	}
+};
+
+class Event_MouseWheel : public IEvent
+{
+public:
+	int value;
+
+	Event_MouseWheel( int value ) : IEvent(EVENT_MOUSE_WHEEL)
+	{
+		this->value = value;
 	}
 };

@@ -18,6 +18,10 @@ namespace System
 			{
 			//Data::Position* position = m_mapper_position.next();
 			}
+			while(m_mapper_position.hasNext())
+			{
+				//Data::Position* position = m_mapper_position.next();
+			}
 		}
 
 		void process()
