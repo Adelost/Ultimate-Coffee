@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1018</width>
+    <width>941</width>
     <height>738</height>
    </rect>
   </property>
@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#MainWindow, QPlainTextEdit
+   <string notr="true">#MainWindow
 {
   	background-color: #282828;
 }
@@ -28,6 +28,7 @@ QTreeView::item:hover
 QAbstractScrollArea, QAbstractItemView
 {
    	color: #f5f5f5;
+	background-color: #282828;
 }
 
 QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
@@ -496,7 +497,7 @@ QTreeView::item:selected
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1018</width>
+     <width>941</width>
      <height>35</height>
     </rect>
    </property>
