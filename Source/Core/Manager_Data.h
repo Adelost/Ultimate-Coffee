@@ -16,7 +16,7 @@ public:
 	template<typename T>
 	void addData(int p_entityId, Data::Type<T>& p_data)
 	{
-		int batchIndex = p_data.classId();
+		int batchIndex = Data::Type<T>::classId();
 
 		// The first time a new Data is added
 		// a unique id is given, corresponding to

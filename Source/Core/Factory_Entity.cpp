@@ -24,7 +24,7 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	if(p_type == ENTITY_CUBE)
 	{
 		e->addData(Data::Transform());
-		//e->addData(Data::Render());
+		e->addData(Data::Render());
 	}
 
 	return e;
