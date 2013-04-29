@@ -6,7 +6,7 @@
 #include <vector>
 #include <assert.h>
 
-#pragma comment(lib, "d3dcompiler.lib")
+//#pragma comment(lib, "d3dcompiler.lib")
 
 
 //
