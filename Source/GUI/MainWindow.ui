@@ -29,6 +29,7 @@ QAbstractScrollArea, QAbstractItemView
 {
    	color: #f5f5f5;
 	background-color: #282828;
+	border: none;
 }
 
 QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
@@ -291,7 +292,8 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 QHeaderView::section
 {
    background-color: #535353;
-	border: 0px;
+	border: none;
+	padding: 2px;
 }
 
 QTreeView
