@@ -28,11 +28,14 @@ void UpdateLoop::init()
 
 	Entity* e;
 	e = m_world->createEntity();
-	e->addData(Data::Transform());
+	Data::Transform d;
+	d.position.x = 4;
+	e->addData(d);
 	e->addData(Data::Render());
-	e->addData(Data::Transform());
+	//e->addData(Data::Transform());
 	e->addData(Data::Render());
 
+	
 
 	//e->addData(Data::Transform());
 	//e->addData(Data::Render());
@@ -42,6 +45,8 @@ void UpdateLoop::init()
 	m_world->factory_entity()->createEntity(ENTITY_CUBE);
 	m_world->factory_entity()->createEntity(ENTITY_CUBE);
 	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+
+	Data::Transform* da = Entity(0).fetchData<Data::Transform>();
 
 	int test;
 	test = 0;

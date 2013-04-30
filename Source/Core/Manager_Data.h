@@ -40,7 +40,8 @@ public:
 		if(p_batchIndex == -1)
 			return NULL;
 
-		return m_dataBatch_list[p_batchIndex].fetchData<T>(p_entityId);
+		DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[p_batchIndex];
+		return dataBatch->fetchData(p_entityId);
 	}
 
 	template<typename T>
@@ -77,6 +78,6 @@ public:
 		}
 
 		DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[batchIndex];
-		dataBatch->mapToData<T>(p_init);
+		dataBatch->mapToData(p_init);
 	}
 };

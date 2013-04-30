@@ -41,7 +41,7 @@ public:
 		// Delete previous Data, if any
 		int prev_dataId = dataIndexFromEntityId(p_entityId);
 		if(prev_dataId != -1)
-			removeData<T>(p_entityId);
+			removeData(p_entityId);
 
 		// Put data inside Batch and retrieve the 
 		// index where the data was stored
@@ -69,7 +69,6 @@ public:
 		m_dataIndexFromEntityId_list[p_entityId] = dataIndex;
 	}
 
-	template<typename T>
 	T* fetchData(int p_entityId)
 	{
 		// Fetch item from Batch
@@ -82,7 +81,6 @@ public:
 		return m_batch.itemAt(dataIndex);
 	}
 
-	template<typename T>
 	void removeData(int p_entityId)
 	{
 		int dataIndex = dataIndexFromEntityId(p_entityId);
@@ -91,7 +89,6 @@ public:
 			m_batch.removeItemAt(dataIndex);
 	}
 
-	template<typename T>
 	void mapToData(Init_DataMapper* p_init)
 	{
 		p_init->setDataList(m_batch.itemList());
