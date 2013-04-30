@@ -6,11 +6,13 @@
 class Manager_Data
 {
 private:
-	std::vector<DataBatch> m_dataBatch_list;
+	std::vector<IDataBatch*> m_dataBatch_list;
 
 public:
 	~Manager_Data()
 	{
+		for(int i=0; i<(int)m_dataBatch_list.size(); i++)
+			delete m_dataBatch_list[i];
 	}
 
 	template<typename T>
@@ -27,7 +29,8 @@ public:
 			batchIndex = addBatch<T>();
 		}
 
-		m_dataBatch_list[batchIndex].addData(p_entityId, p_data);
+		DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[batchIndex];
+		dataBatch->addData(p_entityId, p_data);
 	}
 
 	template<typename T>
@@ -44,7 +47,10 @@ public:
 	void removeData(int p_entityId, int p_batchIndex)
 	{
 		if(p_batchIndex != -1)
-			m_dataBatch_list[p_batchIndex].removeData<T>(p_entityId);
+		{
+			DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[batchIndex];
+			dataBatch->removeData<T>(p_entityId);
+		}
 	}
 
 	template<typename T>
@@ -55,8 +61,8 @@ public:
 		Data::Type<T>::setClassId(batchIndex);
 
 		// Add new Batch
-		m_dataBatch_list.push_back(DataBatch());
-		m_dataBatch_list[batchIndex].init<T>();
+		IDataBatch* dataBatch = new DataBatch<T>();
+		m_dataBatch_list.push_back(dataBatch);
 
 		return batchIndex;
 	}
@@ -70,6 +76,7 @@ public:
 			batchIndex = addBatch<T>();
 		}
 
-		m_dataBatch_list[batchIndex].mapToData<T>(p_init);
+		DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[batchIndex];
+		dataBatch->mapToData<T>(p_init);
 	}
 };

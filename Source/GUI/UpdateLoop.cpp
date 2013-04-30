@@ -23,23 +23,25 @@ UpdateLoop::~UpdateLoop()
 void UpdateLoop::init()
 {
 	// Init systems
-	m_world->addSystem(new System::Translation());
-	m_world->addSystem(new System::Render());
+	//m_world->addSystem(new System::Translation());
+	//m_world->addSystem(new System::Render());
 
 	Entity* e;
 	e = m_world->createEntity();
-	//e->addData(Data::Transform());
-	//e->addData(Data::Render());
+	e->addData(Data::Transform());
+	e->addData(Data::Render());
+	e->addData(Data::Transform());
+	e->addData(Data::Render());
 
-	//e = m_world->createEntity();
+
 	//e->addData(Data::Transform());
 	//e->addData(Data::Render());
 
 	//// Create Entities
-	//m_world->factory_entity()->createEntity(ENTITY_CUBE);
-	//m_world->factory_entity()->createEntity(ENTITY_CUBE);
-	//m_world->factory_entity()->createEntity(ENTITY_CUBE);
-	//m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	m_world->factory_entity()->createEntity(ENTITY_CUBE);
 
 	int test;
 	test = 0;
