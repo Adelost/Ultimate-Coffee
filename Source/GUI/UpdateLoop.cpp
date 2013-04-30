@@ -40,11 +40,14 @@ void UpdateLoop::init()
 	//e->addData(Data::Transform());
 	//e->addData(Data::Render());
 
-	//// Create Entities
-	m_world->factory_entity()->createEntity(ENTITY_CUBE);
-	m_world->factory_entity()->createEntity(ENTITY_CUBE);
-	m_world->factory_entity()->createEntity(ENTITY_CUBE);
-	m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	// Create Entities
+	for(int i=0; i<100; i++)
+	{
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	}
 
 	Data::Transform* da = Entity(0).fetchData<Data::Transform>();
 

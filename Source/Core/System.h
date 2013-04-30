@@ -16,7 +16,7 @@ namespace System
 		{
 			while(m_mapper_position.hasNext())
 			{
-			//Data::Position* position = m_mapper_position.next();
+				Data::Transform* position = m_mapper_position.next();
 			}
 		}
 
