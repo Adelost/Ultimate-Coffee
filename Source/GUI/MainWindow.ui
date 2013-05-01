@@ -25,6 +25,16 @@ QTreeView::item:hover
 	background-color: #808080;
 }
 
+QHeaderView::section
+{
+	background-color: #535353;
+	border: none;
+	padding: 2px;
+	padding-left: 8px;
+	margin: 0px;
+}
+
+
 QAbstractScrollArea, QAbstractItemView
 {
    	color: #f5f5f5;
@@ -39,7 +49,6 @@ QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
 	border: 1px solid #282828;
 	border-top: 1px solid #6a6a6a;
 }
-
 QWidget:item:hover
 {
 	
@@ -161,15 +170,6 @@ QTextEdit
     background-color: #242424;
 }
 
-
-QHeaderView::section
-{
-    background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #616161, stop: 0.5 #505050, stop: 0.6 #434343, stop:1 #656565);
-    color: white;
-    padding-left: 4px;
-    border: 1px solid #6c6c6c;
-}
-
 QCheckBox:disabled
 {
 	color: #414141;
@@ -287,13 +287,6 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 	background-color: #535353;
 	border: 1px solid #282828;
 	border-top: 1px solid #6a6a6a;
-}
-
-QHeaderView::section
-{
-   background-color: #535353;
-	border: none;
-	padding: 2px;
 }
 
 QTreeView
@@ -454,18 +447,40 @@ QTreeView::item:selected
   </string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>180</y>
-      <width>75</width>
-      <height>23</height>
+      <x>100</x>
+      <y>340</y>
+      <width>95</width>
+      <height>56</height>
      </rect>
     </property>
-    <property name="text">
-     <string>PushButton</string>
+    <property name="title">
+     <string>GroupBox</string>
     </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>PushButton</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QToolBar" name="contextBar">

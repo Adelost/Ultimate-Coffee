@@ -13,6 +13,7 @@ class QTimer;
 class UpdateLoop;
 class IEvent;
 class QColor;
+class QSpacerItem;
 
 class Window : public QMainWindow, public IObserver
 {
@@ -38,6 +39,8 @@ public:
 	void onEvent(IEvent* p_event);
 	Ui::MainWindow* ui();
 	QIcon createIcon(QColor* p_color);
+	QSpacerItem* createSpacer(Qt::Orientation p_orientation);
+
 	QWidget* renderWidget();
 
 public slots:

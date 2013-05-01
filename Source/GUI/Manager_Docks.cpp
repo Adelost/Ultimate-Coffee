@@ -138,12 +138,12 @@ void Manager_Docks::setupMenu()
 	// Inspector
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
-	//Command history
+	// Command history
 	dock = createDock("Command history (Visible list not functional yet, 2013-04-29, 22.08", Qt::LeftDockWidgetArea);
     commandHistoryListWidget = new QListWidget(dock);
 	dock->setWidget(commandHistoryListWidget);
 
-	//Test, list of commands as strings
+	// Test, list of commands as strings
 	std::vector<std::string> commandList;
 	commandList.push_back(std::string("Command 1 (test entry)"));
 	commandList.push_back(std::string("Command 2 (test entry)"));
@@ -179,6 +179,20 @@ void Manager_Docks::setupMenu()
 		"   c|_|   COFFEE	\n"
 		"  ");
 	dock->setWidget(textEdit);
+
+	// Tool
+	dock = createDock("Tool Settings", Qt::RightDockWidgetArea);
+	QWidget* toolWidget = new QWidget(dock);
+	dock->setWidget(toolWidget);
+	QVBoxLayout* l;
+	l = new QVBoxLayout(toolWidget);
+	toolWidget->setLayout(l);
+	l->addWidget(new QDoubleSpinBox(dock));
+	l->addWidget(new QDoubleSpinBox(dock));
+	l->addWidget(new QDoubleSpinBox(dock));
+	l->addItem(m_window->createSpacer(Qt::Vertical));
+	
+	
 
 	// Console
 	dock = createDock("Console", Qt::LeftDockWidgetArea);

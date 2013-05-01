@@ -18,6 +18,7 @@ Window::Window()
 	setDockOptions(AllowNestedDocks | AllowTabbedDocks);
 	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
+	//setWindowFlags( Qt::FramelessWindowHint );
 	
 	m_renderWidget = new RenderWidget(this);
 	m_renderWidget->setMinimumSize(1, 1);
@@ -111,4 +112,9 @@ QIcon Window::createIcon( QColor* p_color )
 QWidget* Window::renderWidget()
 {
 	return m_renderWidget;
+}
+
+QSpacerItem* Window::createSpacer( Qt::Orientation p_orientation )
+{
+	return new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 }

@@ -20,6 +20,8 @@
 #include <QTimer.h>
 #include <QTreeView>
 #include <QListwidget.h>
+#include <QBoxLayout.h>
+#include <QDoubleSpinBox>
 
 // Path to icons
 #define ICON_PATH												\
