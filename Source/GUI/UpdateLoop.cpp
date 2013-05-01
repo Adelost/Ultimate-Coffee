@@ -25,27 +25,11 @@ void UpdateLoop::init()
 	// Init systems
 	m_world->addSystem(new System::Translation());
 	m_world->addSystem(new System::Render());
-
-	Entity* e;
-	e = m_world->createEntity();
-	Data::Transform d;
-	d.position.x = 4;
-	e->addData(d);
-	e->addData(Data::Render());
-	//e->addData(Data::Transform());
-	e->addData(Data::Render());
-
-	
-
-	//e->addData(Data::Transform());
-	//e->addData(Data::Render());
+	m_world->addSystem(Window::instance()->system_editor());
 
 	// Create Entities
-	for(int i=0; i<100; i++)
+	for(int i=0; i<10; i++)
 	{
-		m_world->factory_entity()->createEntity(ENTITY_CUBE);
-		m_world->factory_entity()->createEntity(ENTITY_CUBE);
-		m_world->factory_entity()->createEntity(ENTITY_CUBE);
 		m_world->factory_entity()->createEntity(ENTITY_CUBE);
 	}
 

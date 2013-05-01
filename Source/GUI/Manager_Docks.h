@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/ISystem.h>
 #include "QObject.h"
 
 class Window;
@@ -9,7 +10,7 @@ class QAction;
 class QStandardItemModel;
 class QListWidget;
 
-class Manager_Docks : QObject
+class Manager_Docks : public QObject, public System::Type<Manager_Docks>
 {
 	Q_OBJECT
 
@@ -25,11 +26,16 @@ public:
 	~Manager_Docks();
 
 	void init();
+	void update();
 	void setupMenu();
 	void setupHierarchy();
 
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
+	ISystem* getAsSystem()
+	{
+		return this;
+	}
 
 public slots:
 	void setMaximizeScene( bool p_checked );

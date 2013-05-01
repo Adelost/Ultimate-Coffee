@@ -9,14 +9,16 @@ namespace System
 	class Translation : public Type<Translation>
 	{
 	private:
-		DataMapper<Data::Transform> m_mapper_position;
+		DataMapper<Data::Transform> m_map_translation;
 
 	public:
 		void update()
 		{
-			while(m_mapper_position.hasNext())
+			static float i = 0.0f;
+			DataMapper<Data::Transform> pos;
+			while(m_map_translation.hasNext())
 			{
-				Data::Transform* position = m_mapper_position.next();
+				Data::Transform* trans = m_map_translation.next();
 			}
 		}
 

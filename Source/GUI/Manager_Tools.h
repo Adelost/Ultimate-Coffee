@@ -42,7 +42,6 @@ public:
 	QAction* createToolAction(QSignalMapper* p_mapper, ToolType p_type, std::string p_icon);
 	QIcon createIcon( std::string p_icon );
 
-
 public slots:
 	void action_about();
 	void setTool(int p_toolType);

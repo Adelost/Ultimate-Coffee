@@ -118,3 +118,8 @@ QSpacerItem* Window::createSpacer( Qt::Orientation p_orientation )
 {
 	return new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 }
+
+ISystem* Window::system_editor()
+{
+	return m_manager_docks->getAsSystem();
+}

@@ -186,4 +186,3 @@ void Manager_Tools::onEvent( IEvent* p_event )
 		break;
 	}
 }
-

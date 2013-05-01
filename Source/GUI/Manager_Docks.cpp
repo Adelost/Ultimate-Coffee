@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include <Core/DataMapper.h>
+#include <Core/Data.h>
 #include "Manager_Docks.h"
 #include "Window.h"
 #include "ui_MainWindow.h"
@@ -86,9 +88,9 @@ void Manager_Docks::loadLayout()
 		ok = layout_data.size() > 0;
 	}
 
-	if (ok)
+	if(ok)
 		ok = m_window->restoreGeometry(geo_data);
-	if (ok)
+	if(ok)
 		ok = m_window->restoreState(layout_data);
 
 	if (!ok)
@@ -123,6 +125,7 @@ void Manager_Docks::setupMenu()
 	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
 	m_menu->addAction(a);
 	connect(m_window->ui()->actionReset_Layout, SIGNAL(triggered()), this, SLOT(resetLayout()));
+	m_window->ui()->actionReset_Layout->setShortcut(QKeySequence("Ctrl+Shift+R"));
 	connect(m_window->ui()->actionSave_Layout, SIGNAL(triggered()), this, SLOT(saveLayout()));
 	connect(m_window->ui()->actionLoad_Layout, SIGNAL(triggered()), this, SLOT(loadLayout()));
 	m_menu->addSeparator();
@@ -287,14 +290,35 @@ void Manager_Docks::resetLayout()
 
 void Manager_Docks::setupHierarchy()
 {
-	for(int i=0; i<5; i++)
+	/*for(int i=0; i<5; i++)
 	{
+	QStandardItem* item;
+	item = new QStandardItem("Foo");
+	item->setChild(0, new QStandardItem("Fii"));
+	QStandardItem* item2 = new QStandardItem("Fum");
+	item2->setChild(0, new QStandardItem("Fuu"));
+	item->setChild(1, item2);
+	m_hierarchy->appendRow(item);
+	}*/
+}
+
+void Manager_Docks::update()
+{
+	int rowCount = m_hierarchy->rowCount();
+	int entityCount = 0;
+
+	DataMapper<Data::Transform> map_trans;
+	while(map_trans.hasNext())
+	{
+		map_trans.next();
+
+		/*if(entityCount>=rowCount)
+		{
 		QStandardItem* item;
-		item = new QStandardItem("Foo");
-		item->setChild(0, new QStandardItem("Fii"));
-		QStandardItem* item2 = new QStandardItem("Fum");
-		item2->setChild(0, new QStandardItem("Fuu"));
-		item->setChild(1, item2);
-		m_hierarchy->appendRow(item);
+		item = new QStandardItem("Entity");
+		m_hierarchy->setItem(entityCount, item);
+		}
+		entityCount++;*/
 	}
+	
 }

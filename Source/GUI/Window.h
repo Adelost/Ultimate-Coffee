@@ -14,6 +14,7 @@ class UpdateLoop;
 class IEvent;
 class QColor;
 class QSpacerItem;
+class ISystem;
 
 class Window : public QMainWindow, public IObserver
 {
@@ -42,6 +43,7 @@ public:
 	QSpacerItem* createSpacer(Qt::Orientation p_orientation);
 
 	QWidget* renderWidget();
+	ISystem* system_editor();
 
 public slots:
 	void update();
