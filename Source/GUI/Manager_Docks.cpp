@@ -304,21 +304,21 @@ void Manager_Docks::setupHierarchy()
 
 void Manager_Docks::update()
 {
-	int rowCount = m_hierarchy->rowCount();
-	int entityCount = 0;
+	//int rowCount = m_hierarchy->rowCount();
+	//int entityCount = 0;
 
-	DataMapper<Data::Transform> map_trans;
-	while(map_trans.hasNext())
-	{
-		map_trans.next();
+	//DataMapper<Data::Transform> map_trans;
+	//while(map_trans.hasNext())
+	//{
+	//	map_trans.next();
 
-		/*if(entityCount>=rowCount)
-		{
-		QStandardItem* item;
-		item = new QStandardItem("Entity");
-		m_hierarchy->setItem(entityCount, item);
-		}
-		entityCount++;*/
-	}
+	//	/*if(entityCount>=rowCount)
+	//	{
+	//	QStandardItem* item;
+	//	item = new QStandardItem("Entity");
+	//	m_hierarchy->setItem(entityCount, item);
+	//	}
+	//	entityCount++;*/
+	//}
 	
 }
