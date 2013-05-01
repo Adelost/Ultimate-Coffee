@@ -26,9 +26,11 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Translation());
 	m_world->addSystem(new System::Render());
 	m_world->addSystem(Window::instance()->system_editor());
+	m_world->addSystem(new System::Test());
+	
 
 	// Create Entities
-	for(int i=0; i<10; i++)
+	for(int i=0; i<2; i++)
 	{
 		m_world->factory_entity()->createEntity(ENTITY_CUBE);
 	}

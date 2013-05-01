@@ -4,6 +4,8 @@
 class ISystem
 {
 public:
+
+public:
 	virtual ~ISystem(){}
 	virtual void update() = 0;
 	virtual int classId() = 0;
@@ -20,7 +22,7 @@ namespace System
 	public:
 		// Unique id, used as a fast way
 		// of indexing inside "manager"
-		static int s_classId;	
+		static int s_classId;
 
 	public:
 		int classId()

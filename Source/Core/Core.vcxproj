@@ -154,6 +154,7 @@
     <ClCompile Include="Factory_Entity.cpp" />
     <ClCompile Include="Manager_Data.cpp" />
     <ClCompile Include="Manager_Entity.cpp" />
+    <ClCompile Include="Manager_Systems.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Serializable.cpp" />
     <ClCompile Include="Settings.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commander.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />
+    <ClInclude Include="Converter.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="DataBatch.h" />
     <ClInclude Include="DataMapper.h" />

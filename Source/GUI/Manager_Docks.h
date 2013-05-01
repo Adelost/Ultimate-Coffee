@@ -9,8 +9,21 @@ class QMenu;
 class QAction;
 class QStandardItemModel;
 class QListWidget;
+class Manager_Docks;
 
-class Manager_Docks : public QObject, public System::Type<Manager_Docks>
+class System_Editor : public System::Type<System_Editor>
+{
+private:
+	Manager_Docks* m_editor;
+public:
+	System_Editor(Manager_Docks* p_editor)
+	{
+		m_editor = p_editor;
+	}
+	void update();
+};
+
+class Manager_Docks : public QObject
 {
 	Q_OBJECT
 
@@ -34,7 +47,7 @@ public:
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
 	ISystem* getAsSystem()
 	{
-		return this;
+		return new System_Editor(this);
 	}
 
 public slots:

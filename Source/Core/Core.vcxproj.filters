@@ -29,6 +29,9 @@
     <Filter Include="Source\Math">
       <UniqueIdentifier>{23325fda-77e7-402e-b224-abe9d308372a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Util">
+      <UniqueIdentifier>{e31de1af-9739-4ddb-ba7e-b55b79def1a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp">
@@ -75,6 +78,9 @@
     </ClCompile>
     <ClCompile Include="Factory_Entity.cpp">
       <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_Systems.cpp">
+      <Filter>Source\Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="Factory_Entity.h">
       <Filter>Source\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Converter.h">
+      <Filter>Source\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

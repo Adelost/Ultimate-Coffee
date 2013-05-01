@@ -44,7 +44,7 @@ public:
 	bool hasNext()
 	{
 		// Step to next Item or until end is reached
-		while(m_index_next < *m_index_lastGap && (*m_owner_list)[m_index_next] == 0)
+		while(m_index_next < *m_index_lastGap && (*m_owner_list)[m_index_next] == -1)
 		{
 			m_index_next++;
 		}
@@ -62,6 +62,12 @@ public:
 		}
 	}
 
+	int currentIndex()
+	{
+		int indexCurrent = m_index_next-1;
+		return indexCurrent;
+	}
+
 	void resetIndex()
 	{
 		m_index_next = 0;
@@ -71,6 +77,6 @@ public:
 	T* next()
 	{
 		m_index_next++;
-		return &(*m_data_list)[m_index_next-1];
+		return &(*m_data_list)[currentIndex()];
 	}
 };

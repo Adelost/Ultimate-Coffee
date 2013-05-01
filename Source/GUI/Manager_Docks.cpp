@@ -158,12 +158,13 @@ void Manager_Docks::setupMenu()
 		new QListWidgetItem(commandList.at(i).c_str(), commandHistoryListWidget); //Added to commandHistoryListWidget
 	}
 	// QListWidget
-	// to remove items from commandHistoryListWidget
-	// , use commandHistoryListWidget->takeItem(index);
+	// to remove items from commandHistoryListWidget,
+	// use commandHistoryListWidget->takeItem(index);
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
 	QTreeView* tree = new QTreeView(m_window);
+	tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	tree->setAlternatingRowColors(true);
 	m_hierarchy = new QStandardItemModel(0, 1, this);
 	m_hierarchy->setHorizontalHeaderItem(0, new QStandardItem("Entity ID"));
@@ -184,16 +185,49 @@ void Manager_Docks::setupMenu()
 	dock->setWidget(textEdit);
 
 	// Tool
-	dock = createDock("Tool Settings", Qt::RightDockWidgetArea);
-	QWidget* toolWidget = new QWidget(dock);
-	dock->setWidget(toolWidget);
-	QVBoxLayout* l;
-	l = new QVBoxLayout(toolWidget);
-	toolWidget->setLayout(l);
-	l->addWidget(new QDoubleSpinBox(dock));
-	l->addWidget(new QDoubleSpinBox(dock));
-	l->addWidget(new QDoubleSpinBox(dock));
-	l->addItem(m_window->createSpacer(Qt::Vertical));
+	{
+		dock = createDock("Tool", Qt::RightDockWidgetArea);
+		QWidget* widget = new QWidget(dock);
+		dock->setWidget(widget);
+		QLayout* vl = new QVBoxLayout(widget);
+		widget->setLayout(vl);
+		{
+			vl->addWidget(new QLabel("Position"));
+			QLayout* hl = new QHBoxLayout(widget);
+			vl->addItem(hl);
+			hl->addWidget(new QLabel("  X ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Y ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Z ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+		}
+		widget->setLayout(vl);
+		{
+			vl->addWidget(new QLabel("Rotation"));
+			QLayout* hl = new QHBoxLayout(widget);
+			vl->addItem(hl);
+			hl->addWidget(new QLabel("  X ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Y ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Z ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+		}
+		widget->setLayout(vl);
+		{
+			vl->addWidget(new QLabel("Scale"));
+			QLayout* hl = new QHBoxLayout(widget);
+			vl->addItem(hl);
+			hl->addWidget(new QLabel("  X ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Y ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Z ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+		}
+		vl->addItem(m_window->createSpacer(Qt::Vertical));
+	}
 	
 	
 
@@ -304,21 +338,25 @@ void Manager_Docks::setupHierarchy()
 
 void Manager_Docks::update()
 {
-	//int rowCount = m_hierarchy->rowCount();
-	//int entityCount = 0;
+	int rowCount = m_hierarchy->rowCount();
+	int entityCount = 0;
 
-	//DataMapper<Data::Transform> map_trans;
-	//while(map_trans.hasNext())
-	//{
-	//	map_trans.next();
+	DataMapper<Data::Transform> map_trans;
+	while(map_trans.hasNext())
+	{
+		map_trans.next();
 
-	//	/*if(entityCount>=rowCount)
-	//	{
-	//	QStandardItem* item;
-	//	item = new QStandardItem("Entity");
-	//	m_hierarchy->setItem(entityCount, item);
-	//	}
-	//	entityCount++;*/
-	//}
-	
+		if(entityCount >= rowCount)
+		{
+			QStandardItem* item;
+			item = new QStandardItem("Entity " + QString::number(entityCount));
+			m_hierarchy->setItem(entityCount, item);
+		}
+		entityCount++;
+	}
+}
+
+void System_Editor::update()
+{
+	m_editor->update();
 }

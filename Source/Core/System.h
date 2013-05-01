@@ -25,10 +25,27 @@ namespace System
 		void process()
 		{
 		}
+	};
 
-		std::string className()
+
+	class Test : public Type<Test>
+	{
+	private:
+		DataMapper<Data::Transform> m_map_translation;
+
+	public:
+		void update()
 		{
-			return "Translation";
+			static float i = 0.0f;
+			DataMapper<Data::Transform> pos;
+			while(m_map_translation.hasNext())
+			{
+				Data::Transform* trans = m_map_translation.next();
+			}
+		}
+
+		void process()
+		{
 		}
 	};
 }

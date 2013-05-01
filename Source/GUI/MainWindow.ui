@@ -34,6 +34,12 @@ QHeaderView::section
 	margin: 0px;
 }
 
+QLabel
+{
+   	color: #f5f5f5;
+	background-color: #282828;
+	border: none;
+}
 
 QAbstractScrollArea, QAbstractItemView
 {
@@ -358,7 +364,7 @@ QTreeView::item:selected
    <widget class="QTreeWidget" name="treeWidget">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>510</x>
       <y>290</y>
       <width>256</width>
       <height>192</height>
@@ -431,7 +437,7 @@ QTreeView::item:selected
    <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>450</x>
       <y>70</y>
       <width>201</width>
       <height>171</height>
@@ -447,41 +453,19 @@ QTreeView::item:selected
   </string>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>340</y>
-      <width>95</width>
-      <height>56</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>GroupBox</string>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </widget>
+   <zorder>treeWidget</zorder>
+   <zorder>plainTextEdit</zorder>
+   <zorder>label</zorder>
+   <zorder>label_2</zorder>
+   <zorder>doubleSpinBox</zorder>
+   <zorder>doubleSpinBox_2</zorder>
+   <zorder>doubleSpinBox_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>label_8</zorder>
+   <zorder>label_9</zorder>
+   <zorder>layoutWidget_2</zorder>
+   <zorder>label_3</zorder>
   </widget>
   <widget class="QToolBar" name="contextBar">
    <attribute name="toolBarArea">
