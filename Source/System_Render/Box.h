@@ -5,7 +5,7 @@
 namespace Shape
 {
 	VertexPosCol BoxVertices[8] = 
-	{																	//Index:
+	{																		//Index:
 		{Vector3( 0.5f,  0.5f,  0.5f), Vector4(1.0f, 1.0f, 1.0f, 1.0f)},	//0
 		{Vector3( 0.5f, -0.5f,  0.5f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)},	//1
 		{Vector3(-0.5f, -0.5f,  0.5f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)},	//2
