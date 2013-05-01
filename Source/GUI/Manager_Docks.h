@@ -2,12 +2,12 @@
 
 #include "QObject.h"
 
-
 class Window;
 class QDockWidget;
 class QMenu;
 class QAction;
 class QStandardItemModel;
+class QListWidget;
 
 class Manager_Docks : QObject
 {
@@ -18,6 +18,8 @@ private:
 	QDockWidget* m_scene;
 	QStandardItemModel* m_hierarchy;
 	QMenu* m_menu;
+	QListWidget* commandHistoryListWidget;
+	//std::vector<QListWidgetItem*> commandHistoryList;
 
 public:
 	~Manager_Docks();

@@ -73,6 +73,9 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Factory_Entity.cpp">
+      <Filter>Source\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
@@ -149,6 +152,9 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory_Entity.h">
+      <Filter>Source\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

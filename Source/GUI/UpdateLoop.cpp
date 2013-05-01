@@ -4,6 +4,7 @@
 #include "Window.h"
 
 #include <Core/World.h>
+#include <Core/Factory_Entity.h>
 #include <Core/System.h>
 #include <System_Render/System_Render.h>
 
@@ -25,16 +26,33 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Translation());
 	m_world->addSystem(new System::Render());
 
-	// Create Entities
-	Entity* e = m_world->createEntity();
-	e->fetchData<Data::Position>();
-	e->removeData<Data::Position>();
-	e->addData(Data::Position());
-	// Create Entities
+	Entity* e;
 	e = m_world->createEntity();
-	e->fetchData<Data::Position>();
-	e->removeData<Data::Position>();
-	e->addData(Data::Position());
+	Data::Transform d;
+	d.position.x = 4;
+	e->addData(d);
+	e->addData(Data::Render());
+	//e->addData(Data::Transform());
+	e->addData(Data::Render());
+
+	
+
+	//e->addData(Data::Transform());
+	//e->addData(Data::Render());
+
+	// Create Entities
+	for(int i=0; i<100; i++)
+	{
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+	}
+
+	Data::Transform* da = Entity(0).fetchData<Data::Transform>();
+
+	int test;
+	test = 0;
 }
 
 void UpdateLoop::update()

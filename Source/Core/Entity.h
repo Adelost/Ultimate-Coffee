@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bitset>			//check
-#define BITSET_CAPACITY 64	//check
 
 class World;
 
@@ -10,8 +8,6 @@ class Entity
 {
 private:
 	int m_id;
-	std::bitset<BITSET_CAPACITY> m_bits_data;
-	std::bitset<BITSET_CAPACITY> m_bits_systems;
 	Manager_Data* m_data;
 
 public:

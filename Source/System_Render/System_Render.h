@@ -12,11 +12,10 @@ namespace System
 	Beginning of Render System implementation.
 	NOTE: Not done yet.
 	*/
-
 	class Render : public Type<Render>
 	{
 	private:
-		DataMapper<Data::Position> m_mapper_position;
+		DataMapper<Data::Transform> m_mapper_position;
 		DXRenderer* renderer;
 
 	public:

@@ -9,16 +9,15 @@ namespace System
 	class Translation : public Type<Translation>
 	{
 	private:
-		DataMapper<Data::Position> m_mapper_position;
-		std::vector<int>* m_owner_list;
+		DataMapper<Data::Transform> m_mapper_position;
 
 	public:
 		void update()
 		{
-			/*while(m_mapper_position.hasNext())
+			while(m_mapper_position.hasNext())
 			{
-			Data::Position* position = m_mapper_position.next();
-			}*/
+				Data::Transform* position = m_mapper_position.next();
+			}
 		}
 
 		void process()

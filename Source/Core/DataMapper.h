@@ -24,7 +24,7 @@ class DataMapper : public IDataMapper
 private:
 	std::vector<T>* m_data_list;
 	std::vector<int>* m_owner_list;
-	int m_index_lastGap;
+	int* m_index_lastGap;
 
 	int m_index_next;
 
@@ -36,21 +36,21 @@ public:
 		// Map to corresponding Data
 		Init_DataMapper init;
 		mapToData<T>(&init);
-		//m_data_list = init.dataList<T>();
-		//m_owner_list = init.owner_list;
-		//m_index_lastGap = init.index_lastGap;
+		m_data_list = init.dataList<T>();
+		m_owner_list = init.owner_list;
+		m_index_lastGap = init.index_lastGap;
 	}
 
 	bool hasNext()
 	{
 		// Step to next Item or until end is reached
-		while(m_index_next < m_index_lastGap && (*m_owner_list)[m_index_next] == 0)
+		while(m_index_next < *m_index_lastGap && (*m_owner_list)[m_index_next] == 0)
 		{
 			m_index_next++;
 		}
 
 		// Returns TRUE if next Item is valid, otherwise end has been reached
-		if(m_index_next < m_index_lastGap)
+		if(m_index_next < *m_index_lastGap)
 		{
 			return true;
 		}

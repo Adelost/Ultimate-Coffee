@@ -6,6 +6,12 @@
 
 Manager_Docks::~Manager_Docks()
 {
+	//int nrOfCommands = commandHistoryList.size();
+	//for(int i=0;i<nrOfCommands;i++)
+	//{
+	//	QListWidgetItem* item = commandHistoryList.at(i);
+	//	delete item;
+	//}
 }
 
 void Manager_Docks::init()
@@ -131,6 +137,26 @@ void Manager_Docks::setupMenu()
 
 	// Inspector
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
+
+	//Command history
+	dock = createDock("Command history (Visible list not functional yet, 2013-04-29, 22.08", Qt::LeftDockWidgetArea);
+    commandHistoryListWidget = new QListWidget(dock);
+	dock->setWidget(commandHistoryListWidget);
+
+	//Test, list of commands as strings
+	std::vector<std::string> commandList;
+	commandList.push_back(std::string("Command 1 (test entry)"));
+	commandList.push_back(std::string("Command 2 (test entry)"));
+	commandList.push_back(std::string("Command 3 (test entry)"));
+
+	int nrOfCommands = commandList.size();
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		new QListWidgetItem(commandList.at(i).c_str(), commandHistoryListWidget); //Added to commandHistoryListWidget
+	}
+	// QListWidget
+	// to remove items from commandHistoryListWidget
+	// , use commandHistoryListWidget->takeItem(index);
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);

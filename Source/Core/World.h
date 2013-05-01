@@ -6,6 +6,7 @@ class Manager_Entity;
 class Settings;
 class Entity;
 class ISystem;
+class Factory_Entity;
 
 class World
 {
@@ -13,6 +14,7 @@ private:
 	Manager_Systems* m_manager_systems;
 	Manager_Data* m_manager_data;
 	Manager_Entity* m_manager_entity;
+	Factory_Entity* m_factory_entity;
 	
 public:
 	Settings* settings;
@@ -31,6 +33,8 @@ public:
 public:
 	Manager_Data* manager_data();
 	Manager_Systems* manager_systems();
+	Manager_Entity* manager_entity();
+	Factory_Entity* factory_entity();
 };
 
 // Access World

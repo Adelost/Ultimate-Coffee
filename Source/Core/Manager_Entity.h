@@ -1,14 +1,13 @@
 #pragma once
 
-//#include "Batch.h" //check, explain this
-//#include "Entity.h" //check, explain this
+#include "Batch.h" //check, explain this
+#include "Entity.h" //check, explain this
 class World;
 
 class Manager_Entity
 {
 private:
 	Batch<Entity> m_entity_list;
-	World* m_world;
 
 public:
 	Manager_Entity()
