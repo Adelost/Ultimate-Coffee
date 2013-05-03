@@ -29,17 +29,12 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
-	FACTORY_ENTITY()->createEntity(ENTITY_CAMERA);
+	// also save Camera Entity and Selected Entity
+	SETTINGS()->camera_entityId = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->id();
 	for(int i=0; i<2; i++)
 	{
-		FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
+		SETTINGS()->selectedEntityId = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->id();
 	}
-	SETTINGS()->selectedEnityId = 0;
-
-	Data::Transform* da = Entity(0).fetchData<Data::Transform>();
-
-	int test;
-	test = 0;
 }
 
 void UpdateLoop::update()

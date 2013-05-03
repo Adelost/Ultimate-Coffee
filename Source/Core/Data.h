@@ -27,6 +27,7 @@ namespace Data
 		}
 	};
 
+
 	class Bounding : public Type<Bounding>
 	{
 	public:

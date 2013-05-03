@@ -4,6 +4,7 @@
 
 typedef struct HWND__* HWND;
 class Camera;
+class Entity;
 
 class Settings
 {
@@ -12,9 +13,10 @@ public:
 	HWND windowHandle;
 	bool leftMousePressed;
 	Color backBufferColor;
-	Camera* camera;
+	int cameraEntityId;
 	int selectedTool;
-	int selectedEnityId;
+	int selectedEntityId;
+	int camera_entityId;
 
 public:
 	Settings();

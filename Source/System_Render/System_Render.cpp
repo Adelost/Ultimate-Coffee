@@ -7,6 +7,7 @@
 #include <Core/Camera.h>
 #include <Core/World.h>
 #include <Core/Settings.h>
+#include <Core/Data_Camera.h>
 
 System::Render::Render()
 {
@@ -51,7 +52,9 @@ void System::Render::update()
 {
 	renderer->renderFrame();
 
-	Camera& mCam = *(SETTINGS()->camera);
+	Entity entity_camera = CAMERA_ENTITY();
+	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
 
 	// Render/Update tools
 	if(currentlyChosenTransformTool)
@@ -60,12 +63,12 @@ void System::Render::update()
 		{
 			XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
 			XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
-			float dist = XMVector3Length(XMVectorSubtract(mCam.GetPositionXM(), origin)).m128_f32[0];
+			float dist = XMVector3Length(XMVectorSubtract(d_transform->position, origin)).m128_f32[0];
 			float distanceAdjustedScale = dist / 6;
 			currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
 			if(currentlyChosenTransformTool == theTranslationTool)
-				theTranslationTool->updateViewPlaneTranslationControlWorld(mCam.GetLook(), mCam.GetUp());
+				theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look, d_camera->up);
 		}
 	}
 }
@@ -73,7 +76,7 @@ void System::Render::update()
 void System::Render::onEvent( IEvent* p_event )
 {
 	EventType type = p_event->type();
-	currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEnityId);
+	currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 	switch (type) 
 	{
 	case EVENT_MOUSE_MOVE:
