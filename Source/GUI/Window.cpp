@@ -35,7 +35,7 @@ Window::Window()
 	m_manager_commands = new Manager_Commands();
 	m_manager_commands->init();
 
-	//m_manager_docks->resetLayout();
+	m_manager_docks->resetLayout();
 
 	m_refreshTimer = new QTimer();
 
