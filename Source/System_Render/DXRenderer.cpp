@@ -20,6 +20,8 @@ DXRenderer::DXRenderer()
 	m_view_depthStencil = nullptr;
 	m_tex_depthStencil = nullptr;
 	m_viewport_screen = nullptr;
+
+	m_CBuffer.WVP.Identity();
 }
 
 DXRenderer::~DXRenderer()
@@ -91,7 +93,12 @@ void DXRenderer::renderFrame()
 
 	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &m_WVP, 0, 0);
+	static float delta = 0.0f;
+
+	delta += 0.0001f;
+	m_CBuffer.WVP = m_CBuffer.WVP.CreateRotationX(delta);
+
+	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &m_CBuffer, 0, 0);
 
 	m_dxDeviceContext->DrawIndexed(36, 0, 0);
 	//m_dxDeviceContext->Draw(8, 0);
@@ -247,13 +254,13 @@ bool DXRenderer::initDX()
 	D3D11_BUFFER_DESC WVP_Desc;
 	memset(&WVP_Desc, 0, sizeof(WVP_Desc));
 	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	WVP_Desc.ByteWidth = sizeof(float) * 16;
-	WVP_Desc.StructureByteStride = sizeof(float);
+	WVP_Desc.ByteWidth = 16 * 4;//sizeof(float) * 4;
+	WVP_Desc.StructureByteStride = 0;//sizeof(float);
 	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
 
 	D3D11_SUBRESOURCE_DATA WVP_Data;
 	memset(&WVP_Data, 0, sizeof(WVP_Data));
-	//vertexData.pSysMem = m_WVP;
+	WVP_Data.pSysMem = &m_CBuffer;
 
 	HR(m_dxDevice->CreateBuffer(&WVP_Desc, &WVP_Data, &m_WVPBuffer));
 
