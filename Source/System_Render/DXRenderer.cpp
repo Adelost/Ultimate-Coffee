@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DXRenderer.h"
 #include "Box.h"
+#include "Buffer.h"
 
 #include <Core/EventManager.h>
 #include <Core/Events.h>
@@ -27,9 +28,9 @@ DXRenderer::DXRenderer()
 
 DXRenderer::~DXRenderer()
 {
-	ReleaseCOM(m_vertexBuffer);
-	ReleaseCOM(m_indexBuffer);
-	ReleaseCOM(m_WVPBuffer);
+	SafeDelete(m_vertexBuffer);
+	SafeDelete(m_indexBuffer);
+	SafeDelete(m_WVPBuffer);
 	ReleaseCOM(m_inputLayout);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
@@ -104,7 +105,7 @@ void DXRenderer::renderFrame()
 	Z = m_CBuffer.WVP.CreateRotationZ(delta);
 	m_CBuffer.WVP = X * Y * Z;
 
-	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &m_CBuffer, 0, 0);
+	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
 
 	//m_dxDeviceContext->DrawIndexed(36, 0, 0);
 	m_dxDeviceContext->Draw(36, 0);
@@ -222,56 +223,21 @@ bool DXRenderer::initDX()
 
 	// Create vertex buffer
 
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	memset(&vertexBufferDesc, 0, sizeof(vertexBufferDesc));
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof(VertexPosColNorm) * 36;
-	vertexBufferDesc.StructureByteStride = sizeof(VertexPosColNorm);
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	D3D11_SUBRESOURCE_DATA vertexData;
-	memset(&vertexData, 0, sizeof(vertexData));
-	vertexData.pSysMem = Shape::BoxVertices;
-
-	HR(m_dxDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
-
-	UINT stride = sizeof(VertexPosColNorm);
-	UINT offset = 0;
-	m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+	m_vertexBuffer = new Buffer();
+	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), 36, Shape::BoxVertices, m_dxDevice));
+	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Create index buffer
 
-	D3D11_BUFFER_DESC indexBufferDesc;
-	memset(&indexBufferDesc, 0, sizeof(indexBufferDesc));
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.ByteWidth = sizeof(unsigned int) * 36;
-	indexBufferDesc.StructureByteStride = sizeof(unsigned int);
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	D3D11_SUBRESOURCE_DATA indexData;
-	memset(&indexData, 0, sizeof(indexData));
-	indexData.pSysMem = Shape::BoxIndex;
-
-	HR(m_dxDevice->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer));
-
-	m_dxDeviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_indexBuffer = new Buffer();
+	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), 36, Shape::BoxIndex, m_dxDevice));
+	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Create constant buffer
 
-	D3D11_BUFFER_DESC WVP_Desc;
-	memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	WVP_Desc.ByteWidth = 16 * 4;//sizeof(float) * 4;
-	WVP_Desc.StructureByteStride = 0;//sizeof(float);
-	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
-
-	D3D11_SUBRESOURCE_DATA WVP_Data;
-	memset(&WVP_Data, 0, sizeof(WVP_Data));
-	WVP_Data.pSysMem = &m_CBuffer;
-
-	HR(m_dxDevice->CreateBuffer(&WVP_Desc, &WVP_Data, &m_WVPBuffer));
-
-	m_dxDeviceContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	m_WVPBuffer = new Buffer();
+	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_CBuffer, m_dxDevice));
+	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	////////////////////////////////////////////////////////////////////////////////////////////
 

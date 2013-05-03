@@ -15,8 +15,8 @@ struct ID3D11RenderTargetView;
 struct ID3D11Texture2D;
 struct ID3D11VertexShader;
 struct IDXGISwapChain;
-struct ID3D11Buffer;
 
+class Buffer;
 
 struct ConstantBuffer
 {
@@ -38,9 +38,9 @@ private:
 	ID3D11Texture2D*			m_tex_depthStencil;
 	ID3D11VertexShader*			m_vertexShader;
 	IDXGISwapChain*				m_dxSwapChain;
-	ID3D11Buffer*				m_vertexBuffer;
-	ID3D11Buffer*				m_indexBuffer;
-	ID3D11Buffer*				m_WVPBuffer;
+	Buffer*						m_vertexBuffer;
+	Buffer*						m_indexBuffer;
+	Buffer*						m_WVPBuffer;
 
 	ConstantBuffer				m_CBuffer;
 
