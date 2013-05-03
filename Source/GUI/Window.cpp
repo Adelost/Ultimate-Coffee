@@ -78,7 +78,7 @@ void Window::setFullscreen( bool checked )
 void Window::onEvent( IEvent* p_event )
 {
 	EventType type = p_event->type();
-	switch (type) 
+	switch (type)
 	{
 	case EVENT_SHOW_MESSAGEBOX:
 		{

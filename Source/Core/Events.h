@@ -10,7 +10,9 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
+	EVENT_STORE_COMMAND,
 	EVENT_MOUSE_WHEEL,
+	EVENT_SHOW_COMMAND_IN_GUI,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
 	EVENT_COMMAND,
@@ -147,16 +149,28 @@ public:
 };
 
 class Command;
-class Event_Command : public IEvent
+class Event_StoreCommand : public IEvent
 {
 public:
 	Command* command;
 	bool execute;
 
 public:
-	Event_Command(Command* command, bool execute = false) : IEvent(EVENT_COMMAND)
+	Event_StoreCommand(Command* command, bool execute = false) : IEvent(EVENT_STORE_COMMAND)
 	{
 		this->command = command;
 		this->execute = execute;
+	}
+};
+
+class Event_ShowInGUI : public IEvent
+{
+public:
+	Command* command;
+
+public:
+	Event_ShowInGUI(Command* command) : IEvent(EVENT_SHOW_COMMAND_IN_GUI)
+	{
+		this->command = command;
 	}
 };

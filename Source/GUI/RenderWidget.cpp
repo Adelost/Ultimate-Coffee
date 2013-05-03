@@ -20,7 +20,7 @@ RenderWidget::~RenderWidget()
 void RenderWidget::onEvent( IEvent* p_event )
 {
 	EventType type = p_event->type();
-	switch (type) 
+	switch (type)
 	{
 	case EVENT_GET_WINDOW_HANDLE:
 		static_cast<Event_GetWindowHandle*>(p_event)->handle = winId();
