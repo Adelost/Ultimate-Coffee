@@ -13,6 +13,7 @@ enum EventType
 	EVENT_MOUSE_WHEEL,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
+	EVENT_COMMAND,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -142,5 +143,20 @@ public:
 	Event_MouseWheel( int value ) : IEvent(EVENT_MOUSE_WHEEL)
 	{
 		this->value = value;
+	}
+};
+
+class Command;
+class Event_Command : public IEvent
+{
+public:
+	Command* command;
+	bool execute;
+
+public:
+	Event_Command(Command* command, bool execute = false) : IEvent(EVENT_COMMAND)
+	{
+		this->command = command;
+		this->execute = execute;
 	}
 };
