@@ -19,7 +19,7 @@ PixelIn vertexMain( VertexIn vIn )
 {
 	PixelIn pIn;
 
-	pIn.position	= /*mul(*/float4(vIn.position, 1)/*, worldViewProj)*/;
+	pIn.position	= mul(float4(vIn.position, 1), worldViewProj);
 	pIn.color		= vIn.color;
 
 	return pIn;

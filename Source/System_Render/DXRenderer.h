@@ -18,7 +18,10 @@ struct IDXGISwapChain;
 struct ID3D11Buffer;
 
 
-
+struct ConstantBuffer
+{
+	Matrix WVP;
+};
 
 class DXRenderer
 	: public IObserver
@@ -39,7 +42,7 @@ private:
 	ID3D11Buffer*				m_indexBuffer;
 	ID3D11Buffer*				m_WVPBuffer;
 
-	//Matrix						m_WVP;
+	ConstantBuffer				m_CBuffer;
 
 	UINT m_msaa_quality;
 	int m_clientHeight;
