@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Tool_Rotation.h"
 
 Tool_Rotation::Tool_Rotation(HWND windowHandle)

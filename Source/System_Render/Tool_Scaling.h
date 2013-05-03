@@ -2,8 +2,6 @@
 #define TOOL_SCALING_H
 
 #include "ITool_Transformation.h"
-#include "Object_Basic.h"
-#include "Renderable_Basic.h"
 #include "Handle_TranslationAxis.h"
 #include "Handle_TranslationPlane.h"
 

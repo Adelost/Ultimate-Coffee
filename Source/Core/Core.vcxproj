@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commander.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />

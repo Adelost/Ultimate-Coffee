@@ -38,7 +38,10 @@ void RenderWidget::mousePressEvent( QMouseEvent* p_event )
 		SETTINGS()->leftMousePressed = true;
 	}
 	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
-	
+
+
+	// Inform about key press
+	SEND_EVENT(&Event_MousePress(button, true));
 }
 
 void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
@@ -49,6 +52,9 @@ void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
 		SETTINGS()->leftMousePressed = false;
 	}
 	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
+
+	// Inform about key press
+	SEND_EVENT(&Event_MousePress(button, false));
 }
 
 void RenderWidget::resizeEvent(QResizeEvent* e)
@@ -56,4 +62,19 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	QWidget::resizeEvent(e);
 
 	SEND_EVENT(&Event_WindowResize(width(), height()));
+}
+
+void RenderWidget::mouseMoveEvent( QMouseEvent *e )
+{
+	// calculate change (delta) in mouse position
+	QPoint mouseAnchor = QWidget::mapToGlobal(QPoint(this->width()*0.5f,this->height()*0.5f));
+	//QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+	int dx = e->globalX() - mouseAnchor.x();
+	int dy = e->globalY() - mouseAnchor.y();
+
+	int x = e->globalX() - mouseAnchor.x();
+	int y = e->globalY() - mouseAnchor.y();
+
+	// send mouse move event to relevant observers
+	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
 }

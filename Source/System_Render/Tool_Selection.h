@@ -3,9 +3,7 @@
 
 #include <vector>
 
-#include "Camera.h"
-#include "Object_Basic.h"
-#include "Renderable_Basic.h"
+#include <Core/Camera.h>
 #include "ITool_Transformation.h"
 
 class Tool_Selection
@@ -19,8 +17,8 @@ private:
 	POINT firstMouseCursorPoint;
 	POINT currentMouseCursorPoint;
 
-	std::vector<IObject*> objectsThatHaveBeenSelected;
-	std::vector<IObject*> objectsThatWouldBeSelected;
+	std::vector<int> objectsThatHaveBeenSelected;
+	std::vector<int> objectsThatWouldBeSelected;
 
 	//BoundingFrustum UnprojectRectangle(Rectangle source, Viewport viewport, Matrix projection, Matrix view)
 	//{
@@ -46,35 +44,35 @@ private:
 	//	return new BoundingFrustum(view * regionProjMatrix);
 	//}
 
-	std::vector<IObject*> RectangleSelect(std::vector<IObject*> possibleSelectees, D3D11_VIEWPORT &theViewport, Camera &theCamera, MyRectangle selectionRect)
-	{
-		// Create a new list to return it
-		std::vector<IObject*> selectedObjects;
+	//std::vector<IObject*> RectangleSelect(std::vector<IObject*> possibleSelectees, D3D11_VIEWPORT &theViewport, Camera &theCamera, MyRectangle selectionRect)
+	//{
+	//	// Create a new list to return it
+	//	std::vector<IObject*> selectedObjects;
 
-		for(unsigned int i = 0; i < possibleSelectees.size(); ++i)
-		{
-			// Getting the 2D position of the object
-			XMVECTOR objectPos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	//	for(unsigned int i = 0; i < possibleSelectees.size(); ++i)
+	//	{
+	//		// Getting the 2D position of the object
+	//		XMVECTOR objectPos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-			XMVECTOR screenPosForObject = XMVector3Project(	objectPos,
-															theViewport.TopLeftX,	theViewport.TopLeftY,
-															theViewport.Width,		theViewport.Height,
-															theViewport.MinDepth,	theViewport.MaxDepth,
-															theCamera.Proj(), theCamera.View(), XMMatrixIdentity()	);
+	//		XMVECTOR screenPosForObject = XMVector3Project(	objectPos,
+	//														theViewport.TopLeftX,	theViewport.TopLeftY,
+	//														theViewport.Width,		theViewport.Height,
+	//														theViewport.MinDepth,	theViewport.MaxDepth,
+	//														theCamera.Proj(), theCamera.View(), XMMatrixIdentity()	);
 
-			//// screenPos is window relative, we change it to be viewport relative
-			//screenPos.X -= viewport.X;
-			//screenPos.Y -= viewport.Y;
+	//		//// screenPos is window relative, we change it to be viewport relative
+	//		//screenPos.X -= viewport.X;
+	//		//screenPos.Y -= viewport.Y;
 
-			//if (selectionRect.Contains((int)screenPos.X, (int)screenPos.Y))
-			//{
-			//	// Add object to selected objects list
-				selectedObjects.push_back(possibleSelectees.at(i));
-			//}
-		}
+	//		//if (selectionRect.Contains((int)screenPos.X, (int)screenPos.Y))
+	//		//{
+	//		//	// Add object to selected objects list
+	//			selectedObjects.push_back(possibleSelectees.at(i));
+	//		//}
+	//	}
 
-		return selectedObjects;
-	}
+	//	return selectedObjects;
+	//}
 
 public:
 	Tool_Selection();
@@ -83,19 +81,19 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	void beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, std::vector<IObject*> &selectableObjects, ITool_Transformation *currentlyChosenTransformationTool);
+	void beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool);
 
 	/* Called to see if the translation tool is in the process of making a selection. */
 	bool getIsSelected();
 
 	/* Called to send updated parameters to the translation tool, if it is still in the process of making a selection. */
-	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, std::vector<IObject*> &selectableObjects);
+	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called when the selection tool action is "unselected", which makes any hitherto made selection final and undo/redoable. */
-	void finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, std::vector<IObject*> &selectableObjects);
+	void finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called to get the last selected object(s). */
-	std::vector<IObject*> &getSelectedObjects();
+	//std::vector<IObject*> &getSelectedObjects();
 };
 
 #endif

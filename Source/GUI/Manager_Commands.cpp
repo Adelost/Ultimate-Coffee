@@ -11,6 +11,7 @@
 
 void Manager_Commands::init()
 {
+	SUBSCRIBE_TO_EVENT(this, EVENT_COMMAND);
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
@@ -116,7 +117,8 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	Command_ChangeBackBufferColor* command = new Command_ChangeBackBufferColor();
 	command->setDoColor(color.red(), color.green(), color.blue());
 	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
-	m_commander->addToHistoryAndExecute(command);
+	
+	SEND_EVENT(&Event_Command(command, true));
 }
 
 Manager_Commands::~Manager_Commands()
@@ -207,4 +209,24 @@ void Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
 	m_toolbar_commands->addAction(a);
 	connect(a, SIGNAL(triggered()), mapper, SLOT(map()));
 	mapper->setMapping(a, color);
+}
+
+void Manager_Commands::onEvent(IEvent* e)
+{
+	EventType type = e->type();
+	switch (type)
+	{
+	case EVENT_COMMAND: //Add a command, sent in an event, to the commander.
+		Event_Command* commandEvent = static_cast<Event_Command*>(e);
+		Command* command = commandEvent->command;
+		if(commandEvent->execute)
+		{
+			m_commander->addToHistoryAndExecute(command);
+		}
+		else
+		{
+			m_commander->addToHistory(command);
+		}
+		break;
+	}
 }

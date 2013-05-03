@@ -2,7 +2,7 @@
 #define IHANDLE_H
 
 #include <Windows.h>
-#include <xnamath.h>
+//#include <xnamath.h>
 
 class IHandle
 {

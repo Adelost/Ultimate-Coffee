@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Handle_TranslationPlane.h"
 
 Handle_TranslationPlane::Handle_TranslationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle)
@@ -11,7 +12,7 @@ Handle_TranslationPlane::~Handle_TranslationPlane()
 {
 }
 
-static bool rayVsPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Plane &plane, XMVECTOR &pointOfIntersection)
+static bool rayVsPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyPlane &plane, XMVECTOR &pointOfIntersection)
 {
 	bool rayIntersectedWithPlane = false;
 
@@ -41,7 +42,7 @@ bool Handle_TranslationPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayD
 	// Calculate the definition of the plane that the rectangle is lying in.
 	XMVECTOR planeVector = XMPlaneFromPoints(XMLoadFloat3(&rectangle.P1), XMLoadFloat3(&rectangle.P2), XMLoadFloat3(&rectangle.P3));
 
-	Plane plane;
+	MyPlane plane;
 	plane.normal.x = planeVector.m128_f32[0];
 	plane.normal.y = planeVector.m128_f32[1];
 	plane.normal.z = planeVector.m128_f32[2];
@@ -183,7 +184,7 @@ void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 }
 
 /* Called when picking against the axis plane should cease, if the LMB has been released. */
-void Handle_TranslationPlane::unselect(XMVECTOR &pickingRay)
+void Handle_TranslationPlane::unselect()
 {
 	firstPickedPointOnAxisPlane.x = 0.0f;
 	firstPickedPointOnAxisPlane.y = 0.0f;

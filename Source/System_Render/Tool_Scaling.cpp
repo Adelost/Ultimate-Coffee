@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Tool_Scaling.h"
 
 Tool_Scaling::Tool_Scaling()

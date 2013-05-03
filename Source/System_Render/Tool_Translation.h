@@ -2,14 +2,34 @@
 #define TOOL_TRANSLATION_H
 
 #include "ITool_Transformation.h"
-#include "Object_Basic.h"
-#include "Renderable_Basic.h"
 #include "Handle_TranslationAxis.h"
 #include "Handle_TranslationPlane.h"
+#include "Effects.h"
+#include "Vertex.h"
+#include "RenderStates.h"
+
+struct ID3D11Buffer;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11PixelShader;
+struct ID3D11VertexShader;
+
+struct ConstantBuffer2
+{
+	Matrix WVP;
+};
 
 class Tool_Translation : public ITool_Transformation
 {
 private:
+	ID3D11PixelShader*			m_pixelShader;
+	ID3D11VertexShader*			m_vertexShader;
+
+	ID3D11Buffer *m_WVPBuffer;
+	ID3D11InputLayout*			m_inputLayout;
+
+	//
+
 	ID3D11Device *md3dDevice;
 	ID3D11DeviceContext *md3dImmediateContext;
 
@@ -36,6 +56,9 @@ private:
 	Handle_TranslationPlane *xyTranslationPlane,
 							*yzTranslationPlane,
 							*zxTranslationPlane,
+							*xyTranslationPlane2,
+							*yzTranslationPlane2,
+							*zxTranslationPlane2,
 							*camViewTranslationPlane;
 	
 	Handle_TranslationAxis *currentlySelectedAxis;
@@ -44,7 +67,7 @@ private:
 	bool isSelected;
 	bool isVisible;
 
-	IObject *activeObject;
+	int activeEntityId;
 
 	bool relateToActiveObjectWorld;
 
@@ -67,7 +90,10 @@ public:
 	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera);
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
-	void setActiveObject(IObject *object);
+	void setActiveObject(int entityId);
+
+	/* Called to bind the translatable object to the tool, so its translation can be modified. */
+	int getActiveObject();
 
 	/* Transform all controls to the local coord. sys. of the active object. */
 	void setRelateToActiveObjectWorld(bool relateToActiveObjectWorld);
@@ -108,10 +134,8 @@ public:
 
 	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_visual();
 
-	IObject *getActiveObject();
-
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
-	void draw();
+	void draw(Camera &theCamera, ID3D11DepthStencilView *depthStencilView);
 };
 
 #endif
