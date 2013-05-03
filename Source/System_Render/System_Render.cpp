@@ -16,6 +16,7 @@ System::Render::Render()
 	theTranslationTool = new Tool_Translation();
 	// HACK: Will fix later.
 	currentlyChosenTransformTool = theTranslationTool;
+
 }
 
 void System::Render::setupDirectX()
@@ -42,6 +43,7 @@ void System::Render::process()
 
 System::Render::~Render()
 {
+	delete theTranslationTool;
 	delete renderer;
 }
 
@@ -71,12 +73,15 @@ void System::Render::update()
 void System::Render::onEvent( IEvent* p_event )
 {
 	EventType type = p_event->type();
+	currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEnityId);
 	switch (type) 
 	{
 	case EVENT_MOUSE_MOVE:
 		{
 			Event_MouseMove* e = static_cast<Event_MouseMove*>(p_event);
 			e->dx;
+
+			//currentlyChosenTransformTool->
 		}
 		break;
 	case EVENT_MOUSE_PRESS:

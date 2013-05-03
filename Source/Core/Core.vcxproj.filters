@@ -81,7 +81,7 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source\Temp</Filter>
-	 </ClCompile>
+    </ClCompile>
     <ClCompile Include="Manager_Systems.cpp">
       <Filter>Source\Managers</Filter>
     </ClCompile>
@@ -147,9 +147,6 @@
     <ClInclude Include="Commander.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
-    <ClInclude Include="Enums.h">
-      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
-    </ClInclude>
     <ClInclude Include="Serializable.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
@@ -167,9 +164,10 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Source\Temp</Filter>
-	</ClInclude>
-    <ClInclude Include="Converter.h">
-      <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Converter.h" />
+    <ClInclude Include="Enums.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

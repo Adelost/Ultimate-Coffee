@@ -68,7 +68,7 @@ void RenderWidget::mouseMoveEvent( QMouseEvent *e )
 {
 	// calculate change (delta) in mouse position
 	QPoint mouseAnchor = QWidget::mapToGlobal(QPoint(this->width()*0.5f,this->height()*0.5f));
-	QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+	//QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
 	int dx = e->globalX() - mouseAnchor.x();
 	int dy = e->globalY() - mouseAnchor.y();
 

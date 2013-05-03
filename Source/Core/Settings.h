@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math.h"
+
 typedef struct HWND__* HWND;
 class Camera;
 
@@ -12,6 +13,8 @@ public:
 	bool leftMousePressed;
 	Color backBufferColor;
 	Camera* camera;
+	int selectedTool;
+	int selectedEnityId;
 
 public:
 	Settings();

@@ -11,6 +11,13 @@
 struct ID3D11Buffer;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
+struct ID3D11PixelShader;
+struct ID3D11VertexShader;
+
+struct ConstantBuffer2
+{
+	Matrix WVP;
+};
 
 class Tool_Translation : public ITool_Transformation
 {
@@ -18,8 +25,8 @@ private:
 	ID3D11PixelShader*			m_pixelShader;
 	ID3D11VertexShader*			m_vertexShader;
 
-	ID3D11Buffer *m_constantBuffer;
-
+	ID3D11Buffer *m_WVPBuffer;
+	ID3D11InputLayout*			m_inputLayout;
 
 	//
 
@@ -129,7 +136,6 @@ public:
 
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
 	void draw(Camera &theCamera, ID3D11DepthStencilView *depthStencilView);
-
 };
 
 #endif
