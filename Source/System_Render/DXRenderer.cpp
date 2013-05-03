@@ -58,7 +58,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 void DXRenderer::onEvent(IEvent* p_event)
 {
 	EventType type = p_event->type();
-	switch (type) 
+	switch (type)
 	{
 	case EVENT_SET_BACKBUFFER_COLOR:
 		{

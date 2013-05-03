@@ -2,6 +2,7 @@
 
 #include <Core/ISystem.h>
 #include "QObject.h"
+#include <Core/IObserver.h>
 
 class Window;
 class QDockWidget;
@@ -9,21 +10,10 @@ class QMenu;
 class QAction;
 class QStandardItemModel;
 class QListWidget;
+class QListView;
 class Manager_Docks;
 
-class System_Editor : public System::Type<System_Editor>
-{
-private:
-	Manager_Docks* m_editor;
-public:
-	System_Editor(Manager_Docks* p_editor)
-	{
-		m_editor = p_editor;
-	}
-	void update();
-};
-
-class Manager_Docks : public QObject
+class Manager_Docks : public QObject, public IObserver
 {
 	Q_OBJECT
 
@@ -33,7 +23,7 @@ private:
 	QStandardItemModel* m_hierarchy;
 	QMenu* m_menu;
 	QListWidget* commandHistoryListWidget;
-	//std::vector<QListWidgetItem*> commandHistoryList;
+	QListView* listT;
 
 public:
 	~Manager_Docks();
@@ -45,10 +35,8 @@ public:
 
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
-	ISystem* getAsSystem()
-	{
-		return new System_Editor(this);
-	}
+	ISystem* getAsSystem();
+	void onEvent(IEvent* e);
 
 public slots:
 	void setMaximizeScene( bool p_checked );
@@ -57,4 +45,18 @@ public slots:
 	void saveLayout();
 	void loadLayout();
 	void resetLayout();
+	void currentCommandHistoryIndexChanged(int currentRowChanged);
+};
+
+
+class System_Editor : public System::Type<System_Editor>
+{
+private:
+	Manager_Docks* m_editor;
+public:
+	System_Editor(Manager_Docks* p_editor)
+	{
+		m_editor = p_editor;
+	}
+	void update();
 };

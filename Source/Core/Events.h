@@ -10,7 +10,8 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
-	EVENT_COMMAND,
+	EVENT_STORE_COMMAND,
+	EVENT_SHOW_COMMAND_IN_GUI,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -100,16 +101,28 @@ public:
 };
 
 class Command;
-class Event_Command : public IEvent
+class Event_StoreCommand : public IEvent
 {
 public:
 	Command* command;
 	bool execute;
 
 public:
-	Event_Command(Command* command, bool execute = false) : IEvent(EVENT_COMMAND)
+	Event_StoreCommand(Command* command, bool execute = false) : IEvent(EVENT_STORE_COMMAND)
 	{
 		this->command = command;
 		this->execute = execute;
+	}
+};
+
+class Event_ShowInGUI : public IEvent
+{
+public:
+	Command* command;
+
+public:
+	Event_ShowInGUI(Command* command) : IEvent(EVENT_SHOW_COMMAND_IN_GUI)
+	{
+		this->command = command;
 	}
 };

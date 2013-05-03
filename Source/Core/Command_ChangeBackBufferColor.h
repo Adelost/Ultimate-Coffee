@@ -30,11 +30,11 @@ public:
 	// Set/get functions
 	void setDoColor(float x, float y, float z){m_commandData.doX=x;m_commandData.doY=y;m_commandData.doZ=z;}
 	void setUndoColor(float x, float y, float z){m_commandData.undoX=x;m_commandData.undoY=y;m_commandData.undoZ=z;}
-	//float getDoColorX(){return commandData_.doX;}
-	//float getDoColorY(){return commandData_.doY;}
-	//float getDoColorZ(){return commandData_.doY;}
-	//float getUndoColorX(){return commandData_.undoX;}
-	//float getUndoColorY(){return commandData_.undoY;}
-	//float getUndoColorZ(){return commandData_.undoY;}
+	float getDoColorX(){return m_commandData.doX;}
+	float getDoColorY(){return m_commandData.doY;}
+	float getDoColorZ(){return m_commandData.doZ;}
+	float getUndoColorX(){return m_commandData.undoX;}
+	float getUndoColorY(){return m_commandData.undoY;}
+	float getUndoColorZ(){return m_commandData.undoZ;}
 
 };

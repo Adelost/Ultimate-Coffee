@@ -177,7 +177,7 @@ void Manager_Tools::setTool( int p_toolType )
 void Manager_Tools::onEvent( IEvent* p_event )
 {
 	EventType type = p_event->type();
-	switch (type) 
+	switch (type)
 	{
 	case EVENT_SET_TOOL:
 		{

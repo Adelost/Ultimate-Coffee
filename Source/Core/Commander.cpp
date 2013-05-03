@@ -6,6 +6,7 @@
 #include <sys/stat.h> // struct stat
 #include <iostream> // console output
 #include <memory> // memcpy
+//#include
 #include "Events.h"
 
 Commander::Commander(void)
@@ -351,5 +352,6 @@ void CommandHistory::executeAllCommandsUpAndUntilCurrent()
 	{
 		Command* command = m_commands.at(i);
 		command->doRedo();
+		SEND_EVENT(&Event_ShowInGUI(command));
 	}
 }

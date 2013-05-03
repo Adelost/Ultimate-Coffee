@@ -20,7 +20,7 @@
 #include <QString>
 #include <QTimer.h>
 #include <QTreeView>
-#include <QListwidget.h>
+#include <QListWidget.h>
 #include <QBoxLayout.h>
 #include <QDoubleSpinBox>
 

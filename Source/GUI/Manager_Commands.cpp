@@ -11,7 +11,7 @@
 
 void Manager_Commands::init()
 {
-	SUBSCRIBE_TO_EVENT(this, EVENT_COMMAND);
+	SUBSCRIBE_TO_EVENT(this, EVENT_STORE_COMMAND);
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
@@ -54,7 +54,7 @@ void Manager_Commands::setupMenu()
 	// Open
 	a = m_ui->actionOpen;
 	/*path = iconPath + "Menu/open";
-	a->setIcon(QIcon(path.c_str())); */
+	a->setIcon(,(path.c_str())); */
 	a->setStatusTip(tr("Open existing project"));
 	a->setShortcuts(QKeySequence::Open);
 	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
@@ -118,7 +118,7 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	command->setDoColor(color.red(), color.green(), color.blue());
 	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
 	
-	SEND_EVENT(&Event_Command(command, true));
+	SEND_EVENT(&Event_StoreCommand(command, true));
 }
 
 Manager_Commands::~Manager_Commands()
@@ -216,8 +216,8 @@ void Manager_Commands::onEvent(IEvent* e)
 	EventType type = e->type();
 	switch (type)
 	{
-	case EVENT_COMMAND: //Add a command, sent in an event, to the commander.
-		Event_Command* commandEvent = static_cast<Event_Command*>(e);
+	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
+		Event_StoreCommand* commandEvent = static_cast<Event_StoreCommand*>(e);
 		Command* command = commandEvent->command;
 		if(commandEvent->execute)
 		{
@@ -227,6 +227,8 @@ void Manager_Commands::onEvent(IEvent* e)
 		{
 			m_commander->addToHistory(command);
 		}
+
+		SEND_EVENT(&Event_ShowInGUI(command)); //Update command history in GUI
 		break;
 	}
 }
