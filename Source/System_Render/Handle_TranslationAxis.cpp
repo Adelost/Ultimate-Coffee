@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Handle_TranslationAxis.h"
 
 Handle_TranslationAxis::Handle_TranslationAxis(XMVECTOR &direction)

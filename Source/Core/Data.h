@@ -15,8 +15,14 @@ namespace Data
 	public:
 		Matrix toWorldMatrix()
 		{
-			// TODO
-			Matrix m;
+			Matrix mat_pos;
+			mat_pos.CreateTranslation(position);
+			Matrix mat_rot;
+			mat_rot.CreateFromQuaternion(rotation);
+			Matrix mat_scale;
+			mat_scale.CreateScale(scale);
+
+			Matrix m = mat_scale*mat_rot*mat_pos;
 			return m;
 		}
 	};

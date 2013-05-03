@@ -29,8 +29,8 @@
     <Filter Include="Source\Math">
       <UniqueIdentifier>{23325fda-77e7-402e-b224-abe9d308372a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Util">
-      <UniqueIdentifier>{e31de1af-9739-4ddb-ba7e-b55b79def1a3}</UniqueIdentifier>
+    <Filter Include="Source\Temp">
+      <UniqueIdentifier>{9a49ec0e-3322-44a0-b51d-196b25979a95}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +78,9 @@
     </ClCompile>
     <ClCompile Include="Factory_Entity.cpp">
       <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source\Temp</Filter>
     </ClCompile>
     <ClCompile Include="Manager_Systems.cpp">
       <Filter>Source\Managers</Filter>
@@ -144,9 +147,6 @@
     <ClInclude Include="Commander.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
-    <ClInclude Include="Enums.h">
-      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
-    </ClInclude>
     <ClInclude Include="Serializable.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
@@ -162,8 +162,15 @@
     <ClInclude Include="Factory_Entity.h">
       <Filter>Source\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Converter.h">
-      <Filter>Source\Util</Filter>
+    <ClInclude Include="Camera.h">
+      <Filter>Source\Temp</Filter>
+    </ClInclude>
+    <ClInclude Include="Converter.h" />
+    <ClInclude Include="Enums.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Data_Camera.h">
+      <Filter>Source\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

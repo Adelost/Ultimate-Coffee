@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Handle_RotationSphere.h"
 
 Handle_RotationSphere::Handle_RotationSphere(XMVECTOR center, float radius, HWND windowHandle)

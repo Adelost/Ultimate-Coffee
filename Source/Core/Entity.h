@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Manager_Data.h"
 
 class World;
 

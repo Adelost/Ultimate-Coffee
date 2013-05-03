@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Manager_Tools.h"
+#include <Core/Enums.h>
 
 #include <Core/World.h>
+#include <Core/Enums.h>
 #include <Core/Factory_Entity.h>
 #include <Core/Events.h>
 #include "Window.h"
@@ -57,12 +59,12 @@ void Manager_Tools::setupActions()
 	// Toolbar
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
-	createToolAction(mapper, SELECTION, "Selection")->setChecked(true);
-	createToolAction(mapper, TRANSLATE, "Translate");
-	createToolAction(mapper, ROTATE,	"Rotate");
-	createToolAction(mapper, SCALE,		"Scale");
-	createToolAction(mapper, GEOMETRY,	"Geometry");
-	createToolAction(mapper, ENTITY,	"Entity");
+	createToolAction(mapper, Enum::Tool_Selection, "Selection")->setChecked(true);
+	createToolAction(mapper, Enum::Tool_Translate, "Translate");
+	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate");
+	createToolAction(mapper, Enum::Tool_Scale,		"Scale");
+	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry");
+	createToolAction(mapper, Enum::Tool_Entity,		"Entity");
 
 	// Context bar
 	m_ui->contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
@@ -105,7 +107,7 @@ QIcon Manager_Tools::createIcon( std::string p_icon )
 	return QIcon(path.c_str());
 }
 
-QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, ToolType p_type, std::string p_icon )
+QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, int p_type, std::string p_icon )
 {
 	std::string path = "";
 	path = path + ICON_PATH + "Tools/" + p_icon;
@@ -123,13 +125,14 @@ QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, ToolType p_ty
 
 void Manager_Tools::setTool( int p_toolType )
 {
-	m_selectedTool = static_cast<ToolType>(p_toolType);
+	m_selectedTool = static_cast<Enum::ToolType>(p_toolType);
+	SETTINGS()->selectedTool = m_selectedTool;
 
 	bool unset = false;
 
 	switch(m_selectedTool)
 	{
-	case TRANSLATE:
+	case Enum::Tool_Translate:
 		{
 			bool isUsed = SETTINGS()->leftMousePressed;
 			if(isUsed)
@@ -138,7 +141,7 @@ void Manager_Tools::setTool( int p_toolType )
 				m_window->renderWidget()->setCursor(Qt::SizeAllCursor);	
 		}
 		break;
-	case ROTATE:
+	case Enum::Tool_Rotate:
 		{
 			bool isUsed = SETTINGS()->leftMousePressed;
 			if(isUsed)
@@ -147,17 +150,17 @@ void Manager_Tools::setTool( int p_toolType )
 				m_window->renderWidget()->setCursor(Qt::OpenHandCursor);	
 		}
 		break;
-	case GEOMETRY:
+	case Enum::Tool_Geometry:
 		{
 			m_window->renderWidget()->setCursor(Qt::CrossCursor);
 		}
 		break;
-	case SCALE:
+	case Enum::Tool_Scale:
 		{
 			m_window->renderWidget()->setCursor(Qt::PointingHandCursor);
 		}
 		break;
-	case ENTITY:
+	case Enum::Tool_Entity:
 		{
 			m_window->renderWidget()->setCursor(Qt::ForbiddenCursor);
 			WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);

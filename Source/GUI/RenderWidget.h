@@ -26,4 +26,5 @@ protected:
 	void mousePressEvent(QMouseEvent* p_event);
 	void mouseReleaseEvent(QMouseEvent* p_event);
 	void resizeEvent(QResizeEvent* e);
+	void mouseMoveEvent(QMouseEvent *e);
 };

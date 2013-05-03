@@ -1,3 +1,5 @@
+#include "stdafx.h"
+#include "Core/Math.h"
 #include "Tool_Selection.h"
 
 Tool_Selection::Tool_Selection()
@@ -14,13 +16,8 @@ void Tool_Selection::setIsVisible(bool &isVisible)
 	this->isVisible = isVisible;
 }
 
-void Tool_Selection::(bool &isVisible)
-{
-	this->isVisible = isVisible;
-}
-
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-void Tool_Selection::beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, std::vector<IObject*> &selectableObjects, ITool_Transformation *currentlyChosenTransformationTool)
+void Tool_Selection::beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool)
 {
 	isSelected = true;
 
@@ -45,10 +42,10 @@ void Tool_Selection::beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camer
 }
 
 /* Called to get the last selected object(s). */
-std::vector<IObject*> &Tool_Selection::getSelectedObjects()
-{
-	return objectsThatHaveBeenSelected;
-}
+//std::vector<int> &Tool_Selection::getSelectedObjects()
+//{
+//	return objectsThatHaveBeenSelected;
+//}
 
 /* Called to see if the translation tool is (still) active. */
 bool Tool_Selection::getIsSelected()
@@ -57,7 +54,7 @@ bool Tool_Selection::getIsSelected()
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Selection::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, std::vector<IObject*> &selectableObjects)
+void Tool_Selection::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	// Use the updated mouse cursor position to re-create the selection rectangle.
 	
@@ -72,38 +69,38 @@ void Tool_Selection::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCa
 	}
 
 	MyRectangle currentSelectionRectangle;
-	currentSelectionRectangle.P1 = XMFLOAT3(firstMouseCursorPoint.x, currentMouseCursorPoint.y, 0.0f);
-	currentSelectionRectangle.P2 = XMFLOAT3(firstMouseCursorPoint.x, firstMouseCursorPoint.y, 0.0f);
-	currentSelectionRectangle.P3 = XMFLOAT3(currentMouseCursorPoint.x, firstMouseCursorPoint.y, 0.0f);
-	currentSelectionRectangle.P4 = XMFLOAT3(currentMouseCursorPoint.x, currentMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P1 = XMFLOAT3((float)firstMouseCursorPoint.x, (float)currentMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P2 = XMFLOAT3((float)firstMouseCursorPoint.x, (float)firstMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P3 = XMFLOAT3((float)currentMouseCursorPoint.x, (float)firstMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P4 = XMFLOAT3((float)currentMouseCursorPoint.x, (float)currentMouseCursorPoint.y, 0.0f);
 
 	/*	If many objects are selected, the one that defaults to "the" active one in the group, in/around which the transformation controls appear,
 		is the one that was placed last in the scene. */
 
 	// Check against the bounding volumes and bounding geometry of all the scene objects.
-	for(unsigned int i = 0; i < selectableObjects.size(); ++i)
-	{
-		// Get the bounding volume of the object.
-		selectableObjects.at(i);
+	//for(unsigned int i = 0; i < selectableObjects.size(); ++i)
+	//{
+	//	// Get the bounding volume of the object.
+	//	selectableObjects.at(i);
 
-		RectangleSelect(selectableObjects, theViewport, theCamera, currentSelectionRectangle);
+	//	//RectangleSelect(selectableObjects, theViewport, theCamera, currentSelectionRectangle);
 
-		//// Check the type and perform the relevant test.
-		//BoundingSurfaceType BVT;
-		//switch (BVT)
-		//{
-		//	case BVT_TRIANGLE_LIST:
-		//		break;
-		//	case BVT_LINE_LIST:
-		//		break;
-		//	default:
-		//		break;
-		//}
-	}
+	//	//// Check the type and perform the relevant test.
+	//	//BoundingSurfaceType BVT;
+	//	//switch (BVT)
+	//	//{
+	//	//	case BVT_TRIANGLE_LIST:
+	//	//		break;
+	//	//	case BVT_LINE_LIST:
+	//	//		break;
+	//	//	default:
+	//	//		break;
+	//	//}
+	//}
 }
 
 /* Called when the selection tool is unselected, which makes any hitherto made selection final (and undoable). */
-void Tool_Selection::finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, std::vector<IObject*> &selectableObjects)
+void Tool_Selection::finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	currentMouseCursorPoint = mouseCursorPoint;
 

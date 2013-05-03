@@ -1,7 +1,8 @@
 #ifndef HANDLE_TRANSLATIONAXIS_H
 #define HANDLE_TRANSLATIONAXIS_H
 
-#include "Object_Basic.h"
+#include "DirectXMath.h"
+using namespace DirectX;
 
 class Handle_TranslationAxis
 {

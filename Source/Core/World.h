@@ -44,3 +44,7 @@ public:
 // Access World Settings
 #define SETTINGS()	\
 	World::instance()->settings
+
+// Access World Settings
+#define FACTORY_ENTITY()	\
+	World::instance()->factory_entity()

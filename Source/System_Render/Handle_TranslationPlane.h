@@ -1,15 +1,15 @@
 #ifndef HANDLE_TRANSLATIONPLANE_H
 #define HANDLE_TRANSLATIONPLANE_H
 
-#include "Object_Basic.h"
-#include "Camera.h"
+#include <Core/Camera.h>
+#include <Core/Math.h>
 
 class Handle_TranslationPlane
 {
 private:
 	XMFLOAT4X4 world;
 
-	Plane plane;
+	MyPlane plane;
 	MyRectangle boundingRectangle;
 
 	XMFLOAT3 prevPickedPointOnAxisPlane;
@@ -31,7 +31,7 @@ public:
 	void pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
 	/* Called when picking against the plane should cease, and the last translation made final. */
-	void unselect(XMVECTOR &pickingRay);
+	void unselect();
 	
 	/* Called to see if this is the currently selected translation axis, if any. */
 	bool getIsSelected();

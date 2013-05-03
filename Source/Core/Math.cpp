@@ -2,6 +2,9 @@
 #include "Math.h"
 #include <time.h> 
 
+const float Math::Pi = 3.1415926535f;
+
+
 int Math::randomInt( int p_value )
 {
 	return rand() % p_value;
