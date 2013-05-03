@@ -10,6 +10,7 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
+	EVENT_COMMAND,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -95,5 +96,20 @@ public:
 	Event_ShowMessageBox(std::string p_message) : IEvent(EVENT_SHOW_MESSAGEBOX)
 	{
 		message = p_message;
+	}
+};
+
+class Command;
+class Event_Command : public IEvent
+{
+public:
+	Command* command;
+	bool execute;
+
+public:
+	Event_Command(Command* command, bool execute = false) : IEvent(EVENT_COMMAND)
+	{
+		this->command = command;
+		this->execute = execute;
 	}
 };

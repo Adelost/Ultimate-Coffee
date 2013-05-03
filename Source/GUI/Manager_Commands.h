@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/IObserver.h>
 #include "QObject.h"
 
 class Window;
@@ -9,7 +10,8 @@ class Commander;
 class QAction;
 class QSignalMapper;
 
-class Manager_Commands : QObject
+class Manager_Commands
+	: QObject, public IObserver
 {
 	Q_OBJECT
 
@@ -39,4 +41,6 @@ public slots:
 
 	void createTestButton( QString color, QSignalMapper* mapper );
 	void setBackBufferColor(QString p_str_color);
+
+	void onEvent(IEvent* e);
 };
