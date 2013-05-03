@@ -4,7 +4,7 @@
 #include "World.h"
 #include "Manager_Entity.h"
 #include "Data.h"
-
+#include "Data_Camera.h"
 
 Factory_Entity::Factory_Entity()
 {
@@ -17,8 +17,6 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 	if(p_type == ENTITY_EMPTY)
 	{
-		//e->addData(Data::Transform());
-		//e->addData(Data::Render());
 	}
 
 	if(p_type == ENTITY_CUBE)
@@ -26,6 +24,12 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 		e->addData(Data::Transform());
 		e->fetchData<Data::Transform>()->position.x = Math::randomFloat(1.0f, 100.0f);
 		e->addData(Data::Render());
+	}
+
+	if(p_type == ENTITY_CAMERA)
+	{
+		e->addData(Data::Transform());
+		e->addData(Data::Camera());
 	}
 
 	return e;
