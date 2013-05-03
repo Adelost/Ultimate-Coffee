@@ -22,6 +22,7 @@ DXRenderer::DXRenderer()
 	m_viewport_screen = nullptr;
 
 	m_CBuffer.WVP.Identity();
+	m_CBuffer.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
 }
 
 DXRenderer::~DXRenderer()
@@ -95,13 +96,18 @@ void DXRenderer::renderFrame()
 
 	static float delta = 0.0f;
 
-	delta += 0.0001f;
-	m_CBuffer.WVP = m_CBuffer.WVP.CreateRotationX(delta);
+	delta += 0.0005f;
+
+	Matrix X, Y, Z;
+	X = m_CBuffer.WVP.CreateRotationX(delta);
+	Y = m_CBuffer.WVP.CreateRotationY(delta);
+	Z = m_CBuffer.WVP.CreateRotationZ(delta);
+	m_CBuffer.WVP = X * Y * Z;
 
 	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &m_CBuffer, 0, 0);
 
-	m_dxDeviceContext->DrawIndexed(36, 0, 0);
-	//m_dxDeviceContext->Draw(8, 0);
+	//m_dxDeviceContext->DrawIndexed(36, 0, 0);
+	m_dxDeviceContext->Draw(36, 0);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));
@@ -202,11 +208,12 @@ bool DXRenderer::initDX()
 
 	D3D11_INPUT_ELEMENT_DESC inputElementDesc [] = 
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},	
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},	
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	HR(m_dxDevice->CreateInputLayout(inputElementDesc, 2, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
+	HR(m_dxDevice->CreateInputLayout(inputElementDesc, 3, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
 
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
@@ -218,8 +225,8 @@ bool DXRenderer::initDX()
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	memset(&vertexBufferDesc, 0, sizeof(vertexBufferDesc));
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof(VertexPosCol) * 8;
-	vertexBufferDesc.StructureByteStride = sizeof(VertexPosCol);
+	vertexBufferDesc.ByteWidth = sizeof(VertexPosColNorm) * 36;
+	vertexBufferDesc.StructureByteStride = sizeof(VertexPosColNorm);
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -228,7 +235,7 @@ bool DXRenderer::initDX()
 
 	HR(m_dxDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
 
-	UINT stride = sizeof(VertexPosCol);
+	UINT stride = sizeof(VertexPosColNorm);
 	UINT offset = 0;
 	m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 
