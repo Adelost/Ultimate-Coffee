@@ -19,12 +19,6 @@
   	background-color: #282828;
 }
 
-QTreeView::item:hover
-{
-	border: none;
-	background-color: #808080;
-}
-
 QHeaderView::section
 {
 	background-color: #535353;
@@ -44,8 +38,22 @@ QLabel
 QAbstractScrollArea, QAbstractItemView
 {
    	color: #f5f5f5;
-	background-color: #282828;
 	border: none;
+	outline: 0;
+	background-color: #282828;
+	alternate-background-color: #303030;
+}
+
+
+QAbstractScrollArea::item:hover, QAbstractItemView::item:hover
+{
+	border: none;
+	background-color: #808080;
+}
+
+QAbstractScrollArea::item:selected, QAbstractItemView::item:selected
+{
+	color: #282828;
 }
 
 QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
@@ -295,19 +303,6 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 	border-top: 1px solid #6a6a6a;
 }
 
-QTreeView
-{
- 	background-color: #535353;
-	border: 1px solid #282828;
-	border-top: 1px solid #6a6a6a;
-}
-
-QTreeView
-{
-   background-color: #282828;
-}
-
-
 
  QTreeView::branch:has-siblings:!adjoins-item
 {
@@ -338,19 +333,7 @@ QTreeView
          image: url(:/MainWindow/Assets/GUI/Icons/Misc/branch-open.png);
  }
 
-QTreeView
-{
-	background-color: #282828;
-	alternate-background-color: #303030;
-	 outline: 0;
-}
 
-
-
-QTreeView::item:selected
-{
-	color: #282828;
-}
 
 </string>
   </property>
@@ -453,19 +436,36 @@ QTreeView::item:selected
   </string>
     </property>
    </widget>
-   <zorder>treeWidget</zorder>
-   <zorder>plainTextEdit</zorder>
-   <zorder>label</zorder>
-   <zorder>label_2</zorder>
-   <zorder>doubleSpinBox</zorder>
-   <zorder>doubleSpinBox_2</zorder>
-   <zorder>doubleSpinBox_3</zorder>
-   <zorder>label_4</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>label_8</zorder>
-   <zorder>label_9</zorder>
-   <zorder>layoutWidget_2</zorder>
-   <zorder>label_3</zorder>
+   <widget class="QListWidget" name="listWidget">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>200</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>asd</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>asd</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>asd</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>asd</string>
+     </property>
+    </item>
+   </widget>
   </widget>
   <widget class="QToolBar" name="contextBar">
    <attribute name="toolBarArea">

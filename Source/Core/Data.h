@@ -53,22 +53,5 @@ namespace Data
 	public:
 		int meshId;
 	};
-
-
-	class Camera : public Type<Camera>
-	{
-	public:
-		Matrix mat_view;
-		Matrix mat_projection;
-		float fieldOfView;
-		float fieldOfViewModifier;
-		float aspectRatio;
-		float zNear;
-		float zFar;
-
-		Vector3 up;			
-		Vector3 right;		
-		Vector3 look;
-	};
 }
 

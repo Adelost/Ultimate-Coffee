@@ -29,9 +29,10 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
+	FACTORY_ENTITY()->createEntity(ENTITY_CAMERA);
 	for(int i=0; i<2; i++)
 	{
-		m_world->factory_entity()->createEntity(ENTITY_CUBE);
+		FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
 	}
 	SETTINGS()->selectedEnityId = 0;
 
