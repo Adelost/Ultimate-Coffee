@@ -54,14 +54,17 @@ void System::Render::update()
 	// Render/Update tools
 	if(currentlyChosenTransformTool)
 	{
-		XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
-		XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
-		float dist = XMVector3Length(XMVectorSubtract(mCam.GetPositionXM(), origin)).m128_f32[0];
-		float distanceAdjustedScale = dist / 6;
-		currentlyChosenTransformTool->setScale(distanceAdjustedScale);
+		if(currentlyChosenTransformTool->getActiveObject() != -1)
+		{
+			XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
+			XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
+			float dist = XMVector3Length(XMVectorSubtract(mCam.GetPositionXM(), origin)).m128_f32[0];
+			float distanceAdjustedScale = dist / 6;
+			currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
-		if(currentlyChosenTransformTool == theTranslationTool)
-			theTranslationTool->updateViewPlaneTranslationControlWorld(mCam.GetLook(), mCam.GetUp());
+			if(currentlyChosenTransformTool == theTranslationTool)
+				theTranslationTool->updateViewPlaneTranslationControlWorld(mCam.GetLook(), mCam.GetUp());
+		}
 	}
 }
 

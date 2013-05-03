@@ -41,6 +41,7 @@ World::~World()
 	delete m_manager_systems;
 	delete m_manager_data;
 	delete m_manager_entity;
+	delete m_factory_entity;
 	delete settings;
 }
 

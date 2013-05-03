@@ -69,10 +69,10 @@ void Tool_Selection::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCa
 	}
 
 	MyRectangle currentSelectionRectangle;
-	currentSelectionRectangle.P1 = XMFLOAT3(firstMouseCursorPoint.x, currentMouseCursorPoint.y, 0.0f);
-	currentSelectionRectangle.P2 = XMFLOAT3(firstMouseCursorPoint.x, firstMouseCursorPoint.y, 0.0f);
-	currentSelectionRectangle.P3 = XMFLOAT3(currentMouseCursorPoint.x, firstMouseCursorPoint.y, 0.0f);
-	currentSelectionRectangle.P4 = XMFLOAT3(currentMouseCursorPoint.x, currentMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P1 = XMFLOAT3((float)firstMouseCursorPoint.x, (float)currentMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P2 = XMFLOAT3((float)firstMouseCursorPoint.x, (float)firstMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P3 = XMFLOAT3((float)currentMouseCursorPoint.x, (float)firstMouseCursorPoint.y, 0.0f);
+	currentSelectionRectangle.P4 = XMFLOAT3((float)currentMouseCursorPoint.x, (float)currentMouseCursorPoint.y, 0.0f);
 
 	/*	If many objects are selected, the one that defaults to "the" active one in the group, in/around which the transformation controls appear,
 		is the one that was placed last in the scene. */

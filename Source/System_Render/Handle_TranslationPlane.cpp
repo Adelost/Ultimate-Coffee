@@ -184,7 +184,7 @@ void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 }
 
 /* Called when picking against the axis plane should cease, if the LMB has been released. */
-void Handle_TranslationPlane::unselect(XMVECTOR &pickingRay)
+void Handle_TranslationPlane::unselect()
 {
 	firstPickedPointOnAxisPlane.x = 0.0f;
 	firstPickedPointOnAxisPlane.y = 0.0f;

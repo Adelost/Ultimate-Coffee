@@ -31,7 +31,7 @@ public:
 	void pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
 	/* Called when picking against the plane should cease, and the last translation made final. */
-	void unselect(XMVECTOR &pickingRay);
+	void unselect();
 	
 	/* Called to see if this is the currently selected translation axis, if any. */
 	bool getIsSelected();

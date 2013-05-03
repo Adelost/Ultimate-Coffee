@@ -9,28 +9,43 @@ namespace System
 	class Translation : public Type<Translation>
 	{
 	private:
-		DataMapper<Data::Transform> m_mapper_position;
+		DataMapper<Data::Transform> m_map_translation;
 
 	public:
 		void update()
 		{
-			while(m_mapper_position.hasNext())
+			static float i = 0.0f;
+			DataMapper<Data::Transform> pos;
+			while(m_map_translation.hasNext())
 			{
-			//Data::Position* position = m_mapper_position.next();
-			}
-			while(m_mapper_position.hasNext())
-			{
-				//Data::Position* position = m_mapper_position.next();
+				Data::Transform* trans = m_map_translation.next();
 			}
 		}
 
 		void process()
 		{
 		}
+	};
 
-		std::string className()
+
+	class Test : public Type<Test>
+	{
+	private:
+		DataMapper<Data::Transform> m_map_translation;
+
+	public:
+		void update()
 		{
-			return "Translation";
+			static float i = 0.0f;
+			DataMapper<Data::Transform> pos;
+			while(m_map_translation.hasNext())
+			{
+				Data::Transform* trans = m_map_translation.next();
+			}
+		}
+
+		void process()
+		{
 		}
 	};
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-//#include "Batch.h" //check, explain this
-//#include "Entity.h" //check, explain this
+#include "Batch.h" //check, explain this
+#include "Entity.h" //check, explain this
 class World;
 
 class Manager_Entity

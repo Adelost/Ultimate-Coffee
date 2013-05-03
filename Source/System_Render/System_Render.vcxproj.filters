@@ -52,6 +52,9 @@
     <ClInclude Include="Tool_Scaling.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="RenderStates.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -83,6 +86,12 @@
     </ClCompile>
     <ClCompile Include="Tool_Scaling.cpp">
       <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderStates.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

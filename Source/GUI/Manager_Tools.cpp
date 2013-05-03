@@ -2,6 +2,7 @@
 #include "Manager_Tools.h"
 
 #include <Core/World.h>
+#include <Core/Factory_Entity.h>
 #include <Core/Events.h>
 #include "Window.h"
 #include "ui_MainWindow.h"
@@ -82,7 +83,7 @@ void Manager_Tools::setupActions()
 void Manager_Tools::action_about()
 {
 	QMessageBox::about(m_window, "About Ultimate Coffee",
-		"Coffee... is a feeling.");
+		"Coffee... is a feeling.\n\nMattias Andersson\nNicolas Dubray\nNils Forsman\nHenrik Nell\nViktor Sidén");
 }
 
 QAction* Manager_Tools::createContextIcon( std::string p_icon )
@@ -130,11 +131,11 @@ void Manager_Tools::setTool( int p_toolType )
 	{
 	case TRANSLATE:
 		{
-				bool isUsed = SETTINGS()->leftMousePressed;
-				if(isUsed)
-					m_window->renderWidget()->setCursor(Qt::SizeHorCursor);
-				else
-					m_window->renderWidget()->setCursor(Qt::SizeAllCursor);	
+			bool isUsed = SETTINGS()->leftMousePressed;
+			if(isUsed)
+				m_window->renderWidget()->setCursor(Qt::SizeHorCursor);
+			else
+				m_window->renderWidget()->setCursor(Qt::SizeAllCursor);	
 		}
 		break;
 	case ROTATE:
@@ -159,6 +160,7 @@ void Manager_Tools::setTool( int p_toolType )
 	case ENTITY:
 		{
 			m_window->renderWidget()->setCursor(Qt::ForbiddenCursor);
+			WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
 		}
 		break;
 	default:
@@ -186,4 +188,3 @@ void Manager_Tools::onEvent( IEvent* p_event )
 		break;
 	}
 }
-

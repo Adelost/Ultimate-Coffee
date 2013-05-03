@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include <Core/DataMapper.h>
+#include <Core/Data.h>
 #include "Manager_Docks.h"
 #include "Window.h"
 #include "ui_MainWindow.h"
@@ -6,6 +8,12 @@
 
 Manager_Docks::~Manager_Docks()
 {
+	//int nrOfCommands = commandHistoryList.size();
+	//for(int i=0;i<nrOfCommands;i++)
+	//{
+	//	QListWidgetItem* item = commandHistoryList.at(i);
+	//	delete item;
+	//}
 }
 
 void Manager_Docks::init()
@@ -80,9 +88,9 @@ void Manager_Docks::loadLayout()
 		ok = layout_data.size() > 0;
 	}
 
-	if (ok)
+	if(ok)
 		ok = m_window->restoreGeometry(geo_data);
-	if (ok)
+	if(ok)
 		ok = m_window->restoreState(layout_data);
 
 	if (!ok)
@@ -117,6 +125,7 @@ void Manager_Docks::setupMenu()
 	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
 	m_menu->addAction(a);
 	connect(m_window->ui()->actionReset_Layout, SIGNAL(triggered()), this, SLOT(resetLayout()));
+	m_window->ui()->actionReset_Layout->setShortcut(QKeySequence("Ctrl+Shift+R"));
 	connect(m_window->ui()->actionSave_Layout, SIGNAL(triggered()), this, SLOT(saveLayout()));
 	connect(m_window->ui()->actionLoad_Layout, SIGNAL(triggered()), this, SLOT(loadLayout()));
 	m_menu->addSeparator();
@@ -132,9 +141,30 @@ void Manager_Docks::setupMenu()
 	// Inspector
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
+	// Command history
+	dock = createDock("Command history (Visible list not functional yet, 2013-04-29, 22.08", Qt::LeftDockWidgetArea);
+    commandHistoryListWidget = new QListWidget(dock);
+	dock->setWidget(commandHistoryListWidget);
+
+	// Test, list of commands as strings
+	std::vector<std::string> commandList;
+	commandList.push_back(std::string("Command 1 (test entry)"));
+	commandList.push_back(std::string("Command 2 (test entry)"));
+	commandList.push_back(std::string("Command 3 (test entry)"));
+
+	int nrOfCommands = commandList.size();
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		new QListWidgetItem(commandList.at(i).c_str(), commandHistoryListWidget); //Added to commandHistoryListWidget
+	}
+	// QListWidget
+	// to remove items from commandHistoryListWidget,
+	// use commandHistoryListWidget->takeItem(index);
+
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
 	QTreeView* tree = new QTreeView(m_window);
+	tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	tree->setAlternatingRowColors(true);
 	m_hierarchy = new QStandardItemModel(0, 1, this);
 	m_hierarchy->setHorizontalHeaderItem(0, new QStandardItem("Entity ID"));
@@ -153,6 +183,53 @@ void Manager_Docks::setupMenu()
 		"   c|_|   COFFEE	\n"
 		"  ");
 	dock->setWidget(textEdit);
+
+	// Tool
+	{
+		dock = createDock("Tool", Qt::RightDockWidgetArea);
+		QWidget* widget = new QWidget(dock);
+		dock->setWidget(widget);
+		QLayout* vl = new QVBoxLayout(widget);
+		widget->setLayout(vl);
+		{
+			vl->addWidget(new QLabel("Position"));
+			QLayout* hl = new QHBoxLayout(widget);
+			vl->addItem(hl);
+			hl->addWidget(new QLabel("  X ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Y ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Z ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+		}
+		widget->setLayout(vl);
+		{
+			vl->addWidget(new QLabel("Rotation"));
+			QLayout* hl = new QHBoxLayout(widget);
+			vl->addItem(hl);
+			hl->addWidget(new QLabel("  X ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Y ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Z ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+		}
+		widget->setLayout(vl);
+		{
+			vl->addWidget(new QLabel("Scale"));
+			QLayout* hl = new QHBoxLayout(widget);
+			vl->addItem(hl);
+			hl->addWidget(new QLabel("  X ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Y ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+			hl->addWidget(new QLabel("  Z ", widget));
+			hl->addWidget(new QDoubleSpinBox(widget));
+		}
+		vl->addItem(m_window->createSpacer(Qt::Vertical));
+	}
+	
+	
 
 	// Console
 	dock = createDock("Console", Qt::LeftDockWidgetArea);
@@ -247,14 +324,39 @@ void Manager_Docks::resetLayout()
 
 void Manager_Docks::setupHierarchy()
 {
-	for(int i=0; i<5; i++)
+	/*for(int i=0; i<5; i++)
 	{
-		QStandardItem* item;
-		item = new QStandardItem("Foo");
-		item->setChild(0, new QStandardItem("Fii"));
-		QStandardItem* item2 = new QStandardItem("Fum");
-		item2->setChild(0, new QStandardItem("Fuu"));
-		item->setChild(1, item2);
-		m_hierarchy->appendRow(item);
+	QStandardItem* item;
+	item = new QStandardItem("Foo");
+	item->setChild(0, new QStandardItem("Fii"));
+	QStandardItem* item2 = new QStandardItem("Fum");
+	item2->setChild(0, new QStandardItem("Fuu"));
+	item->setChild(1, item2);
+	m_hierarchy->appendRow(item);
+	}*/
+}
+
+void Manager_Docks::update()
+{
+	int rowCount = m_hierarchy->rowCount();
+	int entityCount = 0;
+
+	DataMapper<Data::Transform> map_trans;
+	while(map_trans.hasNext())
+	{
+		map_trans.next();
+
+		if(entityCount >= rowCount)
+		{
+			QStandardItem* item;
+			item = new QStandardItem("Entity " + QString::number(entityCount));
+			m_hierarchy->setItem(entityCount, item);
+		}
+		entityCount++;
 	}
+}
+
+void System_Editor::update()
+{
+	m_editor->update();
 }

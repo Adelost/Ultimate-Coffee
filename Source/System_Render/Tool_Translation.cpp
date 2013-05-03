@@ -25,19 +25,32 @@ Tool_Translation::Tool_Translation()
 	boundingRectangle.P3 = XMFLOAT3(0.0f, 1.0f, 1.0f);
 	boundingRectangle.P4 = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	yzTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&xDir), 0.0f, boundingRectangle);
-
+		boundingRectangle.P1 = XMFLOAT3(0.0f, -1.0f, -1.0f);
+		boundingRectangle.P2 = XMFLOAT3(0.0f,  0.0f, -1.0f);
+		boundingRectangle.P3 = XMFLOAT3(0.0f,  0.0f,  0.0f);
+		boundingRectangle.P4 = XMFLOAT3(0.0f, -1.0f,  0.0f);
+		yzTranslationPlane2 = new Handle_TranslationPlane(-XMLoadFloat3(&xDir), 0.0f, boundingRectangle);
 	boundingRectangle.P1 = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	boundingRectangle.P2 = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	boundingRectangle.P3 = XMFLOAT3(1.0f, 0.0f, 1.0f);
 	boundingRectangle.P4 = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	zxTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&yDir), 0.0f, boundingRectangle);
-
+		boundingRectangle.P1 = XMFLOAT3(-1.0f, 0.0f, -1.0f);
+		boundingRectangle.P2 = XMFLOAT3(-1.0f, 0.0f,  0.0f);
+		boundingRectangle.P3 = XMFLOAT3( 0.0f, 0.0f,  0.0f);
+		boundingRectangle.P4 = XMFLOAT3( 0.0f, 0.0f, -1.0f);
+		zxTranslationPlane2 = new Handle_TranslationPlane(-XMLoadFloat3(&yDir), 0.0f, boundingRectangle);
 	boundingRectangle.P1 = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	boundingRectangle.P2 = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	boundingRectangle.P3 = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	boundingRectangle.P4 = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	xyTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&zDir), 0.0f, boundingRectangle);
 
+		boundingRectangle.P1 = XMFLOAT3(-1.0f, -1.0f, 0.0f);
+		boundingRectangle.P2 = XMFLOAT3(-1.0f,  0.0f, 0.0f);
+		boundingRectangle.P3 = XMFLOAT3( 0.0f,  0.0f, 0.0f);
+		boundingRectangle.P4 = XMFLOAT3( 0.0f, -1.0f, 0.0f);
+		xyTranslationPlane2 = new Handle_TranslationPlane(-XMLoadFloat3(&zDir), 0.0f, boundingRectangle);
 	boundingRectangle.P1 = XMFLOAT3(-0.25f, -0.25f, 0.0f);
 	boundingRectangle.P2 = XMFLOAT3(-0.25f,  0.25f, 0.0f);
 	boundingRectangle.P3 = XMFLOAT3( 0.25f,  0.25f, 0.0f);
@@ -56,6 +69,10 @@ Tool_Translation::~Tool_Translation()
 	delete xTranslationAxisHandle;
 	delete yTranslationAxisHandle;
 	delete zTranslationAxisHandle;
+	delete yzTranslationPlane; delete yzTranslationPlane2;
+	delete zxTranslationPlane; delete zxTranslationPlane2;
+	delete xyTranslationPlane; delete xyTranslationPlane2;
+	delete camViewTranslationPlane;
 }
 
 void Tool_Translation::setIsVisible(bool &isVisible)
@@ -101,6 +118,16 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 				aTranslationToolHandleWasSelected = true;
 			}
 
+				planeSelected = xyTranslationPlane2->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+				if(planeSelected)
+				{
+					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+					{
+						distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+						currentlySelectedPlane = xyTranslationPlane2;
+						aTranslationToolHandleWasSelected = true;
+					}
+				}
 			planeSelected = yzTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
 			if(planeSelected)
 			{
@@ -111,7 +138,18 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 					aTranslationToolHandleWasSelected = true;
 				}
 			}
-
+			
+				planeSelected = yzTranslationPlane2->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+				if(planeSelected)
+				{
+					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+					{
+						distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+						currentlySelectedPlane = yzTranslationPlane2;
+						aTranslationToolHandleWasSelected = true;
+					}
+				}
+				
 			planeSelected = zxTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
 			if(planeSelected)
 			{
@@ -122,6 +160,17 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 					aTranslationToolHandleWasSelected = true;
 				}
 			}
+
+				planeSelected = zxTranslationPlane2->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+				if(planeSelected)
+				{
+					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+					{
+						distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+						currentlySelectedPlane = zxTranslationPlane2;
+						aTranslationToolHandleWasSelected = true;
+					}
+				}
 		}
 	}
 	
@@ -140,6 +189,11 @@ void Tool_Translation::setActiveObject(int entityId)
 	Matrix world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
 	originalWorldOfActiveObject = static_cast<XMFLOAT4X4>(world);
 	//XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+}
+
+int Tool_Translation::getActiveObject()
+{
+	return activeEntityId;
 }
 
 void Tool_Translation::updateWorld()
@@ -177,6 +231,10 @@ void Tool_Translation::updateWorld()
 		yzTranslationPlane->setWorld(logicalWorld);
 		zxTranslationPlane->setWorld(logicalWorld);
 		xyTranslationPlane->setWorld(logicalWorld);
+
+		yzTranslationPlane2->setWorld(logicalWorld);
+		zxTranslationPlane2->setWorld(logicalWorld);
+		xyTranslationPlane2->setWorld(logicalWorld);
 
 		camViewTranslationPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
 	}
@@ -320,7 +378,11 @@ void Tool_Translation::unselect()
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
 	updateWorld();
 
-	currentlySelectedPlane = NULL;
+	if(currentlySelectedPlane)
+	{
+		currentlySelectedPlane->unselect();
+		currentlySelectedPlane = NULL;
+	}
 	currentlySelectedAxis = NULL;
 
 	isSelected = false;
@@ -427,46 +489,312 @@ XMFLOAT4X4 Tool_Translation::getWorld_viewPlaneTranslationControl_visual()
 	return visualWorld;
 }
 
-int Tool_Translation::getActiveObject()
-{
-	return activeEntityId;
-}
-	
 void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
-	// Draw control frames.
 	md3dDevice = device;
 	md3dImmediateContext = deviceContext;
+
+	ID3DBlob *PS_Buffer, *VS_Buffer;
+
+	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
+	HR(D3DCompileFromFile(L"Tool_PS.hlsl", NULL, NULL, "PS", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
+	HR(md3dDevice->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
+
+	HR(D3DCompileFromFile(L"Tool_VS.hlsl", NULL, NULL, "VS", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
+	HR(md3dDevice->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
+
+
+
+
+	// Create test mesh for visual translation control.
+	
+	D3D11_BUFFER_DESC vbd;
+	D3D11_SUBRESOURCE_DATA vinitData;
+
+	std::vector<Vertex::PosCol> vertices;
+
+	Vertex::PosCol posCol;
+
+	// x axis
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f;
+	vertices.push_back(posCol);
+	posCol.Pos.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f;
+	posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f;
+	vertices.push_back(posCol);
+
+	// y axis
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
+	vertices.push_back(posCol);
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f;
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
+	vertices.push_back(posCol);
+
+	// z axis
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	vertices.push_back(posCol);
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f;
+	posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	vertices.push_back(posCol);
+
+    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 6;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransToolVB));
+
+	vertices.clear();
+
+	// YZ plane
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f;
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yzPlane_VB));
+
+	vertices.clear();
+
+	// ZX plane
+
+	posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = 1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = 1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+	
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zxPlane_VB));
+
+	vertices.clear();
+
+	// XY plane
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f;
+	posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = 1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xyPlane_VB));
+
+	vertices.clear();
+
+	// View plane
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = -0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f;
+	posCol.Pos.x = -0.25f; posCol.Pos.y =  0.25f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x =  0.25f; posCol.Pos.y =  0.25f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+	
+	posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f;
+	posCol.Pos.x =  0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+	posCol.Pos.x = -0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_viewPlane_VB));
+
+	vertices.clear();
 }
 
-void Tool_Translation::draw()
+void Tool_Translation::draw(Camera &theCamera, ID3D11DepthStencilView *depthStencilView)
 {
+	// Draw the translation tool test...
+
+	md3dImmediateContext->PSSetShader(m_pixelShader, 0, 0);
+	md3dImmediateContext->VSSetShader(m_vertexShader, 0, 0);
+
+	//md3dImmediateContext->VSSetConstantBuffers(0, 1, )
+	//m_constantBuffer->
+
+	D3D11_MAPPED_SUBRESOURCE mapRes;
+	md3dImmediateContext->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapRes);
+	XMFLOAT4X4 mappedWVP = (XMFLOAT4X4)mapRes;
 
 
-	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
-	//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-	//md3dImmediateContext->Draw(5, 0);
+	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
-	//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-	//md3dImmediateContext->Draw(5, 0);
+	md3dImmediateContext->IASetInputLayout(InputLayouts::PosCol);
+    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
-	//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-	//md3dImmediateContext->Draw(5, 0);
+	UINT stride = sizeof(Vertex::PosCol);
+    UINT offset = 0;
 
-	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
-	////md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	D3DX11_TECHNIQUE_DESC techDesc;
 
-	//XMMATRIX viewControlWorld = XMLoadFloat4x4(&theTranslationTool->getWorld_viewPlaneTranslationControl_visual());
-	//		
-	//float scale = theTranslationTool->getScale();
-	//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
-	//		
-	//worldViewProj = viewControlWorld*view*proj;
-	//Effects::ToolFX->SetWorldViewProj(worldViewProj);
+	ID3DX11EffectTechnique *activeMeshTech = Effects::ToolFX->ToolTech;
 
-	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
-	//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-	//md3dImmediateContext->Draw(5, 0);
+	XMMATRIX worldViewProj;
+
+	//activeMeshTech->GetDesc( &techDesc );
+	//for(UINT p = 0; p < techDesc.Passes; ++p)
+ //   {
+	//	// Draw the Mesh.
+	//	if( GetAsyncKeyState('1') & 0x8000 )
+	//		md3dImmediateContext->RSSetState(RenderStates::WireframeRS);
+	//	
+	//	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_circle_VB, &stride, &offset);
+	//	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransToolVB, &stride, &offset);
+
+	//	XMMATRIX identity = XMMatrixIdentity();
+	//	XMFLOAT4X4 toolWorld = getWorld_visual();
+	//	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
+	//	
+	//	//float scale = theTranslationTool->getScale();
+	//	//world._11 = scale;
+	//	//world._22 = scale;
+	//	//world._33 = scale;
+
+	//	//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+
+	//	//world._41 = mMeshWorld._41;
+	//	//world._42 = mMeshWorld._42;
+	//	//world._43 = mMeshWorld._43;
+
+	//	worldViewProj = world * theCamera.View() * theCamera.Proj();
+
+	//	Effects::ToolFX->SetWorldViewProj(worldViewProj);
+	//	// Effects::ToolFX->SetMaterial(mMeshMat);
+
+	//	activeMeshTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+	//	md3dImmediateContext->Draw(6, 0);
+
+	//	// Restore default
+	//	md3dImmediateContext->RSSetState(0);
+	//}
+
+		md3dImmediateContext->IASetInputLayout(InputLayouts::PosCol);
+	    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+		mapRes = worldViewProj;
+		Effects::ToolFX->SetWorldViewProj(worldViewProj);
+
+		// Draw control circles.
+
+		XMVECTOR rotQuat = activeObject->getIRenderable()->getRotation();
+		XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+		XMFLOAT4X4 toolWorld = getWorld_visual();
+		XMMATRIX world = XMLoadFloat4x4(&toolWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = rotation * world * theCamera.View() * theCamera.Proj();
+
+		Effects::ToolFX->SetWorldViewProj(worldViewProj);
+
+		//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Xcircle_VB, &stride, &offset);
+		//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+		//md3dImmediateContext->Draw(65, 0);
+
+		//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Ycircle_VB, &stride, &offset);
+		//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+		//md3dImmediateContext->Draw(65, 0);
+
+		//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Zcircle_VB, &stride, &offset);
+		//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+		//md3dImmediateContext->Draw(65, 0);
+
+			// Draw control frames.
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
+			activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->Draw(5, 0);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
+			activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->Draw(5, 0);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
+			activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->Draw(5, 0);
+
+				//md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
+				////md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+				//XMMATRIX viewControlWorld = XMLoadFloat4x4(&theTranslationTool->getWorld_viewPlaneTranslationControl_visual());
+				//
+				//float scale = theTranslationTool->getScale();
+				//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+				//
+				//worldViewProj = viewControlWorld*view*proj;
+				//Effects::ToolFX->SetWorldViewProj(worldViewProj);
+
+				//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
+				//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
+				//md3dImmediateContext->Draw(5, 0);
+
+		md3dImmediateContext->OMSetDepthStencilState(0, 0);
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QObject.h>
-#include <QAction.h>
 
 class Window;
 namespace Ui{class MainWindow;}
 class QActionGroup;
+class QAction;
 class QIcon;
 class QSignalMapper;
 class IEvent;
@@ -41,7 +41,6 @@ public:
 	QAction* createContextIcon(std::string p_icon);
 	QAction* createToolAction(QSignalMapper* p_mapper, ToolType p_type, std::string p_icon);
 	QIcon createIcon( std::string p_icon );
-
 
 public slots:
 	void action_about();

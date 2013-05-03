@@ -4,6 +4,9 @@
 #include "ITool_Transformation.h"
 #include "Handle_TranslationAxis.h"
 #include "Handle_TranslationPlane.h"
+#include "Effects.h"
+#include "Vertex.h"
+#include "RenderStates.h"
 
 struct ID3D11Buffer;
 struct ID3D11Device;
@@ -12,6 +15,14 @@ struct ID3D11DeviceContext;
 class Tool_Translation : public ITool_Transformation
 {
 private:
+	ID3D11PixelShader*			m_pixelShader;
+	ID3D11VertexShader*			m_vertexShader;
+
+	ID3D11Buffer *m_constantBuffer;
+
+
+	//
+
 	ID3D11Device *md3dDevice;
 	ID3D11DeviceContext *md3dImmediateContext;
 
@@ -38,6 +49,9 @@ private:
 	Handle_TranslationPlane *xyTranslationPlane,
 							*yzTranslationPlane,
 							*zxTranslationPlane,
+							*xyTranslationPlane2,
+							*yzTranslationPlane2,
+							*zxTranslationPlane2,
 							*camViewTranslationPlane;
 	
 	Handle_TranslationAxis *currentlySelectedAxis;
@@ -70,6 +84,9 @@ public:
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
 	void setActiveObject(int entityId);
+
+	/* Called to bind the translatable object to the tool, so its translation can be modified. */
+	int getActiveObject();
 
 	/* Transform all controls to the local coord. sys. of the active object. */
 	void setRelateToActiveObjectWorld(bool relateToActiveObjectWorld);
@@ -110,10 +127,9 @@ public:
 
 	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_visual();
 
-	int getActiveObject();
-
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
-	void draw();
+	void draw(Camera &theCamera, ID3D11DepthStencilView *depthStencilView);
+
 };
 
 #endif

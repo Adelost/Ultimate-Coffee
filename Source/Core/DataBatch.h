@@ -4,10 +4,17 @@
 #include "Batch.h"
 #include "Init_DataMapper.h"
 
-class DataBatch
+class IDataBatch
+{
+public:
+	virtual ~IDataBatch(){}
+};
+
+template<typename T>
+class DataBatch : public IDataBatch
 {
 private:
-	IBatch* m_batch;
+	Batch<T> m_batch;
 	std::vector<int> m_owner_list;
 	/**
 	The index where data is stored, corresponding
@@ -16,21 +23,6 @@ private:
 	std::vector<int> m_dataIndexFromEntityId_list;
 	
 public:
-	DataBatch()
-	{
-		m_batch = nullptr;
-	}
-	~DataBatch()
-	{
-		delete m_batch;
-	}
-	
-	template<typename T>
-	void init()
-	{
-		m_batch = new Batch<T>();
-	}
-
 	/**
 	Fetches the dataIndex of a certain data (Batch)
 	belonging to the entity. Returns NULL if the 
@@ -44,18 +36,17 @@ public:
 		return m_dataIndexFromEntityId_list[p_entityId];
 	}
 
-	template<typename T>
 	void addData(int p_entityId, Data::Type<T>& p_data)
 	{
 		// Delete previous Data, if any
 		int prev_dataId = dataIndexFromEntityId(p_entityId);
 		if(prev_dataId != -1)
-			removeData<T>(p_entityId);
+			removeData(p_entityId);
 
 		// Put data inside Batch and retrieve the 
 		// index where the data was stored
-		Batch<T>* batch = static_cast<Batch<T>*>(m_batch);
-		int dataIndex = batch->addItem(static_cast<T&>(p_data));
+		T& data = (T&)p_data;
+		int dataIndex = m_batch.addItem(data);
 
 		// Save entity as owner to the added Data, 
 		// if needed, make room for the new index
@@ -78,13 +69,8 @@ public:
 		m_dataIndexFromEntityId_list[p_entityId] = dataIndex;
 	}
 
-	template<typename T>
 	T* fetchData(int p_entityId)
 	{
-		// Fetch the corresponding batch and convert into
-		// it's subclass.
-		Batch<T>* batch = static_cast<Batch<T>*>(m_batch);
-
 		// Fetch item from Batch
 		int dataIndex = dataIndexFromEntityId(p_entityId);
 
@@ -92,26 +78,21 @@ public:
 		if(dataIndex == -1)
 			return NULL;
 
-		return batch->itemAt(dataIndex);
+		return m_batch.itemAt(dataIndex);
 	}
 
-	template<typename T>
 	void removeData(int p_entityId)
 	{
-		Batch<T>* batch = static_cast<Batch<T>*>(m_batch);
-
 		int dataIndex = dataIndexFromEntityId(p_entityId);
 
 		if(dataIndex != -1)
-			batch->removeItemAt(dataIndex);
+			m_batch.removeItemAt(dataIndex);
 	}
 
-	template<typename T>
 	void mapToData(Init_DataMapper* p_init)
 	{
-		Batch<T>* batch = static_cast<Batch<T>*>(m_batch);
-		p_init->setDataList(batch->itemList());
-		p_init->index_lastGap = batch->lastGap();
+		p_init->setDataList(m_batch.itemList());
+		p_init->index_lastGap = m_batch.lastGap();
 		p_init->owner_list = &m_owner_list;
 	}
 };

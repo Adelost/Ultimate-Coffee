@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1018</width>
+    <width>941</width>
     <height>738</height>
    </rect>
   </property>
@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#MainWindow, QPlainTextEdit
+   <string notr="true">#MainWindow
 {
   	background-color: #282828;
 }
@@ -25,9 +25,27 @@ QTreeView::item:hover
 	background-color: #808080;
 }
 
+QHeaderView::section
+{
+	background-color: #535353;
+	border: none;
+	padding: 2px;
+	padding-left: 8px;
+	margin: 0px;
+}
+
+QLabel
+{
+   	color: #f5f5f5;
+	background-color: #282828;
+	border: none;
+}
+
 QAbstractScrollArea, QAbstractItemView
 {
    	color: #f5f5f5;
+	background-color: #282828;
+	border: none;
 }
 
 QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
@@ -37,7 +55,6 @@ QToolBar, QMenu, QMenuBar, QToolButton, QStatusBar, QDockWidget
 	border: 1px solid #282828;
 	border-top: 1px solid #6a6a6a;
 }
-
 QWidget:item:hover
 {
 	
@@ -159,15 +176,6 @@ QTextEdit
     background-color: #242424;
 }
 
-
-QHeaderView::section
-{
-    background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #616161, stop: 0.5 #505050, stop: 0.6 #434343, stop:1 #656565);
-    color: white;
-    padding-left: 4px;
-    border: 1px solid #6c6c6c;
-}
-
 QCheckBox:disabled
 {
 	color: #414141;
@@ -287,12 +295,6 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 	border-top: 1px solid #6a6a6a;
 }
 
-QHeaderView::section
-{
-   background-color: #535353;
-	border: 0px;
-}
-
 QTreeView
 {
  	background-color: #535353;
@@ -362,7 +364,7 @@ QTreeView::item:selected
    <widget class="QTreeWidget" name="treeWidget">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>510</x>
       <y>290</y>
       <width>256</width>
       <height>192</height>
@@ -435,7 +437,7 @@ QTreeView::item:selected
    <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>450</x>
       <y>70</y>
       <width>201</width>
       <height>171</height>
@@ -451,19 +453,19 @@ QTreeView::item:selected
   </string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>180</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
+   <zorder>treeWidget</zorder>
+   <zorder>plainTextEdit</zorder>
+   <zorder>label</zorder>
+   <zorder>label_2</zorder>
+   <zorder>doubleSpinBox</zorder>
+   <zorder>doubleSpinBox_2</zorder>
+   <zorder>doubleSpinBox_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>label_8</zorder>
+   <zorder>label_9</zorder>
+   <zorder>layoutWidget_2</zorder>
+   <zorder>label_3</zorder>
   </widget>
   <widget class="QToolBar" name="contextBar">
    <attribute name="toolBarArea">
@@ -496,7 +498,7 @@ QTreeView::item:selected
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1018</width>
+     <width>941</width>
      <height>35</height>
     </rect>
    </property>

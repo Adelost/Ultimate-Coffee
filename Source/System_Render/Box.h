@@ -4,16 +4,16 @@
 
 namespace Shape
 {
-	VertexPos BoxVertices[8] = 
-	{														//Index:
-		{Vector3( 0.5f,  0.5,  0.5)},	//0
-		{Vector3( 0.5f, -0.5,  0.5)},	//1
-		{Vector3(-0.5f, -0.5,  0.5)},	//2
-		{Vector3(-0.5f,  0.5,  0.5)},	//3
-		{Vector3( 0.5f,  0.5, -0.5)},	//4
-		{Vector3( 0.5f, -0.5, -0.5)},	//5
-		{Vector3(-0.5f, -0.5, -0.5)},	//6
-		{Vector3(-0.5f,  0.5, -0.5)},	//7
+	VertexPosCol BoxVertices[8] = 
+	{																		//Index:
+		{Vector3( 0.5f,  0.5f,  0.5f), Vector4(1.0f, 1.0f, 1.0f, 1.0f)},	//0
+		{Vector3( 0.5f, -0.5f,  0.5f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)},	//1
+		{Vector3(-0.5f, -0.5f,  0.5f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)},	//2
+		{Vector3(-0.5f,  0.5f,  0.5f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)},	//3
+		{Vector3( 0.5f,  0.5f, -0.5f), Vector4(0.0f, 1.0f, 1.0f, 1.0f)},	//4
+		{Vector3( 0.5f, -0.5f, -0.5f), Vector4(1.0f, 1.0f, 0.0f, 1.0f)},	//5
+		{Vector3(-0.5f, -0.5f, -0.5f), Vector4(1.0f, 0.0f, 1.0f, 1.0f)},	//6
+		{Vector3(-0.5f,  0.5f, -0.5f), Vector4(0.0f, 0.0f, 0.0f, 1.0f)},	//7
 	};
 
 	unsigned int BoxIndex[36] = 

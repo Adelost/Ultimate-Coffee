@@ -26,6 +26,8 @@ DXRenderer::~DXRenderer()
 {
 	ReleaseCOM(m_vertexBuffer);
 	ReleaseCOM(m_indexBuffer);
+	ReleaseCOM(m_WVPBuffer);
+	ReleaseCOM(m_inputLayout);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
 	ReleaseCOM(m_view_renderTarget);
@@ -78,10 +80,6 @@ void DXRenderer::onEvent(IEvent* p_event)
 
 void DXRenderer::renderFrame()
 {
-	//mSmap->BindDsvAndSetNullRenderTarget(dxDeviceContext_);
-	//DrawSceneToShadowMap();
-	//dxDeviceContext_->RSSetState(0);
-
 	// Restore the back and depth buffer to the OM stage.
 	ID3D11RenderTargetView* renderTargets[1] = {m_view_renderTarget};
 	m_dxDeviceContext->OMSetRenderTargets(1, renderTargets, m_view_depthStencil);
@@ -91,63 +89,12 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Set per frame constants.
-	//FXStandard* fx = shaderManager->effects.fx_standard;
-	//fx->SetEyePosW(mCam.GetPosition());
-	//fx->SetCubeMap(mSky->CubeMapSRV());
-	//fx->SetShadowMap(mSmap->DepthMapSRV());
-	//
-	// Tessellation settings
-	//fx->SetHeightScale(tess_heightScale);
-	//fx->SetMaxTessDistance(tess_maxTessDistance);
-	//fx->SetMinTessDistance(tess_minTessDistance);
-	//fx->SetMinTessFactor(tess_minTessFactor);
-	//fx->SetMaxTessFactor(tess_maxTessFactor);
-	//
-	//dxDeviceContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
-	//dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//
-	//drawManager->prepareFrame();
-	//
-	//if(wireframe_enable)
-	//	dxDeviceContext->RSSetState(shaderManager->states.WireframeRS);
-	//
-	// Draw
-	//
-	//drawGame();
-	//
-	//
-	//if(drawTerrain)
-	//	mTerrain.draw(dxDeviceContext, &mCam);
-	//
-	//dxDeviceContext_->RSSetState(0);
+	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// FX sets tessellation stages, but it does not disable them.  So do that here
-	// to turn off tessellation.
-	m_dxDeviceContext->HSSetShader(0, 0, 0);
-	m_dxDeviceContext->DSSetShader(0, 0, 0);
-	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	// Debug view depth buffer.
-	//if(GetAsyncKeyState('Z') & 0x8000)
-	//{
-	//	DrawScreenQuad(mSmap->DepthMapSRV());
-	//}
-	//
-	//if(drawSky)
-	//	mSky->Draw(dxDeviceContext_, &mCam);
+	//m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &m_WVP, 0, 0);
 
 	m_dxDeviceContext->DrawIndexed(36, 0, 0);
 	//m_dxDeviceContext->Draw(8, 0);
-
-	// restore default states, as the SkyFX changes them in the effect file.
-	m_dxDeviceContext->RSSetState(0);
-	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
-
-	// Unbind shadow map as a shader input because we are going to render to it next frame.
-	// The shadow might be at any slot, so clear all slots.
-	ID3D11ShaderResourceView* nullSRV[16] = { 0 };
-	m_dxDeviceContext->PSSetShaderResources(0, 16, nullSRV);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));
@@ -230,35 +177,42 @@ bool DXRenderer::initDX()
 
 	////////////////////////////////////////////////////////////////////////////////////////////
 
+	// Compile and set shaders
+
 	ID3DBlob *PS_Buffer, *VS_Buffer;
 
 	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
-	HR(D3DCompileFromFile(L"PixelShader.hlsl", NULL, NULL, "main", "ps_5_0", NULL, NULL, &PS_Buffer, NULL));
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_5_0", NULL, NULL, &PS_Buffer, NULL));
 	HR(m_dxDevice->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
 
-	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "main", "vs_5_0", NULL, NULL, &VS_Buffer, NULL));
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_5_0", NULL, NULL, &VS_Buffer, NULL));
 	HR(m_dxDevice->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
 
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
 	m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
 
+	// Create input layout
+
 	D3D11_INPUT_ELEMENT_DESC inputElementDesc [] = 
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},		
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},	
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	HR(m_dxDevice->CreateInputLayout(inputElementDesc, 1, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
+	HR(m_dxDevice->CreateInputLayout(inputElementDesc, 2, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
 
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
 
 	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
 
+	// Create vertex buffer
+
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	memset(&vertexBufferDesc, 0, sizeof(vertexBufferDesc));
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof(VertexPos) * 8;
-	vertexBufferDesc.StructureByteStride = sizeof(VertexPos);
+	vertexBufferDesc.ByteWidth = sizeof(VertexPosCol) * 8;
+	vertexBufferDesc.StructureByteStride = sizeof(VertexPosCol);
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -267,9 +221,11 @@ bool DXRenderer::initDX()
 
 	HR(m_dxDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
 
-	UINT stride = sizeof(VertexPos);
+	UINT stride = sizeof(VertexPosCol);
 	UINT offset = 0;
 	m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+
+	// Create index buffer
 
 	D3D11_BUFFER_DESC indexBufferDesc;
 	memset(&indexBufferDesc, 0, sizeof(indexBufferDesc));
@@ -285,6 +241,23 @@ bool DXRenderer::initDX()
 	HR(m_dxDevice->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer));
 
 	m_dxDeviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// Create constant buffer
+
+	D3D11_BUFFER_DESC WVP_Desc;
+	memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	WVP_Desc.ByteWidth = sizeof(float) * 16;
+	WVP_Desc.StructureByteStride = sizeof(float);
+	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
+
+	D3D11_SUBRESOURCE_DATA WVP_Data;
+	memset(&WVP_Data, 0, sizeof(WVP_Data));
+	//vertexData.pSysMem = m_WVP;
+
+	HR(m_dxDevice->CreateBuffer(&WVP_Desc, &WVP_Data, &m_WVPBuffer));
+
+	m_dxDeviceContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
 	////////////////////////////////////////////////////////////////////////////////////////////
 
