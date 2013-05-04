@@ -13,6 +13,7 @@ class RenderWidget : public QWidget, public IObserver
 public:
 	RenderWidget(QWidget* parent);
 	~RenderWidget();
+	QPoint prevMousePos;
 
 	void onEvent(IEvent* p_event);
 
