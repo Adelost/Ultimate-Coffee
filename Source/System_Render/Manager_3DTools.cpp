@@ -199,4 +199,5 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 Manager_3DTools::~Manager_3DTools()
 {
 	delete m_theTranslationTool;
+	delete m_theSelectionTool;
 }
