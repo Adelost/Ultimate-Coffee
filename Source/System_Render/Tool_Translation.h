@@ -16,7 +16,7 @@ struct ID3D11VertexShader;
 
 struct ConstantBuffer2
 {
-	Matrix WVP;
+	XMMATRIX WVP;
 };
 
 class Tool_Translation : public ITool_Transformation

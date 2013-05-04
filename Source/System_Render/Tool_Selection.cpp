@@ -54,7 +54,7 @@ bool Tool_Selection::getIsSelected()
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Selection::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Selection::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint )
 {
 	// Use the updated mouse cursor position to re-create the selection rectangle.
 	

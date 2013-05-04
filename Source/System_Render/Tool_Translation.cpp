@@ -188,9 +188,9 @@ void Tool_Translation::setActiveObject(int entityId)
 	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 	updateWorld();
 
-	Matrix world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
-	originalWorldOfActiveObject = static_cast<XMFLOAT4X4>(world);
-	//XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+
+	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
 }
 
 int Tool_Translation::getActiveObject()
@@ -349,7 +349,8 @@ void Tool_Translation::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &
 		Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
 		transform->toWorldMatrix();
 		transform->position = newTranslation;
-		originalWorldOfActiveObject = static_cast<XMFLOAT4X4>(world);
+
+		//originalWorldOfActiveObject = static_cast<XMFLOAT4X4>(world);
 
 		//activeObject->getIRenderable()->setWorld(newMatrix);
 	
@@ -404,17 +405,16 @@ XMFLOAT4X4 Tool_Translation::getWorld_logical()
 
 XMFLOAT4X4 Tool_Translation::getWorld_visual()
 {
-	Vector3 trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
-	Matrix mat_trans;
-	mat_trans.CreateTranslation(trans);
-	XMMATRIX xm_trans = XMLoadFloat4x4(&mat_trans);
+	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+
+	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	//XMMATRIX trans = XMMatrixTranslation(activeObject->getIRenderable()->getWorld()._41, activeObject->getIRenderable()->getWorld()._42, activeObject->getIRenderable()->getWorld()._43);
 
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
 	XMFLOAT4X4 world_visual;
-	XMStoreFloat4x4(&world_visual, scaling * xm_trans);
+	XMStoreFloat4x4(&world_visual, scaling * translation);
 
 	return world_visual;
 }
@@ -770,10 +770,9 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
 
-	XMMATRIX test = XMMatrixTranslation(0.0f,0.0f,0.0f);
+	//XMMATRIX test = XMMatrixTranslation(0.0f,0.0f,0.0f);
 
 	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
-
 
 	//Matrix world2 = world;
 	//Matrix worldInverted;
@@ -783,18 +782,19 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 
 
 
-	XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
-	XMMATRIX WVP = world * camView * camProj;
-	WVP = XMMatrixTranspose(WVP);
+	//XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	//XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
+	
+	XMMATRIX worldViewProj2 = world * camView * camProj;
+	worldViewProj2 = XMMatrixTranspose(worldViewProj2);
 	//D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
 	//D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	//D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 
-	//ConstantBuffer2 WVP;
-	//WVP.WVP = worldViewProj;
+	ConstantBuffer2 WVP;
+	WVP.WVP = worldViewProj2;
 
-	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, 0, &WVP, 16, 0);
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
 	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
 	// Draw control frames.
