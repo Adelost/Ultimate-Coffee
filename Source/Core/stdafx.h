@@ -26,7 +26,7 @@
 		printf(oss.str().c_str());								\
 	}
 
-// Print string to the "Output" window of Visual Studio using OutputDebugString
+// Prints string to the "Output" window of Visual Studio using OutputDebugString
 #define OUTPUT_WINDOW_PRINT(stream)				\
 {												\
 	std::wostringstream os;						\

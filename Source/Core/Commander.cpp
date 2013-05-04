@@ -352,6 +352,6 @@ void CommandHistory::executeAllCommandsUpAndUntilCurrent()
 	{
 		Command* command = m_commands.at(i);
 		command->doRedo();
-		SEND_EVENT(&Event_ShowInGUI(command));
+		SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command));
 	}
 }

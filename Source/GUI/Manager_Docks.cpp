@@ -15,7 +15,7 @@ Manager_Docks::~Manager_Docks()
 
 void Manager_Docks::init()
 {
-	SUBSCRIBE_TO_EVENT(this, EVENT_SHOW_COMMAND_IN_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	commandHistoryListWidget = NULL;
 	listT = NULL;
 	m_window = Window::instance();
@@ -273,9 +273,9 @@ void Manager_Docks::onEvent(IEvent* e)
 	EventType type = e->type();
 	switch (type) 
 	{
-	case EVENT_SHOW_COMMAND_IN_GUI: //Add command to the command history list in the GUI
+	case EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI: //Add command to the command history list in the GUI
 		{
-			Event_StoreCommand* commandEvent = static_cast<Event_StoreCommand*>(e);
+			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 			Command* command = commandEvent->command;
 			
 			QIcon commandIcon;

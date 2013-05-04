@@ -118,7 +118,7 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	command->setDoColor(color.red(), color.green(), color.blue());
 	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
 	
-	SEND_EVENT(&Event_StoreCommand(command, true));
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, true));
 }
 
 Manager_Commands::~Manager_Commands()
@@ -217,7 +217,7 @@ void Manager_Commands::onEvent(IEvent* e)
 	switch (type)
 	{
 	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
-		Event_StoreCommand* commandEvent = static_cast<Event_StoreCommand*>(e);
+		Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 		Command* command = commandEvent->command;
 		if(commandEvent->execute)
 		{
@@ -228,7 +228,7 @@ void Manager_Commands::onEvent(IEvent* e)
 			m_commander->addToHistory(command);
 		}
 
-		SEND_EVENT(&Event_ShowInGUI(command)); //Update command history in GUI
+		SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
 		break;
 	}
 }

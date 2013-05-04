@@ -10,12 +10,14 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
-	EVENT_STORE_COMMAND,
 	EVENT_MOUSE_WHEEL,
-	EVENT_SHOW_COMMAND_IN_GUI,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
-	EVENT_COMMAND,
+
+	// Commands
+	EVENT_STORE_COMMAND,
+	EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI,
+	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -149,28 +151,43 @@ public:
 };
 
 class Command;
-class Event_StoreCommand : public IEvent
+class Event_StoreCommandInCommandHistory : public IEvent
 {
 public:
 	Command* command;
-	bool execute;
+	bool execute; //Call "doRedo" on the command before storing it in the command history. Standard is false. Specify true if the doings of the command is not done when sending this event.
 
 public:
-	Event_StoreCommand(Command* command, bool execute = false) : IEvent(EVENT_STORE_COMMAND)
+	Event_StoreCommandInCommandHistory(Command* command, bool execute = false) : IEvent(EVENT_STORE_COMMAND)
 	{
 		this->command = command;
 		this->execute = execute;
 	}
 };
 
-class Event_ShowInGUI : public IEvent
+class Event_AddCommandToCommandHistoryGUI : public IEvent
 {
 public:
 	Command* command;
 
 public:
-	Event_ShowInGUI(Command* command) : IEvent(EVENT_SHOW_COMMAND_IN_GUI)
+	Event_AddCommandToCommandHistoryGUI(Command* command) : IEvent(EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI)
 	{
 		this->command = command;
+	}
+};
+
+//check, work in progress, as of 2013-05-04 23.30
+class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
+{
+public:
+	int startIndex; //Index of first command to be removed
+	int nrOfCommands; //Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex".
+
+public:
+	Event_RemoveCommandsFromCommandHistoryGUI(int startindex, int nrOfCommands = 1) : IEvent(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
+	{
+		this->startIndex = startIndex;
+		this->nrOfCommands = nrOfCommands;
 	}
 };
