@@ -86,7 +86,6 @@ void Tool_Translation::setIsVisible(bool &isVisible)
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
 bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera)
 {
-
 	bool aTranslationToolHandleWasSelected = false;
 
 	bool rayIntersectsWithToolBoundingBox = false;
@@ -213,9 +212,9 @@ void Tool_Translation::updateWorld()
 		objectWorld = static_cast<XMFLOAT4X4>(world);
 		//XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
 		
-		newWorld._41 = objectWorld._41;
-		newWorld._42 = objectWorld._42;
-		newWorld._43 = objectWorld._43;
+		newWorld._41 = trans->position.x; //objectWorld._41;
+		newWorld._42 = trans->position.y; //objectWorld._42;
+		newWorld._43 = trans->position.z; //objectWorld._43;
 
 		// Update the translation tool's (distance-from-camera-adjusted) scale.
 		//newWorld._11 = scale;
@@ -501,42 +500,45 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
 	HR(D3DCompileFromFile(L"Tool_PS.hlsl", NULL, NULL, "PS", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
-	HR(md3dDevice->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
-
 	HR(D3DCompileFromFile(L"Tool_VS.hlsl", NULL, NULL, "VS", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
+
+	HR(md3dDevice->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
 	HR(md3dDevice->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
 
-	//md3dImmediateContext->PSSetShader(m_pixelShader, 0, 0);
-	//md3dImmediateContext->VSSetShader(m_vertexShader, 0, 0);
+	md3dImmediateContext->PSSetShader(m_pixelShader, 0, 0);
+	md3dImmediateContext->VSSetShader(m_vertexShader, 0, 0);
 
 	D3D11_INPUT_ELEMENT_DESC inputElementDesc [] = 
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},	
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},	
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
-
 
 	HR(md3dDevice->CreateInputLayout(inputElementDesc, 2, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
 
-
-	ReleaseCOM(VS_Buffer);
-	ReleaseCOM(PS_Buffer);
+	//ReleaseCOM(VS_Buffer);
+	//ReleaseCOM(PS_Buffer);
 
 	//md3dImmediateContext->IASetInputLayout(m_inputLayout);
 
 	D3D11_BUFFER_DESC WVP_Desc;
-	memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	WVP_Desc.ByteWidth = 16 * 4;//sizeof(float) * 4;
-	WVP_Desc.StructureByteStride = 0;//sizeof(float);
+	ZeroMemory(&WVP_Desc, sizeof(WVP_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+
+	int tetst = sizeof(XMMATRIX);
+
 	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
+	WVP_Desc.ByteWidth = 64;
+	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	ConstantBuffer2 WVPinit;
-	D3D11_SUBRESOURCE_DATA WVP_Data;
-	memset(&WVP_Data, 0, sizeof(WVP_Data));
-	WVP_Data.pSysMem = &WVPinit;
+					//WVP_Desc.StructureByteStride = 0;
+					//ConstantBuffer2 WVPinit;
+					//D3D11_SUBRESOURCE_DATA WVP_Data;
+					//memset(&WVP_Data, 0, sizeof(WVP_Data));
+					//WVP_Data.pSysMem = &WVPinit;
 
-	HR(md3dDevice->CreateBuffer(&WVP_Desc, &WVP_Data, &m_WVPBuffer));
+	HR(md3dDevice->CreateBuffer(&WVP_Desc, NULL, &m_WVPBuffer));
+
+
 
 	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
@@ -710,29 +712,17 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 void Tool_Translation::draw(Camera &theCamera, ID3D11DepthStencilView *depthStencilView)
 {
-	// Draw the translation tool test...
+	// Draw the translation tool...
+	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	md3dImmediateContext->PSSetShader(m_pixelShader, 0, 0);
 	md3dImmediateContext->VSSetShader(m_vertexShader, 0, 0);
-
-	//md3dImmediateContext->VSSetConstantBuffers(0, 1, )
-	//m_constantBuffer->
-
-	//D3D11_MAPPED_SUBRESOURCE mapRes;
-	//md3dImmediateContext->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapRes);
-	//XMFLOAT4X4 mappedWVP = (XMFLOAT4X4)mapRes;
-
-	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	md3dImmediateContext->IASetInputLayout(m_inputLayout);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
-
-	//D3DX11_TECHNIQUE_DESC techDesc;
-
-	//ID3DX11EffectTechnique *activeMeshTech = Effects::ToolFX->ToolTech;
 
 	XMMATRIX worldViewProj;
 
@@ -773,76 +763,59 @@ void Tool_Translation::draw(Camera &theCamera, ID3D11DepthStencilView *depthSten
 	//	md3dImmediateContext->RSSetState(0);
 	//}
 
-		md3dImmediateContext->IASetInputLayout(m_inputLayout);
-	    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	Entity e(activeEntityId);
 
-		//mapRes = worldViewProj;
-		//Effects::ToolFX->SetWorldViewProj(worldViewProj);
+	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;;
+	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+	XMFLOAT4X4 toolWorld = getWorld_visual();
+
+	XMMATRIX test = XMMatrixTranslation(0.0f,0.0f,0.0f);
+
+	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
 
 
-		// Draw control circles.
+	//Matrix world2 = world;
+	//Matrix worldInverted;
+	//world2.Invert(worldInverted);
+	//XMMATRIX worldInvTrans = worldInverted.Transpose();
+	////XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 
-		Entity e(activeEntityId);
+	worldViewProj = world * theCamera.View() * theCamera.Proj();
+	
+	XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
+	XMMATRIX WVP = world * view * proj;
 
-		XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;;
-		//XMVECTOR rotQuat = activeObject->getIRenderable()->getRotation();
-		XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+	//ConstantBuffer2 WVP;
+	//WVP.WVP = worldViewProj;
 
-		XMFLOAT4X4 toolWorld = getWorld_visual();
-		XMMATRIX world = XMLoadFloat4x4(&toolWorld);
-		Matrix world2;
-		Matrix worldInverted;
-		world2.Invert(worldInverted);
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, 0, &WVP, 16, 0);
+	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
-		XMMATRIX worldInvTrans = worldInverted.Transpose();
-		//XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-		worldViewProj = rotation * worldInvTrans * theCamera.View() * theCamera.Proj();
+	// Draw control frames.
 
-		ConstantBuffer2 WVP;
-		WVP.WVP = worldViewProj;
-		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
+	md3dImmediateContext->Draw(5, 0);
 
-		//Effects::ToolFX->SetWorldViewProj(worldViewProj);
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
+	md3dImmediateContext->Draw(5, 0);
 
-		//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Xcircle_VB, &stride, &offset);
-		//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-		//md3dImmediateContext->Draw(65, 0);
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
+	md3dImmediateContext->Draw(5, 0);
 
-		//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Ycircle_VB, &stride, &offset);
-		//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-		//md3dImmediateContext->Draw(65, 0);
+	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
+	//md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Zcircle_VB, &stride, &offset);
-		//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-		//md3dImmediateContext->Draw(65, 0);
+	//XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
+	//
+	//float scale = getScale();
+	//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+	//
+	//worldViewProj = viewControlWorld * theCamera.View() * theCamera.Proj();
 
-			// Draw control frames.
-			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
-			//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->Draw(5, 0);
+	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
+	//md3dImmediateContext->Draw(5, 0);
 
-			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
-			//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->Draw(5, 0);
-
-			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
-			//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->Draw(5, 0);
-
-				//md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
-				////md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-				//XMMATRIX viewControlWorld = XMLoadFloat4x4(&theTranslationTool->getWorld_viewPlaneTranslationControl_visual());
-				//
-				//float scale = theTranslationTool->getScale();
-				//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
-				//
-				//worldViewProj = viewControlWorld*view*proj;
-				//Effects::ToolFX->SetWorldViewProj(worldViewProj);
-
-				//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
-				//activeMeshTech->GetPassByIndex(0)->Apply(0, md3dImmediateContext);
-				//md3dImmediateContext->Draw(5, 0);
-
-		md3dImmediateContext->OMSetDepthStencilState(0, 0);
+	//md3dImmediateContext->OMSetDepthStencilState(0, 0);
 }

@@ -43,9 +43,6 @@
     <ClInclude Include="Tool_Selection.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="Tool_Translation.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="Tool_Rotation.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
@@ -54,6 +51,12 @@
     </ClInclude>
     <ClInclude Include="RenderStates.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool_Translation.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager_3DTools.h">
+      <Filter>Source\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -78,9 +81,6 @@
     <ClCompile Include="Tool_Selection.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="Tool_Translation.cpp">
-      <Filter>Source\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="Tool_Rotation.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
@@ -92,6 +92,12 @@
     </ClCompile>
     <ClCompile Include="Vertex.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool_Translation.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager_3DTools.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

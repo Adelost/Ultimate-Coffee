@@ -1,6 +1,6 @@
 cbuffer cbPerObject
 {
-	float4x4 worldViewProj;
+	matrix worldViewProj;
 };
 
 struct VertexIn

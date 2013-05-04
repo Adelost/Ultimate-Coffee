@@ -16,7 +16,7 @@ struct ID3D11Texture2D;
 struct ID3D11VertexShader;
 struct IDXGISwapChain;
 struct ID3D11Buffer;
-
+struct Manager_3DTools;
 
 struct ConstantBuffer
 {
@@ -49,6 +49,8 @@ private:
 	int m_clientWidth;
 	static DXRenderer* s_instance;
 
+	Manager_3DTools *m_manager_tools;
+
 public:
 	DXRenderer();
 	~DXRenderer();
@@ -59,5 +61,10 @@ public:
 
 	bool initDX();
 	void resizeDX(); 
+
+	// With better hypothetical future structure, might not need these, but currently used for tools to draw themselves:
+	ID3D11Device* getDevice();
+	ID3D11DeviceContext* getDeviceContext();
+	ID3D11DepthStencilView* getDepthStencilView();
 };
 

@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "DXRenderer.h"
 #include "Box.h"
+#include "Manager_3DTools.h"
 
 #include <Core/EventManager.h>
 #include <Core/Events.h>
 #include <Core/World.h>
 #include <Core/Settings.h>
+#include <Core/Camera.h>
 
 DXRenderer::DXRenderer()
 {
@@ -41,10 +43,14 @@ DXRenderer::~DXRenderer()
 	ReleaseCOM(m_dxDeviceContext);
 	ReleaseCOM(m_dxDevice);
 	delete m_viewport_screen;
+
+	delete m_manager_tools;
 }
 
 bool DXRenderer::init( HWND p_windowHandle )
 {
+	bool result = false;
+
 	m_windowHandle = p_windowHandle;
 
 	m_clientWidth = 800;
@@ -52,7 +58,11 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_viewport_screen = new D3D11_VIEWPORT();
 
-	return initDX();
+	result = initDX();
+
+	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil);
+
+	return result;
 }
 
 void DXRenderer::onEvent(IEvent* p_event)
@@ -91,17 +101,39 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+						m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	static float delta = 0.0f;
+						m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
+						m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
 
-	delta += 0.0001f;
-	m_CBuffer.WVP = m_CBuffer.WVP.CreateRotationX(delta);
+						UINT stride = sizeof(VertexPosCol);
+						UINT offset = 0;
+						m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+						m_dxDeviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+						m_dxDeviceContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
-	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &m_CBuffer, 0, 0);
+						static float delta = 0.0f;
 
-	m_dxDeviceContext->DrawIndexed(36, 0, 0);
-	//m_dxDeviceContext->Draw(8, 0);
+						Camera theCamera = *SETTINGS()->camera;
+						theCamera.UpdateViewMatrix();
+
+						XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+						XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 755.0f / 426.0f, 1.0f, 3000.0f);
+						XMMATRIX viewProj = view * proj;
+						XMMATRIX WVP = m_CBuffer.WVP.CreateRotationX(delta) * XMMatrixTranslation(0.0f, 0.0f, 0.0f) * viewProj;
+
+						delta += 0.0001f;
+						m_CBuffer.WVP = WVP; //m_CBuffer.WVP.CreateRotationX(delta) * theCamera.View() * theCamera.Proj();
+
+						m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+
+						m_dxDeviceContext->DrawIndexed(36, 0, 0);
+						//m_dxDeviceContext->Draw(8, 0);
+
+						m_dxDeviceContext->RSSetState(0);
+
+	m_manager_tools->update();
+	m_manager_tools->draw(m_view_depthStencil);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));
@@ -131,7 +163,7 @@ bool DXRenderer::initDX()
 		MESSAGEBOX("Error: D3D11CreateDevice Failed.");
 		return false;
 	}
-	if(featureLevel != D3D_FEATURE_LEVEL_11_0 )
+	if(featureLevel != D3D_FEATURE_LEVEL_11_0 && featureLevel != D3D_FEATURE_LEVEL_10_1 && featureLevel != D3D_FEATURE_LEVEL_10_0)
 	{
 		MESSAGEBOX("Direct3D Feature Level 11 unsupported.");
 		return false;
@@ -344,3 +376,17 @@ void DXRenderer::resizeDX()
 		m_viewport_screen);			// viewport array
 }
 
+ID3D11Device* DXRenderer::getDevice()
+{
+	return this->m_dxDevice;
+}
+
+ID3D11DeviceContext* DXRenderer::getDeviceContext()
+{
+	return this->m_dxDeviceContext;
+}
+
+ID3D11DepthStencilView* DXRenderer::getDepthStencilView()
+{
+	return this->m_view_depthStencil;
+}

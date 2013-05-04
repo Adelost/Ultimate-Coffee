@@ -1,4 +1,7 @@
-StructuredBuffer<bool> isSelected : register( t0 );
+cbuffer perObject
+{
+	bool isSelected;
+}
 
 struct VertexOut
 {

@@ -24,7 +24,6 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	if(p_type == ENTITY_CUBE)
 	{
 		e->addData(Data::Transform());
-		e->fetchData<Data::Transform>()->position.x = Math::randomFloat(1.0f, 100.0f);
 		e->addData(Data::Render());
 	}
 

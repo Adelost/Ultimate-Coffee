@@ -18,4 +18,11 @@ namespace Enum
 		Tool_Geometry,
 		Tool_Entity
 	};
+
+	enum QtKeyPressType
+	{
+		QtKeyPress_NoButton = 0,
+		QtKeyPress_MouseLeft,
+		QtKeyPress_MouseRight
+	};
 }

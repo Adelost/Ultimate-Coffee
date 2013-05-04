@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Math.h"
-#include <time.h> 
+#include <time.h>
 
 const float Math::Pi = 3.1415926535f;
 

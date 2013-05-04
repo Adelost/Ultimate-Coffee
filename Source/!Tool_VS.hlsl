@@ -1,4 +1,7 @@
-StructuredBuffer<float4x4> gWorldViewProj : register( t0 );
+cbuffer perObject
+{
+	float4x4 gWorldViewProj;
+}:
 
 struct VertexIn
 {
