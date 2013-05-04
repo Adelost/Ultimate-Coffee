@@ -138,6 +138,8 @@ void DXRenderer::renderFrame()
 	//XMMATRIX viewProj = view * proj;
 	//XMMATRIX WVP = m_CBuffer.WVP.CreateRotationX(delta) * XMMatrixTranslation(0.0f, 0.0f, 0.0f) * viewProj;
 	
+
+	m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
 	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
 
 	//m_dxDeviceContext->DrawIndexed(36, 0, 0);
