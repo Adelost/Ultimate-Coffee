@@ -93,14 +93,14 @@ namespace Data
 			m_look = Vector3::TransformNormal(m_look, mat_rot);
 		}
 
-		void getPickingRay(Vector2 p_pickedCordinate, Vector2 p_screenSize, Vector3 &p_rayOrigin, Vector3 &p_rayDir)
+		void getPickingRay(Vector2 p_pickedCordinate, Vector2 p_screenSize, Vector4 &p_rayOrigin, Vector3 &p_rayDir)
 		{
 			// Compute picking ray in view space.
 			float vx = (+2.0f*p_pickedCordinate.x/p_screenSize.x  - 1.0f)/m_mat_projection(0,0);
 			float vy = (-2.0f*p_pickedCordinate.y/p_screenSize.y + 1.0f)/m_mat_projection(1,1);
 
 			// Ray definition in view space.
-			p_rayOrigin = Vector3(0.0f, 0.0f, 0.0f);
+			p_rayOrigin = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 			p_rayDir    = Vector3(vx, vy, 1.0f);
 		}
 

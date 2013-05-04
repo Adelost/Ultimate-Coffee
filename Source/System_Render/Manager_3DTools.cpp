@@ -9,15 +9,16 @@
 
 #include "ITool_Transformation.h"
 #include "Tool_Translation.h"
+#include "Tool_Selection.h"
 
 
-Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext, ID3D11DepthStencilView* p_depthStencilView )
+Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext, ID3D11DepthStencilView* p_depthStencilView, D3D11_VIEWPORT *p_viewPort)
 {
+
 	m_deviceContext = p_deviceContext;
 	m_depthStencilView = p_depthStencilView;
 
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_PRESS);
-	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_RELEASE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
 
 	// Initialize the transformation tools...
@@ -27,8 +28,12 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
 	currentlyChosenTransformTool = m_theTranslationTool;
 
+	m_theSelectionTool = new Tool_Selection();
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
+	
+
+	m_viewPort = p_viewPort;
 
 	//(SETTINGS()->camera)->SetPosition(-15.0f, 0.0f, 0.0f);
 	//(SETTINGS()->camera)->SetLens(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 1000.0f);
@@ -84,26 +89,63 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 	case EVENT_MOUSE_PRESS:
 		{
 			Event_MousePress* e = static_cast<Event_MousePress*>(p_event);
-			e->isPressed;
 
-			if(e->keyEnum == Enum::QtKeyPress_MouseLeft)
+			Vector2 clickedScreenCoords((int)e->x, (int)e->y);
+
+			if(e->isPressed == true)
 			{
-				Vector2 clickedScreenCoords((int)e->x, (int)e->y);
+				if(e->keyEnum == Enum::QtKeyPress_MouseLeft)
+				{
+					// Prepare parameters for the selection tool...
 
-				// Prepare parameters for the selection tool...
-				XMVECTOR rayOrigin, rayDir;
-				//getPickingRay(x, y, rayOrigin, rayDir);		// TO-DO: SETTINGS()->camera->getPickingRay(clickedScreenCoords, clientWidth, clientHeight, rayOrigin, rayDir);
+					// Use the selection tool to select against objects in the scene and any present control handles for active transformation tools.
+					currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 
-				POINT mouseCursorPoint;
-				mouseCursorPoint.x = (LONG)clickedScreenCoords.x;
-				mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
+					Entity entity_camera = CAMERA_ENTITY();
+					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-				// Use the selection tool to select against objects in the scene and any present control handles for active transformation tools.
-				currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
-				//theSelectionTool->beginSelection(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint, sceneObjects, currentlySelectedTransformationTool);
+					int height = m_viewPort->Height;
+					int width = m_viewPort->Width;
+					Vector2 screenDim(width, height);
+					Vector4 rayOrigin; Vector3 rayDir;
+					d_camera->getPickingRay(clickedScreenCoords, screenDim, rayOrigin, rayDir);
+					XMVECTOR xm_rayOrigin, xm_rayDir;
+					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+					XMMATRIX camView = d_camera->view();
+					POINT mouseCursorPoint;
+					mouseCursorPoint.x = (LONG)clickedScreenCoords.x;
+					mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
+					m_theSelectionTool->beginSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint, currentlyChosenTransformTool);
+				}
 			}
-		}
+			else
+			{
+				// If a translation tool is present and has been active, unselect it.
+				if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+				{
+					currentlyChosenTransformTool->unselect();
+				}
 
+				//// Check if the selection tool is currently processing a selection.
+				//if(theSelectionTool->getIsSelected())
+				//{
+				//	// Prepare parameters for the selection tool...
+				//	XMVECTOR rayOrigin, rayDir;
+				//	getPickingRay(x, y, rayOrigin, rayDir);
+
+				//	POINT mouseCursorPoint;
+				//	mouseCursorPoint.x = x;
+				//	mouseCursorPoint.y = y;
+
+				//	// Finalize the ongoing selection.
+				//	theSelectionTool->finalizeSelection(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint, sceneObjects);
+				//}
+			}
+
+			break;
+		}
 	case EVENT_MOUSE_MOVE:
 		{
 			Event_MouseMove* e = static_cast<Event_MouseMove*>(p_event);
@@ -114,14 +156,23 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
 			{
 				// Prepare parameters for the transformation tool...
-				XMVECTOR rayOrigin, rayDir;
-				// getPickingRay(x, y, rayOrigin, rayDir);		// TO-DO: SETTINGS()->camera->getPickingRay(clickedScreenCoords, clientWidth, clientHeight, rayOrigin, rayDir);
+				Entity entity_camera = CAMERA_ENTITY();
+				Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+				Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
+				int height = m_viewPort->Height;
+				int width = m_viewPort->Width;
+				Vector2 screenDim(width, height);
+				Vector4 rayOrigin; Vector3 rayDir;
+				d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+				XMVECTOR xm_rayOrigin, xm_rayDir;
+				xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+				XMMATRIX camView = d_camera->view();
 				POINT mouseCursorPoint;
 				mouseCursorPoint.x = (LONG)currentScreenCoords.x;
 				mouseCursorPoint.y = (LONG)currentScreenCoords.y;
-
-				//currentlyChosenTransformTool->update(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint);
+				currentlyChosenTransformTool->update(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint);
 			}
 
 			//if(theSelectionTool && theSelectionTool->getIsSelected())
@@ -136,30 +187,8 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 
 			//	theSelectionTool->update(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint, sceneObjects);
 			//}
-		}
-		break;
-	case EVENT_MOUSE_RELEASE:
-		{
-			// If a translation tool is present and has been active, unselect it.
-			if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
-			{
-				currentlyChosenTransformTool->unselect();
-			}
 
-			//// Check if the selection tool is currently processing a selection.
-			//if(theSelectionTool->getIsSelected())
-			//{
-			//	// Prepare parameters for the selection tool...
-			//	XMVECTOR rayOrigin, rayDir;
-			//	getPickingRay(x, y, rayOrigin, rayDir);
-
-			//	POINT mouseCursorPoint;
-			//	mouseCursorPoint.x = x;
-			//	mouseCursorPoint.y = y;
-
-			//	// Finalize the ongoing selection.
-			//	theSelectionTool->finalizeSelection(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint, sceneObjects);
-			//}
+			break;
 		}
 
 	default:

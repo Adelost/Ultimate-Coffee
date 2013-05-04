@@ -61,7 +61,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	result = initDX();
 
-	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil);
+	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
 	return result;
 }
@@ -121,7 +121,7 @@ void DXRenderer::renderFrame()
 	Y = m_CBuffer.WVP.CreateRotationY(delta);
 	Z = m_CBuffer.WVP.CreateRotationZ(delta);
 	Matrix world;
-	world = X;
+	world = X * Y * Z;
 
 	// HACK: Adding camera to renderer
 	// don't know where
@@ -129,6 +129,7 @@ void DXRenderer::renderFrame()
 		Entity entity_camera = CAMERA_ENTITY();
 		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
+		//m_CBuffer.WVP = XMMatrixTranspose(world) * XMMatrixTranspose(d_camera->view()) * XMMatrixTranspose(d_camera->projection());
 		m_CBuffer.WVP = world * d_camera->view() * d_camera->projection();
 	}
 
