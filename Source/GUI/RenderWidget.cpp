@@ -86,10 +86,19 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	// send mouse move event to relevant observers
 	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
 
-
 	// Update camera
 	Entity entity_camera = CAMERA_ENTITY();
 	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
-	//d_camera->rotateY(dx);
+
+	{
+		// Set 1 pixel = 0.25 degrees
+		float x = XMConvertToRadians(0.20f*(float)dx);
+		float y = XMConvertToRadians(0.20f*(float)dy);
+
+		// Rotate camera
+		d_camera->rotateZ(y);
+		d_camera->rotateY(x);
+		d_camera->updateViewMatrix(d_transform->position);
+	}
 }
