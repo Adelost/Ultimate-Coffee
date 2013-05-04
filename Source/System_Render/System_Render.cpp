@@ -8,16 +8,17 @@
 #include <Core/World.h>
 #include <Core/Settings.h>
 #include <Core/Data_Camera.h>
+#include <Core/Factory_Entity.h>
 
 System::Render::Render()
 {
+	SETTINGS()->camera_entityId = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->id();
 	setupDirectX();
 
 	currentlyChosenTransformTool = NULL;
 	theTranslationTool = new Tool_Translation();
 	// HACK: Will fix later.
 	currentlyChosenTransformTool = theTranslationTool;
-
 }
 
 void System::Render::setupDirectX()
@@ -50,13 +51,26 @@ System::Render::~Render()
 
 void System::Render::update()
 {
+	// Update camera
+	// NOTE: Don't know if this should be here,
+	// but in the meantime...
+	DataMapper<Data::Camera> map_camera;
+	while(map_camera.hasNext())
+	{
+		Entity* entity = map_camera.nextEntity();
+		Data::Transform* d_transform = entity->fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity->fetchData<Data::Camera>();
+		d_camera->updateViewMatrix(d_transform->position);
+	}
+
+	// Render frame
 	renderer->renderFrame();
 
-	Entity entity_camera = CAMERA_ENTITY();
-	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
-	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-
 	// Render/Update tools
+	Entity entity_camera = CAMERA_ENTITY();
+	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+
 	if(currentlyChosenTransformTool)
 	{
 		if(currentlyChosenTransformTool->getActiveObject() != -1)
@@ -68,7 +82,7 @@ void System::Render::update()
 			currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
 			if(currentlyChosenTransformTool == theTranslationTool)
-				theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look, d_camera->up);
+				theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look(), d_camera->up());
 		}
 	}
 }

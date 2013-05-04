@@ -3,10 +3,16 @@
 #include "Init_DataMapper.h"
 #include "Manager_Data.h"
 
+class Entity;
 class IDataMapper
 {
 private:
 	Manager_Data* m_data;
+
+protected:
+	Entity* entityAt(int p_index);
+	int getEntityId(Entity* p_entity);
+
 public:
 	IDataMapper();
 	
@@ -23,9 +29,8 @@ class DataMapper : public IDataMapper
 {
 private:
 	std::vector<T>* m_data_list;
-	std::vector<int>* m_owner_list;
 	int* m_index_lastGap;
-
+	std::vector<int>* m_owner_list;
 	int m_index_next;
 
 public:
@@ -73,10 +78,29 @@ public:
 		m_index_next = 0;
 	}
 	
-	// Fetch current item, and step to next item 
+	/**
+	Fetch current item, and step to next item 
+	*/
 	T* next()
 	{
 		m_index_next++;
 		return &(*m_data_list)[currentIndex()];
+	}
+
+	/**
+	Fetch the Entity holding the current item, and step to next item 
+	*/
+	Entity* nextEntity()
+	{
+		m_index_next++;
+		return entityAt(currentIndex());
+	}
+
+	/**
+	Return the Entity holding the Data at the current index
+	*/
+	Entity* fetchEntity()
+	{
+		return entityAt(currentIndex());
 	}
 };

@@ -30,6 +30,11 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	{
 		e->addData(Data::Transform());
 		e->addData(Data::Camera());
+
+		Data::Transform* d_transform;
+		d_transform = e->fetchData<Data::Transform>();
+		d_transform->position = Vector3(0,0,-15);
+		e->fetchData<Data::Camera>()->updateViewMatrix(d_transform->position);
 	}
 
 	return e;

@@ -7,6 +7,7 @@
 #include <Core/Events.h>
 #include <Core/World.h>
 #include <Core/Settings.h>
+#include <Core/Data_Camera.h>
 
 DXRenderer::DXRenderer()
 {
@@ -96,14 +97,25 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	static float delta = 0.0f;
-
-	delta += 0.0005f;
+	delta += SETTINGS()->deltaTime;
 
 	Matrix X, Y, Z;
 	X = m_CBuffer.WVP.CreateRotationX(delta);
 	Y = m_CBuffer.WVP.CreateRotationY(delta);
 	Z = m_CBuffer.WVP.CreateRotationZ(delta);
-	m_CBuffer.WVP = X * Y * Z;
+	Matrix world;
+	world = X;
+
+	
+	// HACK: Adding camera to renderer
+	// don't know where
+	{
+		Entity entity_camera = CAMERA_ENTITY();
+		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+
+		m_CBuffer.WVP = world * d_camera->view() * d_camera->projection();
+	}
+	
 
 	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
 
@@ -315,5 +327,19 @@ void DXRenderer::resizeDX()
 	m_dxDeviceContext->RSSetViewports(
 		1,								// nr of viewports
 		m_viewport_screen);			// viewport array
+
+
+
+
+	// Resize cameras
+	// NOTE: Don't know if this should be here,
+	// but in the meantime...
+	DataMapper<Data::Camera> map_camera;
+	while(map_camera.hasNext())
+	{
+		Data::Camera* d_camera = map_camera.next();
+		float aspectRatio =  static_cast<float>(m_clientWidth)/m_clientHeight;
+		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 1.0f, 3000.0f);
+	}
 }
 

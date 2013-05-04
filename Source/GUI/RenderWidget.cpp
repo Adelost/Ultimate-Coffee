@@ -2,6 +2,7 @@
 #include "RenderWidget.h"
 #include <Core/Events.h>
 #include <Core/World.h>
+#include <Core/Data.h>
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
@@ -60,8 +61,11 @@ void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
 void RenderWidget::resizeEvent(QResizeEvent* e)
 {
 	QWidget::resizeEvent(e);
+	
+	int width = this->width();
+	int height = this->height();
 
-	SEND_EVENT(&Event_WindowResize(width(), height()));
+	SEND_EVENT(&Event_WindowResize(width, height));
 }
 
 void RenderWidget::mouseMoveEvent( QMouseEvent *e )
@@ -77,4 +81,11 @@ void RenderWidget::mouseMoveEvent( QMouseEvent *e )
 
 	// send mouse move event to relevant observers
 	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
+
+
+	// Update camera
+	Entity entity_camera = CAMERA_ENTITY();
+	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	//d_camera->rotateY(dx);
 }

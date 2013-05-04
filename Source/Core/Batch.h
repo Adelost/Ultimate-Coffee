@@ -45,24 +45,24 @@ public:
 	{
 		return m_itemCount;
 	}
-	T* itemAt(int index)
+	T* itemAt(int p_index)
 	{
-		return &m_item_list.at(index);
+		return &m_item_list.at(p_index);
 	}
-	void removeItemAt(int index)
+	void removeItemAt(int p_index)
 	{
-		if(m_gap_list[index] == false)
+		if(m_gap_list[p_index] == false)
 		{
 			// Remove item
-			m_gap_list[index] = true;
+			m_gap_list[p_index] = true;
 			m_itemCount--;
 
 			// Find new first gap
-			if(index < m_index_firstGap)
-				m_index_firstGap = index;
+			if(p_index < m_index_firstGap)
+				m_index_firstGap = p_index;
 
 			// Find new last gap
-			if(index+1 == m_index_lastGap)
+			if(p_index+1 == m_index_lastGap)
 			{
 				m_index_lastGap--;
 				findNextLastGap();
@@ -70,9 +70,9 @@ public:
 		}
 	}
 
-	bool isGap(int index)
+	bool isGap(int p_index)
 	{
-		return m_gap_list[index];
+		return m_gap_list[p_index];
 	}
 
 	bool hasGaps()

@@ -2,6 +2,7 @@
 
 #include "IData.h"
 #include "Math.h"
+#include "Data_Camera.h"
 
 namespace Data
 {
