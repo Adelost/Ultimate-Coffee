@@ -2,6 +2,8 @@
 
 #include <QWidget>
 #include <Core/IObserver.h>
+#include <QKeyEvent>
+#include <QMouseEvent> // needed to grabb mouse input
 class IEvent;
 
 class RenderWidget : public QWidget, public IObserver
@@ -27,4 +29,5 @@ protected:
 	void mouseReleaseEvent(QMouseEvent* p_event);
 	void resizeEvent(QResizeEvent* e);
 	void mouseMoveEvent(QMouseEvent *e);
+	void keyPressEvent(QKeyEvent *e);
 };

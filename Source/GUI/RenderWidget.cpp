@@ -90,7 +90,6 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	Entity entity_camera = CAMERA_ENTITY();
 	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
-
 	{
 		// Set 1 pixel = 0.25 degrees
 		float x = XMConvertToRadians(0.20f*(float)dx);
@@ -101,4 +100,38 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 		d_camera->rotateY(x);
 		d_camera->updateViewMatrix(d_transform->position);
 	}
+}
+
+void RenderWidget::keyPressEvent( QKeyEvent *e )
+{
+	// Update camera
+	Entity entity_camera = CAMERA_ENTITY();
+	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+
+	float delta = SETTINGS()->deltaTime;
+	float strafe = 0.0f;
+	float walk = 0.0f;
+
+	if(e->key() == Qt::Key_W)
+	{
+		walk += delta;
+	}
+	if(e->key() == Qt::Key_A)
+	{
+		strafe -= delta;
+	}
+	if(e->key() == Qt::Key_S)
+	{
+		walk -= delta;
+	}
+	if(e->key() == Qt::Key_D)
+	{
+		strafe += delta;
+	}
+
+	// Rotate camera
+	d_camera->strafe(d_transform->position, strafe);
+	d_camera->walk(d_transform->position, walk);
+	d_camera->updateViewMatrix(d_transform->position);
 }
