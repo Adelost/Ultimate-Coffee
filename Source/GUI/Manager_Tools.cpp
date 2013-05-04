@@ -134,7 +134,7 @@ void Manager_Tools::setTool( int p_toolType )
 	{
 	case Enum::Tool_Translate:
 		{
-			bool isUsed = SETTINGS()->leftMousePressed;
+			bool isUsed = SETTINGS()->button.mouse_left;
 			if(isUsed)
 				m_window->renderWidget()->setCursor(Qt::SizeHorCursor);
 			else
@@ -143,7 +143,7 @@ void Manager_Tools::setTool( int p_toolType )
 		break;
 	case Enum::Tool_Rotate:
 		{
-			bool isUsed = SETTINGS()->leftMousePressed;
+			bool isUsed = SETTINGS()->button.mouse_left;
 			if(isUsed)
 				m_window->renderWidget()->setCursor(Qt::ClosedHandCursor);
 			else

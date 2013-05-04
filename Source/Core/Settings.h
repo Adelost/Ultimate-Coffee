@@ -6,17 +6,30 @@ typedef struct HWND__* HWND;
 class Camera;
 class Entity;
 
+class ButtonState
+{
+public:
+	ButtonState();;
+public:
+	bool mouse_left;
+	bool mouse_right;
+	bool mouse_middle;
+	bool key_up;
+	bool key_down;
+	bool key_left;
+	bool key_right;
+};
+
 class Settings
 {
 public:
 	float deltaTime;
 	HWND windowHandle;
-	bool leftMousePressed;
 	Color backBufferColor;
-	int cameraEntityId;
 	int selectedTool;
 	int selectedEntityId;
 	int camera_entityId;
+	ButtonState button;
 
 public:
 	Settings();

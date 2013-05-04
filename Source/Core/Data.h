@@ -14,6 +14,11 @@ namespace Data
 		Vector3 scale;
 
 	public:
+		Transform()
+		{
+			scale = Vector3(1.0f, 1.0f, 1.0f);
+		}
+
 		Matrix toWorldMatrix()
 		{
 			Matrix mat_pos;

@@ -22,7 +22,6 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	if(p_type == ENTITY_CUBE)
 	{
 		e->addData(Data::Transform());
-		e->fetchData<Data::Transform>()->position.x = Math::randomFloat(1.0f, 100.0f);
 		e->addData(Data::Render());
 	}
 
@@ -33,7 +32,7 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 		Data::Transform* d_transform;
 		d_transform = e->fetchData<Data::Transform>();
-		d_transform->position = Vector3(0,0,-15);
+		d_transform->position = Vector3(10,5,-15);
 		e->fetchData<Data::Camera>()->updateViewMatrix(d_transform->position);
 	}
 

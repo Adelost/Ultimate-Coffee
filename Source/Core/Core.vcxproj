@@ -163,6 +163,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="System_Input.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +195,7 @@
     <ClInclude Include="Manager_Entity.h" />
     <ClInclude Include="Manager_Systems.h" />
     <ClInclude Include="Batch.h" />
+    <ClInclude Include="System_Input.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>

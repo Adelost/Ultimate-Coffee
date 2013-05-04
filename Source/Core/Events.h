@@ -129,13 +129,17 @@ public:
 class Event_MousePress : public IEvent
 {
 public:
+	int x;
+	int y;
 	int keyEnum;
 	bool isPressed;
-
-	Event_MousePress(int keyEnum, bool isPressed) : IEvent(EVENT_MOUSE_PRESS)
+	
+	Event_MousePress(int p_x, int p_y, int p_keyEnum, bool p_isPressed) : IEvent(EVENT_MOUSE_PRESS)
 	{
-		this->keyEnum = keyEnum;
-		this->isPressed = isPressed;
+		x = p_x;
+		y = p_y;
+		keyEnum = p_keyEnum;
+		isPressed = p_isPressed;
 	}
 };
 

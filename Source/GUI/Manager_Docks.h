@@ -3,7 +3,7 @@
 #include <Core/ISystem.h>
 #include "QObject.h"
 #include <Core/IObserver.h>
-
+#include <QDockWidget.h>
 class Window;
 class QDockWidget;
 class QMenu;
@@ -12,6 +12,17 @@ class QStandardItemModel;
 class QListWidget;
 class QListView;
 class Manager_Docks;
+
+class QDockWidgetX : public QDockWidget
+{
+	Q_OBJECT
+
+public:
+	QDockWidgetX( QString& p_name, QWidget* p_parent);;
+
+protected:
+	void keyPressEvent(QKeyEvent *e);
+};
 
 class Manager_Docks : public QObject, public IObserver
 {

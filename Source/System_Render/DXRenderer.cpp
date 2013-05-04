@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "DXRenderer.h"
 #include "Box.h"
+#include "Manager_3DTools.h"
 #include "Buffer.h"
-
 #include <Core/EventManager.h>
 #include <Core/Events.h>
 #include <Core/World.h>
@@ -44,10 +44,14 @@ DXRenderer::~DXRenderer()
 	ReleaseCOM(m_dxDeviceContext);
 	ReleaseCOM(m_dxDevice);
 	delete m_viewport_screen;
+
+	delete m_manager_tools;
 }
 
 bool DXRenderer::init( HWND p_windowHandle )
 {
+	bool result = false;
+
 	m_windowHandle = p_windowHandle;
 
 	m_clientWidth = 800;
@@ -55,7 +59,11 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_viewport_screen = new D3D11_VIEWPORT();
 
-	return initDX();
+	result = initDX();
+
+	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
+
+	return result;
 }
 
 void DXRenderer::onEvent(IEvent* p_event)
@@ -96,6 +104,15 @@ void DXRenderer::renderFrame()
 
 	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
+	m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
+
+	UINT stride = sizeof(VertexPosCol);
+	UINT offset = 0;
+	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
 	static float delta = 0.0f;
 	delta += SETTINGS()->deltaTime;
 
@@ -104,23 +121,33 @@ void DXRenderer::renderFrame()
 	Y = m_CBuffer.WVP.CreateRotationY(delta);
 	Z = m_CBuffer.WVP.CreateRotationZ(delta);
 	Matrix world;
-	world = X;
+	world = X * Y * Z;
 
-	
 	// HACK: Adding camera to renderer
 	// don't know where
 	{
 		Entity entity_camera = CAMERA_ENTITY();
 		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
+		//m_CBuffer.WVP = XMMatrixTranspose(world) * XMMatrixTranspose(d_camera->view()) * XMMatrixTranspose(d_camera->projection());
 		m_CBuffer.WVP = world * d_camera->view() * d_camera->projection();
 	}
+
+	// TEST:
+	//XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	//XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 755.0f / 426.0f, 1.0f, 3000.0f);
+	//XMMATRIX viewProj = view * proj;
+	//XMMATRIX WVP = m_CBuffer.WVP.CreateRotationX(delta) * XMMatrixTranslation(0.0f, 0.0f, 0.0f) * viewProj;
 	
 
+	m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
 	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
 
 	//m_dxDeviceContext->DrawIndexed(36, 0, 0);
 	m_dxDeviceContext->Draw(36, 0);
+
+	m_manager_tools->update();
+	m_manager_tools->draw(m_view_depthStencil);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));
@@ -150,7 +177,7 @@ bool DXRenderer::initDX()
 		MESSAGEBOX("Error: D3D11CreateDevice Failed.");
 		return false;
 	}
-	if(featureLevel != D3D_FEATURE_LEVEL_11_0 )
+	if(featureLevel != D3D_FEATURE_LEVEL_11_0 && featureLevel != D3D_FEATURE_LEVEL_10_1 && featureLevel != D3D_FEATURE_LEVEL_10_0)
 	{
 		MESSAGEBOX("Direct3D Feature Level 11 unsupported.");
 		return false;
@@ -343,3 +370,17 @@ void DXRenderer::resizeDX()
 	}
 }
 
+ID3D11Device* DXRenderer::getDevice()
+{
+	return this->m_dxDevice;
+}
+
+ID3D11DeviceContext* DXRenderer::getDeviceContext()
+{
+	return this->m_dxDeviceContext;
+}
+
+ID3D11DepthStencilView* DXRenderer::getDepthStencilView()
+{
+	return this->m_view_depthStencil;
+}

@@ -8,6 +8,9 @@
 #include "RenderWidget.h"
 #include "ui_MainWindow.h"
 
+#include <Core/World.h>
+#include <Core/Data.h>
+
 #include <Core/Events.h>
 
 Window::Window()
@@ -122,4 +125,38 @@ QSpacerItem* Window::createSpacer( Qt::Orientation p_orientation )
 ISystem* Window::system_editor()
 {
 	return m_manager_docks->getAsSystem();
+}
+
+void Window::keyPressEvent( QKeyEvent *e )
+{
+	// Update camera
+	Entity entity_camera = CAMERA_ENTITY();
+	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+
+	float delta = SETTINGS()->deltaTime * 1000.0f;
+	float strafe = 0.0f;
+	float walk = 0.0f;
+
+	if(e->key() == Qt::Key_W)
+	{
+		walk += delta;
+	}
+	if(e->key() == Qt::Key_A)
+	{
+		strafe -= delta;
+	}
+	if(e->key() == Qt::Key_S)
+	{
+		walk -= delta;
+	}
+	if(e->key() == Qt::Key_D)
+	{
+		strafe += delta;
+	}
+
+	// Rotate camera
+	d_camera->strafe(d_transform->position, strafe);
+	d_camera->walk(d_transform->position, walk);
+	d_camera->updateViewMatrix(d_transform->position);
 }

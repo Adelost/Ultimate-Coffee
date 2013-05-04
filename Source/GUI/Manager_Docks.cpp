@@ -224,7 +224,7 @@ void Manager_Docks::setupMenu()
 void Manager_Docks::createDockWidget()
 {
 	QDockWidget* dock;
-	dock = new QDockWidget(tr("Foo"), m_window);
+	dock = new QDockWidgetX(tr("Foo"), m_window);
 	m_menu->addAction(dock->toggleViewAction());
 	m_window->addDockWidget(Qt::RightDockWidgetArea, dock);
 }
@@ -255,7 +255,7 @@ QAction* Manager_Docks::createAction( QString p_name )
 
 QDockWidget* Manager_Docks::createDock( QString p_name, Qt::DockWidgetArea p_area )
 {
-	QDockWidget* dock = new QDockWidget(p_name, m_window);
+	QDockWidget* dock = new QDockWidgetX(p_name, m_window);
 	dock->setObjectName(p_name);
 	m_menu->addAction(dock->toggleViewAction());
 	m_window->addDockWidget(p_area, dock);
@@ -416,4 +416,15 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 void System_Editor::update()
 {
 	m_editor->update();
+}
+
+void QDockWidgetX::keyPressEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(parentWidget(), e);
+}
+
+QDockWidgetX::QDockWidgetX( QString& p_name, QWidget* p_parent ) : QDockWidget(p_name, p_parent)
+{
+	int i = 0;
+	i = 5;
 }

@@ -24,7 +24,7 @@ void Tool_Rotation::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Rotation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera)
+bool Tool_Rotation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView )
 {
 	bool aRotationToolHandleWasSelected = false;
 
@@ -42,7 +42,7 @@ bool Tool_Rotation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camer
 		float distanceToPointOfIntersection;
 		
 		// Check if the ray intersects with the omni-rotation sphere.
-		bool sphereSelected = omniRotateSphereHandle->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+		bool sphereSelected = omniRotateSphereHandle->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 		if(sphereSelected)
 		{
 			currentlySelectedHandle = omniRotateSphereHandle;

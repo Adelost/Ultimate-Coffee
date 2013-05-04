@@ -30,6 +30,9 @@ private:
 	UpdateLoop* m_updateLoop;
 	QWidget* m_renderWidget;
 
+protected:
+	void keyPressEvent(QKeyEvent *e);
+
 private:
 	Window();
 
@@ -48,5 +51,6 @@ public:
 public slots:
 	void update();
 	void setFullscreen(bool p_checked);
+
 
 };

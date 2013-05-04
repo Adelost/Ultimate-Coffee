@@ -17,7 +17,7 @@ void Tool_Selection::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-void Tool_Selection::beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool)
+void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool )
 {
 	isSelected = true;
 
@@ -30,7 +30,7 @@ void Tool_Selection::beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camer
 	// The currently chosen transformation tool has an active object, then it is to be visible and selectable.
 	if(currentlyChosenTransformationTool->getActiveObject())
 	{
-		currentlyChosenTransformationTool->tryForSelection(rayOrigin, rayDir, theCamera);
+		currentlyChosenTransformationTool->tryForSelection(rayOrigin, rayDir, camView);
 	}
 
 	// If a transformation tool handle is selected, it should be noted that the selection is already final with this function call,
@@ -54,7 +54,7 @@ bool Tool_Selection::getIsSelected()
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Selection::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Selection::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint )
 {
 	// Use the updated mouse cursor position to re-create the selection rectangle.
 	

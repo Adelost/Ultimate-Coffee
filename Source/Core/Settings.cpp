@@ -5,7 +5,6 @@
 Settings::Settings()
 {
 	selectedTool = Enum::Tool_None;
-	leftMousePressed = false;
 	deltaTime = 0.0f;
 	windowHandle = nullptr;
 	backBufferColor = Color(0.4f, 0.6f, 0.9f);
@@ -16,4 +15,9 @@ Settings::Settings()
 Settings::~Settings()
 {
 	delete windowHandle;
+}
+
+ButtonState::ButtonState()
+{
+	ZeroMemory(this, sizeof(this));
 }

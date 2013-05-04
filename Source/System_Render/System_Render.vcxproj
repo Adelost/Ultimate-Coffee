@@ -165,6 +165,7 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="IHandle.h" />
     <ClInclude Include="ITool_Transformation.h" />
+    <ClInclude Include="Manager_3DTools.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System_Render.h" />
@@ -190,6 +191,7 @@
     </ClCompile>
     <ClCompile Include="Handle_TranslationAxis.cpp" />
     <ClCompile Include="Handle_TranslationPlane.cpp" />
+    <ClCompile Include="Manager_3DTools.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="stdafx.cpp">

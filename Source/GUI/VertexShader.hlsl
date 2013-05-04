@@ -1,6 +1,6 @@
 cbuffer cbPerObject
 {
-	float4x4 worldViewProj;
+	matrix worldViewProj;
 };
 
 struct VertexIn
@@ -36,5 +36,5 @@ float4 pixelMain( PixelIn pIn ) : SV_TARGET
 
 	float lightValue = max(dot(lightDir, normal), 0);
 
-	return pIn.color*lightValue + pIn.color*0.1;
+	return pIn.color; //*lightValue + pIn.color*0.1;
 }
