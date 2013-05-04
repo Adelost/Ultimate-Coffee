@@ -2,6 +2,7 @@
 
 #include "IData.h"
 #include "Math.h"
+#include "Data_Camera.h"
 
 namespace Data
 {
@@ -32,6 +33,7 @@ namespace Data
 		}
 	};
 
+
 	class Bounding : public Type<Bounding>
 	{
 	public:
@@ -57,23 +59,6 @@ namespace Data
 	{
 	public:
 		int meshId;
-	};
-
-
-	class Camera : public Type<Camera>
-	{
-	public:
-		Matrix mat_view;
-		Matrix mat_projection;
-		float fieldOfView;
-		float fieldOfViewModifier;
-		float aspectRatio;
-		float zNear;
-		float zFar;
-
-		Vector3 up;			
-		Vector3 right;		
-		Vector3 look;
 	};
 }
 

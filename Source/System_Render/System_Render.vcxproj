@@ -162,6 +162,7 @@
     </ClInclude>
     <ClInclude Include="Handle_TranslationAxis.h" />
     <ClInclude Include="Handle_TranslationPlane.h" />
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="IHandle.h" />
     <ClInclude Include="ITool_Transformation.h" />
     <ClInclude Include="Manager_3DTools.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Handle_TranslationPlane.cpp" />
     <ClCompile Include="Manager_3DTools.cpp" />
     <ClCompile Include="RenderStates.cpp" />
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

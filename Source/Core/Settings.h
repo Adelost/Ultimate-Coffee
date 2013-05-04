@@ -12,9 +12,9 @@ public:
 	HWND windowHandle;
 	bool leftMousePressed;
 	Color backBufferColor;
-	Camera* camera;
 	int selectedTool;
-	int selectedEnityId;
+	int selectedEntityId;
+	int camera_entityId;
 
 public:
 	Settings();

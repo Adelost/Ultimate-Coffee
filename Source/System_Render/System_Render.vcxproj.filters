@@ -8,15 +8,15 @@
     <Filter Include="Source\Tools">
       <UniqueIdentifier>{582e4d94-26d5-412e-bfc2-aa9e4ed7584d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Shapes">
+      <UniqueIdentifier>{ab07ef96-98ee-4fad-8533-39698591090e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System_Render.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="DXRenderer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Box.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
@@ -52,11 +52,19 @@
     <ClInclude Include="RenderStates.h">
       <Filter>Source</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Tool_Translation.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
     <ClInclude Include="Manager_3DTools.h">
       <Filter>Source\Tools</Filter>
+=======
+    <ClInclude Include="Box.h">
+      <Filter>Source\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Source</Filter>
+>>>>>>> c562527daa693545a18e9cf395c6a61a6b650086
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -93,11 +101,16 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Tool_Translation.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Manager_3DTools.cpp">
       <Filter>Source\Tools</Filter>
+=======
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Source</Filter>
+>>>>>>> c562527daa693545a18e9cf395c6a61a6b650086
     </ClCompile>
   </ItemGroup>
 </Project>

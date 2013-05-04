@@ -84,7 +84,7 @@ void Tool_Translation::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera)
+bool Tool_Translation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView )
 {
 	bool aTranslationToolHandleWasSelected = false;
 
@@ -100,7 +100,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 		
 		float distanceToPointOfIntersection;
 		
-		bool planeSelected = camViewTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+		bool planeSelected = camViewTranslationPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 		// If the camera view translation plane is intersected, it is always selected...
 		if(planeSelected)
@@ -112,7 +112,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 		{
 			float distanceToClosestPointOfIntersection = FLT_MAX;
 
-			planeSelected = xyTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+			planeSelected = xyTranslationPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(planeSelected)
 			{
 				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
@@ -120,7 +120,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 				aTranslationToolHandleWasSelected = true;
 			}
 
-				planeSelected = xyTranslationPlane2->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+				planeSelected = xyTranslationPlane2->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 				if(planeSelected)
 				{
 					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
@@ -130,7 +130,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 						aTranslationToolHandleWasSelected = true;
 					}
 				}
-			planeSelected = yzTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+			planeSelected = yzTranslationPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(planeSelected)
 			{
 				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
@@ -141,7 +141,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 				}
 			}
 			
-				planeSelected = yzTranslationPlane2->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+				planeSelected = yzTranslationPlane2->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 				if(planeSelected)
 				{
 					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
@@ -152,7 +152,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 					}
 				}
 				
-			planeSelected = zxTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+			planeSelected = zxTranslationPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(planeSelected)
 			{
 				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
@@ -163,7 +163,7 @@ bool Tool_Translation::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 				}
 			}
 
-				planeSelected = zxTranslationPlane2->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
+				planeSelected = zxTranslationPlane2->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 				if(planeSelected)
 				{
 					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
@@ -282,7 +282,7 @@ bool Tool_Translation::getIsSelected()
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Translation::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Translation::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint )
 {
 	if(currentlySelectedAxis)
 	{
@@ -294,7 +294,7 @@ void Tool_Translation::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &the
 	else if(currentlySelectedPlane)
 	{
 		// 
-		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, theCamera.View());
+		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView);
 
 		//XMMATRIX curWorld = activeObject->getIRenderable()->getWorld();
 
@@ -710,7 +710,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	vertices.clear();
 }
 
-void Tool_Translation::draw(Camera &theCamera, ID3D11DepthStencilView *depthStencilView)
+void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
 {
 	// Draw the translation tool...
 	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -781,11 +781,11 @@ void Tool_Translation::draw(Camera &theCamera, ID3D11DepthStencilView *depthSten
 	//XMMATRIX worldInvTrans = worldInverted.Transpose();
 	////XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 
-	worldViewProj = world * theCamera.View() * theCamera.Proj();
-	
+
+
 	XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
-	XMMATRIX WVP = world * view * proj;
+	XMMATRIX WVP = world * camView * camProj;
 
 	//ConstantBuffer2 WVP;
 	//WVP.WVP = worldViewProj;

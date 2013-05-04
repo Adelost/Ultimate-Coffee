@@ -81,7 +81,7 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	void beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool);
+	void beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool);
 
 	/* Called to see if the translation tool is in the process of making a selection. */
 	bool getIsSelected();

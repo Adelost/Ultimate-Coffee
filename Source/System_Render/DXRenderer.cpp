@@ -2,12 +2,12 @@
 #include "DXRenderer.h"
 #include "Box.h"
 #include "Manager_3DTools.h"
-
+#include "Buffer.h"
 #include <Core/EventManager.h>
 #include <Core/Events.h>
 #include <Core/World.h>
 #include <Core/Settings.h>
-#include <Core/Camera.h>
+#include <Core/Data_Camera.h>
 
 DXRenderer::DXRenderer()
 {
@@ -24,13 +24,14 @@ DXRenderer::DXRenderer()
 	m_viewport_screen = nullptr;
 
 	m_CBuffer.WVP.Identity();
+	m_CBuffer.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
 }
 
 DXRenderer::~DXRenderer()
 {
-	ReleaseCOM(m_vertexBuffer);
-	ReleaseCOM(m_indexBuffer);
-	ReleaseCOM(m_WVPBuffer);
+	SafeDelete(m_vertexBuffer);
+	SafeDelete(m_indexBuffer);
+	SafeDelete(m_WVPBuffer);
 	ReleaseCOM(m_inputLayout);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
@@ -68,7 +69,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 void DXRenderer::onEvent(IEvent* p_event)
 {
 	EventType type = p_event->type();
-	switch (type) 
+	switch (type)
 	{
 	case EVENT_SET_BACKBUFFER_COLOR:
 		{
@@ -101,36 +102,46 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-						m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-						m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
-						m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
+	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
+	m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
 
-						UINT stride = sizeof(VertexPosCol);
-						UINT offset = 0;
-						m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
-						m_dxDeviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-						m_dxDeviceContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	UINT stride = sizeof(VertexPosCol);
+	UINT offset = 0;
+	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
-						static float delta = 0.0f;
+	static float delta = 0.0f;
+	delta += SETTINGS()->deltaTime;
 
-						Camera theCamera = *SETTINGS()->camera;
-						theCamera.UpdateViewMatrix();
+	Matrix X, Y, Z;
+	X = m_CBuffer.WVP.CreateRotationX(delta);
+	Y = m_CBuffer.WVP.CreateRotationY(delta);
+	Z = m_CBuffer.WVP.CreateRotationZ(delta);
+	Matrix world;
+	world = X;
 
-						XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-						XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 755.0f / 426.0f, 1.0f, 3000.0f);
-						XMMATRIX viewProj = view * proj;
-						XMMATRIX WVP = m_CBuffer.WVP.CreateRotationX(delta) * XMMatrixTranslation(0.0f, 0.0f, 0.0f) * viewProj;
+	// HACK: Adding camera to renderer
+	// don't know where
+	{
+		Entity entity_camera = CAMERA_ENTITY();
+		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-						delta += 0.0001f;
-						m_CBuffer.WVP = WVP; //m_CBuffer.WVP.CreateRotationX(delta) * theCamera.View() * theCamera.Proj();
+		m_CBuffer.WVP = world * d_camera->view() * d_camera->projection();
+	}
 
-						m_dxDeviceContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+	// TEST:
+	//XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	//XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 755.0f / 426.0f, 1.0f, 3000.0f);
+	//XMMATRIX viewProj = view * proj;
+	//XMMATRIX WVP = m_CBuffer.WVP.CreateRotationX(delta) * XMMatrixTranslation(0.0f, 0.0f, 0.0f) * viewProj;
+	
+	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
 
-						m_dxDeviceContext->DrawIndexed(36, 0, 0);
-						//m_dxDeviceContext->Draw(8, 0);
-
-						m_dxDeviceContext->RSSetState(0);
+	//m_dxDeviceContext->DrawIndexed(36, 0, 0);
+	m_dxDeviceContext->Draw(36, 0);
 
 	m_manager_tools->update();
 	m_manager_tools->draw(m_view_depthStencil);
@@ -234,11 +245,12 @@ bool DXRenderer::initDX()
 
 	D3D11_INPUT_ELEMENT_DESC inputElementDesc [] = 
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},	
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},	
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	HR(m_dxDevice->CreateInputLayout(inputElementDesc, 2, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
+	HR(m_dxDevice->CreateInputLayout(inputElementDesc, 3, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
 
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
@@ -247,56 +259,21 @@ bool DXRenderer::initDX()
 
 	// Create vertex buffer
 
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	memset(&vertexBufferDesc, 0, sizeof(vertexBufferDesc));
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof(VertexPosCol) * 8;
-	vertexBufferDesc.StructureByteStride = sizeof(VertexPosCol);
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	D3D11_SUBRESOURCE_DATA vertexData;
-	memset(&vertexData, 0, sizeof(vertexData));
-	vertexData.pSysMem = Shape::BoxVertices;
-
-	HR(m_dxDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
-
-	UINT stride = sizeof(VertexPosCol);
-	UINT offset = 0;
-	m_dxDeviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+	m_vertexBuffer = new Buffer();
+	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), 36, Shape::BoxVertices, m_dxDevice));
+	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Create index buffer
 
-	D3D11_BUFFER_DESC indexBufferDesc;
-	memset(&indexBufferDesc, 0, sizeof(indexBufferDesc));
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.ByteWidth = sizeof(unsigned int) * 36;
-	indexBufferDesc.StructureByteStride = sizeof(unsigned int);
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	D3D11_SUBRESOURCE_DATA indexData;
-	memset(&indexData, 0, sizeof(indexData));
-	indexData.pSysMem = Shape::BoxIndex;
-
-	HR(m_dxDevice->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer));
-
-	m_dxDeviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_indexBuffer = new Buffer();
+	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), 36, Shape::BoxIndex, m_dxDevice));
+	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Create constant buffer
 
-	D3D11_BUFFER_DESC WVP_Desc;
-	memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	WVP_Desc.ByteWidth = 16 * 4;//sizeof(float) * 4;
-	WVP_Desc.StructureByteStride = 0;//sizeof(float);
-	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
-
-	D3D11_SUBRESOURCE_DATA WVP_Data;
-	memset(&WVP_Data, 0, sizeof(WVP_Data));
-	WVP_Data.pSysMem = &m_CBuffer;
-
-	HR(m_dxDevice->CreateBuffer(&WVP_Desc, &WVP_Data, &m_WVPBuffer));
-
-	m_dxDeviceContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	m_WVPBuffer = new Buffer();
+	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_CBuffer, m_dxDevice));
+	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -374,6 +351,20 @@ void DXRenderer::resizeDX()
 	m_dxDeviceContext->RSSetViewports(
 		1,								// nr of viewports
 		m_viewport_screen);			// viewport array
+
+
+
+
+	// Resize cameras
+	// NOTE: Don't know if this should be here,
+	// but in the meantime...
+	DataMapper<Data::Camera> map_camera;
+	while(map_camera.hasNext())
+	{
+		Data::Camera* d_camera = map_camera.next();
+		float aspectRatio =  static_cast<float>(m_clientWidth)/m_clientHeight;
+		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 1.0f, 3000.0f);
+	}
 }
 
 ID3D11Device* DXRenderer::getDevice()

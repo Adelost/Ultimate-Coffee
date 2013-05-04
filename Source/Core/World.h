@@ -44,3 +44,11 @@ public:
 // Access World Settings
 #define SETTINGS()	\
 	World::instance()->settings
+
+// Access World Settings
+#define FACTORY_ENTITY()	\
+	World::instance()->factory_entity()
+
+// Access World Settings
+#define CAMERA_ENTITY()	\
+	Entity(World::instance()->settings->camera_entityId)

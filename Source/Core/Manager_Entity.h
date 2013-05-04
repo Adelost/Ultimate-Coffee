@@ -14,6 +14,13 @@ public:
 	{
 	}
 
+	Entity* entityAt(int p_index)
+	{
+		Entity* e = m_entity_list.itemAt(p_index);
+
+		return e;
+	}
+
 	Entity* create()
 	{
 		int entityId = m_entity_list.nextAvailableIndex();
@@ -22,8 +29,8 @@ public:
 		return m_entity_list.itemAt(entityId);
 	}
 
-	void remove(Entity* entity)
+	void remove(Entity* p_entity)
 	{
-		m_entity_list.removeItemAt(entity->id());
+		m_entity_list.removeItemAt(p_entity->id());
 	}
 };

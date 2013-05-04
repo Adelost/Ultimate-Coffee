@@ -46,7 +46,7 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera);
+	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
 	void setActiveObject(IObject *object);

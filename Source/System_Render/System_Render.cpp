@@ -7,11 +7,14 @@
 #include <Core/Camera.h>
 #include <Core/World.h>
 #include <Core/Settings.h>
-
+#include <Core/Data_Camera.h>
+#include <Core/Factory_Entity.h>
+#include <Core/Entity.h>
 #include <Core/Enums.h>
 
 System::Render::Render()
 {
+	SETTINGS()->camera_entityId = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->id();
 	setupDirectX();
 }
 

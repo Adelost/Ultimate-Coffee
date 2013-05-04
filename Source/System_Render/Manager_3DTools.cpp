@@ -29,31 +29,34 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
-	// TEMP:
-	(SETTINGS()->camera)->SetPosition(-15.0f, 0.0f, 0.0f);
-	(SETTINGS()->camera)->SetLens(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 1000.0f);
-	(SETTINGS()->camera)->LookAt(SETTINGS()->camera->GetPosition(), XMFLOAT3(0.0f, 0.0f, 0.0f), SETTINGS()->camera->GetUp());
-	(SETTINGS()->camera)->UpdateViewMatrix();
+
+	//(SETTINGS()->camera)->SetPosition(-15.0f, 0.0f, 0.0f);
+	//(SETTINGS()->camera)->SetLens(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 1000.0f);
+	//(SETTINGS()->camera)->LookAt(SETTINGS()->camera->GetPosition(), XMFLOAT3(0.0f, 0.0f, 0.0f), SETTINGS()->camera->GetUp());
+	//(SETTINGS()->camera)->UpdateViewMatrix();
 }
 
 void Manager_3DTools::update()
 {
 	// TEMP:
 	if(currentlyChosenTransformTool)
-		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEnityId);
+		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1)
 	{
-		Camera theCamera = *SETTINGS()->camera;
+		Entity entity_camera = CAMERA_ENTITY();
+		Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
 		XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
 		XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
-		float dist = XMVector3Length(XMVectorSubtract(theCamera.GetPositionXM(), origin)).m128_f32[0];
+
+		float dist = XMVector3Length(XMVectorSubtract(d_transform->position, origin)).m128_f32[0];
 		float distanceAdjustedScale = dist / 6;
 		currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
 		if(currentlyChosenTransformTool == m_theTranslationTool)
-			m_theTranslationTool->updateViewPlaneTranslationControlWorld(theCamera.GetLook(), theCamera.GetUp());
+			m_theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look(), d_camera->up());
 	}
 }
 
@@ -61,11 +64,14 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 {
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1)
 	{
-		Camera theCamera = *SETTINGS()->camera;
+		Entity entity_camera = CAMERA_ENTITY();
+		Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-		//m_deviceContext->ClearDepthStencilView(p_depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-		currentlyChosenTransformTool->draw(theCamera, p_depthStencilView);
+		//XMMATRIX foo = XMStoreFloat4x4(d_camera->view());
+		XMMATRIX xm_camView = d_camera->view();
+		XMMATRIX xm_camProj = d_camera->projection();
+		currentlyChosenTransformTool->draw(xm_camView, xm_camProj, p_depthStencilView);
 	}
 }
 
@@ -93,7 +99,7 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
 
 				// Use the selection tool to select against objects in the scene and any present control handles for active transformation tools.
-				currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEnityId);
+				currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 				//theSelectionTool->beginSelection(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint, sceneObjects, currentlySelectedTransformationTool);
 			}
 		}

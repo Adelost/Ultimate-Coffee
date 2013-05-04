@@ -38,6 +38,13 @@ public:
 	}
 };
 
+class Float2
+{
+public:
+	float x;
+	float y;
+};
+
 struct MyRectangle
 {
 	XMFLOAT3 P1, P2, P3, P4;
