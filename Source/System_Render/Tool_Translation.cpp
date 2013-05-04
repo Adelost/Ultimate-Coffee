@@ -786,6 +786,10 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
 	XMMATRIX WVP = world * camView * camProj;
+	WVP = XMMatrixTranspose(WVP);
+	//D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
+	//D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
+	//D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 
 	//ConstantBuffer2 WVP;
 	//WVP.WVP = worldViewProj;
