@@ -87,6 +87,10 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	int dy = e->globalY() - mousePrev.y();
 	mousePrev = e->globalPos();
 
+
+	// send mouse move event to relevant observers
+	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
+
 	Entity entity_camera = CAMERA_ENTITY();
 	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
