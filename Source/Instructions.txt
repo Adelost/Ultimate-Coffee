@@ -33,7 +33,7 @@ Notera kommentaren i kodstycket ovan. Det finns två olika tillvägagångssätt.
 1. kommandot har redan skett i scenen när kommandot läggs till i "Commander" via eventet ovan. Ange i så fall "false" som andraparameter i "Event_StoreCommandInCommandHistory". Kommandot kommer då ej exekveras när det läggs till i "Commander".
 2. kommandot har inte redan skett i scenen när kommandot läggs till i "Commander" via eventet ovan. Ange i så fall "true" som andraparameter i "Event_StoreCommandInCommandHistory". Kommandot kommer ej exekveras när det läggs till i "Commander".
 
-"Event_StoreCommandInCommandHistory" använder sig av tillvägagångssätt 2.
+"Command_ChangeBackBufferColor" använder sig av tillvägagångssätt 2.
 Ett tänkt translationskommando med direkt feedback i scenen, i.e. ett objekt flyttar sig direkt när man "drar" i det, borde använda sig av tillvägagångssätt 1.
 
 ->Metoder för translationskommando
