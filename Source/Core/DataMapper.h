@@ -93,7 +93,7 @@ public:
 	Entity* nextEntity()
 	{
 		m_index_next++;
-		return entityAt(currentIndex());
+		return entityAt((*m_owner_list)[currentIndex()]);
 	}
 
 	/**

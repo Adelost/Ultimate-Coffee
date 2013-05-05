@@ -32,7 +32,7 @@ void UpdateLoop::init()
 	
 	// Create Entities
 	// also save Camera Entity and Selected Entity
-	for(int i=0; i<2; i++)
+	for(int i=0; i<1; i++)
 	{
 		SETTINGS()->selectedEntityId = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->id();
 	}

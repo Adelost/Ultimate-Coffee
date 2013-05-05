@@ -123,29 +123,39 @@ void DXRenderer::renderFrame()
 	Matrix world;
 	world = X * Y * Z;
 
+
+
+	// Start rendering
+
+	Matrix viewProjection;
+
 	// HACK: Adding camera to renderer
-	// don't know where
+	// don't know where else to put it.
+	// Please move to better location.
 	{
 		Entity entity_camera = CAMERA_ENTITY();
 		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
 		//m_CBuffer.WVP = XMMatrixTranspose(world) * XMMatrixTranspose(d_camera->view()) * XMMatrixTranspose(d_camera->projection());
-		m_CBuffer.WVP = world * d_camera->view() * d_camera->projection();
+		viewProjection = d_camera->viewProjection();
 	}
 
-	// TEST:
-	//XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	//XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 755.0f / 426.0f, 1.0f, 3000.0f);
-	//XMMATRIX viewProj = view * proj;
-	//XMMATRIX WVP = m_CBuffer.WVP.CreateRotationX(delta) * XMMatrixTranslation(0.0f, 0.0f, 0.0f) * viewProj;
-	
 
-	m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
-	m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
+	// Render all meshes
+	DataMapper<Data::Render> map_render;
+	while(map_render.hasNext())
+	{
+		Entity* entity = map_render.nextEntity();
+		Data::Transform* d_transform = entity->fetchData<Data::Transform>();
+		Data::Render* d_render= entity->fetchData<Data::Render>();
 
-	//m_dxDeviceContext->DrawIndexed(36, 0, 0);
-	m_dxDeviceContext->Draw(36, 0);
+		m_CBuffer.WVP = d_transform->toWorldMatrix() * viewProjection;
+		m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
+		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
+		m_dxDeviceContext->Draw(36, 0);
+	}
 
+	// Draw tools
 	m_manager_tools->update();
 	m_manager_tools->draw(m_view_depthStencil);
 

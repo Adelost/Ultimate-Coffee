@@ -21,9 +21,9 @@ public:
 
 	// Adds Data to entity
 	template<typename T>
-	void addData(Data::Type<T>& p_data)
+	T* addData(Data::Type<T>& p_data)
 	{
-		m_data->addData(id(), p_data);
+		return m_data->addData(id(), p_data);
 	}
 
 	// Removes Data from entity
