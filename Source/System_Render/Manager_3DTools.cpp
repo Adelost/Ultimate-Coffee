@@ -31,10 +31,6 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	m_theSelectionTool = new Tool_Selection();
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
-	
-
-	m_viewPort = p_viewPort;
-
 	//(SETTINGS()->camera)->SetPosition(-15.0f, 0.0f, 0.0f);
 	//(SETTINGS()->camera)->SetLens(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 1000.0f);
 	//(SETTINGS()->camera)->LookAt(SETTINGS()->camera->GetPosition(), XMFLOAT3(0.0f, 0.0f, 0.0f), SETTINGS()->camera->GetUp());
@@ -43,11 +39,10 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 void Manager_3DTools::update()
 {
-	// TEMP:
-	if(currentlyChosenTransformTool)
+	if(currentlyChosenTransformTool->getActiveObject() == -1)
 		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 
-	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1)
+	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.
 	{
 		Entity entity_camera = CAMERA_ENTITY();
 		Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
@@ -58,7 +53,7 @@ void Manager_3DTools::update()
 		XMVECTOR camPos = XMVectorSet(d_transform->position.x, d_transform->position.y, d_transform->position.z, 1.0f);
 
 		float dist = XMVector3Length(XMVectorSubtract(camPos, origin)).m128_f32[0];
-		float distanceAdjustedScale = 1.0f; //dist / 6;
+		float distanceAdjustedScale = dist / 6;
 		currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
 		if(currentlyChosenTransformTool == m_theTranslationTool)
@@ -126,6 +121,7 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				// If a translation tool is present and has been active, unselect it.
 				if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
 				{
+					XMFLOAT4X4 test = currentlyChosenTransformTool->getWorld_logical();
 					currentlyChosenTransformTool->unselect();
 				}
 
