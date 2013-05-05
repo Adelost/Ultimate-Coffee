@@ -33,4 +33,5 @@ protected:
 	void keyPressEvent(QKeyEvent* p_event);
 	void keyReleaseEvent(QKeyEvent* p_event);
 	void setKeyState(QKeyEvent* p_event, bool p_pressed);
+	void setMouseState(QMouseEvent* p_event, bool p_pressed);
 };
