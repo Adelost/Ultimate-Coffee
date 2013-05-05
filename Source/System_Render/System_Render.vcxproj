@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="DXRenderer.h" />
+    <ClInclude Include="Factory_Geometry.h" />
     <ClInclude Include="Handle_RotationSphere.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>

@@ -18,7 +18,6 @@ public:
 	static const float Pi;
 };
 
-
 class Int2
 {
 public:
@@ -55,3 +54,5 @@ struct MyPlane
 	XMFLOAT3 normal;
 	float offset;
 };
+
+typedef unsigned int UINT;
