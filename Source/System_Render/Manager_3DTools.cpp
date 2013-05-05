@@ -14,7 +14,6 @@
 
 Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext, ID3D11DepthStencilView* p_depthStencilView, D3D11_VIEWPORT *p_viewPort)
 {
-
 	m_deviceContext = p_deviceContext;
 	m_depthStencilView = p_depthStencilView;
 
