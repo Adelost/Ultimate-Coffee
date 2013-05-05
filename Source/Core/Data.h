@@ -22,11 +22,11 @@ namespace Data
 		Matrix toWorldMatrix()
 		{
 			Matrix mat_pos;
-			mat_pos.CreateTranslation(position);
+			mat_pos = Matrix::CreateTranslation(position);
 			Matrix mat_rot;
-			mat_rot.CreateFromQuaternion(rotation);
+			mat_rot = Matrix::CreateFromQuaternion(rotation);
 			Matrix mat_scale;
-			mat_scale.CreateScale(scale);
+			mat_scale = Matrix::CreateScale(scale);
 
 			Matrix m = mat_scale*mat_rot*mat_pos;
 			return m;
