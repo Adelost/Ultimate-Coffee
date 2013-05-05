@@ -13,6 +13,7 @@ RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 	//setStyleSheet("background-color: rgba(0, 0, 0, 255);");
 
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_WINDOW_HANDLE);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SET_CURSOR_POSITION);
 }
 
 RenderWidget::~RenderWidget()
@@ -26,6 +27,12 @@ void RenderWidget::onEvent( IEvent* p_event )
 	{
 	case EVENT_GET_WINDOW_HANDLE:
 		static_cast<Event_GetWindowHandle*>(p_event)->handle = winId();
+		break;
+	case EVENT_SET_CURSOR_POSITION:
+		{
+			Int2 position = static_cast<Event_SetCursorPosition*>(p_event)->position;
+			QCursor::setPos(position.x, position.y);
+		}
 		break;
 	default:
 		break;
@@ -75,6 +82,7 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	
 	int width = this->width();
 	int height = this->height();
+	SETTINGS()->windowSize = Int2(width, height);
 
 	SEND_EVENT(&Event_WindowResize(width, height));
 }
@@ -100,6 +108,7 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	if(SETTINGS()->button.mouse_right)
 	{
 		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+		//SEND_EVENT(&Event_SetCursorPosition(Int2(mouseAnchor.x(), mouseAnchor.y())))
 		mousePrev = mouseAnchor;
 
 		// Set 1 pixel = 0.25 degrees

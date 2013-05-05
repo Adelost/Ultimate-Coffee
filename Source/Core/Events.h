@@ -13,6 +13,7 @@ enum EventType
 	EVENT_MOUSE_WHEEL,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
+	EVENT_SET_CURSOR_POSITION,
 
 	// Commands
 	EVENT_STORE_COMMAND,
@@ -151,6 +152,18 @@ public:
 	Event_MouseWheel( int value ) : IEvent(EVENT_MOUSE_WHEEL)
 	{
 		this->value = value;
+	}
+};
+
+class Event_SetCursorPosition : public IEvent
+{
+public:
+	Int2 position;
+
+public:
+	Event_SetCursorPosition( Int2 position ) : IEvent(EVENT_SET_CURSOR_POSITION)
+	{
+		this->position = position;
 	}
 };
 

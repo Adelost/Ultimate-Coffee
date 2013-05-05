@@ -30,6 +30,7 @@ public:
 	int selectedEntityId;
 	int camera_entityId;
 	ButtonState button;
+	Int2 windowSize;
 
 public:
 	Settings();
