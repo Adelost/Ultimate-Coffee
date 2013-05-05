@@ -15,6 +15,7 @@ enum EventType
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
 	EVENT_SET_CURSOR_POSITION,
+	EVENT_SET_CURSOR,
 
 	// Commands
 	EVENT_STORE_COMMAND,
@@ -125,6 +126,28 @@ public:
 	}
 };
 
+class Event_SetCursor : public IEvent
+{
+public:
+	enum CursorShape
+	{
+		HiddenCursor = -2,
+		NormalCursor = -1,
+		CrossCursor = 2,
+		SizeAllCursor = 9,
+		OpenHandCursor = 17,
+		ClosedHandCursor = 18,
+	};
+
+public:
+	CursorShape cursorShape;
+
+public:
+	Event_SetCursor(CursorShape p_cursor) : IEvent(EVENT_SET_CURSOR)
+	{
+		cursorShape = p_cursor;
+	}
+};
 
 class Event_MouseMove : public IEvent
 {
