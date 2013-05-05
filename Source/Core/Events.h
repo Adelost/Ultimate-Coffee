@@ -18,6 +18,7 @@ enum EventType
 	// Commands
 	EVENT_STORE_COMMAND,
 	EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI,
+	EVENT_SET_SELECTED_COMMAND_GUI,
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
 
 	// Events used to retrieve something
@@ -194,7 +195,6 @@ public:
 	}
 };
 
-//check, work in progress, as of 2013-05-04 23.30
 class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
 {
 public:
@@ -206,5 +206,17 @@ public:
 	{
 		this->startIndex = startIndex;
 		this->nrOfCommands = nrOfCommands;
+	}
+};
+
+class Event_SetSelectedCommandGUI : public IEvent
+{
+public:
+	int indexOfCommand;
+
+public:
+	Event_SetSelectedCommandGUI(int indexOfCommand) : IEvent(EVENT_SET_SELECTED_COMMAND_GUI)
+	{
+		this->indexOfCommand = indexOfCommand;
 	}
 };
