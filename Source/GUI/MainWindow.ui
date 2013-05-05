@@ -35,6 +35,12 @@ QLabel
 	border: none;
 }
 
+QMessageBox
+{
+ 	color: #f5f5f5;
+	background-color: #282828;
+}
+
 QAbstractScrollArea, QAbstractItemView
 {
    	color: #f5f5f5;
