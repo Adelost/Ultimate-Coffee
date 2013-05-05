@@ -11,7 +11,7 @@ class RenderWidget : public QWidget, public IObserver
 	Q_OBJECT
 
 public:
-	RenderWidget(QWidget* parent);
+	RenderWidget(QWidget* p_parent);
 	~RenderWidget();
 	QPoint prevMousePos;
 
@@ -22,13 +22,15 @@ public:
 
 protected:
 	// should not be implemented
-	void paintEvent(QPaintEvent* e){}
+	void paintEvent(QPaintEvent* p_event){}
 
 
 protected:
 	void mousePressEvent(QMouseEvent* p_event);
 	void mouseReleaseEvent(QMouseEvent* p_event);
-	void resizeEvent(QResizeEvent* e);
-	void mouseMoveEvent(QMouseEvent *e);
-	void keyPressEvent(QKeyEvent *e);
+	void resizeEvent(QResizeEvent* p_event);
+	void mouseMoveEvent(QMouseEvent* p_event);
+	void keyPressEvent(QKeyEvent* p_event);
+	void keyReleaseEvent(QKeyEvent* p_event);
+	void setKeyState(QKeyEvent* p_event, bool p_pressed);
 };

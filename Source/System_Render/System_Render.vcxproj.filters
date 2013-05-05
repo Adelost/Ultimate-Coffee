@@ -52,19 +52,17 @@
     <ClInclude Include="RenderStates.h">
       <Filter>Source</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="Tool_Translation.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
     <ClInclude Include="Manager_3DTools.h">
       <Filter>Source\Tools</Filter>
-=======
+	</ClInclude>
     <ClInclude Include="Box.h">
       <Filter>Source\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="Buffer.h">
       <Filter>Source</Filter>
->>>>>>> c562527daa693545a18e9cf395c6a61a6b650086
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,16 +99,14 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="Tool_Translation.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Manager_3DTools.cpp">
       <Filter>Source\Tools</Filter>
-=======
+	</ClCompile>
     <ClCompile Include="Buffer.cpp">
       <Filter>Source</Filter>
->>>>>>> c562527daa693545a18e9cf395c6a61a6b650086
     </ClCompile>
   </ItemGroup>
 </Project>

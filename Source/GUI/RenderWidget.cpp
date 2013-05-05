@@ -34,6 +34,8 @@ void RenderWidget::onEvent( IEvent* p_event )
 
 void RenderWidget::mousePressEvent( QMouseEvent* p_event )
 {
+	setFocus();
+
 	Qt::MouseButton button = p_event->button();
 	if(button == Qt::LeftButton)
 		SETTINGS()->button.mouse_left = true;
@@ -127,36 +129,37 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	}
 }
 
-void RenderWidget::keyPressEvent( QKeyEvent *e )
+
+void RenderWidget::keyPressEvent( QKeyEvent* e )
 {
-	// Update camera
-	Entity entity_camera = CAMERA_ENTITY();
-	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	setKeyState(e, true);
+}
 
-	float delta = SETTINGS()->deltaTime;
-	float strafe = 0.0f;
-	float walk = 0.0f;
+void RenderWidget::keyReleaseEvent( QKeyEvent* e )
+{
+	setKeyState(e, false);
+}
 
-	if(e->key() == Qt::Key_W)
-	{
-		walk += delta;
-	}
-	if(e->key() == Qt::Key_A)
-	{
-		strafe -= delta;
-	}
-	if(e->key() == Qt::Key_S)
-	{
-		walk -= delta;
-	}
-	if(e->key() == Qt::Key_D)
-	{
-		strafe += delta;
-	}
+void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
+{
+	Qt::Key key = static_cast<Qt::Key>(p_event->key());
+	bool state = p_pressed;
 
-	// Rotate camera
-	d_camera->strafe(d_transform->position, strafe);
-	d_camera->walk(d_transform->position, walk);
-	d_camera->updateViewMatrix(d_transform->position);
+	switch(key)
+	{
+	case Qt::Key_W:
+		SETTINGS()->button.key_up = state;
+		break;
+	case Qt::Key_S:
+		SETTINGS()->button.key_down = state;
+		break;
+	case Qt::Key_A:
+		SETTINGS()->button.key_left = state;
+		break;
+	case Qt::Key_D:
+		SETTINGS()->button.key_right = state;
+		break;
+	default:
+		break;
+	}
 }
