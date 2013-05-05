@@ -120,6 +120,11 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, true));
 }
 
+void Manager_Commands::translateSceneEntity()
+{
+
+}
+
 Manager_Commands::~Manager_Commands()
 {
 	delete m_commander;

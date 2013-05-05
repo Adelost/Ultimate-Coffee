@@ -8,6 +8,7 @@
 #include <Core/Events.h>
 #include <Core/Enums.h>
 #include <Core/Command_ChangeBackBufferColor.h>
+#include <Core/Command_TranslateSceneEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -295,6 +296,23 @@ void Manager_Docks::onEvent(IEvent* e)
 					float z = changeBackBufferColorEvent->getDoColorZ();
 
 					QColor color(x,y,z);
+					QPixmap pixmap(16, 16);
+					pixmap.fill(color);
+					commandIcon.addPixmap(pixmap);
+					break;
+				}
+			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
+				{
+					commandText = "Translate";
+					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
+
+					// Could have the translation tool icon be displayed, instead of a color, perhaps.
+
+					float r = 65.0f;
+					float g = 65.0f;
+					float b = 65.0f;
+
+					QColor color(r, g, b);
 					QPixmap pixmap(16, 16);
 					pixmap.fill(color);
 					commandIcon.addPixmap(pixmap);

@@ -2,6 +2,9 @@
 #include "Tool_Translation.h"
 #include <Core/Data.h>
 #include <Core/DataMapper.h>
+#include <Core/Events.h>
+
+#include <Core/Command_TranslateSceneEntity.h>
 
 Tool_Translation::Tool_Translation()
 {
@@ -331,6 +334,16 @@ void Tool_Translation::unselect()
 		currentlySelectedPlane = NULL;
 	}
 	currentlySelectedAxis = NULL;
+
+	Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(activeEntityId);
+
+	Entity e(activeEntityId);
+	Data::Transform* trans = e.fetchData<Data::Transform>();
+
+	command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
+	command->setUndoTranslation(originalWorldOfActiveObject._41, originalWorldOfActiveObject._42, originalWorldOfActiveObject._43);
+
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
 
 	isSelected = false;
 }

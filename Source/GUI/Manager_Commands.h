@@ -42,5 +42,7 @@ public slots:
 	void createTestButton( QString color, QSignalMapper* mapper );
 	void setBackBufferColor(QString p_str_color);
 
+	void translateSceneEntity();
+
 	void onEvent(IEvent* e);
 };

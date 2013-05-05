@@ -3,7 +3,7 @@ namespace Enum
 {
 	enum CommandType
 	{
-		TRANSLATE,
+		TRANSLATE_SCENE_ENTITY,
 		ROTATE,
 		CHANGEBACKBUFFERCOLOR
 	};

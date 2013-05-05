@@ -3,6 +3,7 @@
 #include "Command.h"
 #include <fstream>
 #include "Command_ChangeBackBufferColor.h"
+#include "Command_TranslateSceneEntity.h"
 #include <sys/stat.h> // struct stat
 #include <memory> // memcpy
 #include "Events.h"
@@ -313,9 +314,9 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 
 		switch(commandType) // Create command according to its type
 		{
-		case Enum::CommandType::TRANSLATE:
+		case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
 			{
-				// command = new Command_Translate();
+				command = new Command_TranslateSceneEntity();
 				break;
 			}
 		case Enum::CommandType::ROTATE:
