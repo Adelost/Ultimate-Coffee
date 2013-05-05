@@ -1,5 +1,5 @@
--->Commands, undo/redo (Henrik Nell, 2013-05-05 ~21.32)
-För berrörda klasser, se Core-projektet (filter i Visual Studio 2012: Source/Commander (redo/undo, save/load))
+-->Commands, undo/redo (Henrik Nell, 2013-05-05 ~21.32, fix 21.53)
+För berörda klasser, se Core-projektet (filter i Visual Studio 2012: Source/Commander (redo/undo, save/load))
 
 Kommandon (se "Command.h") lagras i "Commander" (se "Commander.h").
 "Command" är en abstrakt klass som ärver av en annan abstrakt klass: "Serializable".
@@ -36,7 +36,6 @@ Notera kommentaren i kodstycket ovan. Det finns två olika tillvägagångssätt.
 "Event_StoreCommandInCommandHistory" använder sig av tillvägagångssätt 2.
 Ett tänkt translationskommando med direkt feedback i scenen, i.e. ett objekt flyttar sig direkt när man "drar" i det, borde använda sig av tillvägagångssätt 1.
 
-
 ->Metoder för translationskommando
 *Metod 1, absolut förflyttning:
 Kommandots struct-data: objektets id (int), nuvarande position (tre floats), slutposition (tre floats)
@@ -47,3 +46,16 @@ När musknappen trycks ner för en "dragning" noteras det valda objektets position
 Kommandots struct-data: objektets id (int), förflyttning i x-, y- och z-led (tre floats)
 När musknappen trycks ner för en "dragning" noteras det valda objektets position, samt dess id. När musknappen släpps och objektet fått sin slutliga position noteras hur långt denna nya position befinner sig i förhållande till den tidigare noterade positionen.  Den noterade datan läggs till i ett kommando som skickas likt ovan, med "false" som andraparameter.
 "doRedo" skulle använda sig de sparade x-, y- och z-värdena (och id:t); "redo" skulle använda använda sig av de sparade x-, y- och z-värdena, fast med omvänt tecken (och id:t, ej omvänt tecken). Vet inte om det skulle fungera.
+
+->Att spara och ladda kommandohistoriken
+För att kunna spara ner kommandohistoriken krävs ett typ-id för varje typ av kommando, som sedan används vid inläsning för att reda ut vilket kommando som skall skapas som klass.
+Lägg till ett enum-värde i "enum CommandType" vilken finns i "Enums.h" i "Core".
+Anropas "setType" från den härledda klassen med typen som argument.
+För att kommandot skall kunna läsas in korrekt krävs ett litet ingrepp i "CommandHistory::tryToLoadFromSerializationByteFormat".
+För "Command_ChangeBackBufferColor" krävs: 
+
+case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+{
+	command = new Command_ChangeBackBufferColor();
+	break;
+}
