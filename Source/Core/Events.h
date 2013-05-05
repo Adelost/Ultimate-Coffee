@@ -10,10 +10,12 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
+	EVENT_TRANSLATE_SCENE_ENTITY,
 	EVENT_MOUSE_WHEEL,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
 	EVENT_SET_CURSOR_POSITION,
+	EVENT_SET_CURSOR,
 
 	// Commands
 	EVENT_STORE_COMMAND,
@@ -97,6 +99,22 @@ public:
 	}
 };
 
+class Event_TranslateSceneEntity : public IEvent
+{
+public:
+	int m_idOfTranslatableSceneEntity;
+	float m_transX, m_transY, m_transZ;
+
+public:
+	Event_TranslateSceneEntity(int p_idOfTranslatableSceneEntity, float p_transX, float p_transY, float p_transZ) : IEvent(EVENT_TRANSLATE_SCENE_ENTITY)
+	{
+		m_idOfTranslatableSceneEntity = p_idOfTranslatableSceneEntity;
+		m_transX = p_transX;
+		m_transY = p_transY;
+		m_transZ = p_transZ;
+	}
+};
+
 class Event_ShowMessageBox : public IEvent
 {
 public:
@@ -109,6 +127,28 @@ public:
 	}
 };
 
+class Event_SetCursor : public IEvent
+{
+public:
+	enum CursorShape
+	{
+		HiddenCursor = -2,
+		NormalCursor = -1,
+		CrossCursor = 2,
+		SizeAllCursor = 9,
+		OpenHandCursor = 17,
+		ClosedHandCursor = 18,
+	};
+
+public:
+	CursorShape cursorShape;
+
+public:
+	Event_SetCursor(CursorShape p_cursor) : IEvent(EVENT_SET_CURSOR)
+	{
+		cursorShape = p_cursor;
+	}
+};
 
 class Event_MouseMove : public IEvent
 {

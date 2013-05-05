@@ -42,6 +42,11 @@ private:
 	ID3D11Buffer* mMeshTransTool_xyPlane_VB;
 	ID3D11Buffer* mMeshTransTool_viewPlane_VB;
 
+	ID3D11Buffer* mMeshTransTool_yzTriangleListRectangle_VB;
+	ID3D11Buffer* mMeshTransTool_zxTriangleListRectangle_VB;
+	ID3D11Buffer* mMeshTransTool_xyTriangleListRectangle_VB;
+	ID3D11Buffer* mMeshTransTool_viewPlaneTriangleListRectangle_VB;
+
 	////////////////////////////
 
 	XMFLOAT3 position;
@@ -103,9 +108,6 @@ public:
 
 	/* Called to send updated parameters to the translation tool, if it is still active. */
 	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
-
-	/* Called for current translation delta made by picking. */
-	void translateObject();
 
 	/* Called when the translation tool is unselected, which makes any hitherto made translation final. */
 	void unselect();

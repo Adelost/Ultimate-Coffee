@@ -14,12 +14,12 @@
 
 Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext, ID3D11DepthStencilView* p_depthStencilView, D3D11_VIEWPORT *p_viewPort)
 {
-
 	m_deviceContext = p_deviceContext;
 	m_depthStencilView = p_depthStencilView;
 
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_PRESS);
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
+	SUBSCRIBE_TO_EVENT(this, EVENT_TRANSLATE_SCENE_ENTITY);
 
 	// Initialize the transformation tools...
 	currentlyChosenTransformTool = NULL;
@@ -184,6 +184,20 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 
 			//	theSelectionTool->update(rayOrigin, rayDir, mCam, mScreenViewport, mouseCursorPoint, sceneObjects);
 			//}
+
+			break;
+		}
+	case EVENT_TRANSLATE_SCENE_ENTITY:
+		{
+			Event_TranslateSceneEntity* e = static_cast<Event_TranslateSceneEntity*>(p_event);
+
+			Data::Transform* d_transform = Entity(e->m_idOfTranslatableSceneEntity).fetchData<Data::Transform>();
+
+			d_transform->position.x = e->m_transX;
+			d_transform->position.y = e->m_transY;
+			d_transform->position.z = e->m_transZ;
+
+			// Gotta make sure to re-scale the visual component of the tool given the redoing/undoing changing the distance.
 
 			break;
 		}

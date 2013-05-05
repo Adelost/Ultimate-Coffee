@@ -14,6 +14,7 @@ RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_WINDOW_HANDLE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_CURSOR_POSITION);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SET_CURSOR);
 }
 
 RenderWidget::~RenderWidget()
@@ -34,6 +35,30 @@ void RenderWidget::onEvent( IEvent* p_event )
 			QCursor::setPos(position.x, position.y);
 		}
 		break;
+	case EVENT_SET_CURSOR:
+		{
+			Event_SetCursor::CursorShape cursorShape = static_cast<Event_SetCursor*>(p_event)->cursorShape;
+			switch (cursorShape)
+			{
+			case Event_SetCursor::HiddenCursor:
+				{
+					setCursor(Qt::BlankCursor);	
+				}
+				break;
+			case Event_SetCursor::NormalCursor:
+				{
+					unsetCursor();	
+				}
+				break;
+			default:
+				{
+					Qt::CursorShape cursor = static_cast<Qt::CursorShape>(cursorShape);
+					QWidget::setCursor(cursor);	
+				}
+				break;
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -42,38 +67,14 @@ void RenderWidget::onEvent( IEvent* p_event )
 void RenderWidget::mousePressEvent( QMouseEvent* p_event )
 {
 	setFocus();
-
-	Qt::MouseButton button = p_event->button();
-	if(button == Qt::LeftButton)
-		SETTINGS()->button.mouse_left = true;
-	if(button == Qt::RightButton)
-		SETTINGS()->button.mouse_right = true;
-	if(button == Qt::MiddleButton)
-		SETTINGS()->button.mouse_middle = true;
-
-	QPoint pos = p_event->pos();
-	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
-
-
-	// Inform about key press
-	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, true));
+	setMouseState(p_event, true);
+	
 }
 
 void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
 {
-	Qt::MouseButton button = p_event->button();
-	QPoint pos = p_event->pos();
-	if(button == Qt::LeftButton)
-		SETTINGS()->button.mouse_left = false;
-	if(button == Qt::RightButton)
-		SETTINGS()->button.mouse_right = false;
-	if(button == Qt::MiddleButton)
-		SETTINGS()->button.mouse_middle = false;
-
+	setMouseState(p_event, false);
 	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
-
-	// Inform about key press
-	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, false));
 }
 
 void RenderWidget::resizeEvent(QResizeEvent* e)
@@ -173,4 +174,46 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 	default:
 		break;
 	}
+}
+
+void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
+{
+	Qt::MouseButton button = p_event->button();
+	bool state = p_pressed;
+
+	switch(button)
+	{
+	case Qt::LeftButton:
+		SETTINGS()->button.mouse_left = state;
+		break;
+	case Qt::RightButton:
+		SETTINGS()->button.mouse_right = state;
+		break;
+	case Qt::MiddleButton:
+		SETTINGS()->button.mouse_middle = state;
+		break;
+	default:
+		break;
+	}
+
+	// HACK: Set tools, should be refactored later
+	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
+
+	// HACK: Hide mouse when rotating
+	if(button == Qt::RightButton)
+	{
+		if(state)
+		{
+			SEND_EVENT(&Event_SetCursor(Event_SetCursor::HiddenCursor));
+		}
+		else
+		{
+			SEND_EVENT(&Event_SetCursor(Event_SetCursor::NormalCursor));
+		}
+	}
+
+	
+	// Inform about key press
+	QPoint pos = p_event->pos();
+	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));
 }
