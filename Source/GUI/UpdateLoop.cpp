@@ -31,8 +31,7 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
-	// also save Camera Entity and Selected Entity
-	for(int i=0; i<1; i++)
+	for(int i=0; i<3; i++)
 	{
 		SETTINGS()->selectedEntityId = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->id();
 	}
