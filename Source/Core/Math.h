@@ -16,8 +16,8 @@ public:
 	static float randomFloat(float p_min, float p_max);
 	static void getPickingRay(int sx, int sy, XMVECTOR &rayOrigin, XMVECTOR &rayDir);
 	static const float Pi;
+	static const float Pi2;
 };
-
 
 class Int2
 {

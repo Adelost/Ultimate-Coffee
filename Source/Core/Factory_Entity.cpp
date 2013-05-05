@@ -21,19 +21,22 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 	if(p_type == ENTITY_CUBE)
 	{
-		e->addData(Data::Transform());
+		// Randomize position
+		Data::Transform* d_transform = e->addData(Data::Transform());
+		d_transform->position.x = Math::randomFloat(-3.0f, 3.0f);
+		d_transform->position.y = Math::randomFloat(-3.0f, 3.0f);
+		d_transform->position.z = Math::randomFloat(-3.0f, 3.0f);
+		
 		e->addData(Data::Render());
 	}
 
 	if(p_type == ENTITY_CAMERA)
 	{
-		e->addData(Data::Transform());
-		e->addData(Data::Camera());
+		Data::Transform* d_transform = e->addData(Data::Transform());
+		d_transform->position = Vector3(0.0f, 0.0f, -15.0f);
 
-		Data::Transform* d_transform;
-		d_transform = e->fetchData<Data::Transform>();
-		d_transform->position = Vector3(10,5,-15);
-		e->fetchData<Data::Camera>()->updateViewMatrix(d_transform->position);
+		Data::Camera* d_camera = e->addData(Data::Camera());
+		d_camera->updateViewMatrix(d_transform->position);
 	}
 
 	return e;

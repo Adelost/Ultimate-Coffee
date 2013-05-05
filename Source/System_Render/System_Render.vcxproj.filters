@@ -57,11 +57,14 @@
     </ClInclude>
     <ClInclude Include="Manager_3DTools.h">
       <Filter>Source\Tools</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="Box.h">
       <Filter>Source\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="Buffer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory_Geometry.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
@@ -104,7 +107,7 @@
     </ClCompile>
     <ClCompile Include="Manager_3DTools.cpp">
       <Filter>Source\Tools</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="Buffer.cpp">
       <Filter>Source</Filter>
     </ClCompile>

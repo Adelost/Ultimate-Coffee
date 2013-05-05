@@ -31,10 +31,6 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	m_theSelectionTool = new Tool_Selection();
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
-	
-
-	m_viewPort = p_viewPort;
-
 	//(SETTINGS()->camera)->SetPosition(-15.0f, 0.0f, 0.0f);
 	//(SETTINGS()->camera)->SetLens(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 1000.0f);
 	//(SETTINGS()->camera)->LookAt(SETTINGS()->camera->GetPosition(), XMFLOAT3(0.0f, 0.0f, 0.0f), SETTINGS()->camera->GetUp());
@@ -43,11 +39,10 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 void Manager_3DTools::update()
 {
-	// TEMP:
-	if(currentlyChosenTransformTool)
+	if(currentlyChosenTransformTool->getActiveObject() == -1)
 		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 
-	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1)
+	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.
 	{
 		Entity entity_camera = CAMERA_ENTITY();
 		Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
@@ -55,8 +50,9 @@ void Manager_3DTools::update()
 
 		XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
 		XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
+		XMVECTOR camPos = XMVectorSet(d_transform->position.x, d_transform->position.y, d_transform->position.z, 1.0f);
 
-		float dist = XMVector3Length(XMVectorSubtract(d_transform->position, origin)).m128_f32[0];
+		float dist = XMVector3Length(XMVectorSubtract(camPos, origin)).m128_f32[0];
 		float distanceAdjustedScale = dist / 6;
 		currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
@@ -105,8 +101,8 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
 					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-					int height = m_viewPort->Height;
-					int width = m_viewPort->Width;
+					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
 					Vector2 screenDim(width, height);
 					Vector4 rayOrigin; Vector3 rayDir;
 					d_camera->getPickingRay(clickedScreenCoords, screenDim, rayOrigin, rayDir);
@@ -125,6 +121,7 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				// If a translation tool is present and has been active, unselect it.
 				if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
 				{
+					XMFLOAT4X4 test = currentlyChosenTransformTool->getWorld_logical();
 					currentlyChosenTransformTool->unselect();
 				}
 
@@ -160,8 +157,8 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
 				Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-				int height = m_viewPort->Height;
-				int width = m_viewPort->Width;
+				int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+				int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
 				Vector2 screenDim(width, height);
 				Vector4 rayOrigin; Vector3 rayDir;
 				d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);

@@ -13,6 +13,7 @@ RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 	//setStyleSheet("background-color: rgba(0, 0, 0, 255);");
 
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_WINDOW_HANDLE);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SET_CURSOR_POSITION);
 }
 
 RenderWidget::~RenderWidget()
@@ -26,6 +27,12 @@ void RenderWidget::onEvent( IEvent* p_event )
 	{
 	case EVENT_GET_WINDOW_HANDLE:
 		static_cast<Event_GetWindowHandle*>(p_event)->handle = winId();
+		break;
+	case EVENT_SET_CURSOR_POSITION:
+		{
+			Int2 position = static_cast<Event_SetCursorPosition*>(p_event)->position;
+			QCursor::setPos(position.x, position.y);
+		}
 		break;
 	default:
 		break;
@@ -75,13 +82,14 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	
 	int width = this->width();
 	int height = this->height();
+	SETTINGS()->windowSize = Int2(width, height);
 
 	SEND_EVENT(&Event_WindowResize(width, height));
 }
 
 void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 {
-	QPoint mouseAnchor = QWidget::mapToGlobal(QPoint(this->width()*0.5f,this->height()*0.5f));
+	QPoint mouseAnchor = mapToGlobal(QPoint(width()*0.5f, height()*0.5f));
 	static QPoint mousePrev = e->globalPos();
 	int x = e->pos().x();
 	int y = e->pos().y();
@@ -99,7 +107,9 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 
 	if(SETTINGS()->button.mouse_right)
 	{
-		//QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+		//SEND_EVENT(&Event_SetCursorPosition(Int2(mouseAnchor.x(), mouseAnchor.y())))
+		mousePrev = mouseAnchor;
 
 		// Set 1 pixel = 0.25 degrees
 		float x = XMConvertToRadians(0.20f*(float)dx);
@@ -113,18 +123,19 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 
 	if(SETTINGS()->button.mouse_middle)
 	{
-		//QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+		//QCursor::setPos(mousePrev.x(), mousePrev.y()); // anchor mouse again
+		//mousePrev = mouseAnchor;
 
-		float delta = SETTINGS()->deltaTime * 10.0f;
+		
 		float strafe = 0.0f;
-		float walk = 0.0f;
+		float ascend = 0.0f;
 
-		walk -= dy*delta;
-		strafe += dx*delta;
+		strafe = -0.02f*dx;
+		ascend = 0.02f*dy;
 
 		// Rotate camera
 		d_camera->strafe(d_transform->position, strafe);
-		d_camera->walk(d_transform->position, walk);
+		d_camera->ascend(d_transform->position, ascend);
 		d_camera->updateViewMatrix(d_transform->position);
 	}
 }

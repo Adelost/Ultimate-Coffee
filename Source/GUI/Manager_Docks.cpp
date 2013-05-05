@@ -162,13 +162,14 @@ void Manager_Docks::setupMenu()
 	dock = createDock("Coffee", Qt::RightDockWidgetArea);
 	QPlainTextEdit* textEdit = new QPlainTextEdit();
 	textEdit->setReadOnly(true);
-	textEdit->setPlainText("  	\n"
-		"  INITIALIZING	\n"
+	textEdit->setPlainText(
 		"\n"
-		"    ~-_  Steamin'	\n"
+		"  INITIALIZING\n"
+		"\n"
+		"    ~-_  Steamin'\n"
 		"     _-~    Hot\n"
-		"   c|_|   COFFEE	\n"
-		"  ");
+		"   c|_|   COFFEE\n"
+		"");
 	dock->setWidget(textEdit);
 
 	// Tool
@@ -406,7 +407,7 @@ void Manager_Docks::update()
 	{
 		map_trans.next();
 
-		if(entityCount >= rowCount)
+		if(entityCount >= rowCount && entityCount < 200)
 		{
 			QStandardItem* item;
 			item = new QStandardItem("Entity " + QString::number(entityCount));

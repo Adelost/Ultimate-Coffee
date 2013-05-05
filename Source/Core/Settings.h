@@ -9,7 +9,7 @@ class Entity;
 class ButtonState
 {
 public:
-	ButtonState();;
+	ButtonState();
 public:
 	bool mouse_left;
 	bool mouse_right;
@@ -30,6 +30,7 @@ public:
 	int selectedEntityId;
 	int camera_entityId;
 	ButtonState button;
+	Int2 windowSize;
 
 public:
 	Settings();

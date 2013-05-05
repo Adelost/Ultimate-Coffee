@@ -16,7 +16,7 @@ public:
 	}
 
 	template<typename T>
-	void addData(int p_entityId, Data::Type<T>& p_data)
+	T* addData(int p_entityId, Data::Type<T>& p_data)
 	{
 		int batchIndex = Data::Type<T>::classId();
 
@@ -30,7 +30,7 @@ public:
 		}
 
 		DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[batchIndex];
-		dataBatch->addData(p_entityId, p_data);
+		return dataBatch->addData(p_entityId, p_data);
 	}
 
 	template<typename T>

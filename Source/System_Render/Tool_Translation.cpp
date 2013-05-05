@@ -293,78 +293,32 @@ void Tool_Translation::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &
 	}
 	else if(currentlySelectedPlane)
 	{
-		// 
 		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView);
-
-		//XMMATRIX curWorld = activeObject->getIRenderable()->getWorld();
-
-		//XMVECTOR newPos;
-		//newPos.m128_f32[0] = curWorld._41;
-		//newPos.m128_f32[1] = curWorld._42;
-		//newPos.m128_f32[2] = curWorld._43;
-
-		//activeObject->getIRenderable()->incrementTranslation(currentlySelectedPlane->getLastTranslationDelta());
 
 		XMVECTOR transDelta = currentlySelectedPlane->getLastTranslationDelta();
 
-		//XMFLOAT4 newPos;
-		//newPos.x = originalWorldOfActiveObject._41 + transDelta.m128_f32[0];
-		//newPos.y = originalWorldOfActiveObject._42 + transDelta.m128_f32[1];
-		//newPos.z = originalWorldOfActiveObject._43 + transDelta.m128_f32[2];
-
 		float scaleFactor = scale;
-	/*	if(currentlySelectedPlane == camViewTranslationPlane)
-			scaleFactor = 1.0f;*/
-
-		XMFLOAT4X4 newMatrix; //  = XMMatrixIdentity();
-		newMatrix = originalWorldOfActiveObject;
+		if(currentlySelectedPlane == camViewTranslationPlane)
+			scaleFactor = 1.0f;
 
 		Vector3 newTranslation;
 		
 		if(currentlySelectedPlane != camViewTranslationPlane)
 		{
 
-			newTranslation.x = newMatrix._41 = originalWorldOfActiveObject._41 + transDelta.m128_f32[0] * scaleFactor;
-			newTranslation.y = newMatrix._42 = originalWorldOfActiveObject._42 + transDelta.m128_f32[1] * scaleFactor;
-			newTranslation.z = newMatrix._43 = originalWorldOfActiveObject._43 + transDelta.m128_f32[2] * scaleFactor;
+			newTranslation.x = originalWorldOfActiveObject._41 + transDelta.m128_f32[0] * scaleFactor;
+			newTranslation.y = originalWorldOfActiveObject._42 + transDelta.m128_f32[1] * scaleFactor;
+			newTranslation.z = originalWorldOfActiveObject._43 + transDelta.m128_f32[2] * scaleFactor;
 		}
-		else
+		else // Temp stuff until cam view translation works:
 		{
-
-			//XMVECTOR test = 
-			//	
-			//	XMLoadFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[0]) * transDelta.m128_f32[0]  
-			//	+
-			//	XMLoadFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[1]) * transDelta.m128_f32[1] ;
-
-			//originalWorldOfActiveObject._41 += test.m128_f32[0];
-			//originalWorldOfActiveObject._42 += test.m128_f32[1];
-			//originalWorldOfActiveObject._43 += test.m128_f32[2];
+			newTranslation.x = originalWorldOfActiveObject._41 + 0.0f;
+			newTranslation.y = originalWorldOfActiveObject._42 + 0.0f;
+			newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
 		}
-
-		XMFLOAT4X4 newM;
-		//XMStoreFloat4x4(&newM, newMatrix);
-
 
 		Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
-		transform->toWorldMatrix();
 		transform->position = newTranslation;
-
-		//originalWorldOfActiveObject = static_cast<XMFLOAT4X4>(world);
-
-		//activeObject->getIRenderable()->setWorld(newMatrix);
-	
-		//XMMATRIX newWorld = XMMatrixIdentity();
-		//XMFLOAT4X4 objectWorld = *(activeObject->getIRenderable()->getWorld());
-		//newWorld._41 = objectWorld._41;
-		//newWorld._42 = objectWorld._42;
-		//newWorld._43 = objectWorld._43;
-
-		//world = newMatrix;
-
-		//world._41 += transDelta.m128_f32[0];
-		//world._42 += transDelta.m128_f32[1];
-		//world._43 += transDelta.m128_f32[2];
 	}
 }
 
@@ -723,77 +677,20 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
-
-	XMMATRIX worldViewProj;
-
-	//activeMeshTech->GetDesc( &techDesc );
-	//for(UINT p = 0; p < techDesc.Passes; ++p)
- //   {
-	//	// Draw the Mesh.
-	//	if( GetAsyncKeyState('1') & 0x8000 )
-	//		md3dImmediateContext->RSSetState(RenderStates::WireframeRS);
-	//	
-	//	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_circle_VB, &stride, &offset);
-	//	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransToolVB, &stride, &offset);
-
-	//	XMMATRIX identity = XMMatrixIdentity();
-	//	XMFLOAT4X4 toolWorld = getWorld_visual();
-	//	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
-	//	
-	//	//float scale = theTranslationTool->getScale();
-	//	//world._11 = scale;
-	//	//world._22 = scale;
-	//	//world._33 = scale;
-
-	//	//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
-
-	//	//world._41 = mMeshWorld._41;
-	//	//world._42 = mMeshWorld._42;
-	//	//world._43 = mMeshWorld._43;
-
-	//	worldViewProj = world * theCamera.View() * theCamera.Proj();
-
-	//	Effects::ToolFX->SetWorldViewProj(worldViewProj);
-	//	// Effects::ToolFX->SetMaterial(mMeshMat);
-
-	//	activeMeshTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-	//	md3dImmediateContext->Draw(6, 0);
-
-	//	// Restore default
-	//	md3dImmediateContext->RSSetState(0);
-	//}
-
+	
 	Entity e(activeEntityId);
 
 	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
-
-	//XMMATRIX test = XMMatrixTranslation(0.0f,0.0f,0.0f);
-
 	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
-
-	//Matrix world2 = world;
-	//Matrix worldInverted;
-	//world2.Invert(worldInverted);
-	//XMMATRIX worldInvTrans = worldInverted.Transpose();
-	////XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-
-
-
-	//XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	//XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
 	
-	XMMATRIX worldViewProj2 = world * camView * camProj;
-	worldViewProj2 = XMMatrixTranspose(worldViewProj2);
-	//D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-	//D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	//D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	XMMATRIX worldViewProj = world * camView * camProj;
+	worldViewProj = XMMatrixTranspose(worldViewProj);
 
 	ConstantBuffer2 WVP;
-	WVP.WVP = worldViewProj2;
-
+	WVP.WVP = worldViewProj;
 	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
 	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
@@ -808,18 +705,23 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
 	md3dImmediateContext->Draw(5, 0);
 
-	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
-	//md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
+	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	//XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
-	//
-	//float scale = getScale();
-	//XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
-	//
-	//worldViewProj = viewControlWorld * theCamera.View() * theCamera.Proj();
+	XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
 
-	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
-	//md3dImmediateContext->Draw(5, 0);
+	float scale = getScale();
+	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+
+	worldViewProj = viewControlWorld * camView * camProj;
+	worldViewProj = XMMatrixTranspose(worldViewProj);
+
+	WVP.WVP = worldViewProj;
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
+	md3dImmediateContext->Draw(5, 0);
 
 	//md3dImmediateContext->OMSetDepthStencilState(0, 0);
 }

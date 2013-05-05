@@ -36,7 +36,7 @@ public:
 		return m_dataIndexFromEntityId_list[p_entityId];
 	}
 
-	void addData(int p_entityId, Data::Type<T>& p_data)
+	T* addData(int p_entityId, Data::Type<T>& p_data)
 	{
 		// Delete previous Data, if any
 		int prev_dataId = dataIndexFromEntityId(p_entityId);
@@ -67,6 +67,8 @@ public:
 			m_dataIndexFromEntityId_list.push_back(-1);
 		}
 		m_dataIndexFromEntityId_list[p_entityId] = dataIndex;
+
+		return m_batch.itemAt(dataIndex);
 	}
 
 	T* fetchData(int p_entityId)

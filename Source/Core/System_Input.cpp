@@ -6,33 +6,35 @@
 
 void System::Input::update()
 {
-	//Entity entity_camera = CAMERA_ENTITY();
-	//Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-	//Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	Entity entity_camera = CAMERA_ENTITY();
+	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-	//float delta = SETTINGS()->deltaTime;
-	//float strafe = 0.0f;
-	//float walk = 0.0f;
+	float delta = SETTINGS()->deltaTime * 15.0f;
+	float strafe = 0.0f;
+	float walk = 0.0f;
 
-	//if(SETTINGS->button.)
-	//{
-	//	walk += delta;
-	//}
-	//if(e->key() == Qt::Key_A)
-	//{
-	//	strafe -= delta;
-	//}
-	//if(e->key() == Qt::Key_S)
-	//{
-	//	walk -= delta;
-	//}
-	//if(e->key() == Qt::Key_D)
-	//{
-	//	strafe += delta;
-	//}
+	if(SETTINGS()->button.key_up)
+	{
+		walk += delta;
+	}
+	if(SETTINGS()->button.key_down)
+	{
+		walk -= delta;
+	}
+	if(SETTINGS()->button.key_left)
+	{
+		strafe -= delta;
+	}
+	if(SETTINGS()->button.key_right)
+	{
+		strafe += delta;
+	}
 
-	//// Rotate camera
-	//d_camera->strafe(d_transform->position, strafe);
-	//d_camera->walk(d_transform->position, walk);
-	//d_camera->updateViewMatrix(d_transform->position);
+	// Walk camera
+	if(strafe!=0.0f)
+		d_camera->strafe(d_transform->position, strafe);
+	if(walk!=0.0f)
+		d_camera->walk(d_transform->position, walk);
+	d_camera->updateViewMatrix(d_transform->position);
 }
