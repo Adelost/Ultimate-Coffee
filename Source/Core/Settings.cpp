@@ -19,5 +19,5 @@ Settings::~Settings()
 
 ButtonState::ButtonState()
 {
-	ZeroMemory(this, sizeof(this));
+	ZeroMemory(this, sizeof(ButtonState));
 }

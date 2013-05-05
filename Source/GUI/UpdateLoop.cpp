@@ -6,6 +6,7 @@
 #include <Core/World.h>
 #include <Core/Factory_Entity.h>
 #include <Core/System.h>
+#include <Core/System_Input.h>
 #include <System_Render/System_Render.h>
 
 UpdateLoop::UpdateLoop()
@@ -24,6 +25,7 @@ void UpdateLoop::init()
 {
 	// Init systems
 	m_world->addSystem(new System::Translation());
+	m_world->addSystem(new System::Input());
 	m_world->addSystem(new System::Render());
 	m_world->addSystem(Window::instance()->system_editor());
 	m_world->addSystem(new System::Test());

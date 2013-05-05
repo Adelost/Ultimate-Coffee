@@ -9,7 +9,7 @@ class Entity;
 class ButtonState
 {
 public:
-	ButtonState();;
+	ButtonState();
 public:
 	bool mouse_left;
 	bool mouse_right;

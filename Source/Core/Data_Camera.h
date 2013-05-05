@@ -113,20 +113,17 @@ namespace Data
 
 		void strafe(Vector3& p_cameraPos, float p_distance)
 		{
-			// mPosition += d*mRight
-			XMVECTOR s = XMVectorReplicate(p_distance*m_walkingSpeed);
-			XMVECTOR r = XMLoadFloat3(&m_right);
-			XMVECTOR p = XMLoadFloat3(&p_cameraPos);
-			XMStoreFloat3(&p_cameraPos, XMVectorMultiplyAdd(s, r, p));
+			p_cameraPos = p_cameraPos + m_right * p_distance;
 		}
 
 		void walk(Vector3& p_cameraPos, float p_distance)
 		{
-			// mPosition += d*mLook
-			XMVECTOR s = XMVectorReplicate(p_distance*m_walkingSpeed);
-			XMVECTOR l = XMLoadFloat3(&m_look);
-			XMVECTOR p = XMLoadFloat3(&p_cameraPos);
-			XMStoreFloat3(&p_cameraPos, XMVectorMultiplyAdd(s, l, p));
+			p_cameraPos = p_cameraPos + m_look * p_distance;
+		}
+
+		void ascend(Vector3& p_cameraPos, float p_distance)
+		{
+			p_cameraPos = p_cameraPos + m_up * p_distance;
 		}
 
 	public:
