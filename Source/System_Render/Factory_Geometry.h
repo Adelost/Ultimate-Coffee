@@ -27,6 +27,7 @@ public:
 			tangentU(tx, ty, tz), texureCordinate(u,v){}
 	};
 
+public:
 	class MeshData
 	{
 	public:
@@ -91,7 +92,7 @@ public:
 		// Create the indices.
 		//
 
-		UINT i[36];
+		unsigned int i[36];
 
 		// Fill in the front face index data
 		i[0] = 0; i[1] = 1; i[2] = 2;
@@ -124,10 +125,10 @@ public:
 	Creates a sphere centered at the origin with the given radius.  The
 	slices and stacks parameters control the degree of tessellation.
 	*/
-	void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData)
+	void createSphere(float radius, unsigned int sliceCount, unsigned int stackCount, MeshData& meshData)
 	{
-		meshData.Vertices.clear();
-		meshData.Indices.clear();
+		meshData.vertices.clear();
+		meshData.indices.clear();
 
 		//
 		// Compute the vertices stating at the top pole and moving down the stacks.
@@ -139,7 +140,7 @@ public:
 		Vertex topVertex(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		Vertex bottomVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 
-		meshData.Vertices.push_back( topVertex );
+		meshData.vertices.push_back( topVertex );
 
 		float phiStep   = XM_PI/stackCount;
 		float thetaStep = 2.0f*XM_PI/sliceCount;
@@ -157,29 +158,29 @@ public:
 				Vertex v;
 
 				// spherical to cartesian
-				v.Position.x = radius*sinf(phi)*cosf(theta);
-				v.Position.y = radius*cosf(phi);
-				v.Position.z = radius*sinf(phi)*sinf(theta);
+				v.position.x = radius*sinf(phi)*cosf(theta);
+				v.position.y = radius*cosf(phi);
+				v.position.z = radius*sinf(phi)*sinf(theta);
 
 				// Partial derivative of P with respect to theta
-				v.TangentU.x = -radius*sinf(phi)*sinf(theta);
-				v.TangentU.y = 0.0f;
-				v.TangentU.z = +radius*sinf(phi)*cosf(theta);
+				v.tangentU.x = -radius*sinf(phi)*sinf(theta);
+				v.tangentU.y = 0.0f;
+				v.tangentU.z = +radius*sinf(phi)*cosf(theta);
 
-				XMVECTOR T = XMLoadFloat3(&v.TangentU);
-				XMStoreFloat3(&v.TangentU, XMVector3Normalize(T));
+				XMVECTOR T = XMLoadFloat3(&v.tangentU);
+				XMStoreFloat3(&v.tangentU, XMVector3Normalize(T));
 
-				XMVECTOR p = XMLoadFloat3(&v.Position);
-				XMStoreFloat3(&v.Normal, XMVector3Normalize(p));
+				XMVECTOR p = XMLoadFloat3(&v.position);
+				XMStoreFloat3(&v.normal, XMVector3Normalize(p));
 
-				v.TexC.x = theta / XM_2PI;
-				v.TexC.y = phi / XM_PI;
+				v.texureCordinate.x = theta / XM_2PI;
+				v.texureCordinate.y = phi / XM_PI;
 
-				meshData.Vertices.push_back( v );
+				meshData.vertices.push_back( v );
 			}
 		}
 
-		meshData.Vertices.push_back( bottomVertex );
+		meshData.vertices.push_back( bottomVertex );
 
 		//
 		// Compute indices for top stack.  The top stack was written first to the vertex buffer
