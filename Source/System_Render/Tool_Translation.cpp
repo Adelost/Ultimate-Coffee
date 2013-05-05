@@ -769,9 +769,6 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
-
-	//XMMATRIX test = XMMatrixTranslation(0.0f,0.0f,0.0f);
-
 	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
 
 	//Matrix world2 = world;
@@ -779,8 +776,6 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	//world2.Invert(worldInverted);
 	//XMMATRIX worldInvTrans = worldInverted.Transpose();
 	////XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-
-
 
 	//XMMATRIX view = XMMatrixLookAtLH(XMVectorSet(0.0f, 0.0f, -15.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	//XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 100.0f);
