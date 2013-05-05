@@ -16,6 +16,7 @@ Manager_Docks::~Manager_Docks()
 void Manager_Docks::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	commandHistoryListWidget = NULL;
 	listT = NULL;
 	m_window = Window::instance();
@@ -276,12 +277,11 @@ void Manager_Docks::onEvent(IEvent* e)
 	{
 	case EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI: //Add command to the command history list in the GUI
 		{
-			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
+			Event_AddCommandToCommandHistoryGUI* commandEvent = static_cast<Event_AddCommandToCommandHistoryGUI*>(e);
 			Command* command = commandEvent->command;
 			
 			QIcon commandIcon;
 			QString commandText = "UNKNOWN COMMAND";
-
 			Enum::CommandType type = command->getType();
 			switch(type)
 			{
@@ -310,8 +310,10 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandText);
-			int nrOfListItems = commandHistoryListWidget->count();
-			commandHistoryListWidget->insertItem(0, item);
+			commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			commandHistoryListWidget->setItemSelected(item, true);
+
+			//int nrOfListItems = commandHistoryListWidget->count();
 
 			// QListWidget
 			// to remove items from commandHistoryListWidget,
@@ -323,6 +325,15 @@ void Manager_Docks::onEvent(IEvent* e)
 			//commandHistoryListWidget->setLayoutMode(QListView::LayoutMode::SinglePass);
 			//commandHistoryListWidget->setIconSize(QSize(10000, 10000));
 		break;
+		}
+	case EVENT_SET_SELECTED_COMMAND_GUI:
+		{
+			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
+			int index = selectionEvent->indexOfCommand;
+
+			commandHistoryListWidget->setCurrentRow(index);
+
+			break;
 		}
 	}
 }

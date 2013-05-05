@@ -1,7 +1,7 @@
 #pragma once
 
 class ISystem;
-template class std::vector<int>;
+#include <vector>
 
 class Manager_Systems
 {

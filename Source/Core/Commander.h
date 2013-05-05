@@ -1,12 +1,20 @@
 #pragma once
 
-//#include <vector>
+#include <vector>
 
 class CommandHistory;
 class Command;
 
 //--------------------------------------------------------------------------------------
 // Manipulates "Command"s in a "CommandHistory".
+//
+// "Command"s can be:
+// *Stored (tryToAddCommandToHistory)
+// *Executed (tryToAddCommandToHistoryAndExecute)
+// *Undone (tryToUndoLatestCommand)
+// *Saved to file (tryToSaveCommandHistory)
+// *Loaded from file (tryToLoadCommandHistory)
+// *Printed to std::cout (printCommandHistory)
 //--------------------------------------------------------------------------------------
 class Commander
 {
@@ -17,21 +25,38 @@ public:
 	Commander(void);
 	~Commander(void);
 	
+	// Initialilzes the command history. Success status is returned.
 	bool init();
 	
+	// Possible to use as a visual cue
 	bool redoIsPossible();
+
+	// Possible to use as a visual cue
 	bool undoIsPossible();
 	
-	void addToHistoryAndExecute(Command* p_command);	// Executes "Command" and stores it in the command history
-	void addToHistory(Command* p_command);				// Stores "Command" in the command history, without executing it
+	// Stores "command" in the command history, and executes it, if it was successfully added. Returns true if "command" was sucessfully added, otherwise false.
+	bool tryToAddCommandToHistoryAndExecute(Command* command);
 
-	bool tryToUndoLatestCommand();						// Returns true if undo was successful, otherwise false
-	bool tryToRedoLatestUndoCommand();					// Returns true if redo was successful, otherwise false
+	// Stores "command" in the command history, without executing it. Returns true if successfully added, otherwise false.
+	bool tryToAddCommandToHistory(Command* command);
 
-	bool tryToSaveCommandHistory(std::string p_path);	// Returns true if the command history was successfully saved, otherwise false
-	bool tryToLoadCommandHistory(std::string p_path);	// Returns true if a command history was successfully loaded, otherwise false
+	// Returns true if undo was successful, otherwise false
+	bool tryToUndoLatestCommand();
 
-	void displayCommandList();
+	// Returns true if redo was successful, otherwise false
+	bool tryToRedoLatestUndoCommand();
+
+	// Returns true if the command history was successfully saved to file given by "path", otherwise false
+	bool tryToSaveCommandHistory(std::string path);
+
+	// Returns true if a command history was successfully loaded from file given by "path", otherwise false
+	bool tryToLoadCommandHistory(std::string path);
+
+	// Prints command list to "std::cout"
+	void printCommandHistory();
+
+	int getCurrentCommandIndex();
+	int getNrOfCommands();
 };
 
 
@@ -44,14 +69,15 @@ private:
 	std::vector<Command*> m_commands;		// Stores all commands that the "CommandHistory" is responsible for
 	int m_indexOfCurrentCommand;			// -1 means that no command is current
 
-	void setCurrentCommand(int p_index);
+	void setCurrentCommand(int index);
 	int calculateSerializedByteSize();
 
 public:
 	CommandHistory(void);
 	~CommandHistory(void);
 	
-	void addCommand(Command* p_command);
+	// Returns true if succeeded, otherwise false
+	bool tryToAddCommand(Command* command);
 	
 	Command* getCurrentCommandAndDecrementCurrent();
 	Command* incrementCurrentAndGetCurrentCommand();
@@ -59,10 +85,19 @@ public:
 	bool thereExistsCommandsAfterCurrentCommand();
 	bool thereExistsCommandsBeforeCurrentCommand();
 	
-	char* receiveSerializedByteFormat(int& p_byteSize); // "byteSize" is a return value
-	bool loadFromSerializationByteFormat(char* p_bytes, int p_byteSize);
+	// "byteSize" is a return value. Refer to .cpp file for format description.
+	char* receiveSerializedByteFormat(int& byteSize); 
 
-	std::string* getCommandList(int& p_nrOfCommands);	// "nrOfCommands" is a return value
+	// "bytes" is assumed to be in the serialized byte format as returned from "receiveSerializedByteFormat". "byteSize" is assumed to be the size in bytes of the "bytes" parameter.
+	bool tryToLoadFromSerializationByteFormat(char* bytes, int byteSize);
+
+	// Returns the command history information as text
+	std::stringstream* getCommandHistoryAsText();
 
 	void executeAllCommandsUpAndUntilCurrent();
+
+	void reset();
+
+	int getIndexOfCurrentCommand(){return m_indexOfCurrentCommand;}
+	int getNrOfCommands(){return m_commands.size();}
 };

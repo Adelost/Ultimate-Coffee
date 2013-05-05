@@ -27,7 +27,6 @@ void Manager_Commands::init()
 	}
 	m_lastValidProjectPath = "";
 
-
 	setupMenu();
 }
 
@@ -201,6 +200,15 @@ void Manager_Commands::undoLatestCommand()
 		//}
 		//nrOfSoundsPlayedSinceLastReset++;
 	}
+	else
+	{
+		/*
+		int indexOfCurrentCommandInCommandHistory = m_commander->getCurrentCommandIndex();
+		int nrOfCommands = m_commander->getNrOfCommands();
+		int indexOfCurrentCommandInGUI = indexOfCurrentCommandInCommandHistory-nrOfCommands;
+		SEND_EVENT(&Event_SetSelectedCommandGUI(indexOfCurrentCommandInGUI));
+		*/
+	}
 }
 
 void Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
@@ -219,16 +227,24 @@ void Manager_Commands::onEvent(IEvent* e)
 	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
 		Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 		Command* command = commandEvent->command;
+		bool addCommandSucceeded = true;
 		if(commandEvent->execute)
 		{
-			m_commander->addToHistoryAndExecute(command);
+			addCommandSucceeded = m_commander->tryToAddCommandToHistoryAndExecute(command);
 		}
 		else
 		{
-			m_commander->addToHistory(command);
+			addCommandSucceeded = m_commander->tryToAddCommandToHistory(command);
 		}
 
-		SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
+		if(addCommandSucceeded)
+		{
+			SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
+		}
+		else
+		{
+			MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add it.");
+		}
 		break;
 	}
 }
