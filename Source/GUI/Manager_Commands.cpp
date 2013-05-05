@@ -12,6 +12,7 @@
 void Manager_Commands::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_STORE_COMMAND);
+	SUBSCRIBE_TO_EVENT(this, EVENT_TRACK_TO_COMMAND_HISTORY_INDEX);
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
@@ -125,32 +126,37 @@ Manager_Commands::~Manager_Commands()
 	delete m_commander;
 }
 
-void Manager_Commands::loadCommandHistory()
-{
-	// Opens standard Windows "open file" dialog
-	QString fileName = QFileDialog::getOpenFileName(m_window, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject.uc", tr("Ultimate Coffee Project (*.uc)"));
-
-	// If the user clicks "Open"
-	if(!fileName.isEmpty())
-	{
-		std::string path = fileName.toLocal8Bit();
-		if(!m_commander->tryToLoadCommandHistory(path))
-		{
-			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger.");
-		}
-		else
-		{
-			m_lastValidProjectPath = path;
-		}
-	}
-}
-
 void Manager_Commands::redoLatestCommand()
 {
-	if(!m_commander->tryToRedoLatestUndoCommand())
+	if(m_commander->tryToRedoLatestUndoCommand())
+	{
+		//Update GUI command history
+		int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+		SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
+	}
+	else
 	{
 		QSound sound = QSound("Windows Ding.wav");
 		sound.play();
+	}
+}
+
+void Manager_Commands::undoLatestCommand()
+{
+	if(m_commander->tryToUndoLatestCommand())
+	{
+		//Update GUI command history
+		int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+		SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
+	}
+	else
+	{
+		QSound sound = QSound("Windows Ding.wav");
+		//if(nrOfSoundsPlayedSinceLastReset < 1)
+		//{
+		sound.play();
+		//}
+		//nrOfSoundsPlayedSinceLastReset++;
 	}
 }
 
@@ -189,25 +195,23 @@ void Manager_Commands::saveCommandHistoryAs()
 	}
 }
 
-void Manager_Commands::undoLatestCommand()
+void Manager_Commands::loadCommandHistory()
 {
-	if(!m_commander->tryToUndoLatestCommand())
+	// Opens standard Windows "open file" dialog
+	QString fileName = QFileDialog::getOpenFileName(m_window, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject.uc", tr("Ultimate Coffee Project (*.uc)"));
+
+	// If the user clicks "Open"
+	if(!fileName.isEmpty())
 	{
-		QSound sound = QSound("Windows Ding.wav");
-		//if(nrOfSoundsPlayedSinceLastReset < 1)
-		//{
-		sound.play();
-		//}
-		//nrOfSoundsPlayedSinceLastReset++;
-	}
-	else
-	{
-		/*
-		int indexOfCurrentCommandInCommandHistory = m_commander->getCurrentCommandIndex();
-		int nrOfCommands = m_commander->getNrOfCommands();
-		int indexOfCurrentCommandInGUI = indexOfCurrentCommandInCommandHistory-nrOfCommands;
-		SEND_EVENT(&Event_SetSelectedCommandGUI(indexOfCurrentCommandInGUI));
-		*/
+		std::string path = fileName.toLocal8Bit();
+		if(!m_commander->tryToLoadCommandHistory(path))
+		{
+			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger.");
+		}
+		else
+		{
+			m_lastValidProjectPath = path;
+		}
 	}
 }
 
@@ -225,26 +229,35 @@ void Manager_Commands::onEvent(IEvent* e)
 	switch (type)
 	{
 	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
-		Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
-		Command* command = commandEvent->command;
-		bool addCommandSucceeded = true;
-		if(commandEvent->execute)
 		{
-			addCommandSucceeded = m_commander->tryToAddCommandToHistoryAndExecute(command);
-		}
-		else
-		{
-			addCommandSucceeded = m_commander->tryToAddCommandToHistory(command);
-		}
+			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
+			Command* command = commandEvent->command;
+			bool addCommandSucceeded = true;
+			if(commandEvent->execute)
+			{
+				addCommandSucceeded = m_commander->tryToAddCommandToHistoryAndExecute(command);
+			}
+			else
+			{
+				addCommandSucceeded = m_commander->tryToAddCommandToHistory(command);
+			}
 
-		if(addCommandSucceeded)
-		{
-			SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
+			if(addCommandSucceeded)
+			{
+				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
+			}
+			else
+			{
+				MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add it.");
+			}
+			break;
 		}
-		else
+	case EVENT_TRACK_TO_COMMAND_HISTORY_INDEX:
 		{
-			MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add it.");
+			Event_TrackToCommandHistoryIndex* commandHistoryIndexEvent = static_cast<Event_TrackToCommandHistoryIndex*>(e);
+			int index = commandHistoryIndexEvent->indexOfCommand;
+			m_commander->trackToIndex(index);
+			break;
 		}
-		break;
 	}
 }

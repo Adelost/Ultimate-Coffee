@@ -20,6 +20,7 @@ enum EventType
 	EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI,
 	EVENT_SET_SELECTED_COMMAND_GUI,
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
+	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -195,6 +196,7 @@ public:
 	}
 };
 
+//check, not used yet 2013-05-05 23.25
 class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
 {
 public:
@@ -206,6 +208,19 @@ public:
 	{
 		this->startIndex = startIndex;
 		this->nrOfCommands = nrOfCommands;
+	}
+};
+
+//Backtracks by undoing until a command index is reached, or track forward by redoing until command index is reached
+class Event_TrackToCommandHistoryIndex : public IEvent
+{
+public:
+	int indexOfCommand;
+
+public:
+	Event_TrackToCommandHistoryIndex(int indexOfCommand) : IEvent(EVENT_TRACK_TO_COMMAND_HISTORY_INDEX)
+	{
+		this->indexOfCommand = indexOfCommand;
 	}
 };
 

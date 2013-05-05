@@ -51,4 +51,40 @@ public:
 
 		return n;
 	}
+
+	static int convertBetweenCommandHistoryIndexAndGUIListIndex(int commandHistoryIndex, int nrOfCommands)
+	{
+		/*
+		The index of a command in the command history and the corresponding command in the GUI list is not the same,
+		because of "commandHistoryListWidget->insertItem(0, item);" in "Manager_Docks.cpp"
+	
+		Below example format: index, command number
+		----------------------------------------------------
+		->Command history
+		0, command 1
+		1, command 2
+		2, command 3
+		3, command 4
+	
+		->GUI
+		0, command 4
+		1, command 3
+		2, command 2
+		3, command 1
+		----------------------------------------------------
+		->Mapping:
+		f(0)=3
+		f(1)=2
+		f(2)=1
+		f(3)=0
+
+		nrOfCommands: 4
+		f(0)=4-1-0=3
+		f(1)=4-1-1=2
+		f(2)=4-1-2=1
+		f(3)=4-1-3=0
+		----------------------------------------------------
+		*/
+		return nrOfCommands-1-commandHistoryIndex;
+	}
 };

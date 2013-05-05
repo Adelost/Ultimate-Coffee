@@ -123,13 +123,23 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	bool result = m_commandHistory->tryToLoadFromSerializationByteFormat(readData, bufferSize);
 	delete[] readData;
 
-	m_commandHistory->executeAllCommandsUpAndUntilCurrent();
+	if(result)
+	{
+		m_commandHistory->executeAllCommandsUpAndUntilCurrent();
 
-	//check, remove if the command list gets very long and takes time to print
-	//Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-	printCommandHistory();
+		//check, remove if the command list gets very long and takes time to print
+		//Prints the command history to the console in an effort to spot bugs (weird values in the printout)
+		printCommandHistory();
+	}
 
 	return result;
+}
+
+void Commander::trackToIndex(int index)
+{
+	//check continue 2013-05-05 23.43
+	//int current
+	//if(
 }
 
 void Commander::printCommandHistory()
@@ -141,7 +151,7 @@ void Commander::printCommandHistory()
 
 int Commander::getCurrentCommandIndex()
 {
-	return m_commandHistory->getIndexOfCurrentCommand();
+	return m_commandHistory->getIndexOfCurrentCommand(); 
 }
 
 int Commander::getNrOfCommands()
@@ -337,7 +347,10 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 		if(command!=NULL) // Load command data, as interpreted from the byte array, and add the command to the command history
 		{
 			command->loadDataStructFromBytes(commandDataStructBytes);
-			tryToAddCommand(command);
+			if(!tryToAddCommand(command))
+			{
+				return false;
+			}
 			nextByte += command->getByteSizeOfDataStruct();
 		}
 		else

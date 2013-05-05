@@ -419,9 +419,9 @@ void Manager_Docks::update()
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
-	//std::string str = string.toLocal8Bit();
-	int g = 5;
-	OUTPUT_WINDOW_PRINT(currentRow);
+	int nrOfCommands = commandHistoryListWidget->count();
+	int index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, nrOfCommands);
+	SEND_EVENT(&Event_TrackToCommandHistoryIndex(index));
 }
 
 
