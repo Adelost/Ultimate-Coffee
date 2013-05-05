@@ -19,7 +19,7 @@ private:
 	Enum::CommandType m_type;
 
 protected:
-	void setType(Enum::CommandType p_type){m_type = p_type;}
+	void setType(Enum::CommandType type){m_type = type;}
 
 public:
 	Command(void){m_type=Enum::CommandType::TRANSLATE;} // Default command: Enum::CommandType::TRANSLATE. May be changed by derived classes by calling "setType"

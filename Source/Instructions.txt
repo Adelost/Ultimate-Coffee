@@ -1,0 +1,49 @@
+-->Commands, undo/redo (Henrik Nell, 2013-05-05 ~21.32)
+För berrörda klasser, se Core-projektet (filter i Visual Studio 2012: Source/Commander (redo/undo, save/load))
+
+Kommandon (se "Command.h") lagras i "Commander" (se "Commander.h").
+"Command" är en abstrakt klass som ärver av en annan abstrakt klass: "Serializable".
+Konkreta kommandon måste således överlagra ett antal funktioner för att fungera; se "Command.h" och "Serializable.h" för att se vilka funktioner som är pure virtual (=0), och därför kräver överlagring.
+Se även det konkreta kommandot "Command_ChangeBackBufferColor", vilket rekommenderas som referensmaterial.
+
+Ett kommando lagrar två event lokalt i funktionerna "doRedo" och "undo".
+"doRedo" anropas av "Commander" när ett kommando skall genomföras, och "undo" anropas av "Commander" när ett kommando skall göras ogjort.
+För att dessa båda funktioner skall fungera som det är tänkt krävs att kommandot håller reda på vilken data som krävs för att kommandot skall kunna genomföras, och vilken data som krävs för att kommandot skall kunna göras ogjort.
+Denna datan kan sparas binärt till fil på enkelt vis om den lagras i en struct, som "plain old data", det vill säga som data av grundtyp, till exempel int, float, short, long etc, till skillnad från pekare eller klasser.
+Lagras datan som "plain old data" i en struct, och funktionerna märkta som pure virtual i "Serializable" överlagras på korrekt sätt (ca 1 rad kod krävs, se "Serializable.h" och "Command_ChangeBackBufferColor" som referens), ger detta stöd till "Commander" att lagra kommandot till fil tillsamman med övriga kommandon utan att mer behöver göras.
+
+Datan som lagras i en struct för "Command_ChangeBackBufferColor":
+*Färgen som backbuffern hade när kommandot skapades (används för "undo")
+*Färgen som backbuffern skall ändra till när kommandot körs (används för "doRedo")
+
+För att lägga in ett kommando till "Commander", använd eventet "Event_StoreCommandInCommandHistory" på nedan angivna vis:
+(#include <Core/Events.h> krävs)
+
+void Manager_Commands::setBackBufferColor(QString p_str_color)
+{
+	QColor color = (p_str_color);
+	Command_ChangeBackBufferColor* command = new Command_ChangeBackBufferColor();
+	command->setDoColor(color.red(), color.green(), color.blue());
+	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
+	
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, true)); //true anger att kommandot skall exekveras när det lagts till
+}
+
+Notera kommentaren i kodstycket ovan. Det finns två olika tillvägagångssätt.
+1. kommandot har redan skett i scenen när kommandot läggs till i "Commander" via eventet ovan. Ange i så fall "false" som andraparameter i "Event_StoreCommandInCommandHistory". Kommandot kommer då ej exekveras när det läggs till i "Commander".
+2. kommandot har inte redan skett i scenen när kommandot läggs till i "Commander" via eventet ovan. Ange i så fall "true" som andraparameter i "Event_StoreCommandInCommandHistory". Kommandot kommer ej exekveras när det läggs till i "Commander".
+
+"Event_StoreCommandInCommandHistory" använder sig av tillvägagångssätt 2.
+Ett tänkt translationskommando med direkt feedback i scenen, i.e. ett objekt flyttar sig direkt när man "drar" i det, borde använda sig av tillvägagångssätt 1.
+
+
+->Metoder för translationskommando
+*Metod 1, absolut förflyttning:
+Kommandots struct-data: objektets id (int), nuvarande position (tre floats), slutposition (tre floats)
+När musknappen trycks ner för en "dragning" noteras det valda objektets position, samt dess id. När musknappen släpps och objektet fått sin slutliga position notera denna. Den noterade datan läggs till i ett kommando som skickas likt ovan, med "false" som andraparameter.
+"doRedo" skulle i sitt event använda sig av slutpositionen (och id:t); "redo" skulle använda sig av nuvarande position (och id:t).
+
+*Metod 2, relativ förflyttning:
+Kommandots struct-data: objektets id (int), förflyttning i x-, y- och z-led (tre floats)
+När musknappen trycks ner för en "dragning" noteras det valda objektets position, samt dess id. När musknappen släpps och objektet fått sin slutliga position noteras hur långt denna nya position befinner sig i förhållande till den tidigare noterade positionen.  Den noterade datan läggs till i ett kommando som skickas likt ovan, med "false" som andraparameter.
+"doRedo" skulle använda sig de sparade x-, y- och z-värdena (och id:t); "redo" skulle använda använda sig av de sparade x-, y- och z-värdena, fast med omvänt tecken (och id:t, ej omvänt tecken). Vet inte om det skulle fungera.
