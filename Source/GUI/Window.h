@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow.h>
+#include <QMessageBox.h>
 #include <Core/IObserver.h>
 #include <QObject.h>
 
@@ -16,6 +17,36 @@ class QColor;
 class QSpacerItem;
 class ISystem;
 
+
+class SplashScreen : public QMessageBox
+{
+	Q_OBJECT
+		
+public:
+	SplashScreen( QWidget* parent ) : QMessageBox(parent)
+	{
+		// Create window in middle of screen
+		setWindowTitle("Welcome");
+		setText("Welcome to Ultimate Coffee(tm)");
+		//setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+		show();
+		setModal(false);
+		
+		QLabel* l = new QLabel("");
+		std::string path = "";
+		path = path + ICON_PATH + "Misc/" + "spash";
+		l->setPixmap(QPixmap(path.c_str()));
+		layout()->addWidget(l);
+		resize(sizeHint());
+		move(parent->x() + parent->x()/2 + width(), parent->y() + parent->y()/2 - height()/2);
+	}
+	~SplashScreen()
+	{
+		int i = 0;
+		i = 0;
+	}
+};
+
 class Window : public QMainWindow, public IObserver
 {
 	Q_OBJECT
@@ -29,6 +60,11 @@ private:
 	QTimer* m_refreshTimer;
 	UpdateLoop* m_updateLoop;
 	QWidget* m_renderWidget;
+	std::vector<QWidget*> m_autoDelete;
+	void addToAutoDelete(QWidget* p_w)
+	{
+		m_autoDelete.push_back(p_w);
+	}
 
 protected:
 	void keyPressEvent(QKeyEvent *e);

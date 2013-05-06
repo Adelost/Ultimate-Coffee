@@ -39,7 +39,8 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 void Manager_3DTools::update()
 {
-	if(currentlyChosenTransformTool->getActiveObject() == -1)
+	// HACK (Mattias): Made the tool notice when selected Entity has been changed. Don't know if this is the best aproach.
+	//if(currentlyChosenTransformTool->getActiveObject() == -1)
 		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.

@@ -7,6 +7,7 @@
 #include <Core/Data.h>
 #include <Core/Events.h>
 #include <Core/Enums.h>
+#include <Core/World.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 
 Manager_Docks::~Manager_Docks()
@@ -157,6 +158,8 @@ void Manager_Docks::setupMenu()
 	m_hierarchy->setHorizontalHeaderItem(0, new QStandardItem("Entity ID"));
 	tree->setModel(m_hierarchy);
 	dock->setWidget(tree);
+	connect(tree, SIGNAL(clicked( const QModelIndex &)), this, SLOT(selectEntity(const QModelIndex &)));
+
 
 	// Coffee
 	dock = createDock("Coffee", Qt::RightDockWidgetArea);
@@ -422,6 +425,12 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 	//std::string str = string.toLocal8Bit();
 	int g = 5;
 	OUTPUT_WINDOW_PRINT(currentRow);
+}
+
+void Manager_Docks::selectEntity( const QModelIndex & index )
+{
+	int row = index.row();
+	SETTINGS()->selectedEntityId = row;
 }
 
 

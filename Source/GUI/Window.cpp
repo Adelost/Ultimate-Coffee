@@ -22,7 +22,7 @@ Window::Window()
 	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
 	//setWindowFlags( Qt::FramelessWindowHint );
-	
+
 	m_renderWidget = new RenderWidget(this);
 	m_renderWidget->setMinimumSize(1, 1);
 
@@ -39,6 +39,7 @@ Window::Window()
 	m_manager_commands->init();
 
 	m_manager_docks->resetLayout();
+	addToAutoDelete(new SplashScreen(this));
 
 	m_refreshTimer = new QTimer();
 
@@ -56,6 +57,9 @@ Window::Window()
 
 Window::~Window()
 {
+	for(int i=0; i<(int)m_autoDelete.size(); i++)
+		delete m_autoDelete[i];
+
 	delete m_updateLoop;
 	delete m_manager_commands;
 	delete m_manager_console;
