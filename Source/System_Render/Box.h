@@ -41,58 +41,58 @@ namespace Shape
 	VertexPosColNorm BoxVertices[36] =
 	{
 		// Front
-		{BoxPos[0], BoxColor[0], BoxNormal[5]},
+		{BoxPos[2], BoxColor[2], BoxNormal[5]},
 		{BoxPos[1], BoxColor[1], BoxNormal[5]},
-		{BoxPos[2], BoxColor[2], BoxNormal[5]},
-
-		{BoxPos[2], BoxColor[2], BoxNormal[5]},
-		{BoxPos[3], BoxColor[3], BoxNormal[5]},
 		{BoxPos[0], BoxColor[0], BoxNormal[5]},
+
+		{BoxPos[0], BoxColor[0], BoxNormal[5]},
+		{BoxPos[3], BoxColor[3], BoxNormal[5]},
+		{BoxPos[2], BoxColor[2], BoxNormal[5]},
 
 		// Back
-		{BoxPos[7], BoxColor[7], BoxNormal[4]},
+		{BoxPos[5], BoxColor[5], BoxNormal[4]},
 		{BoxPos[6], BoxColor[6], BoxNormal[4]},
-		{BoxPos[5], BoxColor[5], BoxNormal[4]},
-										   
-		{BoxPos[5], BoxColor[5], BoxNormal[4]},
-		{BoxPos[4], BoxColor[4], BoxNormal[4]},
 		{BoxPos[7], BoxColor[7], BoxNormal[4]},
+										   
+		{BoxPos[7], BoxColor[7], BoxNormal[4]},
+		{BoxPos[4], BoxColor[4], BoxNormal[4]},
+		{BoxPos[5], BoxColor[5], BoxNormal[4]},
 
 		// Right
-		{BoxPos[4], BoxColor[4], BoxNormal[2]},
+		{BoxPos[1], BoxColor[1], BoxNormal[2]},
 		{BoxPos[5], BoxColor[5], BoxNormal[2]},
-		{BoxPos[1], BoxColor[1], BoxNormal[2]},
-
-		{BoxPos[1], BoxColor[1], BoxNormal[2]},
-		{BoxPos[0], BoxColor[0], BoxNormal[2]},
 		{BoxPos[4], BoxColor[4], BoxNormal[2]},
+
+		{BoxPos[4], BoxColor[4], BoxNormal[2]},
+		{BoxPos[0], BoxColor[0], BoxNormal[2]},
+		{BoxPos[1], BoxColor[1], BoxNormal[2]},
 
 		// Left
-		{BoxPos[3], BoxColor[3], BoxNormal[3]},
+		{BoxPos[6], BoxColor[6], BoxNormal[3]},
 		{BoxPos[2], BoxColor[2], BoxNormal[3]},
-		{BoxPos[6], BoxColor[6], BoxNormal[3]},
-
-		{BoxPos[6], BoxColor[6], BoxNormal[3]},
-		{BoxPos[7], BoxColor[7], BoxNormal[3]},
 		{BoxPos[3], BoxColor[3], BoxNormal[3]},
+
+		{BoxPos[3], BoxColor[3], BoxNormal[3]},
+		{BoxPos[7], BoxColor[7], BoxNormal[3]},
+		{BoxPos[6], BoxColor[6], BoxNormal[3]},
 
 		// Up
-		{BoxPos[4], BoxColor[4], BoxNormal[0]},
+		{BoxPos[3], BoxColor[3], BoxNormal[0]},
 		{BoxPos[0], BoxColor[0], BoxNormal[0]},
-		{BoxPos[3], BoxColor[3], BoxNormal[0]},
-
-		{BoxPos[3], BoxColor[3], BoxNormal[0]},
-		{BoxPos[7], BoxColor[7], BoxNormal[0]},
 		{BoxPos[4], BoxColor[4], BoxNormal[0]},
+
+		{BoxPos[4], BoxColor[4], BoxNormal[0]},
+		{BoxPos[7], BoxColor[7], BoxNormal[0]},
+		{BoxPos[3], BoxColor[3], BoxNormal[0]},
 
 		// Down
-		{BoxPos[1], BoxColor[1], BoxNormal[1]},
+		{BoxPos[6], BoxColor[6], BoxNormal[1]},
 		{BoxPos[5], BoxColor[5], BoxNormal[1]},
-		{BoxPos[6], BoxColor[6], BoxNormal[1]},
-
-		{BoxPos[6], BoxColor[6], BoxNormal[1]},
-		{BoxPos[2], BoxColor[2], BoxNormal[1]},
 		{BoxPos[1], BoxColor[1], BoxNormal[1]},
+
+		{BoxPos[1], BoxColor[1], BoxNormal[1]},
+		{BoxPos[2], BoxColor[2], BoxNormal[1]},
+		{BoxPos[6], BoxColor[6], BoxNormal[1]},
 	};
 
 	//VertexPosColNorm BoxVerticesNormals[36] = 
