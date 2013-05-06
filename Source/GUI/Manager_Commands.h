@@ -32,15 +32,17 @@ public:
 	void setupMenu();
 
 public slots:
-	void loadCommandHistory();
 	void redoLatestCommand();
+	void undoLatestCommand();
 
 	void saveCommandHistory();
 	void saveCommandHistoryAs();
-	void undoLatestCommand();
-
+	void loadCommandHistory();
+	
 	void createTestButton( QString color, QSignalMapper* mapper );
 	void setBackBufferColor(QString p_str_color);
+
+	void translateSceneEntity();
 
 	void onEvent(IEvent* e);
 };

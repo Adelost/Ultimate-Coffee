@@ -9,6 +9,7 @@
 #include <Core/Enums.h>
 #include <Core/World.h>
 #include <Core/Command_ChangeBackBufferColor.h>
+#include <Core/Command_TranslateSceneEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -303,6 +304,23 @@ void Manager_Docks::onEvent(IEvent* e)
 					commandIcon.addPixmap(pixmap);
 					break;
 				}
+			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
+				{
+					commandText = "Translate";
+					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
+
+					// Could have the translation tool icon be displayed, instead of a color, perhaps.
+
+					float r = 65.0f;
+					float g = 65.0f;
+					float b = 65.0f;
+
+					QColor color(r, g, b);
+					QPixmap pixmap(16, 16);
+					pixmap.fill(color);
+					commandIcon.addPixmap(pixmap);
+					break;
+				}
 			default:
 				{
 					std::string iconPath = ICON_PATH;
@@ -422,9 +440,9 @@ void Manager_Docks::update()
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
-	//std::string str = string.toLocal8Bit();
-	int g = 5;
-	OUTPUT_WINDOW_PRINT(currentRow);
+	int nrOfCommands = commandHistoryListWidget->count();
+	int index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, nrOfCommands);
+	SEND_EVENT(&Event_TrackToCommandHistoryIndex(index));
 }
 
 void Manager_Docks::selectEntity( const QModelIndex & index )

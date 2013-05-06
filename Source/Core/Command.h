@@ -22,7 +22,7 @@ protected:
 	void setType(Enum::CommandType type){m_type = type;}
 
 public:
-	Command(void){m_type=Enum::CommandType::TRANSLATE;} // Default command: Enum::CommandType::TRANSLATE. May be changed by derived classes by calling "setType"
+	Command(void){m_type=Enum::CommandType::TRANSLATE_SCENE_ENTITY;} // Default command: Enum::CommandType::TRANSLATE_SCENE_ENTITY. May be changed by derived classes by calling "setType"
 	virtual ~Command(void){};
 	
 	Enum::CommandType getType(){return m_type;}

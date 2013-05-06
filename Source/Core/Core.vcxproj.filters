@@ -88,6 +88,9 @@
     <ClCompile Include="System_Input.cpp">
       <Filter>Source\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="Command_TranslateSceneEntity.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
@@ -177,6 +180,9 @@
     </ClInclude>
     <ClInclude Include="System_Input.h">
       <Filter>Source\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Command_TranslateSceneEntity.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

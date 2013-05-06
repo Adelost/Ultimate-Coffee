@@ -10,6 +10,7 @@ enum EventType
 	EVENT_SHOW_MESSAGEBOX,
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
+	EVENT_TRANSLATE_SCENE_ENTITY,
 	EVENT_MOUSE_WHEEL,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
@@ -21,6 +22,7 @@ enum EventType
 	EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI,
 	EVENT_SET_SELECTED_COMMAND_GUI,
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
+	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -94,6 +96,22 @@ public:
 		x = p_x;
 		y = p_y;
 		z = p_z;
+	}
+};
+
+class Event_TranslateSceneEntity : public IEvent
+{
+public:
+	int m_idOfTranslatableSceneEntity;
+	float m_transX, m_transY, m_transZ;
+
+public:
+	Event_TranslateSceneEntity(int p_idOfTranslatableSceneEntity, float p_transX, float p_transY, float p_transZ) : IEvent(EVENT_TRANSLATE_SCENE_ENTITY)
+	{
+		m_idOfTranslatableSceneEntity = p_idOfTranslatableSceneEntity;
+		m_transX = p_transX;
+		m_transY = p_transY;
+		m_transZ = p_transZ;
 	}
 };
 
@@ -218,6 +236,7 @@ public:
 	}
 };
 
+//check, not used yet 2013-05-05 23.25
 class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
 {
 public:
@@ -229,6 +248,19 @@ public:
 	{
 		this->startIndex = startIndex;
 		this->nrOfCommands = nrOfCommands;
+	}
+};
+
+//Backtracks by undoing until a command index is reached, or track forward by redoing until command index is reached
+class Event_TrackToCommandHistoryIndex : public IEvent
+{
+public:
+	int indexOfCommand;
+
+public:
+	Event_TrackToCommandHistoryIndex(int indexOfCommand) : IEvent(EVENT_TRACK_TO_COMMAND_HISTORY_INDEX)
+	{
+		this->indexOfCommand = indexOfCommand;
 	}
 };
 

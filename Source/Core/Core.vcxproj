@@ -148,6 +148,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
+    <ClCompile Include="Command_TranslateSceneEntity.cpp" />
     <ClCompile Include="DataMapper.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commander.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />
+    <ClInclude Include="Command_TranslateSceneEntity.h" />
     <ClInclude Include="Converter.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="DataBatch.h" />

@@ -52,6 +52,9 @@ public:
 	// Returns true if a command history was successfully loaded from file given by "path", otherwise false
 	bool tryToLoadCommandHistory(std::string path);
 
+	// Backtracks by undoing all commands from current until index is reached, OR track forward by redoing alla commands from current until index is reached
+	void trackToIndex(int index);
+
 	// Prints command list to "std::cout"
 	void printCommandHistory();
 
