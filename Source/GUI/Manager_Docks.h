@@ -13,17 +13,6 @@ class QListWidget;
 class QListView;
 class Manager_Docks;
 
-class QDockWidgetX : public QDockWidget
-{
-	Q_OBJECT
-
-public:
-	QDockWidgetX( QString& p_name, QWidget* p_parent);;
-
-protected:
-	void keyPressEvent(QKeyEvent *e);
-};
-
 class Manager_Docks : public QObject, public IObserver
 {
 	Q_OBJECT

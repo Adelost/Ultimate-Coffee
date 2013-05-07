@@ -128,53 +128,37 @@ void Manager_Tools::setTool( int p_toolType )
 	m_selectedTool = static_cast<Enum::ToolType>(p_toolType);
 	SETTINGS()->selectedTool = m_selectedTool;
 
-	bool unset = false;
-
 	switch(m_selectedTool)
 	{
 	case Enum::Tool_Translate:
 		{
-			bool isUsed = SETTINGS()->button.mouse_left;
-			if(isUsed)
-				m_window->renderWidget()->setCursor(Qt::SizeHorCursor);
-			else
-				m_window->renderWidget()->setCursor(Qt::SizeAllCursor);	
 		}
 		break;
 	case Enum::Tool_Rotate:
 		{
-			bool isUsed = SETTINGS()->button.mouse_left;
-			if(isUsed)
-				m_window->renderWidget()->setCursor(Qt::ClosedHandCursor);
-			else
-				m_window->renderWidget()->setCursor(Qt::OpenHandCursor);	
 		}
 		break;
 	case Enum::Tool_Geometry:
 		{
-			m_window->renderWidget()->setCursor(Qt::CrossCursor);
 		}
 		break;
 	case Enum::Tool_Scale:
 		{
-			m_window->renderWidget()->setCursor(Qt::PointingHandCursor);
 		}
 		break;
 	case Enum::Tool_Entity:
 		{
-			m_window->renderWidget()->setCursor(Qt::ForbiddenCursor);
-			WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
+			if(SETTINGS()->button.mouse_left)
+				WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
 		}
 		break;
 	default:
 		{
-			unset = true;
-			break;
 		}		
 	}
 
-	if(unset)
-		m_window->renderWidget()->unsetCursor();
+	/*if(unset)
+		m_window->renderWidget()->unsetCursor();*/
 }
 
 void Manager_Tools::onEvent( IEvent* p_event )
