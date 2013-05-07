@@ -85,6 +85,13 @@ public:
 		f(3)=4-1-3=0
 		----------------------------------------------------
 		*/
-		return nrOfCommands-1-commandHistoryIndex;
+		if(commandHistoryIndex != -1)
+		{
+			return nrOfCommands-1-commandHistoryIndex;
+		}
+		else //special case: jump out of history
+		{
+			return -1;
+		}
 	}
 };

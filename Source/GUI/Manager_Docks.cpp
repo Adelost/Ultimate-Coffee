@@ -19,6 +19,7 @@ void Manager_Docks::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
 	commandHistoryListWidget = NULL;
 	listT = NULL;
 	m_window = Window::instance();
@@ -145,9 +146,9 @@ void Manager_Docks::setupMenu()
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
 	// Command history
-	dock = createDock("Command history (Visible list not functional yet, 2013-04-29, 22.08. No backtracing as of 2013-05-03 17.19.", Qt::LeftDockWidgetArea);
+	dock = createDock("Command history (Should be fully functional as of 2013-05-07 04.07).", Qt::LeftDockWidgetArea);
 	commandHistoryListWidget = new QListWidget(dock);
-	connect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+	connectCommandHistoryWidget(true);
 	dock->setWidget(commandHistoryListWidget);
 
 	// Hierarchy
@@ -332,7 +333,7 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandText);
 			commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
-			commandHistoryListWidget->setItemSelected(item, true);
+			//commandHistoryListWidget->setItemSelected(item, true);
 
 			//int nrOfListItems = commandHistoryListWidget->count();
 
@@ -352,7 +353,29 @@ void Manager_Docks::onEvent(IEvent* e)
 			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
 			int index = selectionEvent->indexOfCommand;
 
-			commandHistoryListWidget->setCurrentRow(index);
+			if(index == -1) // Special case: jump out of history
+			{
+				commandHistoryListWidget->item(commandHistoryListWidget->count()-1)->setSelected(false);
+			}
+			else
+			{
+				commandHistoryListWidget->setCurrentRow(index);
+			}
+
+			break;
+		}
+	case EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI:
+		{
+			Event_RemoveCommandsFromCommandHistoryGUI* removeCommandFromGUIEvent = static_cast<Event_RemoveCommandsFromCommandHistoryGUI*>(e);
+			int startAt = removeCommandFromGUIEvent->startIndex;
+			int nrOfCommandsToRemove = removeCommandFromGUIEvent->nrOfCommands;
+
+			connectCommandHistoryWidget(false);
+			for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
+			{
+				delete commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+			}
+			connectCommandHistoryWidget(true);
 
 			break;
 		}
@@ -418,6 +441,18 @@ void Manager_Docks::setupHierarchy()
 	}*/
 }
 
+void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect)
+{
+	if(connect_if_true_otherwise_disconnect)
+	{
+		connect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+	}
+	else
+	{
+		disconnect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+	}
+}
+
 void Manager_Docks::update()
 {
 	int rowCount = m_hierarchy->rowCount();
@@ -440,9 +475,16 @@ void Manager_Docks::update()
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
-	int nrOfCommands = commandHistoryListWidget->count();
-	int index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, nrOfCommands);
-	SEND_EVENT(&Event_TrackToCommandHistoryIndex(index));
+	Event_GetCommanderInfo* commanderInfo = new Event_GetCommanderInfo(); // Retrieve information from commander
+	SEND_EVENT(commanderInfo); //The event is assumed to have correct values below
+
+	//Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
+	int trackToCommandIndex = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
+	if(commanderInfo->indexOfCurrentCommand != trackToCommandIndex)
+	{
+		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
+	}
+	delete commanderInfo;
 }
 
 void Manager_Docks::selectEntity( const QModelIndex & index )

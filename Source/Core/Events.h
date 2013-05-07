@@ -23,6 +23,7 @@ enum EventType
 	EVENT_SET_SELECTED_COMMAND_GUI,
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
 	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
+	EVENT_GET_COMMANDER_INFO,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -236,7 +237,6 @@ public:
 	}
 };
 
-//check, not used yet 2013-05-05 23.25
 class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
 {
 public:
@@ -244,7 +244,7 @@ public:
 	int nrOfCommands; //Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex".
 
 public:
-	Event_RemoveCommandsFromCommandHistoryGUI(int startindex, int nrOfCommands = 1) : IEvent(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
+	Event_RemoveCommandsFromCommandHistoryGUI(int startIndex, int nrOfCommands = 1) : IEvent(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
 	{
 		this->startIndex = startIndex;
 		this->nrOfCommands = nrOfCommands;
@@ -273,5 +273,17 @@ public:
 	Event_SetSelectedCommandGUI(int indexOfCommand) : IEvent(EVENT_SET_SELECTED_COMMAND_GUI)
 	{
 		this->indexOfCommand = indexOfCommand;
+	}
+};
+
+class Event_GetCommanderInfo : public IEvent
+{
+public:
+	int indexOfCurrentCommand;
+	int nrOfCommands;
+
+public:
+	Event_GetCommanderInfo() : IEvent(EVENT_GET_COMMANDER_INFO)
+	{
 	}
 };

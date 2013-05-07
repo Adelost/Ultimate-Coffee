@@ -1,4 +1,4 @@
--->Commands, undo/redo (Henrik Nell, 2013-05-05 ~21.32, fix 21.53)
+-->Commands, undo/redo (Henrik Nell, 2013-05-05 ~21.32, fix 21.53. GUI-mening 2013-05-06 18.52)
 För berörda klasser, se Core-projektet (filter i Visual Studio 2012: Source/Commander (redo/undo, save/load))
 
 Kommandon (se "Command.h") lagras i "Commander" (se "Commander.h").
@@ -59,3 +59,6 @@ case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
 	command = new Command_ChangeBackBufferColor();
 	break;
 }
+
+->GUI
+För att ange hur kommandot skall se ut i Qt-listan, gör ingrepp i Manager_Docks::onEvent, under "case EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI:".

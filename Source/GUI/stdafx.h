@@ -2,7 +2,6 @@
 
 #include <Core/stdafx.h>//check, interdependent precompiled headers
 #include <Core/IObserver.h>
-#include <Core/Converter.h>
 
 #include <QAction>
 #include <QDockWidget.h>

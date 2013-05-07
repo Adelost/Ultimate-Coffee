@@ -37,9 +37,9 @@ bool Commander::redoIsPossible()
 bool Commander::tryToAddCommandToHistoryAndExecute(Command* command)
 {
 	bool successfullyAdded = m_commandHistory->tryToAddCommand(command);
-	if(successfullyAdded) //If the command was successfully added to the command history
+	if(successfullyAdded) // If the command was successfully added to the command history
 	{
-		command->doRedo(); //Execute command
+		command->doRedo(); // Execute command
 	}
 	return successfullyAdded;
 }
@@ -66,7 +66,7 @@ bool Commander::tryToRedoLatestUndoCommand()
 	bool redoSucessful = false;
 	if(m_commandHistory->thereExistsCommandsAfterCurrentCommand())
 	{
-		Command* command = m_commandHistory->incrementCurrentAndGetCurrentCommand();
+		Command* command = m_commandHistory->getNextCommandAndIncrementCurrent();
 		command->doRedo();
 		redoSucessful = true;
 	}
@@ -88,8 +88,8 @@ bool Commander::tryToSaveCommandHistory(std::string path)
 
 	delete[] byteData;
 
-	//check, remove if the command list gets very long and takes time to print
-	//Prints the command history to the console in an effort to spot bugs (weird values in the printout)
+	// check, remove if the command list gets very long and takes time to print
+	// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
 	printCommandHistory();
 
 	return true;
@@ -111,12 +111,15 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	}
 	else
 	{
-		MESSAGEBOX("Struct stat did not work. Inform Henrik.")
+		MESSAGEBOX("Struct stat did not work. Inform Henrik. Mailto spidermine1@hotmail.com")
 	}
 
 	char* readData = new char[bufferSize];
 	inputFile.read(readData, bufferSize);
 	inputFile.close();
+
+	//Reset GUI
+	SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commandHistory->getNrOfCommands())); // Clear command history GUI list
 
 	// Reset command history, before loading new command history data into it
 	m_commandHistory->reset();
@@ -126,21 +129,49 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 
 	if(result)
 	{
-		m_commandHistory->executeAllCommandsUpAndUntilCurrent();
+		int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commandHistory->getIndexOfCurrentCommand(), m_commandHistory->getNrOfCommands());
+		SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
 
-		//check, remove if the command list gets very long and takes time to print
-		//Prints the command history to the console in an effort to spot bugs (weird values in the printout)
+		// check, remove if the command list gets very long and takes time to print
+		// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
 		printCommandHistory();
 	}
 
 	return result;
 }
 
-void Commander::trackToIndex(int index)
+bool Commander::tryToJumpInCommandHistory(int jumpToIndex)
 {
-	//check continue 2013-05-05 23.43
-	//int current
-	//if(
+	int indexOfCurrentCommand = m_commandHistory->getIndexOfCurrentCommand();
+	int nrOfCommands = m_commandHistory->getNrOfCommands();
+	if(jumpToIndex < -1 || jumpToIndex >= nrOfCommands || nrOfCommands < 1)
+	{
+		return false; // Jump failed. Possible reasons: *Trying to jump to invalid index. *No commands in command history.
+	}
+
+	int nrOfCommandsInvolvedInJump = 0;
+	if(indexOfCurrentCommand > -1) // Normal case: some command is current
+	{
+		if(jumpToIndex < indexOfCurrentCommand) // Backtrack by undoing commands
+		{
+			nrOfCommandsInvolvedInJump = indexOfCurrentCommand - jumpToIndex;
+			m_commandHistory->backwardJump(nrOfCommandsInvolvedInJump);
+		}
+		else if(jumpToIndex > indexOfCurrentCommand) // Jump forward by redoing commands
+		{
+			nrOfCommandsInvolvedInJump = jumpToIndex - indexOfCurrentCommand;
+			m_commandHistory->forwardJump(nrOfCommandsInvolvedInJump);
+		}
+		else if(jumpToIndex == indexOfCurrentCommand)
+		{
+			return true; // No jump needed. Treat jump as successful.
+		}
+	}
+	else // Special case: no command is current, i.e. the current command is the command before the first command, i.e. no command is current.
+	{
+		nrOfCommandsInvolvedInJump = nrOfCommands - jumpToIndex;
+		m_commandHistory->forwardJump(nrOfCommandsInvolvedInJump);
+	}
 }
 
 void Commander::printCommandHistory()
@@ -176,16 +207,16 @@ int CommandHistory::calculateSerializedByteSize()
 {
 	int serializedByteSize = 0;
 
-	//Add size of the index of current command variable
+	// Add size of the index of current command variable
 	serializedByteSize += sizeof(m_indexOfCurrentCommand);
 
-	//Add size of commands
+	// Add size of commands
 	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
 		Command* command = m_commands.at(i);
-		serializedByteSize += command->getByteSizeOfDataStruct(); //Add size of command data struct
-		serializedByteSize += sizeof(command->getType()); //Add size of command type variable
+		serializedByteSize += command->getByteSizeOfDataStruct(); // Add size of command data struct
+		serializedByteSize += sizeof(command->getType()); // Add size of command type variable
 	}
 
 	return serializedByteSize;
@@ -205,12 +236,12 @@ bool CommandHistory::tryToAddCommand(Command* command)
 	//--------------------------------------------------------------------------------------
 	// Prevents uninitialized commands from being added by verifying the "command" pointer
 	//--------------------------------------------------------------------------------------
-	//Note: this safeguard only works if the command is set to NULL or nullptr, i.e. the safeguard is useless. Do not rely on it.
+	// Note: this safeguard only works if the command is set to NULL or nullptr, i.e. the safeguard is useless. Do not rely on it.
 	if(command==NULL || command==nullptr)
 	{
 		return false;
 	}
-	//Extra safeguard:
+	// Extra safeguard:
 	command->getType(); //If the program crashes here, it means that "command" is uninitialized, which it should not be below this line.
 	
 	//--------------------------------------------------------------------------------------
@@ -230,13 +261,15 @@ bool CommandHistory::tryToAddCommand(Command* command)
 		m_commands.at(m_indexOfCurrentCommand) = command;
 
 		int newSize = (m_indexOfCurrentCommand+1);
-		int nrOfRemovedCommands = nrOfCommands - newSize;
-		for(int i=0;i<nrOfRemovedCommands;i++)
+		int nrOfCommandsLeftToBeRemoved = nrOfCommands - newSize;
+		for(int i=0;i<nrOfCommandsLeftToBeRemoved;i++)
 		{
 			Command* removedCommand = m_commands.at(newSize+i);
 			delete removedCommand;
 		}
 		m_commands.resize(newSize);
+		int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_indexOfCurrentCommand, getNrOfCommands());
+		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(GUI_Index, nrOfCommandsLeftToBeRemoved+1));
 	}
 
 	return true;
@@ -249,11 +282,29 @@ Command* CommandHistory::getCurrentCommandAndDecrementCurrent()
 	return command;
 }
 
-Command* CommandHistory::incrementCurrentAndGetCurrentCommand()
+Command* CommandHistory::getNextCommandAndIncrementCurrent()
 {
 	setCurrentCommand(m_indexOfCurrentCommand+1);
 	Command* command = m_commands.at(m_indexOfCurrentCommand);
 	return command;
+}
+
+void CommandHistory::forwardJump(int nrOfSteps)
+{
+	for(int i=0;i<nrOfSteps;i++)
+	{
+		Command* command = getNextCommandAndIncrementCurrent();
+		command->doRedo();
+	}
+}
+
+void CommandHistory::backwardJump(int nrOfSteps)
+{
+	for(int i=0;i<nrOfSteps;i++)
+	{
+		Command* command = getCurrentCommandAndDecrementCurrent();
+		command->undo();
+	}
 }
 
 bool CommandHistory::thereExistsCommandsAfterCurrentCommand()
@@ -310,8 +361,8 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 	int nextByte = 0;
 
 	// First, load index of current command
-	int indexOfCurrentCommand_ = *reinterpret_cast<int*>(bytes+nextByte);
-	nextByte += sizeof(indexOfCurrentCommand_);
+	int loadedIndexOfCurrentCommand= *reinterpret_cast<int*>(bytes+nextByte);
+	nextByte += sizeof(loadedIndexOfCurrentCommand);
 
 	int sizeOfTypeVarible = sizeof(Enum::CommandType);
 	while(nextByte < byteSize)
@@ -352,6 +403,12 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 			{
 				return false;
 			}
+			if(m_indexOfCurrentCommand <= loadedIndexOfCurrentCommand)
+			{
+				command->doRedo(); // Execute command up and until current, as loaded from file
+			}
+			SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Add all commands to GUI
+
 			nextByte += command->getByteSizeOfDataStruct();
 		}
 		else
@@ -360,7 +417,7 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 		}
 	}
 
-	setCurrentCommand(indexOfCurrentCommand_);
+	setCurrentCommand(loadedIndexOfCurrentCommand);
 
 	return true;
 }
@@ -386,17 +443,6 @@ std::stringstream* CommandHistory::getCommandHistoryAsText()
 	return text;
 }
 
-void CommandHistory::executeAllCommandsUpAndUntilCurrent()
-{
-	int nrOfCommands = m_commands.size();
-	for(int i=0;i<m_indexOfCurrentCommand+1;i++)
-	{
-		Command* command = m_commands.at(i);
-		command->doRedo();
-		SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command));
-	}
-}
-
 void CommandHistory::reset()
 {
 	int nrOfCommands = m_commands.size();
@@ -405,5 +451,6 @@ void CommandHistory::reset()
 		Command* command = m_commands.at(i);
 		delete command;
 	}
+	m_commands.clear();
 	m_indexOfCurrentCommand = -1;
 }

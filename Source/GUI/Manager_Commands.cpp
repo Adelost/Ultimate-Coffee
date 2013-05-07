@@ -13,6 +13,7 @@ void Manager_Commands::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_STORE_COMMAND);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRACK_TO_COMMAND_HISTORY_INDEX);
+	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMANDER_INFO);
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
@@ -250,6 +251,8 @@ void Manager_Commands::onEvent(IEvent* e)
 			if(addCommandSucceeded)
 			{
 				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
+				int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+				SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
 			}
 			else
 			{
@@ -261,7 +264,17 @@ void Manager_Commands::onEvent(IEvent* e)
 		{
 			Event_TrackToCommandHistoryIndex* commandHistoryIndexEvent = static_cast<Event_TrackToCommandHistoryIndex*>(e);
 			int index = commandHistoryIndexEvent->indexOfCommand;
-			m_commander->trackToIndex(index);
+			if(!m_commander->tryToJumpInCommandHistory(index))
+			{
+				MESSAGEBOX("Failed to jump in the command history.");
+			}
+			break;
+		}
+	case EVENT_GET_COMMANDER_INFO:
+		{
+			Event_GetCommanderInfo* commanderInfoEvent = static_cast<Event_GetCommanderInfo*>(e);
+			commanderInfoEvent->indexOfCurrentCommand = m_commander->getCurrentCommandIndex();
+			commanderInfoEvent->nrOfCommands = m_commander->getNrOfCommands();
 			break;
 		}
 	}

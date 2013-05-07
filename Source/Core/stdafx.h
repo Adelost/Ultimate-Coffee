@@ -8,6 +8,7 @@
 #include <vector>
 #include <windows.h>
 
+#include "Converter.h"
 #include "Math.h"
 #include "Settings.h"
 

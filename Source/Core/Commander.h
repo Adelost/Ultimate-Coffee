@@ -6,15 +6,16 @@ class CommandHistory;
 class Command;
 
 //--------------------------------------------------------------------------------------
-// Manipulates "Command"s in a "CommandHistory".
+// Manages a "CommandHistory" of "Command"s
 //
-// "Command"s can be:
-// *Stored (tryToAddCommandToHistory)
-// *Executed (tryToAddCommandToHistoryAndExecute)
-// *Undone (tryToUndoLatestCommand)
-// *Saved to file (tryToSaveCommandHistory)
-// *Loaded from file (tryToLoadCommandHistory)
-// *Printed to std::cout (printCommandHistory)
+// Functionality:
+// *Store command (tryToAddCommandToHistory)
+// *Execute command (tryToAddCommandToHistoryAndExecute)
+// *Undo command (tryToUndoLatestCommand)
+// *Save command history to file (tryToSaveCommandHistory)
+// *Load command history from file (tryToLoadCommandHistory)
+// *Print command history information to std::cout (printCommandHistory)
+// *Jump to certain index in command history (tryToJumpInCommandHistory)
 //--------------------------------------------------------------------------------------
 class Commander
 {
@@ -34,7 +35,7 @@ public:
 	// Possible to use as a visual cue
 	bool undoIsPossible();
 	
-	// Stores "command" in the command history, and executes it, if it was successfully added. Returns true if "command" was sucessfully added, otherwise false.
+	// Stores "command" in the command history, and executes it, if it was successfully added. Returns true if "command" was successfully added, otherwise false.
 	bool tryToAddCommandToHistoryAndExecute(Command* command);
 
 	// Stores "command" in the command history, without executing it. Returns true if successfully added, otherwise false.
@@ -52,8 +53,8 @@ public:
 	// Returns true if a command history was successfully loaded from file given by "path", otherwise false
 	bool tryToLoadCommandHistory(std::string path);
 
-	// Backtracks by undoing all commands from current until index is reached, OR track forward by redoing alla commands from current until index is reached
-	void trackToIndex(int index);
+	// Backtracks by undoing all commands from current until index is reached, OR track forward by redoing all commands from current until index is reached. Returns true if jump was successful, otherwise false.
+	bool tryToJumpInCommandHistory(int jumpToIndex);
 
 	// Prints command list to "std::cout"
 	void printCommandHistory();
@@ -65,6 +66,13 @@ public:
 
 //--------------------------------------------------------------------------------------
 // Encapsulates a vector of "Command"s and an index identifying the current command.
+// Functionality:
+// *Add command (tryToAddCommand)
+// *Retrieve command (getCurrentCommandAndDecrementCurrent, getNextCommandAndIncrementCurrent)
+// *Load from byte format (tryToLoadFromSerializationByteFormat)
+// *Save to byte format (receiveSerializedByteFormat)
+// *Retrieve as std::stringstream (getCommandHistoryAsText)
+// *History jumping (forwardJump, backwardJump)
 //--------------------------------------------------------------------------------------
 class CommandHistory
 {
@@ -82,9 +90,18 @@ public:
 	// Returns true if succeeded, otherwise false
 	bool tryToAddCommand(Command* command);
 	
+	// One of two ways to retrieve a "Command" from the command history, the other being "getNextCommandAndIncrementCurrent"
 	Command* getCurrentCommandAndDecrementCurrent();
-	Command* incrementCurrentAndGetCurrentCommand();
+
+	// One of two ways to retrieve a "Command" from the command history, the other being "getCurrentCommandAndDecrementCurrent"
+	Command* getNextCommandAndIncrementCurrent();
 	
+	// Tracks forward by redoing "nrOfSteps" "Command"s from current
+	void forwardJump(int nrOfSteps);
+
+	// Backtracks by undoing "nrOfSteps" "Command"s from current
+	void backwardJump(int nrOfSteps);
+
 	bool thereExistsCommandsAfterCurrentCommand();
 	bool thereExistsCommandsBeforeCurrentCommand();
 	
@@ -96,8 +113,6 @@ public:
 
 	// Returns the command history information as text
 	std::stringstream* getCommandHistoryAsText();
-
-	void executeAllCommandsUpAndUntilCurrent();
 
 	void reset();
 

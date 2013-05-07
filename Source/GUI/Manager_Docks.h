@@ -44,6 +44,8 @@ public:
 	void setupMenu();
 	void setupHierarchy();
 
+	void connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect);
+
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
 	ISystem* getAsSystem();
