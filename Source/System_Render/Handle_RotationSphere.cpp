@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "Handle_RotationSphere.h"
 
-Handle_RotationSphere::Handle_RotationSphere(XMVECTOR center, float radius, HWND windowHandle)
+#include <Core/Events.h>
+
+Handle_RotationSphere::Handle_RotationSphere(XMVECTOR center, float radius /*, HWND windowHandle*/)
 {
 	XMStoreFloat3(&sphere.Center, center);
 	sphere.Radius = radius;
 
-	this->windowHandle = windowHandle;
+	//this->windowHandle = windowHandle;
 }
 
 Handle_RotationSphere::~Handle_RotationSphere()
@@ -69,10 +71,10 @@ float Handle_RotationSphere::calcAngleBetweenTwoPointsOnSphere(Sphere &sphere, X
 }
 
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
-void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	// Tranform ray to local space.
-	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(theCamera.View()), theCamera.View());
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
 
 	XMMATRIX W = XMLoadFloat4x4(&world);
 	XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
@@ -86,7 +88,6 @@ void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 	transRayDir = XMVector3Normalize(transRayDir);
 
 	float distanceToIntersectionPoint;
-
 	bool rayIntersectedWithPlane = XNA::IntersectRaySphere(transRayOrigin, transRayDir, &sphere, &distanceToIntersectionPoint);
 
 	if(rayIntersectedWithPlane)
@@ -113,29 +114,42 @@ void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 		XMVECTOR exitPointVector = XMLoadFloat3(&currentlyPickedPointOnSphere); // - XMLoadFloat3(&sphere.Center);
 		XMVECTOR reEntryPointVector = -exitPointVector;
 		
-		// Project the 3D re-entry point point to 2D, so that the screen coordinates can be calculated.
+		int viewPortHeight = SETTINGS()->windowSize.y;
+		int viewPortWidth = SETTINGS()->windowSize.x;
+
+		int DXViewPortTopLeftX = SETTINGS()->DXViewPortTopLeftX;
+		int DXViewPortTopLeftY = SETTINGS()->DXViewPortTopLeftY;
+		int DXViewPortMinDepth = SETTINGS()->DXViewPortMinDepth;
+		int DXViewPortMaxDepth = SETTINGS()->DXViewPortMaxDepth;
+
+		// Project the 3D re-entry point to 2D, so that the screen coordinates can be calculated.
 		XMVECTOR newCursorScreenPos_clientSpace = XMVector3Project(	reEntryPointVector,
-																	theViewport.TopLeftX,	theViewport.TopLeftY,
-																	theViewport.Width,		theViewport.Height,
-																	theViewport.MinDepth,	theViewport.MaxDepth,
-																	theCamera.Proj(), theCamera.View(), XMLoadFloat4x4(&world)	);
+																	DXViewPortTopLeftX,	DXViewPortTopLeftY,
+																	viewPortWidth,		viewPortHeight,
+																	DXViewPortMinDepth,	DXViewPortMaxDepth,
+																	camProj, camView, XMLoadFloat4x4(&world)	);
 
-		// Put the client-space coordinates in a POINT struct and convert it to screen-space coordinates...
-		POINT newMouseCursorPoint;
-		newMouseCursorPoint.x = newCursorScreenPos_clientSpace.m128_f32[0];
-		newMouseCursorPoint.y = newCursorScreenPos_clientSpace.m128_f32[1];
-		ClientToScreen(windowHandle, &newMouseCursorPoint);
+		Int2 newQtCursorPoint;
+		newQtCursorPoint.x = newCursorScreenPos_clientSpace.m128_f32[0];
+		newQtCursorPoint.y = newCursorScreenPos_clientSpace.m128_f32[1];
+		SEND_EVENT(&Event_SetCursorPosition(newQtCursorPoint));
 
-		// ... then set the mouse cursor's position to the result (x, y) coordinates.
-		SetCursorPos(newMouseCursorPoint.x, newMouseCursorPoint.y);
+						//// Put the client-space coordinates in a POINT struct and convert it to screen-space coordinates...
+						//POINT newMouseCursorPoint;
+						//newMouseCursorPoint.x = newCursorScreenPos_clientSpace.m128_f32[0];
+						//newMouseCursorPoint.y = newCursorScreenPos_clientSpace.m128_f32[1];
+						//ClientToScreen(windowHandle, &newMouseCursorPoint);
+
+						//// ... then set the mouse cursor's position to the result (x, y) coordinates.
+						//SetCursorPos(newMouseCursorPoint.x, newMouseCursorPoint.y);
 
 		// Since the cursor position has changed, the picking ray/origin, is updated below...
 
-		XMMATRIX P = theCamera.Proj();
-
+		XMMATRIX P = camProj;
+		
 		// Compute picking ray in view space, using the client-space coordinates.
-		float vx = (+2.0f * newCursorScreenPos_clientSpace.m128_f32[0] / theViewport.Width  - 1.0f) / P(0,0); // Should be mClientWidth and Height, instead of the Viewport's Width and Height.
-		float vy = (-2.0f * newCursorScreenPos_clientSpace.m128_f32[1] / theViewport.Height + 1.0f) / P(1,1);
+		float vx = (+2.0f * newCursorScreenPos_clientSpace.m128_f32[0] / viewPortWidth  - 1.0f) / P.r[0].m128_f32[0]; // Should be mClientWidth and Height, instead of the Viewport's Width and Height.
+		float vy = (-2.0f * newCursorScreenPos_clientSpace.m128_f32[1] / viewPortHeight + 1.0f) / P.r[1].m128_f32[1];
 
 		// Ray definition in view space.
 		rayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
@@ -144,7 +158,7 @@ void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 		float distanceToIntersectionPoint;
 
 		// Re-select the rotation sphere. This call should never return false in this function.
-		bool selected = tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToIntersectionPoint);
+		bool selected = tryForSelection(rayOrigin, rayDir, camView, distanceToIntersectionPoint);
 		if(!selected)
 		{
 			throw "Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation.";

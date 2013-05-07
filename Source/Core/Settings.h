@@ -32,6 +32,11 @@ public:
 	ButtonState button;
 	Int2 windowSize;
 
+	int DXViewPortTopLeftX;
+	int DXViewPortTopLeftY;
+	int DXViewPortMinDepth;
+	int DXViewPortMaxDepth;
+
 public:
 	Settings();
 	~Settings();

@@ -158,10 +158,8 @@
     <ClInclude Include="Box.h" />
     <ClInclude Include="DXRenderer.h" />
     <ClInclude Include="Factory_Geometry.h" />
-    <ClInclude Include="Handle_RotationSphere.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="Handle_RotationSphere.h" />
     <ClInclude Include="Handle_TranslationAxis.h" />
     <ClInclude Include="Handle_TranslationPlane.h" />
     <ClInclude Include="Buffer.h" />
@@ -172,8 +170,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System_Render.h" />
     <ClInclude Include="Tool_Rotation.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Tool_Scaling.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -182,6 +180,7 @@
     <ClInclude Include="Tool_Selection.h" />
     <ClInclude Include="Tool_Translation.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="xnacollision.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
@@ -190,10 +189,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXRenderer.cpp" />
-    <ClCompile Include="Handle_RotationSphere.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="Handle_RotationSphere.cpp" />
     <ClCompile Include="Handle_TranslationAxis.cpp" />
     <ClCompile Include="Handle_TranslationPlane.cpp" />
     <ClCompile Include="Manager_3DTools.cpp" />
@@ -205,8 +202,8 @@
     </ClCompile>
     <ClCompile Include="System_Render.cpp" />
     <ClCompile Include="Tool_Rotation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Tool_Scaling.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -215,6 +212,7 @@
     <ClCompile Include="Tool_Selection.cpp" />
     <ClCompile Include="Tool_Translation.cpp" />
     <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="xnacollision.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,14 +18,16 @@ class ITool_Transformation
 private:
 public:
 	virtual bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView) = 0;
-	virtual void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint) = 0;
+	virtual void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint) = 0;
 	virtual void unselect() = 0;
 	virtual XMFLOAT4X4 getWorld_logical() = 0;
 	virtual XMFLOAT4X4 getWorld_visual() = 0;
 	virtual void setScale(float &scale) = 0;
 	virtual bool getIsSelected() = 0;
+	virtual void setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId) = 0;
 	virtual void setActiveObject(int entityId) = 0;
 	virtual int getActiveObject() = 0;
+	virtual void updateWorld() = 0;
 	virtual void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext) = 0;
 	virtual void draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView) = 0;
 };

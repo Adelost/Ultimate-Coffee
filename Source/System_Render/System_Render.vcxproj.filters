@@ -25,9 +25,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Handle_RotationSphere.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="Handle_TranslationAxis.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
@@ -67,6 +64,15 @@
     <ClInclude Include="Factory_Geometry.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="xnacollision.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle_RotationSphere.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -77,9 +83,6 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Handle_RotationSphere.cpp">
-      <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Handle_TranslationAxis.cpp">
       <Filter>Source\Tools</Filter>
@@ -110,6 +113,15 @@
     </ClCompile>
     <ClCompile Include="Buffer.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="xnacollision.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryGenerator.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle_RotationSphere.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

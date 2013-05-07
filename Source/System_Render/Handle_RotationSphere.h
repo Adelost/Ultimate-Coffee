@@ -1,11 +1,13 @@
 #ifndef HANDLE_ROTATIONSPHERE_H
 #define HANDLE_ROTATIONSPHERE_H
 
-#include "IHandle.h"
-#include "Object_Basic.h"
-#include "Camera.h"
+#include <Core/Camera.h>
+#include <Core/Math.h>
 
-#include <xnacollision.h>
+#include "IHandle.h"
+#include "xnacollision.h"
+
+
 
 using XNA::Sphere;
 
@@ -27,14 +29,14 @@ private:
 	XMFLOAT4 quaternionRotationMadeSoFar;
 
 public:
-	Handle_RotationSphere(XMVECTOR center, float radius, HWND windowHandle);
+	Handle_RotationSphere(XMVECTOR center, float radius /*, HWND windowHandle*/);
 	~Handle_RotationSphere();
 
 	/* Called for initial selection and picking against the axis plane. */
 	virtual bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
 
 	/* Called for continued picking against the sphere. */
-	void pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
+	void pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called when picking against the plane should cease, and the last translation made final. */
 	void unselect(XMVECTOR &pickingRay);
