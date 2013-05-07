@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Tool_Translation.h"
+
 #include <Core/Data.h>
 #include <Core/DataMapper.h>
 #include <Core/Events.h>
@@ -180,12 +181,42 @@ bool Tool_Translation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 	}
 	
 	isSelected = aTranslationToolHandleWasSelected;
+
+	//if(aTranslationToolHandleWasSelected)	// SELECTION HACK
+	//{
+	//	activeEntityId = SETTINGS()->selectedEntityId;
+
+	//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+	//	updateWorld();
+
+	//	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+
+	//	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+	//}
+
 	return aTranslationToolHandleWasSelected;
 }
 
 /* Called to bind the translatable object to the tool, so its translation can be modified. */
 void Tool_Translation::setActiveObject(int entityId)
 {
+	//if(activeEntityId == SETTINGS()->selectedEntityId)	// SELECTIN HACK
+	//{
+	//	// Stay the same.
+	//	int test = 3;
+	//}
+	//else
+	//{
+	//	activeEntityId = SETTINGS()->selectedEntityId;
+
+	//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+	//	updateWorld();
+
+	//	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+
+	//	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+	//}
+
 	this->activeEntityId = entityId;
 
 	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
@@ -284,8 +315,13 @@ bool Tool_Translation::getIsSelected()
 	return isSelected;
 }
 
+/* Called to set the entity at whose pivot the tool is to be displayed, when a selection of one or more entities has been made. */
+void Tool_Translation::setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId)
+{
+}
+
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Translation::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint )
+void Tool_Translation::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	if(currentlySelectedAxis)
 	{
@@ -470,8 +506,6 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 	D3D11_BUFFER_DESC WVP_Desc;
 	ZeroMemory(&WVP_Desc, sizeof(WVP_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-
-	int tetst = sizeof(XMMATRIX);
 
 	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
 	WVP_Desc.ByteWidth = 64;

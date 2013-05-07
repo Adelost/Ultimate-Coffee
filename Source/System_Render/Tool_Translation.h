@@ -4,6 +4,7 @@
 #include "ITool_Transformation.h"
 #include "Handle_TranslationAxis.h"
 #include "Handle_TranslationPlane.h"
+
 #include "Effects.h"
 #include "Vertex.h"
 #include "RenderStates.h"
@@ -14,14 +15,14 @@ struct ID3D11DeviceContext;
 struct ID3D11PixelShader;
 struct ID3D11VertexShader;
 
-struct ConstantBuffer2
-{
-	XMMATRIX WVP;
-};
-
 class Tool_Translation : public ITool_Transformation
 {
 private:
+	struct ConstantBuffer2
+	{
+		XMMATRIX WVP;
+	};
+
 	ID3D11PixelShader*			m_pixelShader;
 	ID3D11VertexShader*			m_vertexShader;
 
@@ -97,6 +98,9 @@ public:
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
 	void setActiveObject(int entityId);
 
+	/* Called to set the entity at whose pivot the tool is to be displayed, when a selection of one or more entities has been made. */
+	void setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId);
+
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
 	int getActiveObject();
 
@@ -107,7 +111,7 @@ public:
 	bool getIsSelected();
 
 	/* Called to send updated parameters to the translation tool, if it is still active. */
-	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
+	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called when the translation tool is unselected, which makes any hitherto made translation final. */
 	void unselect();

@@ -245,10 +245,10 @@ bool DXRenderer::initDX()
 	ID3DBlob *PS_Buffer, *VS_Buffer;
 
 	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
-	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_5_0", NULL, NULL, &PS_Buffer, NULL));
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
 	HR(m_dxDevice->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
 
-	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_5_0", NULL, NULL, &VS_Buffer, NULL));
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
 	HR(m_dxDevice->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
 
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
@@ -365,8 +365,10 @@ void DXRenderer::resizeDX()
 		1,								// nr of viewports
 		m_viewport_screen);			// viewport array
 
-
-
+	SETTINGS()->DXViewPortTopLeftX = m_viewport_screen->TopLeftX;
+	SETTINGS()->DXViewPortTopLeftY = m_viewport_screen->TopLeftY;
+	SETTINGS()->DXViewPortMinDepth = m_viewport_screen->MinDepth;
+	SETTINGS()->DXViewPortMaxDepth = m_viewport_screen->MaxDepth;
 
 	// Resize cameras
 	// NOTE: Don't know if this should be here,

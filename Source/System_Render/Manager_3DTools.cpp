@@ -9,6 +9,7 @@
 
 #include "ITool_Transformation.h"
 #include "Tool_Translation.h"
+#include "Tool_Rotation.h"
 #include "Tool_Selection.h"
 
 
@@ -20,27 +21,29 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_PRESS);
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRANSLATE_SCENE_ENTITY);
+	//SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
 
 	// Initialize the transformation tools...
 	currentlyChosenTransformTool = NULL;
+	m_theSelectionTool = new Tool_Selection();
+
+	//HWND hack = 0;
+
+	m_theRotationTool = new Tool_Rotation();
 	m_theTranslationTool = new Tool_Translation();
 
-	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
-	currentlyChosenTransformTool = m_theTranslationTool;
-
-	m_theSelectionTool = new Tool_Selection();
+	m_theRotationTool->init(p_device, p_deviceContext);
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
-	//(SETTINGS()->camera)->SetPosition(-15.0f, 0.0f, 0.0f);
-	//(SETTINGS()->camera)->SetLens(0.25f * Math::Pi, 800.0f / 600.0f, 1.0f, 1000.0f);
-	//(SETTINGS()->camera)->LookAt(SETTINGS()->camera->GetPosition(), XMFLOAT3(0.0f, 0.0f, 0.0f), SETTINGS()->camera->GetUp());
-	//(SETTINGS()->camera)->UpdateViewMatrix();
+	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
+	currentlyChosenTransformTool = m_theRotationTool;
 }
 
 void Manager_3DTools::update()
 {
-	// HACK (Mattias): Made the tool notice when selected Entity has been changed. Don't know if this is the best aproach.
-	//if(currentlyChosenTransformTool->getActiveObject() == -1)
+	//// HACK (Mattias): Made the tool notice when selected Entity has been changed. Don't know if this is the best aproach.
+	// NEW HACK (Nicolas): Took back my old hack for the time being.
+	if(currentlyChosenTransformTool->getActiveObject() == -1)
 		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
 
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.
@@ -167,10 +170,11 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
 
 				XMMATRIX camView = d_camera->view();
+				XMMATRIX camProj = d_camera->projection();
 				POINT mouseCursorPoint;
 				mouseCursorPoint.x = (LONG)currentScreenCoords.x;
 				mouseCursorPoint.y = (LONG)currentScreenCoords.y;
-				currentlyChosenTransformTool->update(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint);
+				currentlyChosenTransformTool->update(xm_rayOrigin, xm_rayDir, camView, camProj, *m_viewPort, mouseCursorPoint);
 			}
 
 			//if(theSelectionTool && theSelectionTool->getIsSelected())
@@ -198,6 +202,9 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			d_transform->position.y = e->m_transY;
 			d_transform->position.z = e->m_transZ;
 
+			//if(currentlyChosenTransformTool->getActiveObject() == e->m_idOfTranslatableSceneEntity) // SELECTION HACK
+			//	currentlyChosenTransformTool->updateWorld();
+
 			// Gotta make sure to re-scale the visual component of the tool given the redoing/undoing changing the distance.
 
 			break;
@@ -211,5 +218,6 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 Manager_3DTools::~Manager_3DTools()
 {
 	delete m_theTranslationTool;
+	delete m_theRotationTool;
 	delete m_theSelectionTool;
 }

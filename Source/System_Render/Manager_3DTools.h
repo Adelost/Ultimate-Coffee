@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Core/IObserver.h>
+
 class ITool_Transformation;
-class Tool_Translation;
 class Tool_Selection;
+class Tool_Rotation;
+class Tool_Translation;
+
 struct ID3D11DepthStencilView;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -14,6 +17,7 @@ class Manager_3DTools : public IObserver
 private:
 	ITool_Transformation* currentlyChosenTransformTool;
 	Tool_Selection* m_theSelectionTool;
+	Tool_Rotation* m_theRotationTool;
 	Tool_Translation* m_theTranslationTool;
 
 	ID3D11DepthStencilView* m_depthStencilView;
