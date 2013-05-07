@@ -32,7 +32,8 @@ void RenderWidget::onEvent( IEvent* p_event )
 	case EVENT_SET_CURSOR_POSITION:
 		{
 			Int2 position = static_cast<Event_SetCursorPosition*>(p_event)->position;
-			QCursor::setPos(position.x, position.y);
+			QPoint globalPosition = QWidget::mapToGlobal(QPoint(position.x, position.y));
+			QCursor::setPos(globalPosition);
 		}
 		break;
 	case EVENT_SET_CURSOR:
@@ -68,7 +69,6 @@ void RenderWidget::mousePressEvent( QMouseEvent* p_event )
 {
 	setFocus();
 	setMouseState(p_event, true);
-	
 }
 
 void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
@@ -97,7 +97,6 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	int dx = e->globalX() - mousePrev.x();
 	int dy = e->globalY() - mousePrev.y();
 	mousePrev = e->globalPos();
-
 
 	// send mouse move event to relevant observers
 	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
