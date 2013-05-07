@@ -160,6 +160,7 @@
     <ClInclude Include="Factory_Geometry.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="Handle_RotationSphere.h" />
+    <ClInclude Include="Handle_ScalingPlane.h" />
     <ClInclude Include="Handle_TranslationAxis.h" />
     <ClInclude Include="Handle_TranslationPlane.h" />
     <ClInclude Include="Buffer.h" />
@@ -173,10 +174,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Tool_Scaling.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="Tool_Scaling.h" />
     <ClInclude Include="Tool_Selection.h" />
     <ClInclude Include="Tool_Translation.h" />
     <ClInclude Include="Vertex.h" />
@@ -191,6 +189,7 @@
     <ClCompile Include="DXRenderer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Handle_RotationSphere.cpp" />
+    <ClCompile Include="Handle_ScalingPlane.cpp" />
     <ClCompile Include="Handle_TranslationAxis.cpp" />
     <ClCompile Include="Handle_TranslationPlane.cpp" />
     <ClCompile Include="Manager_3DTools.cpp" />
@@ -205,10 +204,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Tool_Scaling.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="Tool_Scaling.cpp" />
     <ClCompile Include="Tool_Selection.cpp" />
     <ClCompile Include="Tool_Translation.cpp" />
     <ClCompile Include="Vertex.cpp" />

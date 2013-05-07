@@ -1,5 +1,5 @@
-#ifndef TOOL_TRANSLATION_H
-#define TOOL_TRANSLATION_H
+#ifndef TOOL_SCALING_H
+#define TOOL_SCALING_H
 
 #include "ITool_Transformation.h"
 #include "Handle_TranslationAxis.h"
@@ -15,7 +15,7 @@ struct ID3D11DeviceContext;
 struct ID3D11PixelShader;
 struct ID3D11VertexShader;
 
-class Tool_Translation : public ITool_Transformation
+class Tool_Scaling : public ITool_Transformation
 {
 private:
 	struct ConstantBuffer2
@@ -41,9 +41,6 @@ private:
 	ID3D11Buffer* mMeshTransTool_yzPlane_VB;
 	ID3D11Buffer* mMeshTransTool_zxPlane_VB;
 	ID3D11Buffer* mMeshTransTool_xyPlane_VB;
-	ID3D11Buffer* mMeshTransTool_yzPlane2_VB;
-	ID3D11Buffer* mMeshTransTool_zxPlane2_VB;
-	ID3D11Buffer* mMeshTransTool_xyPlane2_VB;
 	ID3D11Buffer* mMeshTransTool_viewPlane_VB;
 
 	ID3D11Buffer* mMeshTransTool_yzTriangleListRectangle_VB;
@@ -65,9 +62,6 @@ private:
 	Handle_TranslationPlane *xyTranslationPlane,
 							*yzTranslationPlane,
 							*zxTranslationPlane,
-							*xyTranslationPlane2,
-							*yzTranslationPlane2,
-							*zxTranslationPlane2,
 							*camViewTranslationPlane;
 	
 	Handle_TranslationAxis *currentlySelectedAxis;
@@ -91,24 +85,15 @@ private:
 	
 
 public:
-	Tool_Translation();
-	~Tool_Translation();
+	Tool_Scaling();
+	~Tool_Scaling();
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
-
-	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any. */
-	void tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera);
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
-	void setActiveObject(int entityId);
-
-	/* Called to set the entity at whose pivot the tool is to be displayed, when a selection of one or more entities has been made. */
-	void setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId);
-
-	/* Called to bind the translatable object to the tool, so its translation can be modified. */
-	int getActiveObject();
+	void setActiveObject(int activeEntityId);
 
 	/* Transform all controls to the local coord. sys. of the active object. */
 	void setRelateToActiveObjectWorld(bool relateToActiveObjectWorld);
@@ -118,6 +103,9 @@ public:
 
 	/* Called to send updated parameters to the translation tool, if it is still active. */
 	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
+
+	/* Called for current translation delta made by picking. */
+	void translateObject();
 
 	/* Called when the translation tool is unselected, which makes any hitherto made translation final. */
 	void unselect();
@@ -146,22 +134,10 @@ public:
 
 	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_visual();
 
+	int getActiveObject();
+	
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
 	void draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView);
 };
 
 #endif
-
-//struct Handle_Cube
-//{
-//private:
-//	float lastSelectHoldThenUnselectDeltaA;
-//	float lastSelectHoldThenUnselectDeltaB;
-//	bool isSelected;
-//
-//public:
-//	Handle_Cube();
-//	~Handle_Cube();
-//	bool tryForSelection(D3DXVECTOR3 &pickingRay);
-//	void unselect(D3DXVECTOR3 &pickingRay);
-//};

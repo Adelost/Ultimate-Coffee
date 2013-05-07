@@ -1,13 +1,7 @@
 #include "stdafx.h"
 #include "Tool_Scaling.h"
 
-#include <Core/Data.h>
-#include <Core/DataMapper.h>
-#include <Core/Events.h>
-
-//#include <Core/Command_TranslateSceneEntity.h>
-
-Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
+Tool_Scaling::Tool_Scaling()
 {
 	isSelected = false;
 	currentlySelectedAxis = NULL;
@@ -28,36 +22,29 @@ Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 	boundingRectangle.P2 = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	boundingRectangle.P3 = XMFLOAT3(0.0f, 1.0f, 1.0f);
 	boundingRectangle.P4 = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	yzScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&xDir), 0.0f, boundingRectangle, /*windowHandle,*/ YZ);
+	yzTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&xDir), 0.0f, boundingRectangle);
 
 	boundingRectangle.P1 = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	boundingRectangle.P2 = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	boundingRectangle.P3 = XMFLOAT3(1.0f, 0.0f, 1.0f);
 	boundingRectangle.P4 = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	zxScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&yDir), 0.0f, boundingRectangle, /*windowHandle,*/ XZ);
+	zxTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&yDir), 0.0f, boundingRectangle);
 
 	boundingRectangle.P1 = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	boundingRectangle.P2 = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	boundingRectangle.P3 = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	boundingRectangle.P4 = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	xyScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&zDir), 0.0f, boundingRectangle, /*windowHandle,*/ XY);
+	xyTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&zDir), 0.0f, boundingRectangle);
 
 	boundingRectangle.P1 = XMFLOAT3(-0.25f, -0.25f, 0.0f);
 	boundingRectangle.P2 = XMFLOAT3(-0.25f,  0.25f, 0.0f);
 	boundingRectangle.P3 = XMFLOAT3( 0.25f,  0.25f, 0.0f);
 	boundingRectangle.P4 = XMFLOAT3( 0.25f, -0.25f, 0.0f);
-	camViewScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&zDirNeg), 0.0f, boundingRectangle, /*windowHandle,*/ YZ);
+	camViewTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&zDirNeg), 0.0f, boundingRectangle);
 
 	relateToActiveObjectWorld = false;
 
-	shouldFlipMouseCursor = false;
-	xyScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
-	zxScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
-	yzScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
-
 	scale = 1.0f;
-
-	activeEntityId = -1;
 }
 
 Tool_Scaling::~Tool_Scaling()
@@ -73,7 +60,7 @@ void Tool_Scaling::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Scaling::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+bool Tool_Scaling::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera)
 {
 
 	bool aTranslationToolHandleWasSelected = false;
@@ -90,44 +77,44 @@ bool Tool_Scaling::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATR
 		
 		float distanceToPointOfIntersection;
 		
-		bool planeSelected = camViewScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		bool planeSelected = camViewTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
 
 		// If the camera view translation plane is intersected, it is always selected...
 		if(planeSelected)
 		{
-			currentlySelectedPlane = camViewScalingPlane;
+			currentlySelectedPlane = camViewTranslationPlane;
 			aTranslationToolHandleWasSelected = true;
 		}
 		else // ... Else, the others are tested for intersection and prioritized by intersection point distance:
 		{
 			float distanceToClosestPointOfIntersection = FLT_MAX;
 
-			planeSelected = xyScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			planeSelected = xyTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
 			if(planeSelected)
 			{
 				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-				currentlySelectedPlane = xyScalingPlane;
+				currentlySelectedPlane = xyTranslationPlane;
 				aTranslationToolHandleWasSelected = true;
 			}
 
-			planeSelected = yzScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			planeSelected = yzTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
 			if(planeSelected)
 			{
 				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
 				{
 					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-					currentlySelectedPlane = yzScalingPlane;
+					currentlySelectedPlane = yzTranslationPlane;
 					aTranslationToolHandleWasSelected = true;
 				}
 			}
 
-			planeSelected = zxScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			planeSelected = zxTranslationPlane->tryForSelection(rayOrigin, rayDir, theCamera.View(), distanceToPointOfIntersection);
 			if(planeSelected)
 			{
 				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
 				{
 					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-					currentlySelectedPlane = zxScalingPlane;
+					currentlySelectedPlane = zxTranslationPlane;
 					aTranslationToolHandleWasSelected = true;
 				}
 			}
@@ -138,25 +125,15 @@ bool Tool_Scaling::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATR
 	return aTranslationToolHandleWasSelected;
 }
 
-void Tool_Scaling::tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
-{
-}
-
 /* Called to bind the translatable object to the tool, so its translation can be modified. */
-void Tool_Scaling::setActiveObject(int entityId)
+void Tool_Scaling::setActiveObject(IObject *object)
 {
-	this->activeEntityId = entityId;
+	this->activeObject = object;
 
 	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 	updateWorld();
 
-	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
-
-	xyScalingPlane->resetScalingDelta();
-	zxScalingPlane->resetScalingDelta();
-	yzScalingPlane->resetScalingDelta();
-
-	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+	XMStoreFloat4x4(&originalWorldOfActiveObject, object->getIRenderable()->getWorld());
 }
 
 void Tool_Scaling::updateWorld()
@@ -164,14 +141,14 @@ void Tool_Scaling::updateWorld()
 	if(!relateToActiveObjectWorld)
 	{
 		// Just get the position of the active object, but keep the default orientation.
-		Matrix newWorld = XMMatrixIdentity();
+		XMMATRIX newWorld = XMMatrixIdentity();
 
-		Entity e(activeEntityId);
-		Data::Transform* trans = e.fetchData<Data::Transform>();
+		XMFLOAT4X4 objectWorld;
+		XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
 
-		newWorld._41 = trans->position.x; //objectWorld._41;
-		newWorld._42 = trans->position.y; //objectWorld._42;
-		newWorld._43 = trans->position.z; //objectWorld._43;
+		newWorld._41 = objectWorld._41;
+		newWorld._42 = objectWorld._42;
+		newWorld._43 = objectWorld._43;
 
 		// Update the translation tool's (distance-from-camera-adjusted) scale.
 		//newWorld._11 = scale;
@@ -186,16 +163,16 @@ void Tool_Scaling::updateWorld()
 		yTranslationAxisHandle->setWorld(logicalWorld);
 		zTranslationAxisHandle->setWorld(logicalWorld);
 
-		yzScalingPlane->setWorld(logicalWorld);
-		zxScalingPlane->setWorld(logicalWorld);
-		xyScalingPlane->setWorld(logicalWorld);
+		yzTranslationPlane->setWorld(logicalWorld);
+		zxTranslationPlane->setWorld(logicalWorld);
+		xyTranslationPlane->setWorld(logicalWorld);
 
-		camViewScalingPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
+		camViewTranslationPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
 	}
 	else
 	{
 		// Get the position and orientation of the active object.
-		world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+		XMStoreFloat4x4(&world, activeObject->getIRenderable()->getWorld());
 
 		// Update the translation tool's (distance-from-camera-adjusted) scale.
 		world._11 = scale;
@@ -210,9 +187,9 @@ void Tool_Scaling::updateWorld()
 		yTranslationAxisHandle->setWorld(logicalWorld);
 		zTranslationAxisHandle->setWorld(logicalWorld);
 
-		yzScalingPlane->setWorld(logicalWorld);
-		zxScalingPlane->setWorld(logicalWorld);
-		xyScalingPlane->setWorld(logicalWorld);
+		yzTranslationPlane->setWorld(logicalWorld);
+		zxTranslationPlane->setWorld(logicalWorld);
+		xyTranslationPlane->setWorld(logicalWorld);
 	}
 }
 
@@ -221,7 +198,7 @@ void Tool_Scaling::setRelateToActiveObjectWorld(bool relateToActiveObjectWorld)
 {
 	this->relateToActiveObjectWorld = relateToActiveObjectWorld;
 
-	if(activeEntityId != -1)
+	if(activeObject)
 		updateWorld();
 }
 
@@ -231,59 +208,87 @@ bool Tool_Scaling::getIsSelected()
 	return isSelected;
 }
 
-/* Called to set the entity at whose pivot the tool is to be displayed, when a selection of one or more entities has been made. */
-void Tool_Scaling::setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId)
-{
-}
-
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Scaling::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Scaling::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	if(currentlySelectedAxis)
 	{
 		// Pick against the plane to update the translation delta.
 		currentlySelectedAxis->pickAxisPlane(rayOrigin);
+
+		translateObject();
 	}
 	else if(currentlySelectedPlane)
 	{
-		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView, camProj, theViewport);
-		currentlySelectedPlane->calcLastScalingDelta();
-		XMVECTOR transDelta = currentlySelectedPlane->getTotalScalingDelta();
+		// 
+		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, theCamera.View());
 
-		XMFLOAT4X4 newMatrix;
+		//XMMATRIX curWorld = activeObject->getIRenderable()->getWorld();
+
+		//XMVECTOR newPos;
+		//newPos.m128_f32[0] = curWorld._41;
+		//newPos.m128_f32[1] = curWorld._42;
+		//newPos.m128_f32[2] = curWorld._43;
+
+		//activeObject->getIRenderable()->incrementTranslation(currentlySelectedPlane->getLastTranslationDelta());
+
+		XMVECTOR transDelta = currentlySelectedPlane->getLastTranslationDelta();
+
+		//XMFLOAT4 newPos;
+		//newPos.x = originalWorldOfActiveObject._41 + transDelta.m128_f32[0];
+		//newPos.y = originalWorldOfActiveObject._42 + transDelta.m128_f32[1];
+		//newPos.z = originalWorldOfActiveObject._43 + transDelta.m128_f32[2];
+
+		float scaleFactor = scale;
+	/*	if(currentlySelectedPlane == camViewTranslationPlane)
+			scaleFactor = 1.0f;*/
+
+		XMFLOAT4X4 newMatrix; //  = XMMatrixIdentity();
 		newMatrix = originalWorldOfActiveObject;
 
-		float toolScaleDependantScaleFactor = scale;
-
-		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-		if(scaleDependantScaleFactorX < 0.1f)
-			scaleDependantScaleFactorX = 0.1f;
-		if(scaleDependantScaleFactorY < 0.1f)
-			scaleDependantScaleFactorY = 0.1f;
-		if(scaleDependantScaleFactorZ < 0.1f)
-			scaleDependantScaleFactorZ = 0.1f;
-
-		if(currentlySelectedPlane != camViewScalingPlane)
+		if(currentlySelectedPlane != camViewTranslationPlane)
 		{
-			newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
-			newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
-			newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
-
-			if(newMatrix._11 < 0.01f)
-				newMatrix._11 = 0.01f;
-			if(newMatrix._22 < 0.01f)
-				newMatrix._22 = 0.01f;
-			if(newMatrix._33 < 0.01f)
-				newMatrix._33 = 0.01f;
+			newMatrix._41 = originalWorldOfActiveObject._41 + transDelta.m128_f32[0] * scaleFactor;
+			newMatrix._42 = originalWorldOfActiveObject._42 + transDelta.m128_f32[1] * scaleFactor;
+			newMatrix._43 = originalWorldOfActiveObject._43 + transDelta.m128_f32[2] * scaleFactor;
 		}
 		else
 		{
+
+			//XMVECTOR test = 
+			//	
+			//	XMLoadFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[0]) * transDelta.m128_f32[0]  
+			//	+
+			//	XMLoadFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[1]) * transDelta.m128_f32[1] ;
+
+			//originalWorldOfActiveObject._41 += test.m128_f32[0];
+			//originalWorldOfActiveObject._42 += test.m128_f32[1];
+			//originalWorldOfActiveObject._43 += test.m128_f32[2];
 		}
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = Vector3(newMatrix._11, newMatrix._22, newMatrix._33);
+		XMFLOAT4X4 newM;
+		//XMStoreFloat4x4(&newM, newMatrix);
+		activeObject->getIRenderable()->setWorld(newMatrix);
+	
+		//XMMATRIX newWorld = XMMatrixIdentity();
+		//XMFLOAT4X4 objectWorld = *(activeObject->getIRenderable()->getWorld());
+		//newWorld._41 = objectWorld._41;
+		//newWorld._42 = objectWorld._42;
+		//newWorld._43 = objectWorld._43;
+
+		//world = newMatrix;
+
+		//world._41 += transDelta.m128_f32[0];
+		//world._42 += transDelta.m128_f32[1];
+		//world._43 += transDelta.m128_f32[2];
 	}
+}
+
+/* Called for current translation delta made by picking. */
+void Tool_Scaling::translateObject()
+{
+	XMVECTOR lastTransDelta = currentlySelectedAxis->getLastTranslationDelta();
+	((Object_Basic*)activeObject)->getIRenderable()->incrementTranslation(lastTransDelta);
 }
 
 /* Called when the translation tool is unselected, which makes any hitherto made translation final (and undoable). */
@@ -292,20 +297,8 @@ void Tool_Scaling::unselect()
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
 	updateWorld();
 
-	if(currentlySelectedPlane)
-	{
-		currentlySelectedPlane->unselect();
-		currentlySelectedPlane = NULL;
-	}
-	
+	currentlySelectedPlane = NULL;
 	currentlySelectedAxis = NULL;
-
-	//Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(activeEntityId);
-	//Entity e(activeEntityId);
-	//Data::Transform* trans = e.fetchData<Data::Transform>();
-	//command->setDoScaling(trans->scale.x, trans->scale.y, trans->scale.z);
-	//command->setUndoScaling(originalWorldOfActiveObject._11, originalWorldOfActiveObject._22, originalWorldOfActiveObject._33);
-	//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
 
 	isSelected = false;
 }
@@ -324,30 +317,14 @@ XMFLOAT4X4 Tool_Scaling::getWorld_logical()
 
 XMFLOAT4X4 Tool_Scaling::getWorld_visual()
 {
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
-	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
+	XMMATRIX trans = XMMatrixTranslation(activeObject->getIRenderable()->getWorld()._41, activeObject->getIRenderable()->getWorld()._42, activeObject->getIRenderable()->getWorld()._43);
 
-	XMMATRIX scaling;
-	scaling = XMMatrixScaling(scale, scale, scale);
+	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
 	XMFLOAT4X4 world_visual;
-	XMStoreFloat4x4(&world_visual, scaling * translation);
+	XMStoreFloat4x4(&world_visual, scaling * trans);
 
 	return world_visual;
-}
-
-XMFLOAT4X4 Tool_Scaling::getWorld_visual_objectRelative()
-{
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
-	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
-
-	XMVECTOR scale = Entity(activeEntityId).fetchData<Data::Transform>()->scale;
-	XMMATRIX scaling = XMMatrixTranslationFromVector(trans);
-
-	XMFLOAT4X4 world_visual_objectRelative;
-	XMStoreFloat4x4(&world_visual_objectRelative, scaling * translation);
-
-	return world_visual_objectRelative;
 }
 
 void Tool_Scaling::setScale(float &scale)
@@ -366,14 +343,7 @@ bool Tool_Scaling::getIsVisible()
 	return isVisible;
 }
 
-void Tool_Scaling::setShouldFlipMouseCursor(bool shouldFlipMouseCursor)
-{
-	this->shouldFlipMouseCursor = shouldFlipMouseCursor;
 
-	xyScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
-	zxScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
-	yzScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
-}
 
 void Tool_Scaling::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector)
 {
@@ -400,11 +370,10 @@ void Tool_Scaling::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVecto
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[2], loadedCamViewVector);
 	world_viewPlaneTranslationControl_visual.m[2][3] = 0.0f;
 
-	Vector3 activeEntityPos = Entity(activeEntityId).fetchData<Data::Transform>()->position;
-	world_viewPlaneTranslationControl_visual._41 = activeEntityPos.x;
-	world_viewPlaneTranslationControl_visual._42 = activeEntityPos.y;
-	world_viewPlaneTranslationControl_visual._43 = activeEntityPos.z;
-	world_viewPlaneTranslationControl_visual._44 = 1.0f;
+	world_viewPlaneTranslationControl_visual._41 = activeObject->getIRenderable()->getWorld().m[3][0];
+	world_viewPlaneTranslationControl_visual._42 = activeObject->getIRenderable()->getWorld().m[3][1];
+	world_viewPlaneTranslationControl_visual._43 = activeObject->getIRenderable()->getWorld().m[3][2];
+	world_viewPlaneTranslationControl_visual._44 = activeObject->getIRenderable()->getWorld().m[3][3];
 }
 
 XMFLOAT4X4 Tool_Scaling::getWorld_viewPlaneTranslationControl_logical()
@@ -673,6 +642,32 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 
 	// Draw control frames.
 
+	//md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//D3D11_BLEND_DESC blendDesc;
+	//blendDesc.AlphaToCoverageEnable = false;
+	//blendDesc.IndependentBlendEnable = false;
+	//blendDesc.RenderTarget[0].BlendEnable = true;
+	//blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+	//blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	//blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	//blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	//blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	//blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	//blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	//ID3D11BlendState *blendState;
+	//md3dDevice->CreateBlendState(&blendDesc, &blendState);
+
+	//md3dImmediateContext->OMSetBlendState(blendState, NULL, NULL);
+
+	//ReleaseCOM(blendState);
+
+	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyTriangleListRectangle_VB, &stride, &offset);
+	//md3dImmediateContext->Draw(6, 0);
+
+	//md3dImmediateContext->OMSetBlendState(NULL, NULL, NULL);
+
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
@@ -682,6 +677,24 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	md3dImmediateContext->Draw(5, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
+	md3dImmediateContext->Draw(5, 0);
+
+	md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
+	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
+
+	float scale = getScale();
+	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+
+	worldViewProj = viewControlWorld * camView * camProj;
+	worldViewProj = XMMatrixTranspose(worldViewProj);
+
+	WVP.WVP = worldViewProj;
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
 	md3dImmediateContext->Draw(5, 0);
 
 	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary:

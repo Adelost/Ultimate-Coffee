@@ -57,9 +57,57 @@ bool Tool_Rotation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 			aRotationToolHandleWasSelected = true;
 		}
 	}
-	
+
+	if(currentlySelectedHandle && currentlySelectedHandle == omniRotateSphereHandle)
+	{
+		// Set the cursor icon to the one indicating that the free rotation sphere is being handled.
+		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::ClosedHandCursor));
+	}
+
 	isSelected = aRotationToolHandleWasSelected;
 	return aRotationToolHandleWasSelected;
+}
+
+/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any, and sets the cursor accordingly. */
+void Tool_Rotation::tryForHover( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+{
+	bool aRotationToolHandleWasSelected = false;
+
+	bool rayIntersectsWithToolBoundingBox = false;
+
+	// Check if the picking ray intersects with any of the translation tool's bounding box.
+	// ...
+	// TEST: Pretend we hit it.
+	rayIntersectsWithToolBoundingBox = true;
+
+	IHandle *hoveredHandle = NULL;
+	
+	if(rayIntersectsWithToolBoundingBox)
+	{
+		// Check if the ray intersects with any of the control handles.
+		
+		float distanceToPointOfIntersection;
+		
+		// Check if the ray intersects with the omni-rotation sphere.
+		bool sphereSelected = omniRotateSphereHandle->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(sphereSelected)
+		{
+			hoveredHandle = omniRotateSphereHandle;
+		}
+	}
+
+	if(hoveredHandle != NULL)
+	{
+		if(hoveredHandle == omniRotateSphereHandle)
+		{
+			// Set the cursor icon to the one indicating that the free rotation sphere is being handled.
+			SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::OpenHandCursor));
+		}
+	}
+	else
+	{
+		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
+	}
 }
 
 /* Called to bind the translatable object to the tool, so its translation can be modified. */
@@ -185,6 +233,9 @@ void Tool_Rotation::unselect()
 	updateWorld();
 
 	currentlySelectedHandle = NULL;
+
+	// Set the cursor icon to the default/scene cursor icon.
+	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
 
 	isSelected = false;
 }

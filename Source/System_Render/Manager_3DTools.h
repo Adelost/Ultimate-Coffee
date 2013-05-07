@@ -4,6 +4,7 @@
 
 class ITool_Transformation;
 class Tool_Selection;
+class Tool_Scaling;
 class Tool_Rotation;
 class Tool_Translation;
 
@@ -17,6 +18,7 @@ class Manager_3DTools : public IObserver
 private:
 	ITool_Transformation* currentlyChosenTransformTool;
 	Tool_Selection* m_theSelectionTool;
+	Tool_Scaling* m_theScalingTool;
 	Tool_Rotation* m_theRotationTool;
 	Tool_Translation* m_theTranslationTool;
 

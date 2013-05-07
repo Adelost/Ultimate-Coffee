@@ -77,6 +77,8 @@ void RenderStates::InitAll(ID3D11Device* device)
 	lessEqualDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ALL;
     lessEqualDesc.DepthFunc        = D3D11_COMPARISON_LESS_EQUAL; 
     lessEqualDesc.StencilEnable    = false;
+	//lessEqualDesc.BackFace.StencilFunc    = D3D11_COMPARISON_EQUAL;
+	//lessEqualDesc.FrontFace.StencilFunc    = D3D11_COMPARISON_EQUAL;
 
 	HR(device->CreateDepthStencilState(&lessEqualDesc, &LessEqualDSS));
 

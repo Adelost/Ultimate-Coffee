@@ -18,6 +18,7 @@ class ITool_Transformation
 private:
 public:
 	virtual bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView) = 0;
+	virtual void tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView) = 0;
 	virtual void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint) = 0;
 	virtual void unselect() = 0;
 	virtual XMFLOAT4X4 getWorld_logical() = 0;

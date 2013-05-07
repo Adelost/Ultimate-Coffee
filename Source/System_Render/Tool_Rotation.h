@@ -71,6 +71,9 @@ public:
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
 	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
+	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any, and sets the cursor accordingly. */
+	void tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
 	void setActiveObject(int entityId);
 

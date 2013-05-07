@@ -43,9 +43,6 @@
     <ClInclude Include="Tool_Rotation.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="Tool_Scaling.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="RenderStates.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -73,6 +70,12 @@
     <ClInclude Include="Handle_RotationSphere.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="Handle_ScalingPlane.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool_Scaling.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -94,9 +97,6 @@
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Tool_Rotation.cpp">
-      <Filter>Source\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="Tool_Scaling.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="RenderStates.cpp">
@@ -121,6 +121,12 @@
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Handle_RotationSphere.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle_ScalingPlane.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool_Scaling.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>

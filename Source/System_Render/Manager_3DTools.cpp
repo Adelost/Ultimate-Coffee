@@ -9,6 +9,7 @@
 
 #include "ITool_Transformation.h"
 #include "Tool_Translation.h"
+#include "Tool_Scaling.h"
 #include "Tool_Rotation.h"
 #include "Tool_Selection.h"
 
@@ -27,11 +28,11 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	currentlyChosenTransformTool = NULL;
 	m_theSelectionTool = new Tool_Selection();
 
-	//HWND hack = 0;
-
+	m_theScalingTool = new Tool_Scaling();
 	m_theRotationTool = new Tool_Rotation();
 	m_theTranslationTool = new Tool_Translation();
 
+	m_theScalingTool->init(p_device, p_deviceContext);
 	m_theRotationTool->init(p_device, p_deviceContext);
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
@@ -84,6 +85,8 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 {
 	EventType type = p_event->type();
 
+	static Vector2 currentScreenCoords;
+
 	switch (type) 
 	{
 	case EVENT_MOUSE_PRESS:
@@ -127,6 +130,24 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				{
 					XMFLOAT4X4 test = currentlyChosenTransformTool->getWorld_logical();
 					currentlyChosenTransformTool->unselect();
+
+					// Prepare parameters for the hover test...
+					Entity entity_camera = CAMERA_ENTITY();
+					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+
+					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+					Vector2 screenDim(width, height);
+					Vector4 rayOrigin; Vector3 rayDir;
+					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+					XMVECTOR xm_rayOrigin, xm_rayDir;
+					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+					XMMATRIX camView = d_camera->view();
+					XMMATRIX camProj = d_camera->projection();
+
+					currentlyChosenTransformTool->tryForHover(xm_rayOrigin, xm_rayDir, camView);
 				}
 
 				//// Check if the selection tool is currently processing a selection.
@@ -151,30 +172,54 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 		{
 			Event_MouseMove* e = static_cast<Event_MouseMove*>(p_event);
 			e->dx;
+			
+			currentScreenCoords = Vector2(e->x, e->y);
 
-			Vector2 currentScreenCoords(e->x, e->y);
-
-			if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+			if(currentlyChosenTransformTool)
 			{
-				// Prepare parameters for the transformation tool...
-				Entity entity_camera = CAMERA_ENTITY();
-				Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-				Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+				if(currentlyChosenTransformTool->getIsSelected())
+				{
+					// Prepare parameters for the transformation tool...
+					Entity entity_camera = CAMERA_ENTITY();
+					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
 
-				int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
-				int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-				Vector2 screenDim(width, height);
-				Vector4 rayOrigin; Vector3 rayDir;
-				d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
-				XMVECTOR xm_rayOrigin, xm_rayDir;
-				xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+					Vector2 screenDim(width, height);
+					Vector4 rayOrigin; Vector3 rayDir;
+					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+					XMVECTOR xm_rayOrigin, xm_rayDir;
+					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
 
-				XMMATRIX camView = d_camera->view();
-				XMMATRIX camProj = d_camera->projection();
-				POINT mouseCursorPoint;
-				mouseCursorPoint.x = (LONG)currentScreenCoords.x;
-				mouseCursorPoint.y = (LONG)currentScreenCoords.y;
-				currentlyChosenTransformTool->update(xm_rayOrigin, xm_rayDir, camView, camProj, *m_viewPort, mouseCursorPoint);
+					XMMATRIX camView = d_camera->view();
+					XMMATRIX camProj = d_camera->projection();
+					POINT mouseCursorPoint;
+					mouseCursorPoint.x = (LONG)currentScreenCoords.x;
+					mouseCursorPoint.y = (LONG)currentScreenCoords.y;
+					currentlyChosenTransformTool->update(xm_rayOrigin, xm_rayDir, camView, camProj, *m_viewPort, mouseCursorPoint);
+				}
+				else if(!currentlyChosenTransformTool->getIsSelected())
+				{
+					// Prepare parameters for the hover test...
+					Entity entity_camera = CAMERA_ENTITY();
+					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+
+					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+					Vector2 screenDim(width, height);
+					Vector4 rayOrigin; Vector3 rayDir;
+					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+					XMVECTOR xm_rayOrigin, xm_rayDir;
+					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+					XMMATRIX camView = d_camera->view();
+					XMMATRIX camProj = d_camera->projection();
+
+					// See if what part of the tool we are hovering over.
+					currentlyChosenTransformTool->tryForHover(xm_rayOrigin, xm_rayDir, camView);
+				}
 			}
 
 			//if(theSelectionTool && theSelectionTool->getIsSelected())

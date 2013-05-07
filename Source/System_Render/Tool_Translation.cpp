@@ -197,6 +197,10 @@ bool Tool_Translation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 	return aTranslationToolHandleWasSelected;
 }
 
+void Tool_Translation::tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+{
+}
+
 /* Called to bind the translatable object to the tool, so its translation can be modified. */
 void Tool_Translation::setActiveObject(int entityId)
 {
@@ -243,7 +247,7 @@ void Tool_Translation::updateWorld()
 
 		Entity e(activeEntityId);
 		Data::Transform* trans = e.fetchData<Data::Transform>();
-		objectWorld = static_cast<XMFLOAT4X4>(world);
+	
 		//XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
 		
 		newWorld._41 = trans->position.x; //objectWorld._41;
@@ -372,13 +376,10 @@ void Tool_Translation::unselect()
 	currentlySelectedAxis = NULL;
 
 	Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(activeEntityId);
-
 	Entity e(activeEntityId);
 	Data::Transform* trans = e.fetchData<Data::Transform>();
-
 	command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
 	command->setUndoTranslation(originalWorldOfActiveObject._41, originalWorldOfActiveObject._42, originalWorldOfActiveObject._43);
-
 	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
 
 	isSelected = false;
@@ -554,6 +555,34 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 	vertices.clear();
 
+		posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Pos.x = 0.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f;
+		vertices.push_back(posCol);
+
+		posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f;
+		vertices.push_back(posCol);
+
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		vinitData.pSysMem = &vertices[0];
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yzPlane2_VB));
+
+		vertices.clear();
+
 	// ZX line-list rectangle.
 
 	posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
@@ -583,6 +612,37 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
     HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zxPlane_VB));
 
 	vertices.clear();
+
+		// ZX line-list rectangle 2.
+
+		posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f;
+		vertices.push_back(posCol);
+
+		posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f;
+		posCol.Pos.x = -1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f;
+		vertices.push_back(posCol);
+
+		posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f;
+		posCol.Pos.x = -1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+	
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		vinitData.pSysMem = &vertices[0];
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zxPlane2_VB));
+
+		vertices.clear();
+	
 
 	// XY line-list rectangle.
 
@@ -614,29 +674,61 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 	vertices.clear();
 
+	// XY line-list rectangle 2.
+
+		posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Pos.x = 0.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f;
+		posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f;
+		posCol.Pos.x = -1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		vertices.push_back(posCol);
+
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.ByteWidth = sizeof(Vertex::PosCol) * 5;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		vinitData.pSysMem = &vertices[0];
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xyPlane2_VB));
+
+		vertices.clear();
+
+		mMeshTransTool_xyPlane2_VB;
+
 		// XY triangle-list rectangle.
 		posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f; // Transparent.
 
 		// Triangle A...
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.5f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.5f; posCol.Pos.y = 0.5f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
 
-		posCol.Pos.x = 0.5f; posCol.Pos.y = 0.5f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.5f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -718,45 +810,62 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 
 	// Draw control frames.
 
-	//md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	//D3D11_BLEND_DESC blendDesc;
-	//blendDesc.AlphaToCoverageEnable = false;
-	//blendDesc.IndependentBlendEnable = false;
-	//blendDesc.RenderTarget[0].BlendEnable = true;
-	//blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-	//blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-	//blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	//blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	//blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	//blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	//blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-	//ID3D11BlendState *blendState;
-	//md3dDevice->CreateBlendState(&blendDesc, &blendState);
-
-	//md3dImmediateContext->OMSetBlendState(blendState, NULL, NULL);
-
-	//ReleaseCOM(blendState);
-
-	//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyTriangleListRectangle_VB, &stride, &offset);
-	//md3dImmediateContext->Draw(6, 0);
-
-	//md3dImmediateContext->OMSetBlendState(NULL, NULL, NULL);
+			//	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//
+			//	D3D11_BLEND_DESC blendDesc;
+			//	blendDesc.AlphaToCoverageEnable = false;
+			//	blendDesc.IndependentBlendEnable = false;
+			//	blendDesc.RenderTarget[0].BlendEnable = true;
+			//	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+			//	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+			//	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+			//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+			//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			//	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			//
+			//	ID3D11BlendState *blendState;
+			//	md3dDevice->CreateBlendState(&blendDesc, &blendState);
+			//
+			//	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			//UINT sampleMask   = 0xffffffff;
+			//
+			//	md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+			//
+			//	ReleaseCOM(blendState);
+			//
+			//	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyTriangleListRectangle_VB, &stride, &offset);
+			//	md3dImmediateContext->Draw(6, 0);
+			//
+			//	md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	
+	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
 	md3dImmediateContext->Draw(5, 0);
 
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane2_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
+
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
 	md3dImmediateContext->Draw(5, 0);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane2_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
 	md3dImmediateContext->Draw(5, 0);
 
-	md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane2_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
+
+	
+
 	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
 
 	XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
 

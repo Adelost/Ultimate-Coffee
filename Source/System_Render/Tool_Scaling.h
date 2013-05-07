@@ -3,11 +3,53 @@
 
 #include "ITool_Transformation.h"
 #include "Handle_TranslationAxis.h"
-#include "Handle_TranslationPlane.h"
+#include "Handle_ScalingPlane.h"
+
+#include "Effects.h"
+#include "Vertex.h"
+#include "RenderStates.h"
+
+struct ID3D11Buffer;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11PixelShader;
+struct ID3D11VertexShader;
 
 class Tool_Scaling : public ITool_Transformation
 {
 private:
+	struct ConstantBuffer2
+	{
+		XMMATRIX WVP;
+	};
+
+	ID3D11PixelShader*			m_pixelShader;
+	ID3D11VertexShader*			m_vertexShader;
+
+	ID3D11Buffer *m_WVPBuffer;
+	ID3D11InputLayout*			m_inputLayout;
+
+	//
+
+	ID3D11Device *md3dDevice;
+	ID3D11DeviceContext *md3dImmediateContext;
+
+	// Test mesh for translation tool.
+	ID3D11Buffer* mMeshTransToolVB;
+
+	// Debug:
+	ID3D11Buffer* mMeshTransTool_yzPlane_VB;
+	ID3D11Buffer* mMeshTransTool_zxPlane_VB;
+	ID3D11Buffer* mMeshTransTool_xyPlane_VB;
+	ID3D11Buffer* mMeshTransTool_viewPlane_VB;
+
+	ID3D11Buffer* mMeshTransTool_yzTriangleListRectangle_VB;
+	ID3D11Buffer* mMeshTransTool_zxTriangleListRectangle_VB;
+	ID3D11Buffer* mMeshTransTool_xyTriangleListRectangle_VB;
+	ID3D11Buffer* mMeshTransTool_viewPlaneTriangleListRectangle_VB;
+
+	////////////////////////////
+
 	XMFLOAT3 position;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 world2;
@@ -17,18 +59,18 @@ private:
 							*yTranslationAxisHandle,
 							*zTranslationAxisHandle;
 
-	Handle_TranslationPlane *xyTranslationPlane,
-							*yzTranslationPlane,
-							*zxTranslationPlane,
-							*camViewTranslationPlane;
+	Handle_ScalingPlane *xyScalingPlane,
+						*yzScalingPlane,
+						*zxScalingPlane,
+						*camViewScalingPlane;
 	
 	Handle_TranslationAxis *currentlySelectedAxis;
-	Handle_TranslationPlane *currentlySelectedPlane;
+	Handle_ScalingPlane *currentlySelectedPlane;
 
 	bool isSelected;
 	bool isVisible;
 
-	IObject *activeObject;
+	int activeEntityId;
 
 	bool relateToActiveObjectWorld;
 
@@ -37,21 +79,26 @@ private:
 	XMFLOAT4X4 world_viewPlaneTranslationControl_logical;
 	XMFLOAT4X4 world_viewPlaneTranslationControl_visual;
 
+	bool shouldFlipMouseCursor;
+
 	//ID3D11Buffer *xyPlaneBuffer;
 	//ID3D11Buffer *yzPlaneBuffer;
 	//ID3D11Buffer *zxPlaneBuffer;
 	
 
 public:
-	Tool_Scaling();
+	Tool_Scaling(/*HWND windowHandle*/);
 	~Tool_Scaling();
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera);
+	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+
+	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any. */
+	void tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
-	void setActiveObject(IObject *object);
+	void setActiveObject(int entityId);
 
 	/* Transform all controls to the local coord. sys. of the active object. */
 	void setRelateToActiveObjectWorld(bool relateToActiveObjectWorld);
@@ -59,11 +106,11 @@ public:
 	/* Called to see if the translation tool is (still) active. */
 	bool getIsSelected();
 
-	/* Called to send updated parameters to the translation tool, if it is still active. */
-	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
+	/* Called to set the entity at whose pivot the tool is to be displayed, when a selection of one or more entities has been made. */
+	void setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId);
 
-	/* Called for current translation delta made by picking. */
-	void translateObject();
+	/* Called to send updated parameters to the translation tool, if it is still active. */
+	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called when the translation tool is unselected, which makes any hitherto made translation final. */
 	void unselect();
@@ -80,6 +127,8 @@ public:
 	/* Called to set the scale as it is adjusted depending on camera distance to the translation tool and affects intersection tests. */
 	void setScale(float &scale);
 
+	void setShouldFlipMouseCursor(bool shouldFlipMouseCursor);
+
 	float getScale();
 
 	XMFLOAT4X4 getWorld_visual();
@@ -92,10 +141,12 @@ public:
 
 	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_visual();
 
-	IObject *getActiveObject();
+	XMFLOAT4X4 getWorld_visual_objectRelative();
+
+	int getActiveObject();
 	
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
-	void draw();
+	void draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView);
 };
 
 #endif
