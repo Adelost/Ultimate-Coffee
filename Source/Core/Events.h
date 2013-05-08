@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EventManager.h"
+typedef struct HWND__* HWND;
 
 enum EventType
 {

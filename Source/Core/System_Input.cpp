@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "System_Input.h"
+
 #include "Data.h"
-#include "Entity.h"
 #include "World.h"
 
 void System::Input::update()
 {
-	Entity entity_camera = CAMERA_ENTITY();
-	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	
+	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 	float delta = SETTINGS()->deltaTime * 15.0f;
 	float strafe = 0.0f;

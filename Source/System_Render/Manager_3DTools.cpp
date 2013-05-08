@@ -45,13 +45,13 @@ void Manager_3DTools::update()
 	//// HACK (Mattias): Made the tool notice when selected Entity has been changed. Don't know if this is the best aproach.
 	// NEW HACK (Nicolas): Took back my old hack for the time being.
 	if(currentlyChosenTransformTool->getActiveObject() == -1)
-		currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
+		currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
 
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.
 	{
-		Entity entity_camera = CAMERA_ENTITY();
-		Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+		Entity* entity_camera = CAMERA_ENTITY().asEntity();
+		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 		XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
 		XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
@@ -70,9 +70,9 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 {
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1)
 	{
-		Entity entity_camera = CAMERA_ENTITY();
-		Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+		Entity* entity_camera = CAMERA_ENTITY().asEntity();
+		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 		//XMMATRIX foo = XMStoreFloat4x4(d_camera->view());
 		XMMATRIX xm_camView = d_camera->view();
@@ -93,7 +93,7 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 		{
 			Event_MousePress* e = static_cast<Event_MousePress*>(p_event);
 
-			Vector2 clickedScreenCoords((int)e->x, (int)e->y);
+			Vector2 clickedScreenCoords((float)e->x, (float)e->y);
 
 			if(e->isPressed == true)
 			{
@@ -102,15 +102,15 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 					// Prepare parameters for the selection tool...
 
 					// Use the selection tool to select against objects in the scene and any present control handles for active transformation tools.
-					currentlyChosenTransformTool->setActiveObject(SETTINGS()->selectedEntityId);
+					currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
 
-					Entity entity_camera = CAMERA_ENTITY();
-					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+					Entity* entity_camera = CAMERA_ENTITY().asEntity();
+					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
 					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim(width, height);
+					Vector2 screenDim((float)width, (float)height);
 					Vector4 rayOrigin; Vector3 rayDir;
 					d_camera->getPickingRay(clickedScreenCoords, screenDim, rayOrigin, rayDir);
 					XMVECTOR xm_rayOrigin, xm_rayDir;
@@ -132,13 +132,13 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 					currentlyChosenTransformTool->unselect();
 
 					// Prepare parameters for the hover test...
-					Entity entity_camera = CAMERA_ENTITY();
-					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+					Entity* entity_camera = CAMERA_ENTITY().asEntity();
+					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
 					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim(width, height);
+					Vector2 screenDim((float)width, (float)height);
 					Vector4 rayOrigin; Vector3 rayDir;
 					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
 					XMVECTOR xm_rayOrigin, xm_rayDir;
@@ -173,20 +173,20 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			Event_MouseMove* e = static_cast<Event_MouseMove*>(p_event);
 			e->dx;
 			
-			currentScreenCoords = Vector2(e->x, e->y);
+			currentScreenCoords = Vector2((float)e->x, (float)e->y);
 
 			if(currentlyChosenTransformTool)
 			{
 				if(currentlyChosenTransformTool->getIsSelected())
 				{
 					// Prepare parameters for the transformation tool...
-					Entity entity_camera = CAMERA_ENTITY();
-					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+					Entity* entity_camera = CAMERA_ENTITY().asEntity();
+					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
 					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim(width, height);
+					Vector2 screenDim((float)width, (float)height);
 					Vector4 rayOrigin; Vector3 rayDir;
 					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
 					XMVECTOR xm_rayOrigin, xm_rayDir;
@@ -202,13 +202,13 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				else if(!currentlyChosenTransformTool->getIsSelected())
 				{
 					// Prepare parameters for the hover test...
-					Entity entity_camera = CAMERA_ENTITY();
-					Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+					Entity* entity_camera = CAMERA_ENTITY().asEntity();
+					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
 					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim(width, height);
+					Vector2 screenDim((float)width, (float)height);
 					Vector4 rayOrigin; Vector3 rayDir;
 					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
 					XMVECTOR xm_rayOrigin, xm_rayDir;

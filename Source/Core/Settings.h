@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math.h"
+#include "EntityPointer.h"
 
 typedef struct HWND__* HWND;
 class Camera;
@@ -23,14 +24,14 @@ public:
 class Settings
 {
 public:
-	float deltaTime;
-	HWND windowHandle;
-	Color backBufferColor;
-	int selectedTool;
-	int selectedEntityId;
-	int camera_entityId;
 	ButtonState button;
+	Color backBufferColor;
+	EntityPointer entity_selection;
+	EntityPointer entity_camera;
+	HWND windowHandle;
 	Int2 windowSize;
+	float deltaTime;
+	int selectedTool;
 
 	int DXViewPortTopLeftX;
 	int DXViewPortTopLeftY;

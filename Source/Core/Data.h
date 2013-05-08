@@ -6,6 +6,9 @@
 
 namespace Data
 {
+	/**
+	Represents spatial information
+	*/
 	class Transform : public Type<Transform>
 	{
 	public:
@@ -21,33 +24,38 @@ namespace Data
 
 		Matrix toWorldMatrix()
 		{
-			Matrix mat_pos;
-			mat_pos = Matrix::CreateTranslation(position);
-			Matrix mat_rot;
-			mat_rot = Matrix::CreateFromQuaternion(rotation);
-			Matrix mat_scale;
-			mat_scale = Matrix::CreateScale(scale);
+			Matrix mat_pos = Matrix::CreateTranslation(position);
+			Matrix mat_rot = Matrix::CreateFromQuaternion(rotation);
+			Matrix mat_scale = Matrix::CreateScale(scale);
 
 			Matrix m = mat_scale*mat_rot*mat_pos;
 			return m;
 		}
 	};
 
+	/**
+	Used to mark Entities as being selected.
+	Could contain additional meta information if needed.
+	*/
+	class Selected : public Type<Selected>
+	{
+	public:
+		/**
+		The Entity which is used as a pivot point e.g. 
+		when rotating.
+		*/
+		static int pivotEntity;
+	};
 
+	/**
+	Should contain some bounding shape information to be
+	used in intersection/collision tests.
+	*/
 	class Bounding : public Type<Bounding>
 	{
 	public:
 		Vector3 position;
 		Vector3 size;
-
-	public:
-		Matrix toMatrix()
-		{
-			// TODO
-			Matrix m;
-
-			return m;
-		}
 	};
 
 	

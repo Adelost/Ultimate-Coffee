@@ -1,7 +1,15 @@
 #pragma once
 
-#include <Core/stdafx.h>//check, interdependent precompiled headers
+#include <Core/stdafx.h>
+#include <Core/Converter.h>
+#include <Core/Data.h>
+#include <Core/Entity.h>
+#include <Core/EventManager.h>
+#include <Core/Events.h>
+#include <Core/Factory_Entity.h>
 #include <Core/IObserver.h>
+#include <Core/Settings.h>
+#include <Core/World.h>
 
 #include <QAction>
 #include <QDockWidget.h>

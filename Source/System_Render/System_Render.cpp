@@ -2,19 +2,9 @@
 #include "System_Render.h"
 #include "DXRenderer.h"
 
-#include <Core/EventManager.h>
-#include <Core/Events.h>
-#include <Core/Camera.h>
-#include <Core/World.h>
-#include <Core/Settings.h>
-#include <Core/Data_Camera.h>
-#include <Core/Factory_Entity.h>
-#include <Core/Entity.h>
-#include <Core/Enums.h>
-
 System::Render::Render()
 {
-	SETTINGS()->camera_entityId = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->id();
+	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->asPointer();
 	setupDirectX();
 }
 

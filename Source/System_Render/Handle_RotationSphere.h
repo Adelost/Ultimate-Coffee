@@ -1,7 +1,6 @@
 #ifndef HANDLE_ROTATIONSPHERE_H
 #define HANDLE_ROTATIONSPHERE_H
 
-#include <Core/Camera.h>
 #include <Core/Math.h>
 
 #include "IHandle.h"

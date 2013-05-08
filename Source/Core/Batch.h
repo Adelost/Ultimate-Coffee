@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "BatchPointer.h"
 
 // Interface class used to provide a common
 // access pattern for all Batch-templates

@@ -1,7 +1,6 @@
 #ifndef HANDLE_TRANSLATIONPLANE_H
 #define HANDLE_TRANSLATIONPLANE_H
 
-#include <Core/Camera.h>
 #include <Core/Math.h>
 
 class Handle_TranslationPlane

@@ -10,7 +10,7 @@
 
 #include <Core/World.h>
 #include <Core/Data.h>
-
+#include <Core/Entity.h>
 #include <Core/Events.h>
 
 Window::Window()
@@ -134,9 +134,9 @@ ISystem* Window::system_editor()
 void Window::keyPressEvent( QKeyEvent *e )
 {
 	// Update camera
-	Entity entity_camera = CAMERA_ENTITY();
-	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 	float delta = SETTINGS()->deltaTime * 1000.0f;
 	float strafe = 0.0f;

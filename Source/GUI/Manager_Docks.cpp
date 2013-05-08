@@ -490,8 +490,8 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 
 void Manager_Docks::selectEntity( const QModelIndex & index )
 {
-	int row = index.row();
-	SETTINGS()->selectedEntityId = row;
+	int entityId = index.row();
+	SETTINGS()->entity_selection = Entity::findEntity(entityId)->asPointer();
 }
 
 

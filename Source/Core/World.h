@@ -29,6 +29,7 @@ public:
 	
 	void addSystem(ISystem* p_system);
 	Entity* createEntity();
+	void removeEntity(Entity* p_entity);
 
 public:
 	Manager_Data* manager_data();
@@ -51,4 +52,4 @@ public:
 
 // Access World Settings
 #define CAMERA_ENTITY()	\
-	Entity(World::instance()->settings->camera_entityId)
+	World::instance()->settings->entity_camera

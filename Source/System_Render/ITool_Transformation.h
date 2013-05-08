@@ -6,7 +6,6 @@
 using namespace DirectX;
 
 #include <Core/Entity.h>
-#include <Core/Camera.h>
 
 struct D3D11_VIEWPORT;
 struct ID3D11Device;

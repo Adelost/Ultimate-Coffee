@@ -1,9 +1,16 @@
 #pragma once
 
-#include <Core/DataMapper.h>
-#include <Core/World.h>
-#include <Core/Settings.h>
 #include <Core/Data.h>
+#include <Core/DataMapper.h>
+#include <Core/Data_Camera.h>
+#include <Core/Entity.h>
+#include <Core/Enums.h>
+#include <Core/EventManager.h>
+#include <Core/Events.h>
+#include <Core/Factory_Entity.h>
+#include <Core/Settings.h>
+#include <Core/World.h>
+
 #include <Windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>

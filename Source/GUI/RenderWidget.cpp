@@ -1,8 +1,5 @@
 #include "stdafx.h"
 #include "RenderWidget.h"
-#include <Core/Events.h>
-#include <Core/World.h>
-#include <Core/Data.h>
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
@@ -100,9 +97,9 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	// send mouse move event to relevant observers
 	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
 
-	Entity entity_camera = CAMERA_ENTITY();
-	Data::Transform* d_transform = entity_camera.fetchData<Data::Transform>();
-	Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 	if(SETTINGS()->button.mouse_right)
 	{
@@ -194,6 +191,12 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 		break;
 	}
 
+	
+	// Inform about key press
+	QPoint pos = p_event->pos();
+	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));
+
+
 	// HACK: Set tools, should be refactored later
 	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
 
@@ -209,9 +212,4 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			SEND_EVENT(&Event_SetCursor(Event_SetCursor::NormalCursor));
 		}
 	}
-
-	
-	// Inform about key press
-	QPoint pos = p_event->pos();
-	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));
 }

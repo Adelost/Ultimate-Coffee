@@ -15,9 +15,7 @@
 #include "IData.h"
 #include "ISystem.h"
 #include "Manager_Data.h"
-
 #include "Entity.h"
-
 
 // Prints the supplied string to console
 #define DEBUGPRINT(DATA_STREAM)								\

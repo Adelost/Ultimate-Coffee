@@ -1,7 +1,6 @@
 #ifndef HANDLE_SCALINGPLANE_H
 #define HANDLE_SCALINGPLANE_H
 
-#include <Core/Camera.h>
 #include <Core/Math.h>
 
 enum DimensionTuple {XY, XZ, YZ};

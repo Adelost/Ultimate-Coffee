@@ -3,11 +3,6 @@
 #include "Box.h"
 #include "Manager_3DTools.h"
 #include "Buffer.h"
-#include <Core/EventManager.h>
-#include <Core/Events.h>
-#include <Core/World.h>
-#include <Core/Settings.h>
-#include <Core/Data_Camera.h>
 
 DXRenderer::DXRenderer()
 {
@@ -133,8 +128,8 @@ void DXRenderer::renderFrame()
 	// don't know where else to put it.
 	// Please move to better location.
 	{
-		Entity entity_camera = CAMERA_ENTITY();
-		Data::Camera* d_camera = entity_camera.fetchData<Data::Camera>();
+		Entity* entity_camera = CAMERA_ENTITY().asEntity();
+		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 		//m_CBuffer.WVP = XMMatrixTranspose(world) * XMMatrixTranspose(d_camera->view()) * XMMatrixTranspose(d_camera->projection());
 		viewProjection = d_camera->viewProjection();
@@ -365,10 +360,10 @@ void DXRenderer::resizeDX()
 		1,								// nr of viewports
 		m_viewport_screen);			// viewport array
 
-	SETTINGS()->DXViewPortTopLeftX = m_viewport_screen->TopLeftX;
-	SETTINGS()->DXViewPortTopLeftY = m_viewport_screen->TopLeftY;
-	SETTINGS()->DXViewPortMinDepth = m_viewport_screen->MinDepth;
-	SETTINGS()->DXViewPortMaxDepth = m_viewport_screen->MaxDepth;
+	SETTINGS()->DXViewPortTopLeftX = (int)m_viewport_screen->TopLeftX;
+	SETTINGS()->DXViewPortTopLeftY = (int)m_viewport_screen->TopLeftY;
+	SETTINGS()->DXViewPortMinDepth = (int)m_viewport_screen->MinDepth;
+	SETTINGS()->DXViewPortMaxDepth = (int)m_viewport_screen->MaxDepth;
 
 	// Resize cameras
 	// NOTE: Don't know if this should be here,

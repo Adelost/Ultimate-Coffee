@@ -3,8 +3,6 @@
 #include "UpdateTimer.h"
 #include "Window.h"
 
-#include <Core/World.h>
-#include <Core/Factory_Entity.h>
 #include <Core/System.h>
 #include <Core/System_Input.h>
 #include <System_Render/System_Render.h>
@@ -33,7 +31,7 @@ void UpdateLoop::init()
 	// Create Entities
 	for(int i=0; i<3; i++)
 	{
-		SETTINGS()->selectedEntityId = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->id();
+		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->asPointer();
 	}
 }
 

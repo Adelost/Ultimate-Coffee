@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include <Core/Camera.h>
 #include "ITool_Transformation.h"
 
 class Tool_Selection
