@@ -131,7 +131,42 @@ bool Handle_TranslationPlane::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &ray
 
 	return isSelected;
 }
+
+bool Handle_TranslationPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+{
+	isSelected = false;
+
+	// Tranform ray to local space.
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
+
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
+
+	XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
+
+	XMVECTOR transRayOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
+	XMVECTOR transRayDir = XMVector3TransformNormal(rayDir, toLocal);
+
+	// Make the ray direction unit length for the intersection tests.
+	transRayDir = XMVector3Normalize(transRayDir);
 	
+	// Calculate if and where the ray intersects the translation plane.
+	XMVECTOR planeIntersectionPoint;
+	bool rayIntersectedWithPlane = rayVsPlane(transRayOrigin, transRayDir, plane, planeIntersectionPoint);
+	
+	if(rayIntersectedWithPlane)
+	{
+		//prevPickedPointOnAxisPlane = planeIntersectionPoint;
+
+		XMStoreFloat3(&firstPickedPointOnAxisPlane, planeIntersectionPoint);
+		currentlyPickedPointOnAxisPlane = firstPickedPointOnAxisPlane;
+
+		isSelected = rayIntersectedWithPlane;
+	}
+
+	return isSelected;
+}
+
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
 void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
@@ -186,6 +221,7 @@ void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 /* Called when picking against the axis plane should cease, if the LMB has been released. */
 void Handle_TranslationPlane::unselect()
 {
+	isSelected = false;
 	firstPickedPointOnAxisPlane.x = 0.0f;
 	firstPickedPointOnAxisPlane.y = 0.0f;
 	firstPickedPointOnAxisPlane.z = 0.0f;
@@ -209,6 +245,11 @@ XMVECTOR Handle_TranslationPlane::getLastTranslationDelta()
 	XMVECTOR loadedFirstPickedPointOnAxisPlane = XMLoadFloat3(&firstPickedPointOnAxisPlane);
 	XMVECTOR deltaVector = loadedCurrentlyPickedPointOnAxisPlane - loadedFirstPickedPointOnAxisPlane;
 
+	if(deltaVector.m128_f32[0] > 0.0f)
+	{
+		int test = 4;
+	}
+
 	return deltaVector;
 }
 
@@ -216,4 +257,10 @@ XMVECTOR Handle_TranslationPlane::getLastTranslationDelta()
 void Handle_TranslationPlane::setWorld(XMMATRIX &world)
 {
 	XMStoreFloat4x4(&this->world, world);
+}
+
+/* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */
+void Handle_TranslationPlane::setPlaneOrientation(XMVECTOR &normal)
+{
+	XMStoreFloat3(&plane.normal, normal);
 }
