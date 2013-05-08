@@ -25,6 +25,9 @@ public:
 	
 	/* Called for initial selection and picking against the axis plane. */
 	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
+
+	/* Called for initial selection and picking against the axis plane. */
+	bool pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
 	
 	/* Called for continued picking against the plane. */
 	void pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
@@ -40,6 +43,9 @@ public:
 
 	/* Called for the needed transform of the visual and/or bounding components of the handle. */
 	void setWorld(XMMATRIX &world);
+
+	/* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */
+	void setPlaneOrientation(XMVECTOR &normal);
 
 	// Move somewhere else.
 	bool rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyRectangle &rectangle, float &distanceToIntersectionPoint);

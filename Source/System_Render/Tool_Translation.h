@@ -36,8 +36,16 @@ private:
 
 	// Test mesh for translation tool.
 	ID3D11Buffer* mMeshTransToolVB;
-
+	
 	// Debug:
+	ID3D11Buffer* mMeshTransTool_xAxisArrow_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisArrow_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisArrow_VB;
+	ID3D11Buffer* mMeshTransTool_xAxisArrow2_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisArrow2_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisArrow2_VB;
+	ID3D11Buffer* mMeshTransTool_axisArrow_IB;
+
 	ID3D11Buffer* mMeshTransTool_yzPlane_VB;
 	ID3D11Buffer* mMeshTransTool_zxPlane_VB;
 	ID3D11Buffer* mMeshTransTool_xyPlane_VB;
@@ -60,7 +68,10 @@ private:
 
 	Handle_TranslationAxis	*xTranslationAxisHandle,
 							*yTranslationAxisHandle,
-							*zTranslationAxisHandle;
+							*zTranslationAxisHandle,
+							*xTranslationAxisHandle2,
+							*yTranslationAxisHandle2,
+							*zTranslationAxisHandle2;
 
 	Handle_TranslationPlane *xyTranslationPlane,
 							*yzTranslationPlane,

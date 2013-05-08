@@ -38,9 +38,20 @@ private:
 	ID3D11Buffer* mMeshTransToolVB;
 
 	// Debug:
+	ID3D11Buffer* mMeshTransTool_xAxisArrow_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisArrow_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisArrow_VB;
+	ID3D11Buffer* mMeshTransTool_xAxisArrow2_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisArrow2_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisArrow2_VB;
+	ID3D11Buffer* mMeshTransTool_axisArrow_IB;
+
 	ID3D11Buffer* mMeshTransTool_yzPlane_VB;
 	ID3D11Buffer* mMeshTransTool_zxPlane_VB;
 	ID3D11Buffer* mMeshTransTool_xyPlane_VB;
+	ID3D11Buffer* mMeshTransTool_yzPlane2_VB;
+	ID3D11Buffer* mMeshTransTool_zxPlane2_VB;
+	ID3D11Buffer* mMeshTransTool_xyPlane2_VB;
 	ID3D11Buffer* mMeshTransTool_viewPlane_VB;
 
 	ID3D11Buffer* mMeshTransTool_yzTriangleListRectangle_VB;
@@ -55,13 +66,19 @@ private:
 	XMFLOAT4X4 world2;
 	float scale;
 
-	Handle_TranslationAxis	*xTranslationAxisHandle,
-							*yTranslationAxisHandle,
-							*zTranslationAxisHandle;
+	Handle_TranslationAxis	*xScalingAxisHandle,
+							*yScalingAxisHandle,
+							*zScalingAxisHandle,
+							*xScalingAxisHandle2,
+							*yScalingAxisHandle2,
+							*zScalingAxisHandle2;
 
 	Handle_ScalingPlane *xyScalingPlane,
 						*yzScalingPlane,
 						*zxScalingPlane,
+						*xyScalingPlane2,
+						*yzScalingPlane2,
+						*zxScalingPlane2,
 						*camViewScalingPlane;
 	
 	Handle_TranslationAxis *currentlySelectedAxis;

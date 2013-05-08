@@ -85,12 +85,12 @@ public:
 	///</summary>
 	//void CreateGeosphere(float radius, UINT numSubdivisions, MeshData& meshData);
 
-	///<summary>
-	/// Creates a cylinder parallel to the y-axis, and centered about the origin.  
-	/// The bottom and top radius can vary to form various cone shapes rather than true
-	// cylinders.  The slices and stacks parameters control the degree of tessellation.
-	///</summary>
-	//void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	//<summary>
+	//Creates a cylinder parallel to the y-axis, and centered about the origin.  
+	//The bottom and top radius can vary to form various cone shapes rather than true
+	//cylinders.  The slices and stacks parameters control the degree of tessellation.
+	//</summary>
+	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, XMVECTOR &color, MeshData2& meshData, XMMATRIX &localSpaceTransform);
 
 	///<summary>
 	/// Creates an mxn grid in the xz-plane with m rows and n columns, centered
@@ -110,8 +110,8 @@ public:
 
 private:
 	//void Subdivide(MeshData& meshData);
-	//void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	//void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, XMVECTOR &color, MeshData2& meshData, XMMATRIX &localSpaceTransform);
+	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, XMVECTOR &color, MeshData2& meshData, XMMATRIX &localSpaceTransform);
 };
 
 #endif // GEOMETRYGENERATOR_H
