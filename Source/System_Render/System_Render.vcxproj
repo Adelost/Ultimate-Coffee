@@ -170,6 +170,7 @@
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System_Render.h" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="Tool_Rotation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

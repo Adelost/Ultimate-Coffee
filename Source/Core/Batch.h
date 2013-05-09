@@ -32,7 +32,7 @@ public:
 	// Index of the last gap in the vector
 	int* lastGap()
 	{
-		return &m_index_firstGap;
+		return &m_index_lastGap;
 	}
 	std::vector<T>* itemList()
 	{

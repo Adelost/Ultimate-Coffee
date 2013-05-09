@@ -57,9 +57,6 @@ Window::Window()
 
 Window::~Window()
 {
-	for(int i=0; i<(int)m_autoDelete.size(); i++)
-		delete m_autoDelete[i];
-
 	delete m_updateLoop;
 	delete m_manager_commands;
 	delete m_manager_console;
@@ -72,6 +69,12 @@ Window::~Window()
 void Window::update()
 {
 	m_updateLoop->update();
+
+	// Hack: Allows GUI to process
+	// this is necessary because QTimer is
+	// broken in newer Qt versions and otherwise takes
+	// all execution time.
+	m_refreshTimer->setInterval(1);
 }																			
 
 void Window::setFullscreen( bool checked )
@@ -163,4 +166,23 @@ void Window::keyPressEvent( QKeyEvent *e )
 	d_camera->strafe(d_transform->position, strafe);
 	d_camera->walk(d_transform->position, walk);
 	d_camera->updateViewMatrix(d_transform->position);
+}
+
+bool Window::eventFilter( QObject* object, QEvent* event )
+{
+	/*QEvent::Type type = event->type();
+
+	if(type == QEvent::Timer)
+	{
+	DEBUGPRINT("Event: Timer");
+	this::
+	return false;
+	}*/
+
+	return false;
+}
+
+void Window::setRefreshInterval( int p_interval )
+{
+	m_refreshTimer->setInterval(p_interval);
 }

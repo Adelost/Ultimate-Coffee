@@ -146,7 +146,7 @@ public:
 		float thetaStep = 2.0f*XM_PI/sliceCount;
 
 		// Compute vertices for each stack ring (do not count the poles as rings).
-		for(UINT i = 1; i <= stackCount-1; ++i)
+		for(unsigned int i = 1; i <= stackCount-1; ++i)
 		{
 			float phi = i*phiStep;
 

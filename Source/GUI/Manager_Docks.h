@@ -20,7 +20,8 @@ class Manager_Docks : public QObject, public IObserver
 private:
 	Window* m_window;
 	QDockWidget* m_scene;
-	QStandardItemModel* m_hierarchy;
+	QTreeView* m_hierarchy_tree;
+	QStandardItemModel* m_hierarchy_model;
 	QMenu* m_menu;
 	QListWidget* commandHistoryListWidget;
 	QListView* listT;
