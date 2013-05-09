@@ -3,6 +3,7 @@
 #include "IData.h"
 #include "Math.h"
 #include "Data_Camera.h"
+#include "EntityPointer.h"
 
 namespace Data
 {
@@ -44,7 +45,7 @@ namespace Data
 		The Entity which is used as a pivot point e.g. 
 		when rotating.
 		*/
-		static int pivotEntity;
+		static EntityPointer pivot;
 	};
 
 	/**

@@ -490,8 +490,41 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 
 void Manager_Docks::selectEntity( const QModelIndex & index )
 {
+	DataMapper<Data::Selected> map_selected;
+
+	// Remove previous selection
+	DEBUGPRINT("");
+	DEBUGPRINT("UNSELECTED");
+	while(map_selected.hasNext())
+	{
+		Entity* entity = map_selected.nextEntity();
+		entity->removeData<Data::Selected>();
+		DEBUGPRINT("Entity " + Converter::IntToStr(entity->id()));
+	}
+
+	//// Add new selection
+	//QList<QModelIndex> index_list = m_hierarchy_view->selectionModel()->selectedRows();
+
+	//// Pick last clicked as pivot
+	//DEBUGPRINT("SELECTED");
+	//foreach(QModelIndex index, index_list)
+	//{
+	//	int entityId = index.row();
+	//	Entity* e = Entity::findEntity(entityId);
+	//	e->addData(Data::Selected());
+	//	DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
+	//}
+	//while(index_list.count() > 0)
+	//{
+	//	index_list.pop_back();
+	//}
+
+
+	// Pick last clicked as pivot
 	int entityId = index.row();
-	SETTINGS()->entity_selection = Entity::findEntity(entityId)->asPointer();
+	Data::Selected::pivot = Entity::findEntity(entityId)->asPointer();
+	DEBUGPRINT("PIVOT");
+	DEBUGPRINT("Entity " + Converter::IntToStr(entityId));
 }
 
 

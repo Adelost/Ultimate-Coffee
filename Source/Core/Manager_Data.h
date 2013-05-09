@@ -49,8 +49,8 @@ public:
 	{
 		if(p_batchIndex != -1)
 		{
-			DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[batchIndex];
-			dataBatch->removeData<T>(p_entityId);
+			DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[p_batchIndex];
+			dataBatch->removeData(p_entityId);
 		}
 	}
 

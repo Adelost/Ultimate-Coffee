@@ -88,6 +88,9 @@
     <ClCompile Include="EntityPointer.cpp">
       <Filter>Source\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Data.cpp">
+      <Filter>Source\Data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
