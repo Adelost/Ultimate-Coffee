@@ -16,7 +16,7 @@ Handle_RotationSphere::~Handle_RotationSphere()
 }
 
 /* Called for initial selection and picking against the sphere. */
-bool Handle_RotationSphere::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+bool Handle_RotationSphere::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
 {
 	isSelected = false;
 
@@ -71,7 +71,7 @@ float Handle_RotationSphere::calcAngleBetweenTwoPointsOnSphere(Sphere &sphere, X
 }
 
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
-void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	// Tranform ray to local space.
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
@@ -158,7 +158,7 @@ void Handle_RotationSphere::pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XM
 		float distanceToIntersectionPoint;
 
 		// Re-select the rotation sphere. This call should never return false in this function.
-		bool selected = tryForSelection(rayOrigin, rayDir, camView, distanceToIntersectionPoint);
+		bool selected = tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToIntersectionPoint);
 		if(!selected)
 		{
 			throw "Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation.";

@@ -32,7 +32,7 @@ void Tool_Rotation::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Rotation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView )
+bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView )
 {
 	bool aRotationToolHandleWasSelected = false;
 
@@ -50,7 +50,7 @@ bool Tool_Rotation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		float distanceToPointOfIntersection;
 		
 		// Check if the ray intersects with the omni-rotation sphere.
-		bool sphereSelected = omniRotateSphereHandle->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		bool sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 		if(sphereSelected)
 		{
 			currentlySelectedHandle = omniRotateSphereHandle;
@@ -69,7 +69,7 @@ bool Tool_Rotation::tryForSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 }
 
 /* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any, and sets the cursor accordingly. */
-void Tool_Rotation::tryForHover( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+void Tool_Rotation::tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 	bool aRotationToolHandleWasSelected = false;
 
@@ -89,7 +89,7 @@ void Tool_Rotation::tryForHover( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX
 		float distanceToPointOfIntersection;
 		
 		// Check if the ray intersects with the omni-rotation sphere.
-		bool sphereSelected = omniRotateSphereHandle->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		bool sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 		if(sphereSelected)
 		{
 			hoveredHandle = omniRotateSphereHandle;
@@ -200,14 +200,14 @@ bool Tool_Rotation::getIsSelected()
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Rotation::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	if(currentlySelectedHandle)
 	{
 		// Pick against the plane to update the translation delta.
 		if(currentlySelectedHandle = omniRotateSphereHandle)
 		{
-			omniRotateSphereHandle->pickSphere(rayOrigin, rayDir, camView, camProj, theViewport, mouseCursorPoint);
+			omniRotateSphereHandle->pickSphere(selectionRectangle, rayOrigin, rayDir, camView, camProj, theViewport, mouseCursorPoint);
 
 			XMVECTOR rotQuaternion = omniRotateSphereHandle->getTotalRotationQuaternion(); //getLastRotationQuaternion();
 			

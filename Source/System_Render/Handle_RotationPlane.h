@@ -3,7 +3,7 @@
 
 #include <Core/Math.h>
 
-class Handle_TranslationPlane
+class Handle_RotationPlane
 {
 private:
 	XMFLOAT4X4 world;
@@ -20,11 +20,11 @@ private:
 	bool isSelected;
 
 public:
-	Handle_TranslationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle);
-	~Handle_TranslationPlane();
+	Handle_RotationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle);
+	~Handle_RotationPlane();
 	
 	/* Called for initial selection and picking against the axis plane. */
-	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
+	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
 
 	/* Called for initial selection and picking against the axis plane. */
 	bool pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);

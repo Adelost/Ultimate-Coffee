@@ -108,7 +108,7 @@ void Tool_Scaling::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Scaling::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 
 	bool aTranslationToolHandleWasSelected = false;
@@ -206,7 +206,7 @@ bool Tool_Scaling::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATR
 	return aTranslationToolHandleWasSelected;
 }
 
-void Tool_Scaling::tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+void Tool_Scaling::tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 }
 
@@ -315,7 +315,7 @@ void Tool_Scaling::setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId)
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
-void Tool_Scaling::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	if(currentlySelectedAxis)
 	{

@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "Handle_TranslationAxis.h"
+#include "Handle_RotationCircle.h"
 
-Handle_TranslationAxis::Handle_TranslationAxis(XMVECTOR &direction, std::vector<XMFLOAT4> boundingTriangles, char axis)
+Handle_RotationCircle::Handle_RotationCircle(XMVECTOR &direction, std::vector<XMFLOAT4> boundingLines, char axis)
 {
 	isSelected = false;
 
@@ -26,16 +26,16 @@ Handle_TranslationAxis::Handle_TranslationAxis(XMVECTOR &direction, std::vector<
 	}
 
 	MyRectangle boundingRectangle; // Dummy rectangle.
-	singleAxisTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&dir), 0.0f, boundingRectangle);
+	singleAxisRotationPlane = new Handle_RotationPlane(XMLoadFloat3(&dir), 0.0f, boundingRectangle);
 }
 
-Handle_TranslationAxis::~Handle_TranslationAxis()
+Handle_RotationCircle::~Handle_RotationCircle()
 {
-	delete singleAxisTranslationPlane;
+	delete singleAxisRotationPlane;
 }
 
 /* Called for initial selection and picking against the axis plane. */
-bool Handle_TranslationAxis::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
 {
 	bool wasSelected = false;
 
@@ -71,7 +71,7 @@ bool Handle_TranslationAxis::tryForSelection(MyRectangle &selectionRectangle, XM
 			else if(direction.z == 1.0f)
 				reorientedNormal = XMFLOAT3(normalizedRayDir.m128_f32[0], normalizedRayDir.m128_f32[1], 0.0f);
 
-			singleAxisTranslationPlane->setPlaneOrientation(XMLoadFloat3(&reorientedNormal));
+			singleAxisRotationPlane->setPlaneOrientation(XMLoadFloat3(&reorientedNormal));
 
 			pickFirstPointOnAxisPlane(rayOrigin, rayDir, camView, distanceToIntersectionPoint);
 			distanceToIntersectionPoint = dist;
@@ -84,9 +84,9 @@ bool Handle_TranslationAxis::tryForSelection(MyRectangle &selectionRectangle, XM
 	return wasSelected;
 }
 
-bool Handle_TranslationAxis::pickFirstPointOnAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToPointOfIntersection)
+bool Handle_RotationCircle::pickFirstPointOnAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToPointOfIntersection)
 {
-	bool pickedAPoint = singleAxisTranslationPlane->pickFirstPointOnPlane(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+	bool pickedAPoint = singleAxisRotationPlane->pickFirstPointOnPlane(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 	return pickedAPoint;
 }
@@ -99,10 +99,10 @@ bool Handle_TranslationAxis::pickFirstPointOnAxisPlane(XMVECTOR &rayOrigin, XMVE
 	controller’s SetPlaneOrientation() function. */
 	
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
-void Handle_TranslationAxis::pickAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+void Handle_RotationCircle::pickAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
-	if(singleAxisTranslationPlane->getIsSelected())
-		singleAxisTranslationPlane->pickPlane(rayOrigin, rayDir, camView);
+	if(singleAxisRotationPlane->getIsSelected())
+		singleAxisRotationPlane->pickPlane(rayOrigin, rayDir, camView);
 
 	//prevPickedPointOnAxisPlane = nextPickedPointOnAxisPlane;
 
@@ -117,20 +117,20 @@ void Handle_TranslationAxis::pickAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir
 }
 
 /* Called when picking against the axis plane should cease, if the LMB has been released. */
-void Handle_TranslationAxis::unselect()
+void Handle_RotationCircle::unselect()
 {
 	isSelected = false;
-	singleAxisTranslationPlane->unselect();
+	singleAxisRotationPlane->unselect();
 }
 	
 /* Called to see if this is the currently selected translation axis, if any. */
-bool Handle_TranslationAxis::getIsSelected()
+bool Handle_RotationCircle::getIsSelected()
 {
 	return isSelected;
 }
 
 /* Called to retrieve the last made translation delta. */
-XMVECTOR Handle_TranslationAxis::getLastTranslationDelta()
+XMVECTOR Handle_RotationCircle::getLastTranslationDelta()
 {
 	//XMVECTOR loadedNextPickedPointOnAxisPlane; XMLoadFloat3(&nextPickedPointOnAxisPlane);
 	//XMVECTOR loadedPrevPickedPointOnAxisPlane; XMLoadFloat3(&prevPickedPointOnAxisPlane);
@@ -146,9 +146,9 @@ XMVECTOR Handle_TranslationAxis::getLastTranslationDelta()
 	XMFLOAT4 transDelta;
 	XMVECTOR oneAxisOnlyTransDelta = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-	if(singleAxisTranslationPlane->getIsSelected())
+	if(singleAxisRotationPlane->getIsSelected())
 	{
-		XMStoreFloat4(&transDelta, singleAxisTranslationPlane->getLastTranslationDelta());
+		XMStoreFloat4(&transDelta, singleAxisRotationPlane->getLastTranslationDelta());
 
 		if(direction.x == 1.0f)
 		{
@@ -170,14 +170,14 @@ XMVECTOR Handle_TranslationAxis::getLastTranslationDelta()
 }
 
 /* Called for the needed transform of the visual and/or bounding components of the handle. */
-void Handle_TranslationAxis::setWorld(XMMATRIX &world)
+void Handle_RotationCircle::setWorld(XMMATRIX &world)
 {
 	XMStoreFloat4x4(&this->world, world);
 
-	singleAxisTranslationPlane->setWorld(world);
+	singleAxisRotationPlane->setWorld(world);
 }
 
-void Handle_TranslationAxis::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+void Handle_RotationCircle::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 	//// Tranform ray to local space.
 	//XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);

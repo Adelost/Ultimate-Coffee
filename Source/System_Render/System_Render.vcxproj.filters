@@ -73,6 +73,12 @@
     <ClInclude Include="Tool_Scaling.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="Handle_RotationCircle.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle_RotationPlane.h">
+      <Filter>Source\Tools</Filter>
+	</ClInclude>
     <ClInclude Include="GeometryGenerator.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
@@ -142,6 +148,12 @@
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Tool_Scaling.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle_RotationCircle.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle_RotationPlane.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="GeometryGenerator.cpp">
