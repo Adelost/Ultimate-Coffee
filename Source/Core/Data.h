@@ -5,6 +5,8 @@
 #include "Data_Camera.h"
 #include "EntityPointer.h"
 
+class Entity;
+
 namespace Data
 {
 	/**
@@ -57,6 +59,9 @@ namespace Data
 	public:
 		Vector3 position;
 		Vector3 size;
+		
+	public:
+		//bool intersectRay(Entity* entity, Vector3& origin, Vector3& direction);
 	};
 
 	

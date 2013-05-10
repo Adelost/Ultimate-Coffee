@@ -148,6 +148,7 @@
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
     <ClCompile Include="Command_TranslateSceneEntity.cpp" />
+    <ClCompile Include="Converter.cpp" />
     <ClCompile Include="Data.cpp" />
     <ClCompile Include="DataMapper.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -167,6 +168,7 @@
     </ClCompile>
     <ClCompile Include="System_Input.cpp" />
     <ClCompile Include="World.cpp" />
+    <ClCompile Include="xnacollision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
@@ -201,6 +203,7 @@
     <ClInclude Include="Batch.h" />
     <ClInclude Include="System_Input.h" />
     <ClInclude Include="World.h" />
+    <ClInclude Include="xnacollision.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl" />

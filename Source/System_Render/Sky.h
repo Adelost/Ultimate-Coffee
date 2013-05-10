@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "Factory_Geometry.h"
 #include "Vertex.h"
+#include "DDSTextureLoader.h"
 
 struct ConstantBuffer
 {

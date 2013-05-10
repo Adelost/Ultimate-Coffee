@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DXRenderer.h" />
     <ClInclude Include="Factory_Geometry.h" />
     <ClInclude Include="GeometryGenerator.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System_Render.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TexLoader.h" />
     <ClInclude Include="Tool_Rotation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -189,6 +191,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DXRenderer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Handle_RotationSphere.cpp" />
@@ -204,6 +207,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="System_Render.cpp" />
+    <ClCompile Include="TexLoader.cpp" />
     <ClCompile Include="Tool_Rotation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
