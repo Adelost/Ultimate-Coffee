@@ -159,6 +159,8 @@
     <ClInclude Include="DXRenderer.h" />
     <ClInclude Include="Factory_Geometry.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="Handle_RotationCircle.h" />
+    <ClInclude Include="Handle_RotationPlane.h" />
     <ClInclude Include="Handle_RotationSphere.h" />
     <ClInclude Include="Handle_ScalingPlane.h" />
     <ClInclude Include="Handle_TranslationAxis.h" />
@@ -188,6 +190,8 @@
   <ItemGroup>
     <ClCompile Include="DXRenderer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="Handle_RotationCircle.cpp" />
+    <ClCompile Include="Handle_RotationPlane.cpp" />
     <ClCompile Include="Handle_RotationSphere.cpp" />
     <ClCompile Include="Handle_ScalingPlane.cpp" />
     <ClCompile Include="Handle_TranslationAxis.cpp" />

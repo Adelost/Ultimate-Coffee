@@ -1,21 +1,21 @@
-#ifndef HANDLE_TRANSLATIONAXIS_H
-#define HANDLE_TRANSLATIONAXIS_H
+#ifndef HANDLE_ROTATIONSPHERE_H
+#define HANDLE_ROTATIONSPHERE_H
 
-#include "Handle_TranslationPlane.h"
+#include <Core/Math.h>
 
-#include "DirectXMath.h"
-#include "XNACollision.h"
+#include "IHandle.h"
+#include "xnacollision.h"
+#include "Handle_RotationPlane.h"
 
-using namespace DirectX;
+#include <vector>
 
-
-class Handle_TranslationAxis
+class Handle_RotationCircle
 {
 private:
 	XMFLOAT4X4 world;
 	XMFLOAT3 direction; // Should be X, Y, or Z.
 
-	Handle_TranslationPlane *singleAxisTranslationPlane;
+	Handle_RotationPlane *singleAxisRotationPlane;
 
 	// The delta between the first and last picked point on the axis plane gives the current translation from the active object's last set position.
 	XMFLOAT3 prevPickedPointOnAxisPlane;
@@ -26,8 +26,8 @@ private:
 	bool isSelected;
 
 public:
-	Handle_TranslationAxis(XMVECTOR &direction, std::vector<XMFLOAT4> boundingTriangles, char axis);
-	~Handle_TranslationAxis();
+	Handle_RotationCircle(XMVECTOR &direction, std::vector<XMFLOAT4> boundingLines, char axis);
+	~Handle_RotationCircle();
 	
 	/* Called for initial selection and picking against the axis plane. */
 	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);

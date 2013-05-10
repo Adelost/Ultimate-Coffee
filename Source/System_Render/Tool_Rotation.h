@@ -69,10 +69,10 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
 	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any, and sets the cursor accordingly. */
-	void tryForHover(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+	void tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
 	void setActiveObject(int entityId);
@@ -87,7 +87,7 @@ public:
 	bool getIsSelected();
 
 	/* Called to send updated parameters to the translation tool, if it is still active. */
-	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
+	void update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called for current translation delta made by picking. */
 	void translateObject();

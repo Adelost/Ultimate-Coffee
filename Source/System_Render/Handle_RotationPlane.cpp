@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "Handle_TranslationPlane.h"
+#include "Handle_RotationPlane.h"
 
-Handle_TranslationPlane::Handle_TranslationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle)
+Handle_RotationPlane::Handle_RotationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle)
 {
 	XMStoreFloat3(&plane.normal, normal);
 	plane.offset = offset;
 	this->boundingRectangle = boundingRectangle;
 }
 
-Handle_TranslationPlane::~Handle_TranslationPlane()
+Handle_RotationPlane::~Handle_RotationPlane()
 {
 }
 
@@ -29,7 +29,7 @@ static bool rayVsPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyPlane &plane, XM
 	return rayIntersectedWithPlane;
 }
 
-bool Handle_TranslationPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyRectangle &rectangle, float &distanceToIntersectionPoint)
+bool Handle_RotationPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyRectangle &rectangle, float &distanceToIntersectionPoint)
 {
 	bool rayIntersectedWithRectangle = false;
 
@@ -93,7 +93,7 @@ bool Handle_TranslationPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayD
 }
 
 /* Called for initial selection and picking against the axis plane. */
-bool Handle_TranslationPlane::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+bool Handle_RotationPlane::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
 {
 	isSelected = false;
 
@@ -132,7 +132,7 @@ bool Handle_TranslationPlane::tryForSelection(MyRectangle &selectionRectangle, X
 	return isSelected;
 }
 
-bool Handle_TranslationPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+bool Handle_RotationPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
 {
 	isSelected = false;
 
@@ -168,7 +168,7 @@ bool Handle_TranslationPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTO
 }
 
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
-void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+void Handle_RotationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 	//prevPickedPointOnAxisPlane = nextPickedPointOnAxisPlane;
 
@@ -219,7 +219,7 @@ void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 }
 
 /* Called when picking against the axis plane should cease, if the LMB has been released. */
-void Handle_TranslationPlane::unselect()
+void Handle_RotationPlane::unselect()
 {
 	isSelected = false;
 	firstPickedPointOnAxisPlane.x = 0.0f;
@@ -231,13 +231,13 @@ void Handle_TranslationPlane::unselect()
 }
 	
 /* Called to see if this is the currently selected translation plane, if any. */
-bool Handle_TranslationPlane::getIsSelected()
+bool Handle_RotationPlane::getIsSelected()
 {
 	return isSelected;
 }
 
 /* Called to retrieve the last made translation delta. */
-XMVECTOR Handle_TranslationPlane::getLastTranslationDelta()
+XMVECTOR Handle_RotationPlane::getLastTranslationDelta()
 {
 	//XMVECTOR deltaVector = nextPickedPointOnAxisPlane - prevPickedPointOnAxisPlane;
 
@@ -254,13 +254,13 @@ XMVECTOR Handle_TranslationPlane::getLastTranslationDelta()
 }
 
 /* Called for the needed transform of the visual and/or bounding components of the handle. */
-void Handle_TranslationPlane::setWorld(XMMATRIX &world)
+void Handle_RotationPlane::setWorld(XMMATRIX &world)
 {
 	XMStoreFloat4x4(&this->world, world);
 }
 
 /* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */
-void Handle_TranslationPlane::setPlaneOrientation(XMVECTOR &normal)
+void Handle_RotationPlane::setPlaneOrientation(XMVECTOR &normal)
 {
 	XMStoreFloat3(&plane.normal, normal);
 }

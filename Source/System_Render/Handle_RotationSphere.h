@@ -32,10 +32,10 @@ public:
 	~Handle_RotationSphere();
 
 	/* Called for initial selection and picking against the axis plane. */
-	virtual bool tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
+	virtual bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
 
 	/* Called for continued picking against the sphere. */
-	void pickSphere(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
+	void pickSphere(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);
 
 	/* Called when picking against the plane should cease, and the last translation made final. */
 	void unselect(XMVECTOR &pickingRay);

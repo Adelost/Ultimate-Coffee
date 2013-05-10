@@ -4,22 +4,17 @@
 
 Tool_Selection::Tool_Selection()
 {
-	isSelected = false;
+	isSelecting = false;
 }
 
 Tool_Selection::~Tool_Selection()
 {
 }
 
-void Tool_Selection::setIsVisible(bool &isVisible)
-{
-	this->isVisible = isVisible;
-}
-
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
 void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool )
 {
-	isSelected = true;
+	//isSelected = true;
 
 	objectsThatHaveBeenSelected.clear();
 
@@ -27,18 +22,20 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 	currentMouseCursorPoint.x = firstMouseCursorPoint.x + 4;
 	currentMouseCursorPoint.y = firstMouseCursorPoint.y + 4;
 
+	MyRectangle selectionRectangle;
+
 	// The currently chosen transformation tool has an active object, then it is to be visible and selectable.
 	if(currentlyChosenTransformationTool->getActiveObject())
 	{
-		currentlyChosenTransformationTool->tryForSelection(rayOrigin, rayDir, camView);
+		currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView);
 	}
 
 	// If a transformation tool handle is selected, it should be noted that the selection is already final with this function call,
 	// and so there is no need to call finalizeSelection elsewhere.
 	
-	bool aTransformationToolWasSelected = false;
-	if(aTransformationToolWasSelected)
-		isSelected = false;
+	//bool aTransformationToolWasSelected = false;
+	//if(aTransformationToolWasSelected)
+	//	isSelected = false;
 }
 
 /* Called to get the last selected object(s). */
@@ -48,9 +45,9 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 //}
 
 /* Called to see if the translation tool is (still) active. */
-bool Tool_Selection::getIsSelected()
+bool Tool_Selection::getIsSelecting()
 {
-	return isSelected;
+	return isSelecting;
 }
 
 /* Called to send updated parameters to the translation tool, if it is still active. */
@@ -100,11 +97,9 @@ void Tool_Selection::update( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &ca
 }
 
 /* Called when the selection tool is unselected, which makes any hitherto made selection final (and undoable). */
-void Tool_Selection::finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Camera &theCamera, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
+void Tool_Selection::finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
 	currentMouseCursorPoint = mouseCursorPoint;
-
-
 
 	// Set all would-be-selected objects as have-been-selected objects.
 	for(unsigned int i = 0; i < objectsThatWouldBeSelected.size(); ++i)
@@ -114,6 +109,17 @@ void Tool_Selection::finalizeSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, Ca
 
 	objectsThatWouldBeSelected.clear();
 
-	isSelected = false;
+	isSelecting = false;
 }
-	
+
+void Tool_Selection::setIsSelecting(bool isSelecting)
+{
+	this->isSelecting = isSelecting;
+}
+
+MyRectangle Tool_Selection::getSelectionRectangle()
+{
+	MyRectangle temp;
+
+	return temp;
+}
