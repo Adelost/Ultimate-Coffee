@@ -154,12 +154,13 @@ void Manager_Docks::setupMenu()
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
 	QTreeView* tree = new QTreeView(m_window);
+	m_hierarchy_tree = tree;
 	tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	tree->setAlternatingRowColors(true);
 	tree->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	m_hierarchy = new QStandardItemModel(0, 1, this);
-	m_hierarchy->setHorizontalHeaderItem(0, new QStandardItem("Entity ID"));
-	tree->setModel(m_hierarchy);
+	m_hierarchy_model = new QStandardItemModel(0, 1, this);
+	m_hierarchy_model->setHorizontalHeaderItem(0, new QStandardItem("Entity ID"));
+	tree->setModel(m_hierarchy_model);
 	dock->setWidget(tree);
 	connect(tree, SIGNAL(clicked( const QModelIndex &)), this, SLOT(selectEntity(const QModelIndex &)));
 
@@ -456,7 +457,7 @@ void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_d
 
 void Manager_Docks::update()
 {
-	int rowCount = m_hierarchy->rowCount();
+	int rowCount = m_hierarchy_model->rowCount();
 	int entityCount = 0;
 
 	DataMapper<Data::Transform> map_trans;
@@ -468,7 +469,7 @@ void Manager_Docks::update()
 		{
 			QStandardItem* item;
 			item = new QStandardItem("Entity " + QString::number(entityCount));
-			m_hierarchy->setItem(entityCount, item);
+			m_hierarchy_model->setItem(entityCount, item);
 		}
 		entityCount++;
 	}
@@ -493,38 +494,35 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 	DataMapper<Data::Selected> map_selected;
 
 	// Remove previous selection
-	DEBUGPRINT("");
-	DEBUGPRINT("UNSELECTED");
 	while(map_selected.hasNext())
 	{
 		Entity* entity = map_selected.nextEntity();
 		entity->removeData<Data::Selected>();
-		DEBUGPRINT("Entity " + Converter::IntToStr(entity->id()));
 	}
 
-	//// Add new selection
-	//QList<QModelIndex> index_list = m_hierarchy_view->selectionModel()->selectedRows();
-
-	//// Pick last clicked as pivot
-	//DEBUGPRINT("SELECTED");
-	//foreach(QModelIndex index, index_list)
-	//{
-	//	int entityId = index.row();
-	//	Entity* e = Entity::findEntity(entityId);
-	//	e->addData(Data::Selected());
-	//	DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
-	//}
-	//while(index_list.count() > 0)
-	//{
-	//	index_list.pop_back();
-	//}
-
+	// Add new selection
+	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
 
 	// Pick last clicked as pivot
-	int entityId = index.row();
-	Data::Selected::pivot = Entity::findEntity(entityId)->asPointer();
+	DEBUGPRINT("");
+	DEBUGPRINT("SELECTED");
+	foreach(QModelIndex index, index_list)
+	{
+		int entityId = index.row();
+		Entity* e = Entity::findEntity(entityId);
+		e->addData(Data::Selected());
+		DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
+	}
+	while(index_list.count() > 0)
+	{
+		index_list.pop_back();
+	}
+
+	// Pick last clicked as pivot
+	Entity* picked_entity = Entity::findEntity(index.row());
+	Data::Selected::pivot = picked_entity->asPointer();
 	DEBUGPRINT("PIVOT");
-	DEBUGPRINT("Entity " + Converter::IntToStr(entityId));
+	DEBUGPRINT("Entity " + Converter::IntToStr(picked_entity->id()));
 }
 
 

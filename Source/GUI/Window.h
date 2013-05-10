@@ -60,11 +60,6 @@ private:
 	QTimer* m_refreshTimer;
 	UpdateLoop* m_updateLoop;
 	QWidget* m_renderWidget;
-	std::vector<QWidget*> m_autoDelete;
-	void addToAutoDelete(QWidget* p_w)
-	{
-		m_autoDelete.push_back(p_w);
-	}
 
 protected:
 	void keyPressEvent(QKeyEvent *e);
@@ -80,13 +75,13 @@ public:
 	Ui::MainWindow* ui();
 	QIcon createIcon(QColor* p_color);
 	QSpacerItem* createSpacer(Qt::Orientation p_orientation);
+	void setRefreshInterval(int p_interval);
 
 	QWidget* renderWidget();
 	ISystem* system_editor();
+	bool eventFilter(QObject* object, QEvent* event);
 
 public slots:
 	void update();
 	void setFullscreen(bool p_checked);
-
-
 };

@@ -27,7 +27,6 @@ public:
 			tangentU(tx, ty, tz), texureCordinate(u,v){}
 	};
 
-public:
 	class MeshData
 	{
 	public:
@@ -35,6 +34,17 @@ public:
 		std::vector<unsigned int> indices;
 	};
 
+private:
+	Factory_Geometry(){}
+
+public:
+	static Factory_Geometry* instance()
+	{
+		static Factory_Geometry instance;
+		return &instance;
+	}
+
+public:
 	/**
 	Creates a box centered at the origin with the given dimensions.
 	*/
@@ -94,6 +104,7 @@ public:
 
 		unsigned int i[36];
 
+
 		// Fill in the front face index data
 		i[0] = 0; i[1] = 1; i[2] = 2;
 		i[3] = 0; i[4] = 2; i[5] = 3;
@@ -142,16 +153,16 @@ public:
 
 		meshData.vertices.push_back( topVertex );
 
-		float phiStep   = XM_PI/stackCount;
-		float thetaStep = 2.0f*XM_PI/sliceCount;
+		float phiStep   = Math::Pi/stackCount;
+		float thetaStep = 2.0f* Math::Pi/sliceCount;
 
 		// Compute vertices for each stack ring (do not count the poles as rings).
-		for(UINT i = 1; i <= stackCount-1; ++i)
+		for(unsigned int i = 1; i <= stackCount-1; ++i)
 		{
 			float phi = i*phiStep;
 
 			// Vertices of ring.
-			for(UINT j = 0; j <= sliceCount; ++j)
+			for(unsigned int j = 0; j <= sliceCount; ++j)
 			{
 				float theta = j*thetaStep;
 
@@ -187,11 +198,11 @@ public:
 		// and connects the top pole to the first ring.
 		//
 
-		for(UINT i = 1; i <= sliceCount; ++i)
+		for(unsigned int i = 1; i <= sliceCount; ++i)
 		{
-			meshData.Indices.push_back(0);
-			meshData.Indices.push_back(i+1);
-			meshData.Indices.push_back(i);
+			meshData.indices.push_back(0);
+			meshData.indices.push_back(i+1);
+			meshData.indices.push_back(i);
 		}
 
 		//
@@ -200,19 +211,19 @@ public:
 
 		// Offset the indices to the index of the first vertex in the first ring.
 		// This is just skipping the top pole vertex.
-		UINT baseIndex = 1;
-		UINT ringVertexCount = sliceCount+1;
-		for(UINT i = 0; i < stackCount-2; ++i)
+		unsigned int baseIndex = 1;
+		unsigned int ringVertexCount = sliceCount+1;
+		for(unsigned int i = 0; i < stackCount-2; ++i)
 		{
-			for(UINT j = 0; j < sliceCount; ++j)
+			for(unsigned int j = 0; j < sliceCount; ++j)
 			{
-				meshData.Indices.push_back(baseIndex + i*ringVertexCount + j);
-				meshData.Indices.push_back(baseIndex + i*ringVertexCount + j+1);
-				meshData.Indices.push_back(baseIndex + (i+1)*ringVertexCount + j);
+				meshData.indices.push_back(baseIndex + i*ringVertexCount + j);
+				meshData.indices.push_back(baseIndex + i*ringVertexCount + j+1);
+				meshData.indices.push_back(baseIndex + (i+1)*ringVertexCount + j);
 
-				meshData.Indices.push_back(baseIndex + (i+1)*ringVertexCount + j);
-				meshData.Indices.push_back(baseIndex + i*ringVertexCount + j+1);
-				meshData.Indices.push_back(baseIndex + (i+1)*ringVertexCount + j+1);
+				meshData.indices.push_back(baseIndex + (i+1)*ringVertexCount + j);
+				meshData.indices.push_back(baseIndex + i*ringVertexCount + j+1);
+				meshData.indices.push_back(baseIndex + (i+1)*ringVertexCount + j+1);
 			}
 		}
 
@@ -222,40 +233,24 @@ public:
 		//
 
 		// South pole vertex was added last.
-		UINT southPoleIndex = (UINT)meshData.Vertices.size()-1;
+		unsigned int southPoleIndex = (unsigned int)meshData.vertices.size()-1;
 
 		// Offset the indices to the index of the first vertex in the last ring.
 		baseIndex = southPoleIndex - ringVertexCount;
 
-		for(UINT i = 0; i < sliceCount; ++i)
+		for(unsigned int i = 0; i < sliceCount; ++i)
 		{
-			meshData.Indices.push_back(southPoleIndex);
-			meshData.Indices.push_back(baseIndex+i);
-			meshData.Indices.push_back(baseIndex+i+1);
+			meshData.indices.push_back(southPoleIndex);
+			meshData.indices.push_back(baseIndex+i);
+			meshData.indices.push_back(baseIndex+i+1);
 		}
 	};
 
-	///<summary>
-	/// Creates a geosphere centered at the origin with the given radius.  The
-	/// depth controls the level of tessellation.
-	///</summary>
-	void CreateGeosphere(float radius, UINT numSubdivisions, MeshData& meshData);
 
-	///<summary>
-	/// Creates a cylinder parallel to the y-axis, and centered about the origin.  
-	/// The bottom and top radius can vary to form various cone shapes rather than true
-	// cylinders.  The slices and stacks parameters control the degree of tessellation.
-	///</summary>
-	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-
-	///<summary>
-	/// Creates an mxn grid in the xz-plane with m rows and n columns, centered
-	/// at the origin with the specified width and depth.
-	///</summary>
-	void CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData)
+	void createGrid(float width, float depth, unsigned int m, unsigned int n, MeshData& meshData)
 	{
-		UINT vertexCount = m*n;
-		UINT faceCount   = (m-1)*(n-1)*2;
+		unsigned int  vertexCount = m*n;
+		unsigned int  faceCount   = (m-1)*(n-1)*2;
 
 		//
 		// Create the vertices.
@@ -270,21 +265,21 @@ public:
 		float du = 1.0f / (n-1);
 		float dv = 1.0f / (m-1);
 
-		meshData.Vertices.resize(vertexCount);
-		for(UINT i = 0; i < m; ++i)
+		meshData.vertices.resize(vertexCount);
+		for(unsigned int  i = 0; i < m; ++i)
 		{
 			float z = halfDepth - i*dz;
-			for(UINT j = 0; j < n; ++j)
+			for(unsigned int  j = 0; j < n; ++j)
 			{
 				float x = -halfWidth + j*dx;
 
-				meshData.Vertices[i*n+j].Position = XMFLOAT3(x, 0.0f, z);
-				meshData.Vertices[i*n+j].Normal   = XMFLOAT3(0.0f, 1.0f, 0.0f);
-				meshData.Vertices[i*n+j].TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+				meshData.vertices[i*n+j].position = Vector3(x, 0.0f, z);
+				meshData.vertices[i*n+j].normal   = Vector3(0.0f, 1.0f, 0.0f);
+				meshData.vertices[i*n+j].tangentU = Vector3(1.0f, 0.0f, 0.0f);
 
 				// Stretch texture over grid.
-				meshData.Vertices[i*n+j].TexC.x = j*du;
-				meshData.Vertices[i*n+j].TexC.y = i*dv;
+				meshData.vertices[i*n+j].texureCordinate.x = j*du;
+				meshData.vertices[i*n+j].texureCordinate.y = i*dv;
 			}
 		}
 
@@ -292,101 +287,24 @@ public:
 		// Create the indices.
 		//
 
-		meshData.Indices.resize(faceCount*3); // 3 indices per face
+		meshData.indices.resize(faceCount*3); // 3 indices per face
 
 		// Iterate over each quad and compute indices.
-		UINT k = 0;
-		for(UINT i = 0; i < m-1; ++i)
+		unsigned int k = 0;
+		for(unsigned int i = 0; i < m-1; ++i)
 		{
-			for(UINT j = 0; j < n-1; ++j)
+			for(unsigned int j = 0; j < n-1; ++j)
 			{
-				meshData.Indices[k]   = i*n+j;
-				meshData.Indices[k+1] = i*n+j+1;
-				meshData.Indices[k+2] = (i+1)*n+j;
+				meshData.indices[k]   = i*n+j;
+				meshData.indices[k+1] = i*n+j+1;
+				meshData.indices[k+2] = (i+1)*n+j;
 
-				meshData.Indices[k+3] = (i+1)*n+j;
-				meshData.Indices[k+4] = i*n+j+1;
-				meshData.Indices[k+5] = (i+1)*n+j+1;
+				meshData.indices[k+3] = (i+1)*n+j;
+				meshData.indices[k+4] = i*n+j+1;
+				meshData.indices[k+5] = (i+1)*n+j+1;
 
 				k += 6; // next quad
 			}
 		}
 	};
-
-	///<summary>
-	/// Creates a quad covering the screen in NDC coordinates.  This is useful for
-	/// postprocessing effects.
-	///</summary>
-	void CreateFullscreenQuad(MeshData& meshData)
-	{
-		meshData.Vertices.resize(4);
-		meshData.Indices.resize(6);
-
-		// Position coordinates specified in NDC space.
-		meshData.Vertices[0] = Vertex(
-			-1.0f, -1.0f, 0.0f, 
-			0.0f, 0.0f, -1.0f,
-			1.0f, 0.0f, 0.0f,
-			0.0f, 1.0f);
-
-		meshData.Vertices[1] = Vertex(
-			-1.0f, +1.0f, 0.0f, 
-			0.0f, 0.0f, -1.0f,
-			1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f);
-
-		meshData.Vertices[2] = Vertex(
-			+1.0f, +1.0f, 0.0f, 
-			0.0f, 0.0f, -1.0f,
-			1.0f, 0.0f, 0.0f,
-			1.0f, 0.0f);
-
-		meshData.Vertices[3] = Vertex(
-			+1.0f, -1.0f, 0.0f, 
-			0.0f, 0.0f, -1.0f,
-			1.0f, 0.0f, 0.0f,
-			1.0f, 1.0f);
-
-		meshData.Indices[0] = 0;
-		meshData.Indices[1] = 1;
-		meshData.Indices[2] = 2;
-
-		meshData.Indices[3] = 0;
-		meshData.Indices[4] = 2;
-		meshData.Indices[5] = 3;
-	}
-
-	vector<XMFLOAT3> vertex_pos;
-	vector<XMFLOAT2> vertex_uv;
-	vector<XMFLOAT3> vertex_norm;
-	vector<XMFLOAT3> vertex_tan;
-
-	void readVertices(stringstream& stream)
-	{
-		XMFLOAT3 pos;
-		stream >> pos.x >> pos.y >> pos.z;
-		vertex_pos.push_back(pos);
-	}
-	void readTextureUV(stringstream& stream)
-	{
-		XMFLOAT2 uv;
-		stream >> uv.x >> uv.y;
-		vertex_uv.push_back(uv);
-	}
-	void readNormals(stringstream& stream)
-	{
-		XMFLOAT3 normal;
-		stream >> normal.x >> normal.y >> normal.z;
-		vertex_norm.push_back(normal);
-	}
-	XMFLOAT3 createTangent(XMFLOAT3 v[3], XMFLOAT2 t[3]);
-
-	void readObjFile(MeshData* meshData);
-	void readFaces(stringstream& f, MeshData* meshData);
-private:
-	void Subdivide(MeshData& meshData);
-	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
 };
-
-#endif

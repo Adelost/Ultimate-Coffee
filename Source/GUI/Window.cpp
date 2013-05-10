@@ -57,21 +57,23 @@ Window::Window()
 
 Window::~Window()
 {
-	for(int i=0; i<(int)m_autoDelete.size(); i++)
-		delete m_autoDelete[i];
-
 	delete m_updateLoop;
 	delete m_manager_commands;
 	delete m_manager_console;
 	delete m_manager_docks;
 	delete m_manager_tools;
-	delete m_refreshTimer;
 	delete m_ui;
 }
 
 void Window::update()
 {
 	m_updateLoop->update();
+
+	// Make sure all events is processed.
+	// This is to prevent the QTimer from 
+	// freezing the application in newer 
+	// versions of Qt.
+	qApp->processEvents(QEventLoop::AllEvents);
 }																			
 
 void Window::setFullscreen( bool checked )
@@ -163,4 +165,23 @@ void Window::keyPressEvent( QKeyEvent *e )
 	d_camera->strafe(d_transform->position, strafe);
 	d_camera->walk(d_transform->position, walk);
 	d_camera->updateViewMatrix(d_transform->position);
+}
+
+bool Window::eventFilter( QObject* object, QEvent* event )
+{
+	/*QEvent::Type type = event->type();
+
+	if(type == QEvent::Timer)
+	{
+	DEBUGPRINT("Event: Timer");
+	this::
+	return false;
+	}*/
+
+	return false;
+}
+
+void Window::setRefreshInterval( int p_interval )
+{
+	m_refreshTimer->setInterval(p_interval);
 }
