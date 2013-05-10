@@ -128,8 +128,7 @@ void DXRenderer::renderFrame()
 	// don't know where else to put it.
 	// Please move to better location.
 	{
-		Entity* entity_camera = CAMERA_ENTITY().asEntity();
-		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+		Data::Camera* d_camera = CAMERA_ENTITY()->fetchData<Data::Camera>();
 
 		//m_CBuffer.WVP = XMMatrixTranspose(world) * XMMatrixTranspose(d_camera->view()) * XMMatrixTranspose(d_camera->projection());
 		viewProjection = d_camera->viewProjection();

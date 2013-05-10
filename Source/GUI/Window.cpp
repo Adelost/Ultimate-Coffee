@@ -62,7 +62,6 @@ Window::~Window()
 	delete m_manager_console;
 	delete m_manager_docks;
 	delete m_manager_tools;
-	delete m_refreshTimer;
 	delete m_ui;
 }
 
@@ -70,11 +69,12 @@ void Window::update()
 {
 	m_updateLoop->update();
 
-	// Hack: Allows GUI to process
-	// this is necessary because QTimer is
-	// broken in newer Qt versions and otherwise takes
-	// all execution time.
-	m_refreshTimer->setInterval(1);
+	// Make sure all events is processed.
+	// This is to prevent the QTimer from 
+	// freezing the application in newer 
+	// versions of Qt.
+	Sleep(100);
+	qApp->processEvents(QEventLoop::AllEvents);
 }																			
 
 void Window::setFullscreen( bool checked )

@@ -82,6 +82,12 @@
     <ClInclude Include="Terrain.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
+    <ClInclude Include="Sky.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager_Shader.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -134,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="GeometryGenerator.cpp">
       <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Sky.cpp">
+      <Filter>Source\Util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

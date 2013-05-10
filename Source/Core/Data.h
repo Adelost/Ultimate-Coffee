@@ -40,8 +40,6 @@ namespace Data
 	*/
 	class Selected : public Type<Selected>
 	{
-	private:
-		int padding;
 	public:
 		/**
 		The Entity which is used as a pivot point e.g. 

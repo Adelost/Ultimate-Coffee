@@ -167,7 +167,9 @@
     <ClInclude Include="IHandle.h" />
     <ClInclude Include="ITool_Transformation.h" />
     <ClInclude Include="Manager_3DTools.h" />
+    <ClInclude Include="Manager_Shader.h" />
     <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="Sky.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System_Render.h" />
     <ClInclude Include="Terrain.h" />
@@ -196,6 +198,7 @@
     <ClCompile Include="Manager_3DTools.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Sky.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
