@@ -111,6 +111,10 @@ bool Handle_ScalingPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir, 
 /* Called for initial selection and picking against the axis plane. */
 bool Handle_ScalingPlane::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
 {
+	// TEST 
+	int a = 5;
+
+
 	isSelected = false;
 
 	// Tranform ray to local space.
