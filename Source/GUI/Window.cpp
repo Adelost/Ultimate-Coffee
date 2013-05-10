@@ -73,7 +73,6 @@ void Window::update()
 	// This is to prevent the QTimer from 
 	// freezing the application in newer 
 	// versions of Qt.
-	Sleep(100);
 	qApp->processEvents(QEventLoop::AllEvents);
 }																			
 
