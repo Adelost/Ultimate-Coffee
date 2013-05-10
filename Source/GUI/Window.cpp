@@ -74,6 +74,7 @@ void Window::update()
 	// freezing the application in newer 
 	// versions of Qt.
 	qApp->processEvents(QEventLoop::AllEvents);
+	//m_refreshTimer->setInterval(1);
 }																			
 
 void Window::setFullscreen( bool checked )
