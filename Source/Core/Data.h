@@ -61,7 +61,7 @@ namespace Data
 		Vector3 size;
 		
 	public:
-		//bool intersectRay(Entity* entity, Vector3& origin, Vector3& direction);
+		bool intersectRay(Entity* entity, Vector3& origin, Vector3& direction);
 	};
 
 	
