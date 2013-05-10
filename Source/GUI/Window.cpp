@@ -73,8 +73,8 @@ void Window::update()
 	// This is to prevent the QTimer from 
 	// freezing the application in newer 
 	// versions of Qt.
-	qApp->processEvents(QEventLoop::AllEvents);
-	//m_refreshTimer->setInterval(1);
+	//qApp->processEvents(QEventLoop::AllEvents);
+	m_refreshTimer->setInterval(1);
 }																			
 
 void Window::setFullscreen( bool checked )
