@@ -52,89 +52,210 @@ void GeometryGenerator::createLineListCircle(XMVECTOR &center, float &radius, in
 	meshData.Vertices.push_back(meshData.Vertices.at(0));
 }
 
-//void GeometryGenerator::CreateBox(float width, float height, float depth, MeshData& meshData)
-//{
-//	//
-//	// Create the vertices.
-//	//
-//
-//	Vertex v[24];
-//
-//	float w2 = 0.5f*width;
-//	float h2 = 0.5f*height;
-//	float d2 = 0.5f*depth;
-//    
-//	// Fill in the front face vertex data.
-//	v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//	v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-//	v[2] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-//	v[3] = Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-//
-//	// Fill in the back face vertex data.
-//	v[4] = Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-//	v[5] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//	v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-//	v[7] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-//
-//	// Fill in the top face vertex data.
-//	v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//	v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-//	v[10] = Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-//	v[11] = Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-//
-//	// Fill in the bottom face vertex data.
-//	v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-//	v[13] = Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//	v[14] = Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-//	v[15] = Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-//
-//	// Fill in the left face vertex data.
-//	v[16] = Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-//	v[17] = Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-//	v[18] = Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-//	v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
-//
-//	// Fill in the right face vertex data.
-//	v[20] = Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-//	v[21] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-//	v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-//	v[23] = Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-//
-//	meshData.Vertices.assign(&v[0], &v[24]);
-// 
-//	//
-//	// Create the indices.
-//	//
-//
-//	UINT i[36];
-//
-//	// Fill in the front face index data
-//	i[0] = 0; i[1] = 1; i[2] = 2;
-//	i[3] = 0; i[4] = 2; i[5] = 3;
-//
-//	// Fill in the back face index data
-//	i[6] = 4; i[7]  = 5; i[8]  = 6;
-//	i[9] = 4; i[10] = 6; i[11] = 7;
-//
-//	// Fill in the top face index data
-//	i[12] = 8; i[13] =  9; i[14] = 10;
-//	i[15] = 8; i[16] = 10; i[17] = 11;
-//
-//	// Fill in the bottom face index data
-//	i[18] = 12; i[19] = 13; i[20] = 14;
-//	i[21] = 12; i[22] = 14; i[23] = 15;
-//
-//	// Fill in the left face index data
-//	i[24] = 16; i[25] = 17; i[26] = 18;
-//	i[27] = 16; i[28] = 18; i[29] = 19;
-//
-//	// Fill in the right face index data
-//	i[30] = 20; i[31] = 21; i[32] = 22;
-//	i[33] = 20; i[34] = 22; i[35] = 23;
-//
-//	meshData.Indices.assign(&i[0], &i[36]);
-//}
-//
+void GeometryGenerator::CreateBox(float width, float height, float depth, MeshData2& meshData, char colorMode, XMMATRIX &localSpace)
+{
+	//
+	// Create the vertices.
+	//
+	XMVECTOR color = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	bool multiColorMode = false;
+	switch(colorMode)
+	{
+	case 'x':
+		color = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+		break;
+	case 'y':
+		color = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
+		break;
+	case 'z':
+		color = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
+		break;
+	case 'o':
+		multiColorMode = true;
+	}
+
+	Vertex2 v[24];
+
+	float w2 = 0.5f*width;
+	float h2 = 0.5f*height;
+	float d2 = 0.5f*depth;
+    
+	if(!multiColorMode)
+	{
+		// Fill in the front face vertex data.
+		XMVECTOR v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
+		XMVECTOR v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
+		XMVECTOR v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
+		XMVECTOR v3pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
+
+		v[0] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[1] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[2] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[3] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
+
+		// Fill in the back face vertex data.
+		v[4] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[5] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[6] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[7] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
+
+		// Fill in the top face vertex data.
+		v[8] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[9] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[10] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[11] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
+
+		// Fill in the bottom face vertex data.
+		v[12] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[13] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[14] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[15] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
+
+		// Fill in the left face vertex data.
+		v[16] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[17] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[18] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[19] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
+
+		// Fill in the right face vertex data.
+		v[20] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[21] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[22] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[23] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+	}
+	else // Multi-color mode!
+	{
+		XMVECTOR colorX = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
+		XMVECTOR colorY = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
+		XMVECTOR colorZ = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+
+		XMVECTOR v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
+		XMVECTOR v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
+		XMVECTOR v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
+		XMVECTOR v3pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
+
+		// Fill in the front face vertex data.
+		v[0] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+		v[1] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+		v[2] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+		v[3] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
+
+		// Fill in the back face vertex data.
+		v[4] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+		v[5] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+		v[6] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+		v[7] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], colorX.m128_f32[0], colorX.m128_f32[1], colorX.m128_f32[2], colorX.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
+
+		// Fill in the top face vertex data.
+		v[8]  = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], color.m128_f32[3]);
+		v[9]  = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], color.m128_f32[3]);
+		v[10] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], color.m128_f32[3]);
+		v[11] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], color.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
+
+		// Fill in the bottom face vertex data.
+		v[12] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], colorY.m128_f32[3]);
+		v[13] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], colorY.m128_f32[3]);
+		v[14] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], colorY.m128_f32[3]);
+		v[15] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], colorY.m128_f32[0], colorY.m128_f32[1], colorY.m128_f32[2], colorY.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
+
+		// Fill in the left face vertex data.
+		v[16] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+		v[17] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+		v[18] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+		v[19] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+
+		v0pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
+		v1pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
+		v2pos = XMVector3Transform(XMVectorSet(+w2, +h2, +d2, 1.0f), localSpace);
+		v3pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
+
+		// Fill in the right face vertex data.
+		v[20] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+		v[21] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+		v[22] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+		v[23] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], colorZ.m128_f32[0], colorZ.m128_f32[1], colorZ.m128_f32[2], colorZ.m128_f32[3]);
+	}
+
+	meshData.Vertices.assign(&v[0], &v[24]);
+ 
+	//
+	// Create the indices.
+	//
+
+	UINT i[36];
+
+	// Fill in the front face index data
+	i[0] = 0; i[1] = 1; i[2] = 2;
+	i[3] = 0; i[4] = 2; i[5] = 3;
+
+	// Fill in the back face index data
+	i[6] = 4; i[7]  = 5; i[8]  = 6;
+	i[9] = 4; i[10] = 6; i[11] = 7;
+
+	// Fill in the top face index data
+	i[12] = 8; i[13] =  9; i[14] = 10;
+	i[15] = 8; i[16] = 10; i[17] = 11;
+
+	// Fill in the bottom face index data
+	i[18] = 12; i[19] = 13; i[20] = 14;
+	i[21] = 12; i[22] = 14; i[23] = 15;
+
+	// Fill in the left face index data
+	i[24] = 16; i[25] = 17; i[26] = 18;
+	i[27] = 16; i[28] = 18; i[29] = 19;
+
+	// Fill in the right face index data
+	i[30] = 20; i[31] = 21; i[32] = 22;
+	i[33] = 20; i[34] = 22; i[35] = 23;
+
+	meshData.Indices.assign(&i[0], &i[36]);
+}
+
 //void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData)
 //{
 //	meshData.Vertices.clear();

@@ -78,7 +78,7 @@
     </ClInclude>
     <ClInclude Include="Handle_RotationPlane.h">
       <Filter>Source\Tools</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="GeometryGenerator.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
@@ -93,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="Manager_Shader.h">
       <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle_ScalingAxis.h">
+      <Filter>Source\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="Sky.cpp">
       <Filter>Source\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle_ScalingAxis.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

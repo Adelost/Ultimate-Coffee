@@ -47,6 +47,9 @@ public:
 	/* Called for continued picking against the plane. */
 	void pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport);
 
+	/* Called for initial selection and picking against the axis plane. */
+	bool pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
+	
 	/* Called when picking against the plane should cease, and the last translation made final. */
 	void unselect();
 	
@@ -65,6 +68,9 @@ public:
 	void resetScalingDelta();
 
 	void setShouldFlipMouseCursor(bool shouldFlipMouseCursor);
+
+	/* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */
+	void setPlaneOrientation(XMVECTOR &normal);
 
 	// Move somewhere else.
 	bool rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyRectangle &rectangle, float &distanceToIntersectionPoint);

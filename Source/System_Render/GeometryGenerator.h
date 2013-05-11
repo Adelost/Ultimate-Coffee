@@ -68,10 +68,10 @@ public:
 		std::vector<UINT> Indices;
 	};
 
-	///<summary>
-	/// Creates a box centered at the origin with the given dimensions.
-	///</summary>
-	//void CreateBox(float width, float height, float depth, MeshData& meshData);
+	//<summary>
+	// Creates a box centered at the origin with the given dimensions.
+	//</summary>
+	void CreateBox(float width, float height, float depth, MeshData2& meshData, char colorMode, XMMATRIX &localSpaceTransform);
 
 	///<summary>
 	/// Creates a sphere centered at the origin with the given radius.  The
