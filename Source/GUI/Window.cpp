@@ -186,7 +186,7 @@ Window* Window::instance()
 	if(s_instance == NULL)
 	{
 		s_instance = new Window();
-	}	
+	}
 
 	return s_instance;
 }
