@@ -183,12 +183,10 @@ void Window::setRefreshInterval( int p_interval )
 
 Window* Window::instance()
 {
-	if(s_instance == NULL)
-	{
+	if(!s_instance)
 		s_instance = new Window();
-	}
 
 	return s_instance;
 }
 
-Window* Window::s_instance = NULL;
+Window* Window::s_instance = nullptr;

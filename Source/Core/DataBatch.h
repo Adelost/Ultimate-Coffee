@@ -25,7 +25,7 @@ private:
 public:
 	/**
 	Fetches the dataIndex of a certain data (Batch)
-	belonging to the entity. Returns NULL if the 
+	belonging to the entity. Returns -1 if the 
 	Data is missing.
 	*/
 	int dataIndexFromEntityId(int p_entityId)
@@ -78,7 +78,7 @@ public:
 
 		// Return NULL if Data is missing
 		if(dataIndex == -1)
-			return NULL;
+			return nullptr;
 
 		return m_batch.itemAt(dataIndex);
 	}

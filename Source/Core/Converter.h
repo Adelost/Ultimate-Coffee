@@ -59,7 +59,7 @@ public:
 			0 , 
 			string.c_str(), 
 			-1, 
-			NULL , 
+			nullptr , 
 			0);
 		wchar_t* wstr = new wchar_t[wchars_num];
 

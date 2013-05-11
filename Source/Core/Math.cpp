@@ -25,5 +25,5 @@ float Math::randomFloat( float p_min, float p_max )
 
 void Math::init()
 {
-	srand((unsigned)time(NULL));
+	srand((unsigned)time(nullptr));
 }
