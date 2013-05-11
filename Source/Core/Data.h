@@ -48,6 +48,7 @@ namespace Data
 		when rotating.
 		*/
 		static EntityPointer pivot;
+		static void clearSelection();
 	};
 
 	/**
@@ -61,7 +62,12 @@ namespace Data
 		Vector3 size;
 		
 	public:
-		bool intersectRay(Entity* entity, Vector3& origin, Vector3& direction);
+		/**
+		Returns the Entity intersected with. NULL if
+		no intersection.
+		*/
+		static Entity* intersect(const Ray& ray);
+		bool intersect(Entity* entity, const Ray& ray);
 	};
 
 	

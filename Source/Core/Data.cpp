@@ -7,38 +7,43 @@
 #include "Entity.h"
 
 EntityPointer Data::Selected::pivot;
-//
-//bool Data::Bounding::intersectRay(Entity* entity, Vector3& origin, Vector3& direction )
-//{
-//	entity->fetchData<Data::Transform>()
-//	DataMapper<Data::Bounding> map_bounding;
-//
-//	Entity* pickedEntity;
-//	Vector3 ray;
-//
-//
-//	
-//
-//	DataMapper<Data::Bounding> map_bounding;
-//	while(map_bounding.hasNext())
-//	{
-//		Data::Bounding* d_bounding = map_bounding.next();
-//		if(d_bounding->intersect(ray)
-//		{
-//			break;
-//		}
-//	}
-//
-//
-//	XNA::IntersectRayTriangle(origin,direction, Vector2(x), Vector2(z), Vector2(y));
-//}
 
-bool Data::Bounding::intersectRay( Entity* entity, Vector3& origin, Vector3& direction )
+
+Entity* Data::Bounding::intersect( const Ray& ray )
 {
-	/*Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
-	XNA::Sphere boundingShape = {d_transform->position, 1.0f};
+	Entity* out = nullptr;
 
-	float out_d;
-	return XNA::IntersectRaySphere(origin, direction, &boundingShape, &out_d);*/
-	return false;
+	DataMapper<Data::Bounding> map_bounding;
+	while(map_bounding.hasNext())
+	{
+		Entity* entity = map_bounding.nextEntity();
+		Data::Bounding* d_bounding  = entity->fetchData<Data::Bounding>();
+		if(d_bounding->intersect(entity, ray))
+			out = entity;
+	}
+
+	return out;
+}
+
+bool Data::Bounding::intersect( Entity* entity, const Ray& ray )
+{
+	// Create bounding shape
+	Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
+	BoundingSphere sphere(d_transform->position, 1.0f);
+
+	// Perform intersection test
+	float d;
+	bool out = ray.Intersects(sphere, d);
+
+	return out;
+}
+
+void Data::Selected::clearSelection()
+{
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* entity = map_selected.nextEntity();
+		entity->removeData<Data::Selected>();
+	}
 }

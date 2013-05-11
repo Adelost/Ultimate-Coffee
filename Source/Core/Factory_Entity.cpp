@@ -27,6 +27,7 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 		d_transform->position.y = Math::randomFloat(-3.0f, 3.0f);
 		d_transform->position.z = Math::randomFloat(-3.0f, 3.0f);
 		
+		e->addData(Data::Bounding());
 		e->addData(Data::Render());
 	}
 

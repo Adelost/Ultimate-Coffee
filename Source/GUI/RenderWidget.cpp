@@ -62,10 +62,48 @@ void RenderWidget::onEvent( IEvent* p_event )
 	}
 }
 
-void RenderWidget::mousePressEvent( QMouseEvent* p_event )
+void RenderWidget::mousePressEvent( QMouseEvent* e )
 {
 	setFocus();
-	setMouseState(p_event, true);
+	setMouseState(e, true);
+
+	// HACK: Select entity
+	QPoint pos = e->pos();
+	if(e->button() == Qt::LeftButton)
+	{
+		Entity* entity_camera = CAMERA_ENTITY().asEntity();
+		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+		// Compute picking ray
+		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+		Ray r;
+		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
+
+		// Translate ray to world space
+		Matrix mat_world = d_transform->toWorldMatrix();
+		r.position = Vector3::Transform(r.position, mat_world);
+		r.direction = Vector3::TransformNormal(r.direction, mat_world);
+
+		// Find intersected Entity
+		Entity* e = Data::Bounding::intersect(r);
+		if(e)
+		{
+			// Unselect previous
+			Data::Selected::clearSelection();
+
+			// Select new
+			e->addData(Data::Selected());
+			DEBUGPRINT("");
+			DEBUGPRINT("PICKED");
+			DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
+		}
+		else
+		{
+			DEBUGPRINT("");
+			DEBUGPRINT("MISS");
+		}
+	}
 }
 
 void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
