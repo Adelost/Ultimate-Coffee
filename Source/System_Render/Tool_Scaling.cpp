@@ -93,12 +93,25 @@ Tool_Scaling::~Tool_Scaling()
 	delete yScalingAxisHandle2;
 	delete zScalingAxisHandle2;
 
+	delete omniScalingAxisHandle;
+
+	ReleaseCOM(mMeshTransTool_xAxisBox_VB);
+	ReleaseCOM(mMeshTransTool_yAxisBox_VB);
+	ReleaseCOM(mMeshTransTool_zAxisBox_VB);
+	ReleaseCOM(mMeshTransTool_xAxisBox2_VB);
+	ReleaseCOM(mMeshTransTool_yAxisBox2_VB);
+	ReleaseCOM(mMeshTransTool_zAxisBox2_VB);
+
+	ReleaseCOM(mMeshTransTool_zxPlane_VB);
+	ReleaseCOM(mMeshTransTool_xyPlane_VB);
 	ReleaseCOM(mMeshTransTool_yzPlane_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane_VB);
+
 	ReleaseCOM(mMeshTransTool_yzPlane2_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane2_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane2_VB);
+
 	ReleaseCOM(mMeshTransTool_viewPlane_VB);
 }
 
