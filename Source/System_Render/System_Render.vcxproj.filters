@@ -173,7 +173,6 @@
     </ClCompile>
     <ClCompile Include="TexLoader.cpp">
       <Filter>Source\Util</Filter>
->>>>>>> 1d952101681334945b75abad815b3b3532df4432
     </ClCompile>
   </ItemGroup>
 </Project>
