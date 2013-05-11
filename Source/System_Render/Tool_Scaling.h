@@ -2,8 +2,9 @@
 #define TOOL_SCALING_H
 
 #include "ITool_Transformation.h"
-#include "Handle_TranslationAxis.h"
+#include "Handle_ScalingAxis.h"
 #include "Handle_ScalingPlane.h"
+
 
 #include "Effects.h"
 #include "Vertex.h"
@@ -38,13 +39,14 @@ private:
 	ID3D11Buffer* mMeshTransToolVB;
 
 	// Debug:
-	ID3D11Buffer* mMeshTransTool_xAxisArrow_VB;
-	ID3D11Buffer* mMeshTransTool_yAxisArrow_VB;
-	ID3D11Buffer* mMeshTransTool_zAxisArrow_VB;
-	ID3D11Buffer* mMeshTransTool_xAxisArrow2_VB;
-	ID3D11Buffer* mMeshTransTool_yAxisArrow2_VB;
-	ID3D11Buffer* mMeshTransTool_zAxisArrow2_VB;
-	ID3D11Buffer* mMeshTransTool_axisArrow_IB;
+	ID3D11Buffer* mMeshTransTool_xAxisBox_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisBox_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisBox_VB;
+	ID3D11Buffer* mMeshTransTool_xAxisBox2_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisBox2_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisBox2_VB;
+	ID3D11Buffer* mMeshTransTool_omniAxisBox_VB;
+	ID3D11Buffer* mMeshTransTool_axisBox_IB;
 
 	ID3D11Buffer* mMeshTransTool_yzPlane_VB;
 	ID3D11Buffer* mMeshTransTool_zxPlane_VB;
@@ -66,12 +68,14 @@ private:
 	XMFLOAT4X4 world2;
 	float scale;
 
-	Handle_TranslationAxis	*xScalingAxisHandle,
-							*yScalingAxisHandle,
-							*zScalingAxisHandle,
-							*xScalingAxisHandle2,
-							*yScalingAxisHandle2,
-							*zScalingAxisHandle2;
+	Handle_ScalingAxis	*omniScalingAxisHandle;
+
+	Handle_ScalingAxis	*xScalingAxisHandle,
+						*yScalingAxisHandle,
+						*zScalingAxisHandle,
+						*xScalingAxisHandle2,
+						*yScalingAxisHandle2,
+						*zScalingAxisHandle2;
 
 	Handle_ScalingPlane *xyScalingPlane,
 						*yzScalingPlane,
@@ -81,7 +85,7 @@ private:
 						*zxScalingPlane2,
 						*camViewScalingPlane;
 	
-	Handle_TranslationAxis *currentlySelectedAxis;
+	Handle_ScalingAxis *currentlySelectedAxis;
 	Handle_ScalingPlane *currentlySelectedPlane;
 
 	bool isSelected;

@@ -111,6 +111,7 @@ void Tool_Scaling::setIsVisible(bool &isVisible)
 bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 
+	bool boxSelected = false;
 	bool aTranslationToolHandleWasSelected = false;
 
 	bool rayIntersectsWithToolBoundingBox = false;
@@ -125,16 +126,93 @@ bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &ra
 		
 		float distanceToPointOfIntersection;
 		
-		bool planeSelected = camViewScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		float distanceToClosestPointOfIntersection = FLT_MAX;
 
-		// If the camera view translation plane is intersected, it is always selected...
-		if(planeSelected)
+		boxSelected = xScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(boxSelected)
 		{
-			currentlySelectedPlane = camViewScalingPlane;
+			distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+			currentlySelectedAxis = xScalingAxisHandle;
+
 			aTranslationToolHandleWasSelected = true;
 		}
-		else // ... Else, the others are tested for intersection and prioritized by intersection point distance:
+
+			boxSelected = xScalingAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(boxSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = xScalingAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		boxSelected = yScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(boxSelected)
 		{
+			if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+			{
+				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+				currentlySelectedAxis = yScalingAxisHandle;
+
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+			boxSelected = yScalingAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(boxSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = yScalingAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		boxSelected = zScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(boxSelected)
+		{
+			if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+			{
+				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+				currentlySelectedAxis = zScalingAxisHandle;
+
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+			boxSelected = zScalingAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(boxSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = zScalingAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		if(!currentlySelectedAxis)
+		{
+			bool planeSelected = camViewScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+
+			// If the camera view translation plane is intersected, it is always selected...
+			if(planeSelected)
+			{
+				currentlySelectedPlane = camViewScalingPlane;
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+		if(!currentlySelectedPlane && !currentlySelectedAxis) // ... Else, the others are tested for intersection and prioritized by intersection point distance:
+		{
+			bool planeSelected = false;
+
 			float distanceToClosestPointOfIntersection = FLT_MAX;
 
 			planeSelected = xyScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
@@ -253,17 +331,16 @@ void Tool_Scaling::updateWorld()
 		xScalingAxisHandle->setWorld(logicalWorld);
 		yScalingAxisHandle->setWorld(logicalWorld);
 		zScalingAxisHandle->setWorld(logicalWorld);
-		xScalingAxisHandle2->setWorld(logicalWorld);
-		yScalingAxisHandle2->setWorld(logicalWorld);
-		zScalingAxisHandle2->setWorld(logicalWorld);
+			xScalingAxisHandle2->setWorld(logicalWorld);
+			yScalingAxisHandle2->setWorld(logicalWorld);
+			zScalingAxisHandle2->setWorld(logicalWorld);
 
 		yzScalingPlane->setWorld(logicalWorld);
 		zxScalingPlane->setWorld(logicalWorld);
 		xyScalingPlane->setWorld(logicalWorld);
-
-		yzScalingPlane2->setWorld(logicalWorld);
-		zxScalingPlane2->setWorld(logicalWorld);
-		xyScalingPlane2->setWorld(logicalWorld);
+			yzScalingPlane2->setWorld(logicalWorld);
+			zxScalingPlane2->setWorld(logicalWorld);
+			xyScalingPlane2->setWorld(logicalWorld);
 
 		camViewScalingPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
 	}
@@ -321,10 +398,46 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 	{
 		currentlySelectedAxis->update(rayOrigin, rayDir, camView);
 
-		currentlySelectedAxis->pickAxisPlane(rayOrigin, rayDir, camView);
+		currentlySelectedAxis->pickAxisPlane(rayOrigin, rayDir, camView, camProj);
 		
 		// Pick against the plane to update the translation delta.
-		currentlySelectedAxis->getLastTranslationDelta();
+		currentlySelectedAxis->calcLastScalingDelta();
+		
+		XMVECTOR transDelta = currentlySelectedAxis->getTotalScalingDelta();
+
+		XMFLOAT4X4 newMatrix;
+		newMatrix = originalWorldOfActiveObject;
+
+		float toolScaleDependantScaleFactor = scale;
+
+		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
+		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
+		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
+		if(scaleDependantScaleFactorX < 0.1f)
+			scaleDependantScaleFactorX = 0.1f;
+		if(scaleDependantScaleFactorY < 0.1f)
+			scaleDependantScaleFactorY = 0.1f;
+		if(scaleDependantScaleFactorZ < 0.1f)
+			scaleDependantScaleFactorZ = 0.1f;
+
+		if(currentlySelectedPlane != camViewScalingPlane)
+		{
+			newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
+			newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
+			newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
+
+			if(newMatrix._11 < 0.01f)
+				newMatrix._11 = 0.01f;
+			if(newMatrix._22 < 0.01f)
+				newMatrix._22 = 0.01f;
+			if(newMatrix._33 < 0.01f)
+				newMatrix._33 = 0.01f;
+		}
+		else
+		{
+		}
+
+		Entity(activeEntityId).fetchData<Data::Transform>()->scale = Vector3(newMatrix._11, newMatrix._22, newMatrix._33);
 	}
 	else if(currentlySelectedPlane)
 	{
@@ -817,24 +930,20 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 	// Init the axis arrows.
 
 	GeometryGenerator geoGen;
-
-	XMVECTOR xAxisArrowColor = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
-	XMVECTOR yAxisArrowColor = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
-	XMVECTOR zAxisArrowColor = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
-
-	GeometryGenerator::MeshData2 meshVertices;
-
-	// X arrows.
+	
 	XMFLOAT3 xDir(1.0f, 0.0f, 0.0f);
 	XMFLOAT3 yDir(0.0f, 1.0f, 0.0f);
 	XMFLOAT3 zDir(0.0f, 0.0f, 1.0f);
 
-	float radianAngle = 90 * (Math::Pi / 180);
-	float bottomRadius = 0.046875f; //0.03125f;
-	XMMATRIX arrowLocalTransform;
-	arrowLocalTransform = XMMatrixRotationZ(-radianAngle) * XMMatrixTranslation(1.0f, 0.0f, 0.0f);
+	// X boxes.
 
-	geoGen.CreateCylinder(bottomRadius, 0.0f, 0.5f, 10, 10, xAxisArrowColor, meshVertices, arrowLocalTransform);
+	GeometryGenerator::MeshData2 meshVertices;
+
+	float widthHeightDepth = 0.046875f; //0.1275f;
+
+	char colorMode = 'x';
+	XMMATRIX boxTrans = XMMatrixTranslation(1.0f, 0.0f, 0.0f);
+	geoGen.CreateBox(0.5f, widthHeightDepth, widthHeightDepth, meshVertices, colorMode, boxTrans);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -842,7 +951,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xAxisArrow_VB));
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xAxisBox_VB));
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -851,7 +960,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Indices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_axisArrow_IB));
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_axisBox_IB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;
@@ -871,14 +980,14 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		listOfTrianglesAsPoints.push_back(trianglePointC);
 	}
 
-	xScalingAxisHandle = new Handle_TranslationAxis(XMLoadFloat3(&xDir), listOfTrianglesAsPoints, 'x');
+	xScalingAxisHandle = new Handle_ScalingAxis(XMLoadFloat3(&xDir), listOfTrianglesAsPoints, 'x');
 	listOfTrianglesAsPoints.clear();
 
 	meshVertices.Vertices.clear();
 
-		arrowLocalTransform = XMMatrixRotationZ(radianAngle) * XMMatrixTranslation(-1.0f, 0.0f, 0.0f);
-
-		geoGen.CreateCylinder(bottomRadius, 0.0f, 0.5f, 10, 10, xAxisArrowColor, meshVertices, arrowLocalTransform);
+		colorMode = 'x';
+		boxTrans = XMMatrixTranslation(-1.0f, 0.0f, 0.0f);
+		geoGen.CreateBox(0.5f, widthHeightDepth, widthHeightDepth, meshVertices, colorMode, boxTrans);
 
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -886,7 +995,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		vbd.CPUAccessFlags = 0;
 		vbd.MiscFlags = 0;
 		vinitData.pSysMem = &meshVertices.Vertices[0];
-		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xAxisArrow2_VB));
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xAxisBox2_VB));
 
 		// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 		for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
@@ -904,16 +1013,16 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 			listOfTrianglesAsPoints.push_back(trianglePointC);
 		}
 
-		xScalingAxisHandle2 = new Handle_TranslationAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'x');
+		xScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&xDir), listOfTrianglesAsPoints, 'x');
 		listOfTrianglesAsPoints.clear();
 
 		meshVertices.Vertices.clear();
 
-	// Y arrow.
-	
-	arrowLocalTransform = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+	// Y boxes.
 
-	geoGen.CreateCylinder(bottomRadius, 0.0f, 0.5f, 10, 10, yAxisArrowColor, meshVertices, arrowLocalTransform);
+	colorMode = 'y';
+	boxTrans = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+	geoGen.CreateBox(widthHeightDepth, 0.5f, widthHeightDepth, meshVertices, colorMode, boxTrans);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -921,7 +1030,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Vertices[0];
-    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yAxisArrow_VB));
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yAxisBox_VB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
@@ -939,14 +1048,14 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		listOfTrianglesAsPoints.push_back(trianglePointC);
 	}
 
-	yScalingAxisHandle = new Handle_TranslationAxis(XMLoadFloat3(&yDir), listOfTrianglesAsPoints, 'y');
+	yScalingAxisHandle = new Handle_ScalingAxis(XMLoadFloat3(&yDir), listOfTrianglesAsPoints, 'y');
 	listOfTrianglesAsPoints.clear();
 
 	meshVertices.Vertices.clear();
 
-		arrowLocalTransform = XMMatrixRotationX(2 * radianAngle) * XMMatrixTranslation(0.0f, -1.0f, 0.0f);
-
-		geoGen.CreateCylinder(bottomRadius, 0.0f, 0.5f, 10, 10, yAxisArrowColor, meshVertices, arrowLocalTransform);
+		colorMode = 'y';
+		boxTrans = XMMatrixTranslation(0.0f, -1.0f, 0.0f);
+		geoGen.CreateBox(widthHeightDepth, 0.5f, widthHeightDepth, meshVertices, colorMode, boxTrans);
 
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -954,7 +1063,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		vbd.CPUAccessFlags = 0;
 		vbd.MiscFlags = 0;
 		vinitData.pSysMem = &meshVertices.Vertices[0];
-		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yAxisArrow2_VB));
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yAxisBox2_VB));
 
 		// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 		for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
@@ -971,17 +1080,17 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 			listOfTrianglesAsPoints.push_back(trianglePointB);
 			listOfTrianglesAsPoints.push_back(trianglePointC);
 		}
-
-		yScalingAxisHandle2 = new Handle_TranslationAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'y');
+		
+		yScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&yDir), listOfTrianglesAsPoints, 'y');
 		listOfTrianglesAsPoints.clear();
 
 		meshVertices.Vertices.clear();
 
-	// Z arrow.
+	// Z boxes.
 
-	arrowLocalTransform = XMMatrixRotationX(radianAngle) * XMMatrixTranslation(0.0f, 0.0f, 1.0f);
-
-	geoGen.CreateCylinder(bottomRadius, 0.0f, 0.5f, 10, 10, zAxisArrowColor, meshVertices, arrowLocalTransform);
+	colorMode = 'z';
+	boxTrans = XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+	geoGen.CreateBox(widthHeightDepth, widthHeightDepth, 0.5f, meshVertices, colorMode, boxTrans);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -989,7 +1098,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Vertices[0];
-    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zAxisArrow_VB));
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zAxisBox_VB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
@@ -1007,14 +1116,14 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		listOfTrianglesAsPoints.push_back(trianglePointC);
 	}
 
-	zScalingAxisHandle = new Handle_TranslationAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'z');
+	zScalingAxisHandle = new Handle_ScalingAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'z');
 	listOfTrianglesAsPoints.clear();
 
 	meshVertices.Vertices.clear();
 
-		arrowLocalTransform = XMMatrixRotationX(-radianAngle) * XMMatrixTranslation(0.0f, 0.0f, -1.0f);
-
-		geoGen.CreateCylinder(bottomRadius, 0.0f, 0.5f, 10, 10, zAxisArrowColor, meshVertices, arrowLocalTransform);
+		colorMode = 'z';
+		boxTrans = XMMatrixTranslation(0.0f, 0.0f, -1.0f);
+		geoGen.CreateBox(widthHeightDepth, widthHeightDepth, 0.5f, meshVertices, colorMode, boxTrans);
 
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -1022,7 +1131,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		vbd.CPUAccessFlags = 0;
 		vbd.MiscFlags = 0;
 		vinitData.pSysMem = &meshVertices.Vertices[0];
-		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zAxisArrow2_VB));
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zAxisBox2_VB));
 
 		// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 		for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
@@ -1040,10 +1149,43 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 			listOfTrianglesAsPoints.push_back(trianglePointC);
 		}
 
-		zScalingAxisHandle2 = new Handle_TranslationAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'z');
+		zScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'z');
 		listOfTrianglesAsPoints.clear();
 
 		meshVertices.Vertices.clear();
+
+	colorMode = 'o';
+	boxTrans = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+	geoGen.CreateBox(0.25f, 0.25f, 0.25f, meshVertices, colorMode, boxTrans);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	vinitData.pSysMem = &meshVertices.Vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_omniAxisBox_VB));
+
+	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
+	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
+	{
+		unsigned int indexA = meshVertices.Indices.at(i);
+		unsigned int indexB = meshVertices.Indices.at(i + 1);
+		unsigned int indexC = meshVertices.Indices.at(i + 2);
+
+		XMFLOAT4 trianglePointA = XMFLOAT4(meshVertices.Vertices.at(indexA).Position.x, meshVertices.Vertices.at(indexA).Position.y, meshVertices.Vertices.at(indexA).Position.z, 1.0f);
+		XMFLOAT4 trianglePointB = XMFLOAT4(meshVertices.Vertices.at(indexB).Position.x, meshVertices.Vertices.at(indexB).Position.y, meshVertices.Vertices.at(indexB).Position.z, 1.0f);
+		XMFLOAT4 trianglePointC = XMFLOAT4(meshVertices.Vertices.at(indexC).Position.x, meshVertices.Vertices.at(indexC).Position.y, meshVertices.Vertices.at(indexC).Position.z, 1.0f);
+
+		listOfTrianglesAsPoints.push_back(trianglePointA);
+		listOfTrianglesAsPoints.push_back(trianglePointB);
+		listOfTrianglesAsPoints.push_back(trianglePointC);
+	}
+
+	omniScalingAxisHandle = new Handle_ScalingAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'z');
+	listOfTrianglesAsPoints.clear();
+
+	meshVertices.Vertices.clear();
 }
 
 void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
@@ -1096,6 +1238,37 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
+
+	// Draw control boxes.
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox_VB, &stride, &offset);
+	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox2_VB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox_VB, &stride, &offset);
+	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox2_VB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox_VB, &stride, &offset);
+	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox2_VB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
+	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary:
 }

@@ -151,6 +151,41 @@ bool Handle_ScalingPlane::tryForSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir,
 
 	return isSelected;
 }
+
+bool Handle_ScalingPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+{
+	isSelected = false;
+
+	// Tranform ray to local space.
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
+
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
+
+	XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
+
+	XMVECTOR transRayOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
+	XMVECTOR transRayDir = XMVector3TransformNormal(rayDir, toLocal);
+
+	// Make the ray direction unit length for the intersection tests.
+	transRayDir = XMVector3Normalize(transRayDir);
+	
+	// Calculate if and where the ray intersects the translation plane.
+	XMVECTOR planeIntersectionPoint;
+	bool rayIntersectedWithPlane = rayVsPlane(transRayOrigin, transRayDir, plane, planeIntersectionPoint);
+	
+	if(rayIntersectedWithPlane)
+	{
+		//prevPickedPointOnAxisPlane = planeIntersectionPoint;
+
+		XMStoreFloat3(&firstPickedPointOnAxisPlane, planeIntersectionPoint);
+		currentlyPickedPointOnAxisPlane = firstPickedPointOnAxisPlane;
+
+		isSelected = rayIntersectedWithPlane;
+	}
+
+	return isSelected;
+}
 	
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
 void Handle_ScalingPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport)
@@ -386,148 +421,8 @@ void Handle_ScalingPlane::setShouldFlipMouseCursor(bool shouldFlipMouseCursor)
 	this->shouldFlipMouseCursor = shouldFlipMouseCursor;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//// Upper right quadrant.
-		//if(exitFromOrigo.m128_f32[0] >= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] >= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitFromOrigo.m128_f32[0] >= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		++left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		++up_or_down_CrossOverScaleFactor;
-		//}
-		//// Upper left quadrant.
-		//else if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] <= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] >= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) <= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		--left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		++up_or_down_CrossOverScaleFactor;
-		//}
-		//// Lower left quadrant.
-		//else if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] <= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] <= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) <= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		--left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		--up_or_down_CrossOverScaleFactor;
-		//}
-		//// Lower right quadrant.
-		//else if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] >= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] <= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) >= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		++left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		--up_or_down_CrossOverScaleFactor;
-		//}
-
-		//// Upper right quadrant.
-		//if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] >= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] >= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) >= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		++left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		++up_or_down_CrossOverScaleFactor;
-		//}
-		//// Upper left quadrant.
-		//else if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] <= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] >= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) <= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		--left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		++up_or_down_CrossOverScaleFactor;
-		//}
-		//// Lower left quadrant.
-		//else if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] <= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] <= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) <= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		--left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		--up_or_down_CrossOverScaleFactor;
-		//}
-		//// Lower right quadrant.
-		//else if(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0] >= rectangleCenterPoint.m128_f32[0] && exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1] <= rectangleCenterPoint.m128_f32[1])
-		//{
-		//	if(abs(exitPointVector.m128_f32[0] - rectangleCenterPoint.m128_f32[0]) >= abs(exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[1]))
-		//	{
-		//		// Upper upper right quadrant.
-		//		++left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		--up_or_down_CrossOverScaleFactor;
-		//}
-
-
-		//if(exitPointVector.m128_f32[0] > rectangleCenterPoint.m128_f32[0])
-		//{
-		//	if(exitPointVector.m128_f32[0] > exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[0])
-		//	{
-		//		++left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else if(exitPointVector.m128_f32[1] > rectangleCenterPoint.m128_f32[1] && exitPointVector.m128_f32[1] > exitPointVector.m128_f32[0])
-		//	{
-		//		++up_or_down_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		--up_or_down_CrossOverScaleFactor;
-		//}
-		//else if(exitPointVector.m128_f32[0] < rectangleCenterPoint.m128_f32[0])
-		//{
-		//	if(exitPointVector.m128_f32[0] > exitPointVector.m128_f32[1] - rectangleCenterPoint.m128_f32[0])
-		//	{
-		//		--left_or_right_CrossOverScaleFactor;
-		//	}
-		//	else if(exitPointVector.m128_f32[1] > rectangleCenterPoint.m128_f32[1] && exitPointVector.m128_f32[1] > exitPointVector.m128_f32[0])
-		//	{
-		//		++up_or_down_CrossOverScaleFactor;
-		//	}
-		//	else
-		//		--up_or_down_CrossOverScaleFactor;
-		//}
-
-		//if(reEntryPointVector.m128_f32[0] < reEntryPointVector.m128_f32[1])
-		//{
-		//	if(exitPointVector.m128_f32[0] < 0.0f)
-		//		--left_or_right_CrossOverScaleFactor;
-		//	else
-		//		++left_or_right_CrossOverScaleFactor;
-		//}
-		//else if(reEntryPointVector.m128_f32[1] < reEntryPointVector.m128_f32[0])
-		//{
-		//	if(exitPointVector.m128_f32[0] < 0.0f)
-		//		--up_or_down_CrossOverScaleFactor;
-		//	else
-		//		++up_or_down_CrossOverScaleFactor;
-		//}
+/* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */
+void Handle_ScalingPlane::setPlaneOrientation(XMVECTOR &normal)
+{
+	XMStoreFloat3(&plane.normal, normal);
+}

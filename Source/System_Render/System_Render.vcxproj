@@ -163,6 +163,7 @@
     <ClInclude Include="Handle_RotationCircle.h" />
     <ClInclude Include="Handle_RotationPlane.h" />
     <ClInclude Include="Handle_RotationSphere.h" />
+    <ClInclude Include="Handle_ScalingAxis.h" />
     <ClInclude Include="Handle_ScalingPlane.h" />
     <ClInclude Include="Handle_TranslationAxis.h" />
     <ClInclude Include="Handle_TranslationPlane.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Handle_RotationCircle.cpp" />
     <ClCompile Include="Handle_RotationPlane.cpp" />
     <ClCompile Include="Handle_RotationSphere.cpp" />
+    <ClCompile Include="Handle_ScalingAxis.cpp" />
     <ClCompile Include="Handle_ScalingPlane.cpp" />
     <ClCompile Include="Handle_TranslationAxis.cpp" />
     <ClCompile Include="Handle_TranslationPlane.cpp" />
