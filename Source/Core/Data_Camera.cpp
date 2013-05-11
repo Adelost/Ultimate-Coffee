@@ -3,7 +3,9 @@
 
 Quaternion Data::Camera::rotation(Vector3& position)
 {
-	Matrix m = Matrix::CreateLookAt(Vector3(0,0,0), m_look, m_up);
-	m = m.Invert();
+	// Local to World
+	Matrix m = m_mat_view.Invert();
+
+	// Return as Quaternion
 	return Quaternion::CreateFromRotationMatrix(m);
 }

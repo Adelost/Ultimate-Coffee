@@ -250,6 +250,9 @@ void Manager_Docks::setMaximizeScene( bool p_checked )
 		m_scene->setFloating(false);
 		m_scene->showNormal();
 	}
+
+	// Give focus to RenderWidget
+	m_window->renderWidget()->setFocus();
 }
 
 QAction* Manager_Docks::createAction( QString p_name )
@@ -507,7 +510,7 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 		int entityId = index.row();
 		Entity* e = Entity::findEntity(entityId);
 		e->addData(Data::Selected());
-		DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
+		DEBUGPRINT(" Entity " + Converter::IntToStr(e->id()));
 	}
 	while(index_list.count() > 0)
 	{
@@ -518,7 +521,7 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 	Entity* picked_entity = Entity::findEntity(index.row());
 	Data::Selected::pivot = picked_entity->asPointer();
 	DEBUGPRINT("PIVOT");
-	DEBUGPRINT("Entity " + Converter::IntToStr(picked_entity->id()));
+	DEBUGPRINT(" Entity " + Converter::IntToStr(picked_entity->id()));
 }
 
 

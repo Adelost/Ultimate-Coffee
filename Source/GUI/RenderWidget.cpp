@@ -79,14 +79,13 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
 		Ray r;
 		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
-		//d_camera->getPickingRay(Vector2(windowSize.x/2, windowSize.y/2), windowSize, &r);
 
 		// Translate ray to world space
 		Matrix mat_world = d_transform->toWorldMatrix();
 		r.position = Vector3::Transform(r.position, mat_world);
 		r.direction = Vector3::TransformNormal(r.direction, mat_world);
 		DEBUGPRINT("");
-		DEBUGPRINT("RAY:\n at "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dr "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
+		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
 
 		// Find intersected Entity
 		Entity* e = Data::Bounding::intersect(r);
@@ -99,7 +98,7 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 			e->addData(Data::Selected());
 			DEBUGPRINT("");
 			DEBUGPRINT("PICKED");
-			DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
+			DEBUGPRINT(" Entity " + Converter::IntToStr(e->id()));
 		}
 	}
 }
@@ -130,7 +129,7 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	int dy = e->globalY() - mousePrev.y();
 	mousePrev = e->globalPos();
 
-	// send mouse move event to relevant observers
+	// Send mouse move event to relevant observers
 	SEND_EVENT(&Event_MouseMove(x, y, dx, dy));
 
 	Entity* entity_camera = CAMERA_ENTITY().asEntity();
@@ -140,7 +139,6 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	if(SETTINGS()->button.mouse_right)
 	{
 		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
-		//SEND_EVENT(&Event_SetCursorPosition(Int2(mouseAnchor.x(), mouseAnchor.y())))
 		mousePrev = mouseAnchor;
 
 		// Set 1 pixel = 0.25 degrees
@@ -155,10 +153,6 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 
 	if(SETTINGS()->button.mouse_middle)
 	{
-		//QCursor::setPos(mousePrev.x(), mousePrev.y()); // anchor mouse again
-		//mousePrev = mouseAnchor;
-
-		
 		float strafe = 0.0f;
 		float ascend = 0.0f;
 
