@@ -17,8 +17,8 @@ void Manager_Commands::init()
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
-	m_action_undo = NULL;
-	m_action_redo = NULL;
+	m_action_undo = nullptr;
+	m_action_redo = nullptr;
 	//nrOfSoundsPlayedSinceLastReset = 0;
 
 	// Init undo/redo system

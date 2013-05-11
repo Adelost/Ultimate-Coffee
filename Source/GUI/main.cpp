@@ -19,7 +19,14 @@ int main(int argc, char *argv[])
 	// Create window
 	QApplication a(argc, argv);
 	Window* w = Window::instance();
+	w->init();
 	w->show();
+	
+	// Run application
+	int result = a.exec();
 
-	return a.exec();
+	// Delete window
+	delete w;
+
+	return result;
 }

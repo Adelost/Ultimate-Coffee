@@ -145,7 +145,7 @@ void DXRenderer::renderFrame()
 
 		m_CBuffer.WVP = d_transform->toWorldMatrix() * viewProjection;
 		m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
-		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_CBuffer, 0, 0);
+		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_CBuffer, 0, 0);
 		m_dxDeviceContext->Draw(36, 0);
 	}
 

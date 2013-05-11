@@ -29,6 +29,9 @@
     <Filter Include="Source\Math">
       <UniqueIdentifier>{23325fda-77e7-402e-b224-abe9d308372a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Util">
+      <UniqueIdentifier>{d0215337-035a-4c67-ba46-4aefedc100ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp">
@@ -90,6 +93,12 @@
     </ClCompile>
     <ClCompile Include="Data.cpp">
       <Filter>Source\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Converter.cpp">
+      <Filter>Source\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="xnacollision.cpp">
+      <Filter>Source\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -165,10 +174,6 @@
     <ClInclude Include="Factory_Entity.h">
       <Filter>Source\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Converter.h" />
-    <ClInclude Include="Enums.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="Data_Camera.h">
       <Filter>Source\Data</Filter>
     </ClInclude>
@@ -186,6 +191,15 @@
     </ClInclude>
     <ClInclude Include="EntityPointer.h">
       <Filter>Source\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Converter.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="xnacollision.h">
+      <Filter>Source\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

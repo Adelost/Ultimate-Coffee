@@ -52,6 +52,7 @@ class Window : public QMainWindow, public IObserver
 	Q_OBJECT
 
 private:
+	static Window* s_instance;
 	Ui::MainWindow* m_ui;
 	Manager_Commands* m_manager_commands;
 	Manager_Console* m_manager_console;
@@ -65,10 +66,11 @@ protected:
 	void keyPressEvent(QKeyEvent *e);
 
 private:
-	Window();
+	Window(){}
 
 public:
 	static Window* instance();
+	void init();
 	~Window();
 
 	void onEvent(IEvent* p_event);

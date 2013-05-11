@@ -22,6 +22,16 @@ Sky::Sky( ID3D11Device* device, const std::wstring& cubemapFilename, float skySp
 	m_WVPBuffer = new Buffer();
 	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
 	m_WVPBuffer->setDeviceContextBuffer(m_context);
+
+
+	//// Load texture
+	//CreateTextureFromDDS(
+	//D3DX11CreateShaderResourceViewFromFile(dev,        // the Direct3D device
+	//	L"Wood.png",    // load Wood.png in the local folder
+	//	nullptr,           // no additional information
+	//	nullptr,           // no multithreading
+	//	&pTexture,      // address of the shader-resource-view
+	//	nullptr);          // no multithreading
 }
 
 Sky::~Sky()
@@ -53,28 +63,28 @@ void Sky::draw( ID3D11DeviceContext* dc )
 	// Set WorldViewProj
 	m_cbuffer.WVP = world * viewProj;
 	m_cbuffer.WVP = m_cbuffer.WVP.Transpose();
-	m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, NULL, &m_cbuffer, 0, 0);
+	m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_cbuffer, 0, 0);
 
-	// Set cubemap
-	//fx->SetCubeMap(mCubeMapSRV);
+	// Set cube map
+	m_context->PSSetShaderResources(0, 1, &mCubeMapSRV);
 
 
-	/*unsigned int stride = sizeof(Vector3);
+	unsigned int stride = sizeof(Vector3);
 	unsigned int  offset = 0;
-	dc->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
+	/*dc->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 	dc->IASetIndexBuffer(mIB, DXGI_FORMAT_R16_UINT, 0);
 	dc->IASetInputLayout(shaderManager->layout_pos);
-	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);*/
 
-	D3DX11_TECHNIQUE_DESC techDesc;
-	fx->SkyTech->GetDesc( &techDesc );
+	//D3DX11_TECHNIQUE_DESC techDesc;
+	//fx->SkyTech->GetDesc( &techDesc );
 
-	for(UINT p = 0; p < techDesc.Passes; ++p)
-	{
-	ID3DX11EffectPass* pass = fx->SkyTech->GetPassByIndex(p);
+	//for(UINT p = 0; p < techDesc.Passes; ++p)
+	//{
+	//	ID3DX11EffectPass* pass = fx->SkyTech->GetPassByIndex(p);
 
-	pass->Apply(0, dc);
+	//	pass->Apply(0, dc);
 
-	dc->DrawIndexed(mIndexCount, 0, 0);
-	}*/
+	//	dc->DrawIndexed(mIndexCount, 0, 0);
+	//}
 }

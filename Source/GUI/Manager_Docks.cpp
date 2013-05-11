@@ -20,8 +20,8 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
-	commandHistoryListWidget = NULL;
-	listT = NULL;
+	commandHistoryListWidget = nullptr;
+	listT = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
 	setupMenu();

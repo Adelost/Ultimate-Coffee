@@ -94,14 +94,16 @@
     <ClInclude Include="Manager_Shader.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Handle_ScalingAxis.h">
       <Filter>Source\Tools</Filter>
-    </ClInclude>
+=======
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
     <ClInclude Include="TexLoader.h">
       <Filter>Source\Util</Filter>
+>>>>>>> 1d952101681334945b75abad815b3b3532df4432
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +167,10 @@
     <ClCompile Include="Sky.cpp">
       <Filter>Source\Util</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Handle_ScalingAxis.cpp">
       <Filter>Source\Tools</Filter>
-    </ClCompile>
+=======
     <ClCompile Include="DDSTextureLoader.cpp">
       <Filter>Source\Util</Filter>
     </ClCompile>
