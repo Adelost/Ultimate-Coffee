@@ -39,9 +39,8 @@ Window::Window()
 	m_manager_commands->init();
 
 	m_manager_docks->resetLayout();
-	//addToAutoDelete(new SplashScreen(this));
 
-	m_refreshTimer = new QTimer();
+	m_refreshTimer = new QTimer(this);
 
 	// Init architecture
 	Math::init();
