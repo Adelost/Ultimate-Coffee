@@ -22,7 +22,7 @@ namespace Data
 	public:
 		Camera()
 		{
-			m_look = Vector3(0.0f, 0.0f, 1.0f);
+			m_look = Vector3(0.0f, 1.0f, 0.0f);
 			m_right = Vector3(1.0f, 0.0f, 0.0f);
 			m_up = Vector3(0.0f, 1.0f, 0.0f);
 			m_walkingSpeed = 8.0f;
@@ -149,8 +149,8 @@ namespace Data
 		}
 		Matrix viewProjection()
 		{
-			Matrix viewProjection = m_mat_view*m_mat_projection;
-			return viewProjection;
+			Matrix m = m_mat_view*m_mat_projection;
+			return m;
 		}
 		Matrix view()
 		{
@@ -160,6 +160,7 @@ namespace Data
 		{
 			return m_mat_projection;
 		}
+		Quaternion rotation(Vector3& position);
 	};
 }
 

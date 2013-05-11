@@ -37,5 +37,7 @@ void System::Input::update()
 		d_camera->strafe(d_transform->position, strafe);
 	if(walk!=0.0f)
 		d_camera->walk(d_transform->position, walk);
+	// Update rotation
+	d_transform->rotation = d_camera->rotation(d_transform->position);
 	d_camera->updateViewMatrix(d_transform->position);
 }

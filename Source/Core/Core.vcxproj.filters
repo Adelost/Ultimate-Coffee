@@ -100,6 +100,9 @@
     <ClCompile Include="xnacollision.cpp">
       <Filter>Source\Util</Filter>
     </ClCompile>
+    <ClCompile Include="Data_Camera.cpp">
+      <Filter>Source\Data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">

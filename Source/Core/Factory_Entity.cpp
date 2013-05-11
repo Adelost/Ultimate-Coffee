@@ -34,7 +34,7 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	if(p_type == ENTITY_CAMERA)
 	{
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->position = Vector3(0.0f, 0.0f, -15.0f);
+		d_transform->position = Vector3(0.0f, -15.0f, -0.0f);
 
 		Data::Camera* d_camera = e->addData(Data::Camera());
 		d_camera->updateViewMatrix(d_transform->position);

@@ -62,9 +62,6 @@ private:
 	UpdateLoop* m_updateLoop;
 	QWidget* m_renderWidget;
 
-protected:
-	void keyPressEvent(QKeyEvent *e);
-
 private:
 	Window(){}
 

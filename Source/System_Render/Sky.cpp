@@ -59,7 +59,6 @@ void Sky::draw( ID3D11DeviceContext* dc )
 	Matrix world = CAMERA_ENTITY()->fetchData<Data::Transform>()->toWorldMatrix();
 	Matrix WVP = XMMatrixMultiply(scale*T, viewProj);
 
-
 	// Set WorldViewProj
 	m_cbuffer.WVP = world * viewProj;
 	m_cbuffer.WVP = m_cbuffer.WVP.Transpose();
@@ -67,7 +66,6 @@ void Sky::draw( ID3D11DeviceContext* dc )
 
 	// Set cube map
 	m_context->PSSetShaderResources(0, 1, &mCubeMapSRV);
-
 
 	unsigned int stride = sizeof(Vector3);
 	unsigned int  offset = 0;

@@ -79,11 +79,14 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
 		Ray r;
 		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
+		//d_camera->getPickingRay(Vector2(windowSize.x/2, windowSize.y/2), windowSize, &r);
 
 		// Translate ray to world space
 		Matrix mat_world = d_transform->toWorldMatrix();
 		r.position = Vector3::Transform(r.position, mat_world);
 		r.direction = Vector3::TransformNormal(r.direction, mat_world);
+		DEBUGPRINT("");
+		DEBUGPRINT("RAY:\n at "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dr "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
 
 		// Find intersected Entity
 		Entity* e = Data::Bounding::intersect(r);
@@ -97,11 +100,6 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 			DEBUGPRINT("");
 			DEBUGPRINT("PICKED");
 			DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
-		}
-		else
-		{
-			DEBUGPRINT("");
-			DEBUGPRINT("MISS");
 		}
 	}
 }
