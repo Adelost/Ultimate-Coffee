@@ -38,7 +38,7 @@ public:
 	{
 		// Return NULL if Data is missing
 		if(p_batchIndex == -1)
-			return NULL;
+			return nullptr;
 
 		DataBatch<T>* dataBatch = (DataBatch<T>*)m_dataBatch_list[p_batchIndex];
 		return dataBatch->fetchData(p_entityId);

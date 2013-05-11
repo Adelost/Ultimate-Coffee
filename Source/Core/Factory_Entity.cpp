@@ -23,10 +23,16 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	{
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		float s =  4.0f;
+		/*float s =  4.0f;
 		d_transform->position.x = Math::randomFloat(-s, s);
 		d_transform->position.y = Math::randomFloat(-s, s);
 		d_transform->position.z = Math::randomFloat(-s, s);
+		*/
+		static float d = -8.0f;
+		d += 4.0f;
+		d_transform->position.x = d;
+		d_transform->position.y = 0.0f;
+		d_transform->position.z = 0.0f;
 		
 		e->addData(Data::Bounding());
 		e->addData(Data::Render());

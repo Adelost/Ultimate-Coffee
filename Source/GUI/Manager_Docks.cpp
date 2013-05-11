@@ -501,27 +501,20 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 
 	// Add new selection
 	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
-
-	// Pick last clicked as pivot
-	DEBUGPRINT("");
-	DEBUGPRINT("SELECTED");
 	foreach(QModelIndex index, index_list)
 	{
 		int entityId = index.row();
 		Entity* e = Entity::findEntity(entityId);
 		e->addData(Data::Selected());
-		DEBUGPRINT(" Entity " + Converter::IntToStr(e->id()));
-	}
-	while(index_list.count() > 0)
-	{
-		index_list.pop_back();
 	}
 
-	// Pick last clicked as pivot
-	Entity* picked_entity = Entity::findEntity(index.row());
-	Data::Selected::pivot = picked_entity->asPointer();
-	DEBUGPRINT("PIVOT");
-	DEBUGPRINT(" Entity " + Converter::IntToStr(picked_entity->id()));
+	// Debug selection
+	DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+	}
 }
 
 
@@ -529,3 +522,34 @@ void System_Editor::update()
 {
 	m_editor->update();
 }
+
+//DataMapper<Data::Selected> map_selected;
+//
+//// Remove previous selection
+//Data::Selected::clearSelection();
+//m_hierarchy_view->setCurrentIndex(index);
+//
+//// Add new selection
+//QList<QModelIndex> index_list = m_hierarchy_view->selectionModel()->selectedRows();
+//
+//// Select clicked item
+//Entity* picked_entity = Entity::findEntity(index.row());
+//DEBUGPRINT(" Found: " + Converter::IntToStr(picked_entity->id()));
+//picked_entity->addData(Data::Selected());
+//
+//// Select from selection
+//foreach(QModelIndex index, index_list)
+//{
+//	int entityId = index.row();
+//	Entity* e = Entity::findEntity(entityId);
+//	DEBUGPRINT(" Found: " + Converter::IntToStr(e->id()));
+//	e->addData(Data::Selected());
+//}
+//
+//// Debug selection
+//DEBUGPRINT("\nSELECTION: " + Converter::IntToStr(map_selected.dataCount()));
+//while(map_selected.hasNext())
+//{
+//	Entity* e = map_selected.nextEntity();
+//	DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+//}

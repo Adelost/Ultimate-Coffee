@@ -41,9 +41,11 @@ bool Data::Bounding::intersect( Entity* entity, const Ray& ray )
 void Data::Selected::clearSelection()
 {
 	DataMapper<Data::Selected> map_selected;
+	DEBUGPRINT("CLEAR: " + Converter::IntToStr(map_selected.dataCount()));
 	while(map_selected.hasNext())
 	{
-		Entity* entity = map_selected.nextEntity();
-		entity->removeData<Data::Selected>();
+		Entity* e = map_selected.nextEntity();
+		e->removeData<Data::Selected>();
+		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
 	}
 }

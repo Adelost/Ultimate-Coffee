@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "RenderWidget.h"
+#include <Core/DataMapper.h>
+#include <QApplication.h>
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
@@ -86,20 +88,62 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 		r.direction = Vector3::TransformNormal(r.direction, mat_world);
 		DEBUGPRINT("");
 		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
+		DEBUGPRINT("");
 
 		// Find intersected Entity
 		Entity* e = Data::Bounding::intersect(r);
 		if(e)
 		{
-			// Unselect previous
-			Data::Selected::clearSelection();
-
 			// Select new
-			e->addData(Data::Selected());
 			DEBUGPRINT("");
 			DEBUGPRINT("PICKED");
 			DEBUGPRINT(" Entity " + Converter::IntToStr(e->id()));
+
+			// If Ctrl is pressed, entity will be added to selection,
+			// otherwise previous selection will be cleared
+			ButtonState* buttonState = &SETTINGS()->button;
+			if(SETTINGS()->button.key_ctrl)
+			{
+				DEBUGPRINT("Ctrl on");
+				if(e->fetchData<Data::Selected>() == nullptr)
+				{
+					e->addData(Data::Selected());
+					DEBUGPRINT(" Selected");
+				}	
+				else
+				{
+					e->removeData<Data::Selected>();
+					DEBUGPRINT(" Unselected");
+				}
+			}
+			else
+			{
+				DEBUGPRINT("Ctrl off");
+				Data::Selected::clearSelection();
+
+				DEBUGPRINT(" Selected");
+				e->addData(Data::Selected());
+			}
 		}
+		else
+		{
+			DEBUGPRINT(" No entity");
+			if(!SETTINGS()->button.key_ctrl)
+			{
+				DEBUGPRINT(" Ctrl off");
+				Data::Selected::clearSelection();
+			}
+		}
+
+		// Debug selection
+		DataMapper<Data::Selected> map_selected;
+		DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+		while(map_selected.hasNext())
+		{
+			Entity* e = map_selected.nextEntity();
+			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+		}
+
 	}
 }
 
@@ -196,6 +240,31 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 	case Qt::Key_D:
 		SETTINGS()->button.key_right = state;
 		break;
+	case Qt::Key_Shift:
+		SETTINGS()->button.key_shift = state;
+		if(SETTINGS()->button.key_shift)
+		{
+			DEBUGPRINT("Shift: On");
+		}
+		else
+		{
+			DEBUGPRINT("Shift: Off");
+		}
+		break;
+	case Qt::Key_Control:
+		SETTINGS()->button.key_ctrl = state;
+		if(SETTINGS()->button.key_ctrl)
+		{
+			DEBUGPRINT("Ctrl: On");
+		}
+		else
+		{
+			DEBUGPRINT("Ctrl: Off");
+		}
+		break;
+	case Qt::Key_Alt:
+		SETTINGS()->button.key_alt = state;
+		break;
 	default:
 		break;
 	}
@@ -221,7 +290,12 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 		break;
 	}
 
-	
+	// Also set Ctrl and Shift to allow 
+	// Ctrl-click without having Window focus
+	SETTINGS()->button.key_ctrl = (QApplication::keyboardModifiers() & Qt::ControlModifier);
+	SETTINGS()->button.key_shift = (QApplication::keyboardModifiers() & Qt::ShiftModifier);
+	SETTINGS()->button.key_alt = (QApplication::keyboardModifiers() & Qt::AltModifier);
+
 	// Inform about key press
 	QPoint pos = p_event->pos();
 	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));

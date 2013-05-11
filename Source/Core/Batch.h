@@ -30,7 +30,7 @@ public:
 		m_index_lastGap = 0;
 	}
 	// Index of the last gap in the vector
-	int* lastGap()
+	int* lastGapPtr()
 	{
 		return &m_index_lastGap;
 	}
@@ -45,6 +45,10 @@ public:
 	int itemCount()
 	{
 		return m_itemCount;
+	}
+	int* itemCountPtr()
+	{
+		return &m_itemCount;
 	}
 	T* itemAt(int p_index)
 	{
@@ -91,7 +95,7 @@ public:
 
 	void findNextLastGap()
 	{
-		while(m_index_lastGap > 0 && isGap(m_index_lastGap))
+		while(m_index_lastGap > 0 && isGap(m_index_lastGap-1))
 		{
 			m_index_lastGap--;
 		}
