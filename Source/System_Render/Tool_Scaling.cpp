@@ -111,6 +111,7 @@ void Tool_Scaling::setIsVisible(bool &isVisible)
 bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
 
+	bool boxSelected = false;
 	bool aTranslationToolHandleWasSelected = false;
 
 	bool rayIntersectsWithToolBoundingBox = false;
@@ -125,16 +126,93 @@ bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &ra
 		
 		float distanceToPointOfIntersection;
 		
-		bool planeSelected = camViewScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		float distanceToClosestPointOfIntersection = FLT_MAX;
 
-		// If the camera view translation plane is intersected, it is always selected...
-		if(planeSelected)
+		boxSelected = xScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(boxSelected)
 		{
-			currentlySelectedPlane = camViewScalingPlane;
+			distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+			currentlySelectedAxis = xScalingAxisHandle;
+
 			aTranslationToolHandleWasSelected = true;
 		}
-		else // ... Else, the others are tested for intersection and prioritized by intersection point distance:
+
+			boxSelected = xScalingAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(boxSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = xScalingAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		boxSelected = yScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(boxSelected)
 		{
+			if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+			{
+				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+				currentlySelectedAxis = yScalingAxisHandle;
+
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+			boxSelected = yScalingAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(boxSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = yScalingAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		boxSelected = zScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(boxSelected)
+		{
+			if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+			{
+				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+				currentlySelectedAxis = zScalingAxisHandle;
+
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+			boxSelected = zScalingAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(boxSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = zScalingAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		if(!currentlySelectedAxis)
+		{
+			bool planeSelected = camViewScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+
+			// If the camera view translation plane is intersected, it is always selected...
+			if(planeSelected)
+			{
+				currentlySelectedPlane = camViewScalingPlane;
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+		if(!currentlySelectedPlane && !currentlySelectedAxis) // ... Else, the others are tested for intersection and prioritized by intersection point distance:
+		{
+			bool planeSelected = false;
+
 			float distanceToClosestPointOfIntersection = FLT_MAX;
 
 			planeSelected = xyScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
@@ -253,17 +331,16 @@ void Tool_Scaling::updateWorld()
 		xScalingAxisHandle->setWorld(logicalWorld);
 		yScalingAxisHandle->setWorld(logicalWorld);
 		zScalingAxisHandle->setWorld(logicalWorld);
-		xScalingAxisHandle2->setWorld(logicalWorld);
-		yScalingAxisHandle2->setWorld(logicalWorld);
-		zScalingAxisHandle2->setWorld(logicalWorld);
+			xScalingAxisHandle2->setWorld(logicalWorld);
+			yScalingAxisHandle2->setWorld(logicalWorld);
+			zScalingAxisHandle2->setWorld(logicalWorld);
 
 		yzScalingPlane->setWorld(logicalWorld);
 		zxScalingPlane->setWorld(logicalWorld);
 		xyScalingPlane->setWorld(logicalWorld);
-
-		yzScalingPlane2->setWorld(logicalWorld);
-		zxScalingPlane2->setWorld(logicalWorld);
-		xyScalingPlane2->setWorld(logicalWorld);
+			yzScalingPlane2->setWorld(logicalWorld);
+			zxScalingPlane2->setWorld(logicalWorld);
+			xyScalingPlane2->setWorld(logicalWorld);
 
 		camViewScalingPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
 	}
@@ -324,7 +401,43 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		currentlySelectedAxis->pickAxisPlane(rayOrigin, rayDir, camView, camProj);
 		
 		// Pick against the plane to update the translation delta.
-		currentlySelectedAxis->getLastTranslationDelta();
+		currentlySelectedAxis->calcLastScalingDelta();
+		
+		XMVECTOR transDelta = currentlySelectedAxis->getTotalScalingDelta();
+
+		XMFLOAT4X4 newMatrix;
+		newMatrix = originalWorldOfActiveObject;
+
+		float toolScaleDependantScaleFactor = scale;
+
+		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
+		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
+		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
+		if(scaleDependantScaleFactorX < 0.1f)
+			scaleDependantScaleFactorX = 0.1f;
+		if(scaleDependantScaleFactorY < 0.1f)
+			scaleDependantScaleFactorY = 0.1f;
+		if(scaleDependantScaleFactorZ < 0.1f)
+			scaleDependantScaleFactorZ = 0.1f;
+
+		if(currentlySelectedPlane != camViewScalingPlane)
+		{
+			newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
+			newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
+			newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
+
+			if(newMatrix._11 < 0.01f)
+				newMatrix._11 = 0.01f;
+			if(newMatrix._22 < 0.01f)
+				newMatrix._22 = 0.01f;
+			if(newMatrix._33 < 0.01f)
+				newMatrix._33 = 0.01f;
+		}
+		else
+		{
+		}
+
+		Entity(activeEntityId).fetchData<Data::Transform>()->scale = Vector3(newMatrix._11, newMatrix._22, newMatrix._33);
 	}
 	else if(currentlySelectedPlane)
 	{
@@ -900,7 +1013,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 			listOfTrianglesAsPoints.push_back(trianglePointC);
 		}
 
-		xScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'x');
+		xScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&xDir), listOfTrianglesAsPoints, 'x');
 		listOfTrianglesAsPoints.clear();
 
 		meshVertices.Vertices.clear();
@@ -968,7 +1081,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 			listOfTrianglesAsPoints.push_back(trianglePointC);
 		}
 		
-		yScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'y');
+		yScalingAxisHandle2 = new Handle_ScalingAxis(XMLoadFloat3(&yDir), listOfTrianglesAsPoints, 'y');
 		listOfTrianglesAsPoints.clear();
 
 		meshVertices.Vertices.clear();

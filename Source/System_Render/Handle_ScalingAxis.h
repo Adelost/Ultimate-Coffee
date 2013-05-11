@@ -42,6 +42,10 @@ public:
 	/* Called to see if this is the currently selected translation axis, if any. */
 	bool getIsSelected();
 
+	void calcLastScalingDelta();
+
+	XMVECTOR getTotalScalingDelta();
+
 	/* Called to retrieve the last made translation delta. */
 	XMVECTOR getLastTranslationDelta();
 

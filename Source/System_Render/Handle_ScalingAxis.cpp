@@ -132,6 +132,39 @@ bool Handle_ScalingAxis::getIsSelected()
 	return isSelected;
 }
 
+void Handle_ScalingAxis::calcLastScalingDelta()
+{
+	singleAxisScalingPlane->calcLastScalingDelta();
+}
+
+XMVECTOR Handle_ScalingAxis::getTotalScalingDelta()
+{
+	XMFLOAT4 transDelta;
+	XMVECTOR oneAxisOnlyTransDelta = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+	if(singleAxisScalingPlane->getIsSelected())
+	{
+		XMStoreFloat4(&transDelta, singleAxisScalingPlane->getTotalScalingDelta());
+
+		if(direction.x == 1.0f)
+		{
+			transDelta.y = 0.0f; transDelta.z = 0.0f;
+		}
+		else if(direction.y == 1.0f)
+		{
+			transDelta.x = 0.0f; transDelta.z = 0.0f;
+		}
+		else if(direction.z == 1.0f)
+		{
+			transDelta.x = 0.0f; transDelta.y = 0.0f;
+		}
+		
+		oneAxisOnlyTransDelta = XMLoadFloat4(&transDelta);
+	}
+
+	return oneAxisOnlyTransDelta;
+}
+
 /* Called to retrieve the last made translation delta. */
 XMVECTOR Handle_ScalingAxis::getLastTranslationDelta()
 {
