@@ -13,7 +13,8 @@
 #include <Core/Entity.h>
 #include <Core/Events.h>
 
-Window::Window()
+
+void Window::init()
 {
 	// Init window
 	m_ui = new Ui::MainWindow();
@@ -100,12 +101,6 @@ void Window::onEvent( IEvent* p_event )
 	}
 }
 
-Window* Window::instance()
-{
-	static Window instance;
-	return &instance;
-}
-
 Ui::MainWindow* Window::ui()
 {
 	return m_ui;
@@ -185,3 +180,15 @@ void Window::setRefreshInterval( int p_interval )
 {
 	m_refreshTimer->setInterval(p_interval);
 }
+
+Window* Window::instance()
+{
+	if(s_instance == NULL)
+	{
+		s_instance = new Window();
+	}	
+
+	return s_instance;
+}
+
+Window* Window::s_instance = NULL;
