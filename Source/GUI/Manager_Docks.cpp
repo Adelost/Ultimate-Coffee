@@ -494,11 +494,7 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 	DataMapper<Data::Selected> map_selected;
 
 	// Remove previous selection
-	while(map_selected.hasNext())
-	{
-		Entity* entity = map_selected.nextEntity();
-		entity->removeData<Data::Selected>();
-	}
+	Data::Selected::clearSelection();
 
 	// Add new selection
 	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
