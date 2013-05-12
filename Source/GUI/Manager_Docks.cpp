@@ -609,7 +609,7 @@ void ItemBrowser::initTree()
 	foreach(QFileInfo i, list)
 	{
 		QString filename = i.fileName();
-		DEBUGPRINT(filename.toStdString());
+		//DEBUGPRINT(filename.toStdString());
 
 		QListWidgetItem* item = new QListWidgetItem(filename);
 		m_tree->addItem(item);
@@ -639,7 +639,7 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 	foreach(QFileInfo i, list)
 	{
 		QString filename = i.fileName();
-		DEBUGPRINT(filename.toStdString());
+		//DEBUGPRINT(filename.toStdString());
 
 		QIcon icon(path + "/" + filename);
 		QListWidgetItem* item = new QListWidgetItem(icon, filename);
