@@ -30,6 +30,8 @@
 #include <QListWidget.h>
 #include <QBoxLayout.h>
 #include <QDoubleSpinBox>
+#include <QScrollArea>
+#include <QPushButton>
 
 // Path to icons
 #define ICON_PATH												\

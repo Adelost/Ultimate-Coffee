@@ -341,7 +341,10 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover
 
 
 
-</string>
+QScrollArea &gt; QWidget &gt; QWidget
+{
+	background: transparent; 
+}</string>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>

@@ -182,44 +182,72 @@ void Manager_Docks::setupMenu()
 	// Tool
 	{
 		dock = createDock("Tool", Qt::RightDockWidgetArea);
-		QWidget* widget = new QWidget(dock);
-		dock->setWidget(widget);
-		QLayout* vl = new QVBoxLayout(widget);
-		widget->setLayout(vl);
+		QWidget* w = new QWidget(dock);
+		dock->setWidget(w);
+		QLayout* l = new QVBoxLayout(w);
+		w->setLayout(l);
+		l->setMargin(0);
+		QScrollArea* scroll = new QScrollArea(w);
+		scroll->setFrameShape(QFrame::NoFrame);
+		l->addWidget(scroll);
+		scroll->setWidgetResizable(true);
+		w = new QWidget(scroll);
+		scroll->setWidget(w);
+		QLayout* vl = new QVBoxLayout(w);
+		w->setLayout(vl);
 		{
+			QLabel* l;
 			vl->addWidget(new QLabel("Position"));
-			QLayout* hl = new QHBoxLayout(widget);
+			QLayout* hl = new QHBoxLayout(w);
 			vl->addItem(hl);
-			hl->addWidget(new QLabel("  X ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Y ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Z ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
+			l = new QLabel("  X  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Y  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Z  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
 		}
-		widget->setLayout(vl);
 		{
+			QLabel* l;
 			vl->addWidget(new QLabel("Rotation"));
-			QLayout* hl = new QHBoxLayout(widget);
+			QLayout* hl = new QHBoxLayout(w);
 			vl->addItem(hl);
-			hl->addWidget(new QLabel("  X ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Y ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Z ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
+			l = new QLabel("  X  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Y  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Z  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
 		}
-		widget->setLayout(vl);
 		{
+			QLabel* l;
 			vl->addWidget(new QLabel("Scale"));
-			QLayout* hl = new QHBoxLayout(widget);
+			QLayout* hl = new QHBoxLayout(w);
 			vl->addItem(hl);
-			hl->addWidget(new QLabel("  X ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Y ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Z ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
+			l = new QLabel("  X  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Y  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Z  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
 		}
 		vl->addItem(m_window->createSpacer(Qt::Vertical));
 	}
