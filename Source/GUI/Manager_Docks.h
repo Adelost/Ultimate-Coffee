@@ -67,11 +67,30 @@ public:
 };
 
 
-class ItemBrowser : public QListWidget
+class ItemBrowser : public QWidget, public IObserver
 {
+	Q_OBJECT
+
+private:
+	QListWidget* m_tree;
+	QListWidget* m_grid;
+	QSplitter* m_splitter;
+
 public:
 	ItemBrowser(QWidget* parent);
-
-protected:
-	void resizeEvent(QResizeEvent* e);
+	void initTree();
+	void onEvent(IEvent* e);
+public slots:
+	void loadGrid(QListWidgetItem * item);
+	void loadGrid(int row);
+	void moveHandle()
+	{
+		// Move splitter handle
+		QList<int> sizes;
+		int p = 200;
+		sizes.append(p);
+		sizes.append(width() - p);
+		m_splitter->setSizes(sizes);
+		m_splitter->refresh();
+	}
 };

@@ -555,38 +555,135 @@ void System_Editor::update()
 	m_editor->update();
 }
 
-ItemBrowser::ItemBrowser( QWidget* p_parent ) : QListWidget(p_parent)
+ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 {
-	setIconSize(QSize(50, 50));
-	setViewMode(QListView::IconMode);
-	setLayoutMode(LayoutMode::Batched);
-	setResizeMode(ResizeMode::Adjust);
-	setWordWrap(true);
+	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
+	POST_DELAYED_EVENT(new IEvent(EVENT_REFRESH_SPLITTER), 0.0f);
+
+	setObjectName("Item Browser");
+
+	QWidget* window = Window::instance();
+	m_tree = new QListWidget(window);
+	m_tree->setObjectName("Item Tree");
+	m_grid = new QListWidget(window);
+	m_tree->setObjectName("Item Grid");
+
+	QVBoxLayout* l = new QVBoxLayout(this);
+	setLayout(l);
+
+	// Create splitter
+	m_splitter = new QSplitter(window);
+	m_tree->setObjectName("Item Splitter");
+	l->addWidget(m_splitter);
+	m_splitter->addWidget(m_tree);
+	m_splitter->addWidget(m_grid);
+
+	// Load tree
+	initTree();
 	
-	for(int i=0; i<100; i++)
+	// Select first folder
+	QListWidgetItem* item = m_tree->item(0);
+	if(item)
 	{
-		QIcon icon;
-		static int id = 0;
-		QString iconText = "Item_" + QString::number(id);
-		id++;
+		item->setSelected(true);
+		loadGrid(0);
+	}
 
-		//setIconSize(QSize(50, 50));
+	// Enable mouse click
+	connect(m_tree, SIGNAL(currentRowChanged(int)), this,  SLOT(loadGrid(int)));
+}
 
-		int r = Math::randomInt(0, 255);
-		int g = Math::randomInt(0, 255);
-		int b = Math::randomInt(0, 255);
+void ItemBrowser::initTree()
+{
+	// Open 
+	QString path;
+	path = path + THUMBNAIL_PATH;
+	
+	// Load directory
+	QDir dir(path);
+	QStringList filters;
+	dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
-		QColor color(r, g, b);
-		QPixmap pixmap(200, 200);
-		pixmap.fill(color);
-		icon.addPixmap(pixmap);
+	// Build from directory
+	QFileInfoList list = dir.entryInfoList();
+	foreach(QFileInfo i, list)
+	{
+		QString filename = i.fileName();
+		DEBUGPRINT(filename.toStdString());
 
-		QListWidgetItem* item = new QListWidgetItem(icon, iconText);
-		addItem(item);
+		QListWidgetItem* item = new QListWidgetItem(filename);
+		m_tree->addItem(item);
 	}
 }
 
-void ItemBrowser::resizeEvent( QResizeEvent* e )
+void ItemBrowser::loadGrid( QListWidgetItem* item )
 {
-	QListWidget::resizeEvent(e);
+	m_grid->setIconSize(QSize(65, 65));
+	m_grid->setViewMode(QListView::IconMode);
+	m_grid->setLayoutMode(QListWidget::LayoutMode::Batched);
+	m_grid->setResizeMode(QListWidget::ResizeMode::Adjust);
+	m_grid->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	//setSortingEnabled(true);
+	m_grid->setWordWrap(true);
+
+	// Open 
+	QString path;
+	path = path + THUMBNAIL_PATH + "/" + item->text();
+	QDir dir(path);
+	QStringList filters;
+	filters << "*.png" << "*.jpg";
+	dir.setNameFilters(filters);
+	dir.setFilter(QDir::Files);
+
+	QFileInfoList list = dir.entryInfoList();
+	foreach(QFileInfo i, list)
+	{
+		QString filename = i.fileName();
+		DEBUGPRINT(filename.toStdString());
+
+		QIcon icon(path + "/" + filename);
+		QListWidgetItem* item = new QListWidgetItem(icon, filename);
+		m_grid->addItem(item);
+	}
+
+	//for(int i=0; i<10; i++)
+	//{
+	//	QIcon icon;
+	//	static int id = 0;
+	//	QString iconText = "Item " + QString::number(id);
+	//	id++;
+
+	//	//setIconSize(QSize(50, 50));
+
+	//	int r = Math::randomInt(0, 255);
+	//	int g = Math::randomInt(0, 255);
+	//	int b = Math::randomInt(0, 255);
+
+	//	QColor color(r, g, b);
+	//	QPixmap pixmap(65, 65);
+	//	pixmap.fill(color);
+	//	icon.addPixmap(pixmap);
+
+	//	QListWidgetItem* item = new QListWidgetItem(icon, iconText);
+	//	m_grid.addItem(item);
+	//}
+}
+
+void ItemBrowser::loadGrid( int row )
+{
+	m_grid->clear();
+	loadGrid(m_tree->item(row));
+}
+
+void ItemBrowser::onEvent( IEvent* e )
+{
+	EventType type = e->type();
+	switch (type) 
+	{
+	case EVENT_REFRESH_SPLITTER: //Add command to the command history list in the GUI
+		moveHandle();
+		break;
+	default:
+		break;
+	}
 }

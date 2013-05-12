@@ -32,7 +32,11 @@
 #include <QDoubleSpinBox>
 #include <QScrollArea>
 #include <QPushButton>
+#include <QDir>
+#include <QSplitter>
 
-// Path to icons
+// Paths
 #define ICON_PATH												\
 	"../../Assets/GUI/Icons/"
+#define THUMBNAIL_PATH												\
+	"../../Assets/GUI/Thumbnails/"

@@ -24,6 +24,9 @@ void Window::init()
 	setWindowTitle("Ultimate Coffee");
 	//setWindowFlags( Qt::FramelessWindowHint );
 
+	m_manager_console = new Manager_Console();
+	m_manager_console->init();
+
 	m_renderWidget = new RenderWidget(this);
 	m_renderWidget->setMinimumSize(1, 1);
 
@@ -32,9 +35,6 @@ void Window::init()
 
 	m_manager_docks = new Manager_Docks();
 	m_manager_docks->init();
-
-	m_manager_console = new Manager_Console();
-	m_manager_console->init();
 
 	m_manager_commands = new Manager_Commands();
 	m_manager_commands->init();
