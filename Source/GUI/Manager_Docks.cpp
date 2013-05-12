@@ -146,7 +146,7 @@ void Manager_Docks::setupMenu()
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
 	// Command history
-	dock = createDock("Command history (Should be fully functional as of 2013-05-07 04.07).", Qt::LeftDockWidgetArea);
+	dock = createDock("History", Qt::LeftDockWidgetArea);
 	commandHistoryListWidget = new QListWidget(dock);
 	connectCommandHistoryWidget(true);
 	dock->setWidget(commandHistoryListWidget);
@@ -466,12 +466,12 @@ void Manager_Docks::update()
 	DataMapper<Data::Transform> map_trans;
 	while(map_trans.hasNext())
 	{
-		map_trans.next();
+		Entity* e = map_trans.nextEntity();
 
 		if(entityCount >= rowCount && entityCount < 200)
 		{
 			QStandardItem* item;
-			item = new QStandardItem("Entity " + QString::number(entityCount));
+			item = new QStandardItem(e->name().c_str());
 			m_hierarchy_model->setItem(entityCount, item);
 		}
 		entityCount++;

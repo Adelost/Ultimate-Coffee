@@ -17,10 +17,17 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 	if(p_type == ENTITY_EMPTY)
 	{
+		static int id = 0;
+		e->setName("empty", id);
+		id++;
 	}
 
 	if(p_type == ENTITY_CUBE)
 	{
+		static int id = 0;
+		e->setName("cube", id);
+		id++;
+
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		/*float s =  4.0f;
@@ -40,6 +47,10 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 	if(p_type == ENTITY_CAMERA)
 	{
+		static int id = 0;
+		e->setName("camera", id);
+		id++;
+
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		d_transform->position = Vector3(0.0f, 0.0f, -15.0f);
 

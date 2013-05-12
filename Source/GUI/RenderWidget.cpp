@@ -94,43 +94,31 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 		Entity* e = Data::Bounding::intersect(r);
 		if(e)
 		{
-			// Select new
-			DEBUGPRINT("");
-			DEBUGPRINT("PICKED");
-			DEBUGPRINT(" Entity " + Converter::IntToStr(e->id()));
-
 			// If Ctrl is pressed, entity will be added to selection,
 			// otherwise previous selection will be cleared
 			ButtonState* buttonState = &SETTINGS()->button;
 			if(SETTINGS()->button.key_ctrl)
 			{
-				DEBUGPRINT("Ctrl on");
 				if(e->fetchData<Data::Selected>() == nullptr)
 				{
 					e->addData(Data::Selected());
-					DEBUGPRINT(" Selected");
 				}	
 				else
 				{
 					e->removeData<Data::Selected>();
-					DEBUGPRINT(" Unselected");
 				}
 			}
 			else
 			{
-				DEBUGPRINT("Ctrl off");
 				Data::Selected::clearSelection();
 
-				DEBUGPRINT(" Selected");
 				e->addData(Data::Selected());
 			}
 		}
 		else
 		{
-			DEBUGPRINT(" No entity");
 			if(!SETTINGS()->button.key_ctrl)
 			{
-				DEBUGPRINT(" Ctrl off");
 				Data::Selected::clearSelection();
 			}
 		}
