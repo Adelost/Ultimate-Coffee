@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commander.cpp" />
+    <ClCompile Include="CommanderSpy.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
     <ClCompile Include="Command_TranslateSceneEntity.cpp" />
     <ClCompile Include="Converter.cpp" />
@@ -174,6 +175,7 @@
   <ItemGroup>
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commander.h" />
+    <ClInclude Include="CommanderSpy.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />
     <ClInclude Include="Command_TranslateSceneEntity.h" />
     <ClInclude Include="Converter.h" />

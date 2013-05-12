@@ -103,6 +103,9 @@
     <ClCompile Include="Data_Camera.cpp">
       <Filter>Source\Data</Filter>
     </ClCompile>
+    <ClCompile Include="CommanderSpy.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
@@ -204,6 +207,7 @@
     <ClInclude Include="xnacollision.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
+    <ClInclude Include="CommanderSpy.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

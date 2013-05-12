@@ -88,10 +88,6 @@ bool Commander::tryToSaveCommandHistory(std::string path)
 
 	delete[] byteData;
 
-	// check, remove if the command list gets very long and takes time to print
-	// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-	printCommandHistory();
-
 	return true;
 }
 
@@ -118,24 +114,11 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	inputFile.read(readData, bufferSize);
 	inputFile.close();
 
-	//Reset GUI
-	SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commandHistory->getNrOfCommands())); // Clear command history GUI list
-
 	// Reset command history, before loading new command history data into it
 	m_commandHistory->reset();
 
 	bool result = m_commandHistory->tryToLoadFromSerializationByteFormat(readData, bufferSize);
 	delete[] readData;
-
-	if(result)
-	{
-		int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commandHistory->getIndexOfCurrentCommand(), m_commandHistory->getNrOfCommands());
-		SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
-
-		// check, remove if the command list gets very long and takes time to print
-		// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-		printCommandHistory();
-	}
 
 	return result;
 }
@@ -268,8 +251,6 @@ bool CommandHistory::tryToAddCommand(Command* command)
 			delete removedCommand;
 		}
 		m_commands.resize(newSize);
-		int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_indexOfCurrentCommand, getNrOfCommands());
-		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(GUI_Index, nrOfCommandsLeftToBeRemoved+1));
 	}
 
 	return true;
@@ -407,7 +388,6 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 			{
 				command->doRedo(); // Execute command up and until current, as loaded from file
 			}
-			SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Add all commands to GUI
 
 			nextByte += command->getByteSizeOfDataStruct();
 		}
