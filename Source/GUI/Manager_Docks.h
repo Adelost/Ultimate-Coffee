@@ -4,14 +4,15 @@
 #include "QObject.h"
 #include <Core/IObserver.h>
 #include <QDockWidget.h>
+#include <QListWidget.h>
 class Window;
 class QDockWidget;
 class QMenu;
 class QAction;
 class QStandardItemModel;
 class QListWidget;
-class QListView;
 class Manager_Docks;
+class ItemBrowser;
 
 class Manager_Docks : public QObject, public IObserver
 {
@@ -23,8 +24,8 @@ private:
 	QTreeView* m_hierarchy_tree;
 	QStandardItemModel* m_hierarchy_model;
 	QMenu* m_menu;
-	QListWidget* commandHistoryListWidget;
-	QListView* listT;
+	QListWidget* m_commandHistoryListWidget;
+	ItemBrowser* m_itemBrowser;
 
 public:
 	~Manager_Docks();
@@ -63,4 +64,14 @@ public:
 		m_editor = p_editor;
 	}
 	void update();
+};
+
+
+class ItemBrowser : public QListWidget
+{
+public:
+	ItemBrowser(QWidget* parent);
+
+protected:
+	void resizeEvent(QResizeEvent* e);
 };

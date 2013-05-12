@@ -20,8 +20,7 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
-	commandHistoryListWidget = nullptr;
-	listT = nullptr;
+	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
 	setupMenu();
@@ -145,11 +144,16 @@ void Manager_Docks::setupMenu()
 	// Inspector
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
-	// Command history
+	// Command History
 	dock = createDock("History", Qt::LeftDockWidgetArea);
-	commandHistoryListWidget = new QListWidget(dock);
+	m_commandHistoryListWidget = new QListWidget(dock);
 	connectCommandHistoryWidget(true);
-	dock->setWidget(commandHistoryListWidget);
+	dock->setWidget(m_commandHistoryListWidget);
+
+	// Item Browser
+	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
+	m_itemBrowser = new ItemBrowser(dock);
+	dock->setWidget(m_itemBrowser);
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
@@ -365,7 +369,7 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandText);
-			commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
 			//commandHistoryListWidget->setItemSelected(item, true);
 
 			//int nrOfListItems = commandHistoryListWidget->count();
@@ -388,11 +392,11 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			if(index == -1) // Special case: jump out of history
 			{
-				commandHistoryListWidget->item(commandHistoryListWidget->count()-1)->setSelected(false);
+				m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
 			}
 			else
 			{
-				commandHistoryListWidget->setCurrentRow(index);
+				m_commandHistoryListWidget->setCurrentRow(index);
 			}
 
 			break;
@@ -406,7 +410,7 @@ void Manager_Docks::onEvent(IEvent* e)
 			connectCommandHistoryWidget(false);
 			for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
 			{
-				delete commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+				delete m_commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
 			}
 			connectCommandHistoryWidget(true);
 
@@ -478,11 +482,11 @@ void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_d
 {
 	if(connect_if_true_otherwise_disconnect)
 	{
-		connect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+		connect(m_commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
 	}
 	else
 	{
-		disconnect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+		disconnect(m_commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
 	}
 }
 
@@ -551,33 +555,38 @@ void System_Editor::update()
 	m_editor->update();
 }
 
-//DataMapper<Data::Selected> map_selected;
-//
-//// Remove previous selection
-//Data::Selected::clearSelection();
-//m_hierarchy_view->setCurrentIndex(index);
-//
-//// Add new selection
-//QList<QModelIndex> index_list = m_hierarchy_view->selectionModel()->selectedRows();
-//
-//// Select clicked item
-//Entity* picked_entity = Entity::findEntity(index.row());
-//DEBUGPRINT(" Found: " + Converter::IntToStr(picked_entity->id()));
-//picked_entity->addData(Data::Selected());
-//
-//// Select from selection
-//foreach(QModelIndex index, index_list)
-//{
-//	int entityId = index.row();
-//	Entity* e = Entity::findEntity(entityId);
-//	DEBUGPRINT(" Found: " + Converter::IntToStr(e->id()));
-//	e->addData(Data::Selected());
-//}
-//
-//// Debug selection
-//DEBUGPRINT("\nSELECTION: " + Converter::IntToStr(map_selected.dataCount()));
-//while(map_selected.hasNext())
-//{
-//	Entity* e = map_selected.nextEntity();
-//	DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-//}
+ItemBrowser::ItemBrowser( QWidget* p_parent ) : QListWidget(p_parent)
+{
+	setIconSize(QSize(50, 50));
+	setViewMode(QListView::IconMode);
+	setLayoutMode(LayoutMode::Batched);
+	setResizeMode(ResizeMode::Adjust);
+	setWordWrap(true);
+	
+	for(int i=0; i<100; i++)
+	{
+		QIcon icon;
+		static int id = 0;
+		QString iconText = "Item_" + QString::number(id);
+		id++;
+
+		//setIconSize(QSize(50, 50));
+
+		int r = Math::randomInt(0, 255);
+		int g = Math::randomInt(0, 255);
+		int b = Math::randomInt(0, 255);
+
+		QColor color(r, g, b);
+		QPixmap pixmap(200, 200);
+		pixmap.fill(color);
+		icon.addPixmap(pixmap);
+
+		QListWidgetItem* item = new QListWidgetItem(icon, iconText);
+		addItem(item);
+	}
+}
+
+void ItemBrowser::resizeEvent( QResizeEvent* e )
+{
+	QListWidget::resizeEvent(e);
+}
