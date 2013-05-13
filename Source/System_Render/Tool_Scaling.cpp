@@ -94,8 +94,6 @@ Tool_Scaling::~Tool_Scaling()
 	delete yScalingAxisHandle2;
 	delete zScalingAxisHandle2;
 
-	delete omniScalingAxisHandle;
-
 	ReleaseCOM(mMeshTransTool_xAxisBox_VB);
 	ReleaseCOM(mMeshTransTool_yAxisBox_VB);
 	ReleaseCOM(mMeshTransTool_zAxisBox_VB);

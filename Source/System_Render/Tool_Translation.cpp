@@ -470,6 +470,17 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
 		transform->position = newTranslation;
 	}
+
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		//e->removeData<Data::Selected>();
+
+		Data::Transform *trans = e->fetchData<Data::Transform>();
+
+		trans->position = 
+	}
 }
 
 /* Called when the translation tool is unselected, which makes any hitherto made translation final (and undoable). */

@@ -53,9 +53,10 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 			mouseYDeltasMadeSoFar += yDelta;
 
 			mouseXYDeltasMadeSoFar.x += xDelta;
-			mouseXYDeltasMadeSoFar.y += xDelta;
+			mouseXYDeltasMadeSoFar.y += yDelta;
 
 			flippedMouseCursorPoint.x = SETTINGS()->windowSize.x - 6;
+			flippedMouseCursorPoint.y = currentMouseCursorPoint.y;
 
 			Int2 newQtCursorPoint;
 			newQtCursorPoint.x = flippedMouseCursorPoint.x;
@@ -74,9 +75,10 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 			mouseYDeltasMadeSoFar += yDelta;
 
 			mouseXYDeltasMadeSoFar.x += xDelta;
-			mouseXYDeltasMadeSoFar.y += xDelta;
+			mouseXYDeltasMadeSoFar.y += yDelta;
 
 			flippedMouseCursorPoint.x = 6;
+			flippedMouseCursorPoint.y = currentMouseCursorPoint.y;
 
 			Int2 newQtCursorPoint;
 			newQtCursorPoint.x = flippedMouseCursorPoint.x;
@@ -97,15 +99,16 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 			mouseXYDeltasMadeSoFar.x += xDelta;
 			mouseXYDeltasMadeSoFar.y += yDelta;
 
-			flippedMouseCursorPoint.x = SETTINGS()->windowSize.y - 6;
+			flippedMouseCursorPoint.x = currentMouseCursorPoint.x;
+			flippedMouseCursorPoint.y = SETTINGS()->windowSize.y - 6;
 
 			Int2 newQtCursorPoint;
 			newQtCursorPoint.x = flippedMouseCursorPoint.x;
 			newQtCursorPoint.y = flippedMouseCursorPoint.y;
 			SEND_EVENT(&Event_SetCursorPosition(newQtCursorPoint));
 
-			currentlyPickedMousePoint.x = flippedMouseCursorPoint.x;
-			currentlyPickedMousePoint.y = flippedMouseCursorPoint.y;
+			firstPickedMousePoint.x = flippedMouseCursorPoint.x;
+			firstPickedMousePoint.y = flippedMouseCursorPoint.y;
 
 			currentlyPickedMousePoint.x = firstPickedMousePoint.x;
 			currentlyPickedMousePoint.y = firstPickedMousePoint.y;
@@ -116,10 +119,10 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 			mouseYDeltasMadeSoFar += yDelta;
 
 			mouseXYDeltasMadeSoFar.x += xDelta;
-			mouseXYDeltasMadeSoFar.y += xDelta;
+			mouseXYDeltasMadeSoFar.y += yDelta;
 
-			flippedMouseCursorPoint.y = 6;
 			flippedMouseCursorPoint.x = currentMouseCursorPoint.x;
+			flippedMouseCursorPoint.y = 6;
 
 			Int2 newQtCursorPoint;
 			newQtCursorPoint.x = flippedMouseCursorPoint.x;
@@ -162,6 +165,11 @@ POINT Handle_CamViewPlane::getTotalMouseCursorXYDeltas()
 
 	int totX = mouseXDeltasMadeSoFar + X;
 	int totY = mouseXDeltasMadeSoFar + Y;
+
+	if(mouseXDeltasMadeSoFar > 0)
+	{
+		int test = 4;
+	}
 
 	//mouseXDeltasMadeSoFar = 0;
 
