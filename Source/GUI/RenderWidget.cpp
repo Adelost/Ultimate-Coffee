@@ -66,8 +66,8 @@ void RenderWidget::onEvent( IEvent* p_event )
 
 void RenderWidget::mousePressEvent( QMouseEvent* e )
 {
-	//setFocus();
-	//setMouseState(e, true);
+	setFocus();
+	setMouseState(e, true);
 
 	//// HACK: Select entity
 	//QPoint pos = e->pos();

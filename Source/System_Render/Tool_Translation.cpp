@@ -489,6 +489,7 @@ void Tool_Translation::setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId)
 /* Called to send updated parameters to the translation tool, if it is still active. */
 void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
+	XMVECTOR transDelta;
 	if(currentlySelectedAxis)
 	{
 		//currentlySelectedAxis->update(rayOrigin, rayDir, camView);
@@ -496,22 +497,22 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		// Pick against the plane to update the translation delta.
 		currentlySelectedAxis->pickAxisPlane(rayOrigin, rayDir, camView);
 
-		XMVECTOR transDelta = currentlySelectedAxis->getLastTranslationDelta();
+		transDelta = currentlySelectedAxis->getLastTranslationDelta();
 
 		float scaleFactor = scale;
 		Vector3 newTranslation;
-		newTranslation.x = originalWorldOfActiveObject._41 + transDelta.m128_f32[0] * scaleFactor;
-		newTranslation.y = originalWorldOfActiveObject._42 + transDelta.m128_f32[1] * scaleFactor;
-		newTranslation.z = originalWorldOfActiveObject._43 + transDelta.m128_f32[2] * scaleFactor;
+		newTranslation.x = /*originalWorldOfActiveObject._41 +*/ transDelta.m128_f32[0] * scaleFactor;
+		newTranslation.y = /*originalWorldOfActiveObject._42 +*/ transDelta.m128_f32[1] * scaleFactor;
+		newTranslation.z = /*originalWorldOfActiveObject._43 +*/ transDelta.m128_f32[2] * scaleFactor;
 
-		Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
-		transform->position = newTranslation;
+		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
+		//transform->position = newTranslation;
 	}
 	else if(currentlySelectedPlane)
 	{
 		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView);
 
-		XMVECTOR transDelta = currentlySelectedPlane->getLastTranslationDelta();
+		transDelta = currentlySelectedPlane->getLastTranslationDelta();
 
 		float scaleFactor = scale;
 		if(currentlySelectedPlane == camViewTranslationPlane)
@@ -532,9 +533,27 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 			newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
 		}
 
-		Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
-		transform->position = newTranslation;
+		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
+		//transform->position = newTranslation;
 	}
+
+
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+
+		int i = 0;
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
+			Data::Selected* d_selected = e->fetchData<Data::Selected>();
+
+			e->fetchData<Data::Transform>()->position = XMVectorSet(originalWorldsOfSelectedEntities.at(i)._41,
+													originalWorldsOfSelectedEntities.at(i)._42,
+													originalWorldsOfSelectedEntities.at(i)._43, 1.0f) + transDelta;
+
+			++i;
+		}
+	
 
 	//DataMapper<Data::Selected> map_selected;
 	//while(map_selected.hasNext())

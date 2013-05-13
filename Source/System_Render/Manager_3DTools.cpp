@@ -83,7 +83,7 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 {
 	DataMapper<Data::Selected> map_selected;
 	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
-	if(currentlyChosenTransformTool && thereIsAtLeastOneSelectedEntity) //currentlyChosenTransformTool->getActiveObject() != -1)
+	if(currentlyChosenTransformTool && thereIsAtLeastOneSelectedEntity && currentlyChosenTransformTool->getActiveObject() != -1)
 	{
 		Entity* entity_camera = CAMERA_ENTITY().asEntity();
 		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
