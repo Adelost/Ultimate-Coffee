@@ -97,7 +97,7 @@ void Tool_Translation::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView )
+bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint)
 {
 	bool aTranslationToolHandleWasSelected = false;
 

@@ -52,7 +52,6 @@ Manager_3DTools::~Manager_3DTools()
 	delete m_theSelectionTool;
 }
 
-
 void Manager_3DTools::update()
 {
 	//// HACK (Mattias): Made the tool notice when selected Entity has been changed. Don't know if this is the best aproach.
@@ -251,7 +250,7 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			e->dx;
 			
 			currentScreenCoords = Vector2((float)e->x, (float)e->y);
-
+			
 			// If a tool has been chosen...
 			if(currentlyChosenTransformTool)
 			{

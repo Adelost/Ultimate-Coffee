@@ -107,7 +107,7 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint);
 
 	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any. */
 	void tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);

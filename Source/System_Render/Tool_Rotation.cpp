@@ -32,7 +32,7 @@ void Tool_Rotation::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView )
+bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint)
 {
 	bool aRotationToolHandleWasSelected = false;
 

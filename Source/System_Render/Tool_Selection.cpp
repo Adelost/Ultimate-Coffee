@@ -27,7 +27,7 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 	// The currently chosen transformation tool has an active object, then it is to be visible and selectable.
 	if(currentlyChosenTransformationTool->getActiveObject())
 	{
-		currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView);
+		currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, mouseCursorPoint);
 	}
 
 	// If a transformation tool handle is selected, it should be noted that the selection is already final with this function call,
