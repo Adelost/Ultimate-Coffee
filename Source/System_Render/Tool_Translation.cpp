@@ -310,14 +310,79 @@ void Tool_Translation::setActiveObject(int entityId)
 	//	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
 	//}
 
-	this->activeEntityId = entityId;
+	//DataMapper<Data::Selected> map_selected;
+	//while(map_selected.hasNext())
+	//{
+	//Entity* e = map_selected.nextEntity();
+	//e->removeData<Data::Selected>();
+	//}
 
-	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-	updateWorld();
+	//DataMapper<Data::Selected> map_selected;
 
-	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
 
-	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+
+DataMapper<Data::Selected> map_selected;
+Entity* e;
+
+bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+while(map_selected.hasNext())
+{
+
+	e = map_selected.nextEntity();
+	Data::Selected* d_selected = e->fetchData<Data::Selected>();
+
+
+	XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
+	XMFLOAT4X4 origWorld;
+	XMStoreFloat4x4(&origWorld, world);
+	originalWorldsOfSelectedEntities.push_back(origWorld);
+
+	//if(!map_selected.hasNext())
+	//{
+	//	this->activeEntityId = e->id();
+
+	//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+	//	updateWorld();
+	//}
+ }
+
+
+if(thereIsAtLeastOneSelectedEntity)
+{
+		this->activeEntityId = e->id();
+
+		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+		updateWorld();
+}
+
+ int test = 3;
+
+	//if(map_selected.hasNext())
+	//{
+	//	Entity* e;
+	//				
+	//	while(map_selected.hasNext())
+	//	{
+	//		Entity* e = map_selected.nextEntity();
+
+	//		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
+
+	//		XMFLOAT4X4 origWorld;
+	//		XMStoreFloat4x4(&origWorld, world);
+
+	//		originalWorldsOfSelectedEntities.push_back(origWorld);
+
+	//		//map_selected.next();
+
+	//		if(!map_selected.hasNext())
+	//		{
+	//			this->activeEntityId = e->id();
+
+	//			// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+	//			updateWorld();
+	//		}
+	//	}
+	//}
 }
 
 int Tool_Translation::getActiveObject()
@@ -471,16 +536,16 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		transform->position = newTranslation;
 	}
 
-	DataMapper<Data::Selected> map_selected;
-	while(map_selected.hasNext())
-	{
-		Entity* e = map_selected.nextEntity();
-		//e->removeData<Data::Selected>();
+	//DataMapper<Data::Selected> map_selected;
+	//while(map_selected.hasNext())
+	//{
+	//	Entity* e = map_selected.nextEntity();
+	//	//e->removeData<Data::Selected>();
 
-		Data::Transform *trans = e->fetchData<Data::Transform>();
+	//	Data::Transform *trans = e->fetchData<Data::Transform>();
 
-		trans->position = 
-	}
+	//	trans->position = 
+	//}
 }
 
 /* Called when the translation tool is unselected, which makes any hitherto made translation final (and undoable). */
@@ -500,12 +565,17 @@ void Tool_Translation::unselect()
 		currentlySelectedAxis = NULL;
 	}
 
+
+
 	Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(activeEntityId);
 	Entity e(activeEntityId);
 	Data::Transform* trans = e.fetchData<Data::Transform>();
 	command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
 	command->setUndoTranslation(originalWorldOfActiveObject._41, originalWorldOfActiveObject._42, originalWorldOfActiveObject._43);
 	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
+
+
+	activeEntityId = -1;
 
 	isSelected = false;
 }

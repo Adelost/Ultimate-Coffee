@@ -93,6 +93,9 @@ private:
 
 	XMFLOAT4X4 originalWorldOfActiveObject;
 
+
+	std::vector<XMFLOAT4X4> originalWorldsOfSelectedEntities;
+
 	XMFLOAT4X4 world_viewPlaneTranslationControl_logical;
 	XMFLOAT4X4 world_viewPlaneTranslationControl_visual;
 

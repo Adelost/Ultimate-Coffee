@@ -42,7 +42,7 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
 	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
-	currentlyChosenTransformTool = m_theScalingTool;
+	currentlyChosenTransformTool = m_theTranslationTool;
 }
 
 Manager_3DTools::~Manager_3DTools()
@@ -57,8 +57,8 @@ void Manager_3DTools::update()
 {
 	//// HACK (Mattias): Made the tool notice when selected Entity has been changed. Don't know if this is the best aproach.
 	// NEW HACK (Nicolas): Took back my old hack for the time being.
-	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() == -1)
-		currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
+	//if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() == -1)
+	//	currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
 
 	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.
 	{
@@ -81,7 +81,9 @@ void Manager_3DTools::update()
 
 void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 {
-	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1)
+	DataMapper<Data::Selected> map_selected;
+	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+	if(currentlyChosenTransformTool && thereIsAtLeastOneSelectedEntity) //currentlyChosenTransformTool->getActiveObject() != -1)
 	{
 		Entity* entity_camera = CAMERA_ENTITY().asEntity();
 		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
@@ -135,87 +137,29 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 
 	static Vector2 currentScreenCoords;
 
+	DataMapper<Data::Selected> map_selected;
+	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+
 	switch (type) 
 	{
 	case EVENT_MOUSE_PRESS:
 		{
-			Event_MousePress* e = static_cast<Event_MousePress*>(p_event);
 
-			Vector2 clickedScreenCoords((float)e->x, (float)e->y);
+				Event_MousePress* e = static_cast<Event_MousePress*>(p_event);
 
-			if(e->keyEnum == Enum::QtKeyPress_MouseLeft)
-			{
-				if(e->isPressed == true)
+				Vector2 clickedScreenCoords((float)e->x, (float)e->y);
+
+				if(e->keyEnum == Enum::QtKeyPress_MouseLeft)
 				{
-					if(m_theSelectionTool)
+					if(e->isPressed == true)
 					{
-						// Prepare parameters for the selection tool...
-
-						// Use the selection tool to select against objects in the scene and any present control handles for active transformation tools.
-						currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
-
-						Entity* entity_camera = CAMERA_ENTITY().asEntity();
-						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
-
-						int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
-						int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-						Vector2 screenDim((float)width, (float)height);
-						Vector4 rayOrigin; Vector3 rayDir;
-						d_camera->getPickingRay(clickedScreenCoords, screenDim, rayOrigin, rayDir);
-						XMVECTOR xm_rayOrigin, xm_rayDir;
-						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
-
-						XMMATRIX camView = d_camera->view();
-						POINT mouseCursorPoint;
-						mouseCursorPoint.x = (LONG)clickedScreenCoords.x;
-						mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
-
-						// Begin selecting with the selection tool.
-						m_theSelectionTool->beginSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint, currentlyChosenTransformTool);
-
-						// If the chosen transform tool was selected at once, end the selecting.
-						if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+						if(m_theSelectionTool)
 						{
-							m_theSelectionTool->setIsSelecting(false);
-						}
-						else
-							m_theSelectionTool->setIsSelecting(true);
-					}
-				}
-				else // Mouse left button up.
-				{
-					// If a translation tool is present and has been actived, unselect it.
-					if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
-					{
-						XMFLOAT4X4 test = currentlyChosenTransformTool->getWorld_logical();
-						currentlyChosenTransformTool->unselect();
+							// Prepare parameters for the selection tool...
 
-						// Prepare parameters for the hover test...
-						Entity* entity_camera = CAMERA_ENTITY().asEntity();
-						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+							// Use the selection tool to select against objects in the scene and any present control handles for active transformation tools.
+							currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
 
-						int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
-						int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-						Vector2 screenDim((float)width, (float)height);
-						Vector4 rayOrigin; Vector3 rayDir;
-						d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
-						XMVECTOR xm_rayOrigin, xm_rayDir;
-						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
-
-						XMMATRIX camView = d_camera->view();
-						XMMATRIX camProj = d_camera->projection();
-
-						MyRectangle selectionRectangle;
-						currentlyChosenTransformTool->tryForHover(selectionRectangle, xm_rayOrigin, xm_rayDir, camView);
-					}
-
-					// Check if the selection tool is currently processing a selection, and, if so, finalize it.
-					if(m_theSelectionTool)
-					{
-						if(m_theSelectionTool->getIsSelecting())
-						{
 							Entity* entity_camera = CAMERA_ENTITY().asEntity();
 							Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 							Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
@@ -232,129 +176,200 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 							POINT mouseCursorPoint;
 							mouseCursorPoint.x = (LONG)clickedScreenCoords.x;
 							mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
-			
-							// Stop selecting, so the currently selected objects become the final selected objects.
-							m_theSelectionTool->setIsSelecting(false);
-							//m_theSelectionTool->finalizeSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint);
 
-							MyRectangle selectionRectangle = m_theSelectionTool->getSelectionRectangle();
+							// Begin selecting with the selection tool.
+							m_theSelectionTool->beginSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint, currentlyChosenTransformTool);
+
+							// If the chosen transform tool was selected at once, end the selecting.
+							if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+							{
+								m_theSelectionTool->setIsSelecting(false);
+							}
+							else
+								m_theSelectionTool->setIsSelecting(true);
 						}
 					}
-				}
-			}
+					else // Mouse left button up.
+					{
+						if(thereIsAtLeastOneSelectedEntity)
+						{
+							// If a translation tool is present and has been actived, unselect it.
+							if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+							{
+								XMFLOAT4X4 test = currentlyChosenTransformTool->getWorld_logical();
+								currentlyChosenTransformTool->unselect();
 
-			break;
+								// Prepare parameters for the hover test...
+								Entity* entity_camera = CAMERA_ENTITY().asEntity();
+								Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+								Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+								int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+								int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+								Vector2 screenDim((float)width, (float)height);
+								Vector4 rayOrigin; Vector3 rayDir;
+								d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+								XMVECTOR xm_rayOrigin, xm_rayDir;
+								xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+								XMMATRIX camView = d_camera->view();
+								XMMATRIX camProj = d_camera->projection();
+
+								MyRectangle selectionRectangle;
+								currentlyChosenTransformTool->tryForHover(selectionRectangle, xm_rayOrigin, xm_rayDir, camView);
+							}
+						}
+
+						// Check if the selection tool is currently processing a selection, and, if so, finalize it.
+						if(m_theSelectionTool)
+						{
+							if(m_theSelectionTool->getIsSelecting())
+							{
+								Entity* entity_camera = CAMERA_ENTITY().asEntity();
+								Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+								Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+								int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+								int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+								Vector2 screenDim((float)width, (float)height);
+								Vector4 rayOrigin; Vector3 rayDir;
+								d_camera->getPickingRay(clickedScreenCoords, screenDim, rayOrigin, rayDir);
+								XMVECTOR xm_rayOrigin, xm_rayDir;
+								xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+								XMMATRIX camView = d_camera->view();
+								POINT mouseCursorPoint;
+								mouseCursorPoint.x = (LONG)clickedScreenCoords.x;
+								mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
+			
+								// Stop selecting, so the currently selected objects become the final selected objects.
+								m_theSelectionTool->setIsSelecting(false);
+								//m_theSelectionTool->finalizeSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint);
+
+								MyRectangle selectionRectangle = m_theSelectionTool->getSelectionRectangle();
+							}
+						}
+					}
+	
+				break;
+			}
 		}
 	case EVENT_MOUSE_MOVE:
 		{
-			Event_MouseMove* e = static_cast<Event_MouseMove*>(p_event);
-			e->dx;
+
+				Event_MouseMove* e = static_cast<Event_MouseMove*>(p_event);
+				e->dx;
 			
-			currentScreenCoords = Vector2((float)e->x, (float)e->y);
+
+				currentScreenCoords = Vector2((float)e->x, (float)e->y);
 			
-			// If a tool has been chosen...
-			if(currentlyChosenTransformTool)
+			if(thereIsAtLeastOneSelectedEntity)
 			{
-				// ... and is selected, update its parameters.
-				if(currentlyChosenTransformTool->getIsSelected())
+				// If a tool has been chosen...
+				if(currentlyChosenTransformTool)
 				{
-					// Prepare parameters for the transformation tool...
-					Entity* entity_camera = CAMERA_ENTITY().asEntity();
-					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
-
-					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
-					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim((float)width, (float)height);
-					Vector4 rayOrigin; Vector3 rayDir;
-					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
-					XMVECTOR xm_rayOrigin, xm_rayDir;
-					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
-
-					XMMATRIX camView = d_camera->view();
-					XMMATRIX camProj = d_camera->projection();
-					POINT mouseCursorPoint;
-					mouseCursorPoint.x = (LONG)currentScreenCoords.x;
-					mouseCursorPoint.y = (LONG)currentScreenCoords.y;
-
-					MyRectangle selectionRectangle;
-
-					currentlyChosenTransformTool->update(selectionRectangle, xm_rayOrigin, xm_rayDir, camView, camProj, *m_viewPort, mouseCursorPoint);
-				}
-				// ... else, if a tool has been chosen but is not selected, and we're not in the process of selecting other things.
-				else if(!currentlyChosenTransformTool->getIsSelected() && (m_theSelectionTool && !m_theSelectionTool->getIsSelecting()))
-				{
-					// Prepare parameters for the hover test...
-					Entity* entity_camera = CAMERA_ENTITY().asEntity();
-					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
-
-					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
-					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim((float)width, (float)height);
-					Vector4 rayOrigin; Vector3 rayDir;
-					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
-					XMVECTOR xm_rayOrigin, xm_rayDir;
-					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
-
-					XMMATRIX camView = d_camera->view();
-					XMMATRIX camProj = d_camera->projection();
-
-					// See if what part of the tool we are hovering over.
-					MyRectangle selectionRectangle;
-					currentlyChosenTransformTool->tryForHover(selectionRectangle, xm_rayOrigin, xm_rayDir, camView);
-				}
-			}
-		
-			// If the mouse is moving and we are in the process of selecting, update the parameters for the selection tool.
-			if(m_theSelectionTool)
-			{
-				if(m_theSelectionTool->getIsSelecting())
-				{
-					// Prepare parameters for the transformation tool...
-					Entity* entity_camera = CAMERA_ENTITY().asEntity();
-					Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-					Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
-
-					int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
-					int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
-					Vector2 screenDim((float)width, (float)height);
-					Vector4 rayOrigin; Vector3 rayDir;
-					d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
-					XMVECTOR xm_rayOrigin, xm_rayDir;
-					xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
-
-					XMMATRIX camView = d_camera->view();
-					XMMATRIX camProj = d_camera->projection();
-					POINT mouseCursorPoint;
-					mouseCursorPoint.x = (LONG)currentScreenCoords.x;
-					mouseCursorPoint.y = (LONG)currentScreenCoords.y;
-
-					MyRectangle selectionRectangle;
-
-					m_theSelectionTool->update(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint);
-
-					selectionRectangle = m_theSelectionTool->getSelectionRectangle();
-
-					// Check for intersection against the selection rectangle / frustum
-					// ...
-
-					DataMapper<Data::Bounding> map_bounding;
-					while(map_bounding.hasNext())
+					// ... and is selected, update its parameters.
+					if(currentlyChosenTransformTool->getIsSelected())
 					{
-						bool selectionRegionIntersectsWithEntity = false;
+						// Prepare parameters for the transformation tool...
+						Entity* entity_camera = CAMERA_ENTITY().asEntity();
+						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-						Entity* entity = map_bounding.nextEntity();
-						Data::Selected* d_selected = entity->fetchData<Data::Selected>();
-					
+						int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+						int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+						Vector2 screenDim((float)width, (float)height);
+						Vector4 rayOrigin; Vector3 rayDir;
+						d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+						XMVECTOR xm_rayOrigin, xm_rayDir;
+						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
 
-						if(selectionRegionIntersectsWithEntity)
-						{
-							entity->addData(Data::Selected());
-						}
+						XMMATRIX camView = d_camera->view();
+						XMMATRIX camProj = d_camera->projection();
+						POINT mouseCursorPoint;
+						mouseCursorPoint.x = (LONG)currentScreenCoords.x;
+						mouseCursorPoint.y = (LONG)currentScreenCoords.y;
+
+						MyRectangle selectionRectangle;
+
+						currentlyChosenTransformTool->update(selectionRectangle, xm_rayOrigin, xm_rayDir, camView, camProj, *m_viewPort, mouseCursorPoint);
+					}
+					// ... else, if a tool has been chosen but is not selected, and we're not in the process of selecting other things.
+					else if(!currentlyChosenTransformTool->getIsSelected() && (m_theSelectionTool && !m_theSelectionTool->getIsSelecting()))
+					{
+						// Prepare parameters for the hover test...
+						Entity* entity_camera = CAMERA_ENTITY().asEntity();
+						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+						int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+						int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+						Vector2 screenDim((float)width, (float)height);
+						Vector4 rayOrigin; Vector3 rayDir;
+						d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+						XMVECTOR xm_rayOrigin, xm_rayDir;
+						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+						XMMATRIX camView = d_camera->view();
+						XMMATRIX camProj = d_camera->projection();
+
+						// See if what part of the tool we are hovering over.
+						MyRectangle selectionRectangle;
+						currentlyChosenTransformTool->tryForHover(selectionRectangle, xm_rayOrigin, xm_rayDir, camView);
 					}
 				}
 			}
+		
+				// If the mouse is moving and we are in the process of selecting, update the parameters for the selection tool.
+				if(m_theSelectionTool)
+				{
+					if(m_theSelectionTool->getIsSelecting())
+					{
+						// Prepare parameters for the transformation tool...
+						Entity* entity_camera = CAMERA_ENTITY().asEntity();
+						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+						int height = SETTINGS()->windowSize.y; //m_viewPort->Height;
+						int width = SETTINGS()->windowSize.x; //m_viewPort->Width;
+						Vector2 screenDim((float)width, (float)height);
+						Vector4 rayOrigin; Vector3 rayDir;
+						d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
+						XMVECTOR xm_rayOrigin, xm_rayDir;
+						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+						XMMATRIX camView = d_camera->view();
+						XMMATRIX camProj = d_camera->projection();
+						POINT mouseCursorPoint;
+						mouseCursorPoint.x = (LONG)currentScreenCoords.x;
+						mouseCursorPoint.y = (LONG)currentScreenCoords.y;
+
+						MyRectangle selectionRectangle;
+
+						m_theSelectionTool->update(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint);
+
+						selectionRectangle = m_theSelectionTool->getSelectionRectangle();
+
+						// Check for intersection against the selection rectangle / frustum
+						// ...
+
+						DataMapper<Data::Bounding> map_bounding;
+						while(map_bounding.hasNext())
+						{
+							bool selectionRegionIntersectsWithEntity = false;
+
+							Entity* entity = map_bounding.nextEntity();
+							Data::Selected* d_selected = entity->fetchData<Data::Selected>();
+					
+
+							if(selectionRegionIntersectsWithEntity)
+							{
+								entity->addData(Data::Selected());
+							}
+						}
+					}
+				}
+			
 
 			break;
 		}
@@ -379,6 +394,12 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 		{
 			// TODO:
 			// Code goes here.
+
+			if(currentlyChosenTransformTool)
+			{
+				currentlyChosenTransformTool->setActiveObject(1);
+			}
+
 			break;
 		}
 
