@@ -22,6 +22,7 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_PRESS);
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRANSLATE_SCENE_ENTITY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
 	//SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
 
 	// Initialize the transformation tools...
@@ -372,6 +373,12 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 
 			// Gotta make sure to re-scale the visual component of the tool given the redoing/undoing changing the distance.
 
+			break;
+		}
+	case EVENT_ENTITY_SELECTION:
+		{
+			// TODO:
+			// Code goes here.
 			break;
 		}
 

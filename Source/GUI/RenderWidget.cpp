@@ -94,7 +94,7 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 		Entity* e = Data::Bounding::intersect(r);
 		if(e)
 		{
-			// If Ctrl is pressed, entity will be added to selection,
+			// If Ctrl is pressed, Entity will be added to selection,
 			// otherwise previous selection will be cleared
 			ButtonState* buttonState = &SETTINGS()->button;
 			if(SETTINGS()->button.key_ctrl)
@@ -114,6 +114,10 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 
 				e->addData(Data::Selected());
 			}
+
+			Data::Selected::lastSelected = e->asPointer();
+			DEBUGPRINT("CLICKED:");
+			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
 		}
 		else
 		{
@@ -132,6 +136,9 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
 		}
 
+
+		// Inform about selection
+		SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
 	}
 }
 
