@@ -43,7 +43,7 @@ void Data::Selected::clearSelection()
 	DataMapper<Data::Selected> map_selected;
 	while(map_selected.hasNext())
 	{
-		Entity* entity = map_selected.nextEntity();
-		entity->removeData<Data::Selected>();
+		Entity* e = map_selected.nextEntity();
+		e->removeData<Data::Selected>();
 	}
 }

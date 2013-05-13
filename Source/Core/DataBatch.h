@@ -88,13 +88,19 @@ public:
 		int dataIndex = dataIndexFromEntityId(p_entityId);
 
 		if(dataIndex != -1)
+		{
 			m_batch.removeItemAt(dataIndex);
+			m_owner_list[dataIndex] = -1;
+			m_dataIndexFromEntityId_list[p_entityId] = -1;
+		}
 	}
 
 	void mapToData(Init_DataMapper* p_init)
 	{
 		p_init->setDataList(m_batch.itemList());
-		p_init->index_lastGap = m_batch.lastGap();
+		p_init->index_lastGap = m_batch.lastGapPtr();
+		p_init->m_dataCount = m_batch.itemCountPtr();
 		p_init->owner_list = &m_owner_list;
+
 	}
 };

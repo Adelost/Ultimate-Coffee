@@ -41,7 +41,7 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
 	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
-	currentlyChosenTransformTool = m_theScalingTool;
+	currentlyChosenTransformTool = m_theTranslationTool;
 }
 
 Manager_3DTools::~Manager_3DTools()

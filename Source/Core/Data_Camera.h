@@ -17,7 +17,6 @@ namespace Data
 		float m_farPlane;
 		float m_fov;
 		float m_nearPlane;
-		float m_walkingSpeed;
 
 	public:
 		Camera()
@@ -25,7 +24,6 @@ namespace Data
 			m_look = Vector3(0.0f, 0.0f, 1.0f);
 			m_right = Vector3(1.0f, 0.0f, 0.0f);
 			m_up = Vector3(0.0f, 1.0f, 0.0f);
-			m_walkingSpeed = 8.0f;
 		}
 
 		void updateViewMatrix(Vector3& position)
@@ -38,31 +36,8 @@ namespace Data
 			// no need to normalize cross product
 			m_right = m_up.Cross(m_look);
 
-			
-			float x = -position.Dot(m_right);
-			float y = -position.Dot(m_up);
-			float z = -position.Dot(m_look);
-
-			// Create view
-			m_mat_view(0,0) = m_right.x; 
-			m_mat_view(1,0) = m_right.y; 
-			m_mat_view(2,0) = m_right.z; 
-			m_mat_view(3,0) = x;   
-
-			m_mat_view(0,1) = m_up.x;
-			m_mat_view(1,1) = m_up.y;
-			m_mat_view(2,1) = m_up.z;
-			m_mat_view(3,1) = y;  
-
-			m_mat_view(0,2) = m_look.x; 
-			m_mat_view(1,2) = m_look.y; 
-			m_mat_view(2,2) = m_look.z; 
-			m_mat_view(3,2) = z;   
-
-			m_mat_view(0,3) = 0.0f;
-			m_mat_view(1,3) = 0.0f;
-			m_mat_view(2,3) = 0.0f;
-			m_mat_view(3,3) = 1.0f;
+			// Create LookAt
+			m_mat_view = Matrix::CreateLookAt(position, position + m_look, m_up);
 		}
 
 		void setLens(float p_fov_y, float p_aspectRatio, float p_nearPlane, float p_farPlane)
@@ -149,8 +124,8 @@ namespace Data
 		}
 		Matrix viewProjection()
 		{
-			Matrix viewProjection = m_mat_view*m_mat_projection;
-			return viewProjection;
+			Matrix m = m_mat_view*m_mat_projection;
+			return m;
 		}
 		Matrix view()
 		{
@@ -160,6 +135,7 @@ namespace Data
 		{
 			return m_mat_projection;
 		}
+		Quaternion rotation(Vector3& position);
 	};
 }
 

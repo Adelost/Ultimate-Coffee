@@ -20,8 +20,7 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
-	commandHistoryListWidget = nullptr;
-	listT = nullptr;
+	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
 	setupMenu();
@@ -145,11 +144,16 @@ void Manager_Docks::setupMenu()
 	// Inspector
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
-	// Command history
-	dock = createDock("Command history (Should be fully functional as of 2013-05-07 04.07).", Qt::LeftDockWidgetArea);
-	commandHistoryListWidget = new QListWidget(dock);
+	// Command History
+	dock = createDock("History", Qt::LeftDockWidgetArea);
+	m_commandHistoryListWidget = new QListWidget(dock);
 	connectCommandHistoryWidget(true);
-	dock->setWidget(commandHistoryListWidget);
+	dock->setWidget(m_commandHistoryListWidget);
+
+	// Item Browser
+	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
+	m_itemBrowser = new ItemBrowser(dock);
+	dock->setWidget(m_itemBrowser);
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
@@ -182,44 +186,72 @@ void Manager_Docks::setupMenu()
 	// Tool
 	{
 		dock = createDock("Tool", Qt::RightDockWidgetArea);
-		QWidget* widget = new QWidget(dock);
-		dock->setWidget(widget);
-		QLayout* vl = new QVBoxLayout(widget);
-		widget->setLayout(vl);
+		QWidget* w = new QWidget(dock);
+		dock->setWidget(w);
+		QLayout* l = new QVBoxLayout(w);
+		w->setLayout(l);
+		l->setMargin(0);
+		QScrollArea* scroll = new QScrollArea(w);
+		scroll->setFrameShape(QFrame::NoFrame);
+		l->addWidget(scroll);
+		scroll->setWidgetResizable(true);
+		w = new QWidget(scroll);
+		scroll->setWidget(w);
+		QLayout* vl = new QVBoxLayout(w);
+		w->setLayout(vl);
 		{
+			QLabel* l;
 			vl->addWidget(new QLabel("Position"));
-			QLayout* hl = new QHBoxLayout(widget);
+			QLayout* hl = new QHBoxLayout(w);
 			vl->addItem(hl);
-			hl->addWidget(new QLabel("  X ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Y ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Z ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
+			l = new QLabel("  X  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Y  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Z  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
 		}
-		widget->setLayout(vl);
 		{
+			QLabel* l;
 			vl->addWidget(new QLabel("Rotation"));
-			QLayout* hl = new QHBoxLayout(widget);
+			QLayout* hl = new QHBoxLayout(w);
 			vl->addItem(hl);
-			hl->addWidget(new QLabel("  X ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Y ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Z ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
+			l = new QLabel("  X  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Y  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Z  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
 		}
-		widget->setLayout(vl);
 		{
+			QLabel* l;
 			vl->addWidget(new QLabel("Scale"));
-			QLayout* hl = new QHBoxLayout(widget);
+			QLayout* hl = new QHBoxLayout(w);
 			vl->addItem(hl);
-			hl->addWidget(new QLabel("  X ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Y ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
-			hl->addWidget(new QLabel("  Z ", widget));
-			hl->addWidget(new QDoubleSpinBox(widget));
+			l = new QLabel("  X  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Y  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
+			l = new QLabel("  Z  ", w);
+			l->setMaximumSize(l->sizeHint());
+			hl->addWidget(l);
+			hl->addWidget(new QDoubleSpinBox(w));
 		}
 		vl->addItem(m_window->createSpacer(Qt::Vertical));
 	}
@@ -250,6 +282,9 @@ void Manager_Docks::setMaximizeScene( bool p_checked )
 		m_scene->setFloating(false);
 		m_scene->showNormal();
 	}
+
+	// Give focus to RenderWidget
+	m_window->renderWidget()->setFocus();
 }
 
 QAction* Manager_Docks::createAction( QString p_name )
@@ -334,7 +369,7 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandText);
-			commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
 			//commandHistoryListWidget->setItemSelected(item, true);
 
 			//int nrOfListItems = commandHistoryListWidget->count();
@@ -357,11 +392,11 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			if(index == -1) // Special case: jump out of history
 			{
-				commandHistoryListWidget->item(commandHistoryListWidget->count()-1)->setSelected(false);
+				m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
 			}
 			else
 			{
-				commandHistoryListWidget->setCurrentRow(index);
+				m_commandHistoryListWidget->setCurrentRow(index);
 			}
 
 			break;
@@ -375,7 +410,7 @@ void Manager_Docks::onEvent(IEvent* e)
 			connectCommandHistoryWidget(false);
 			for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
 			{
-				delete commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+				delete m_commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
 			}
 			connectCommandHistoryWidget(true);
 
@@ -447,11 +482,11 @@ void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_d
 {
 	if(connect_if_true_otherwise_disconnect)
 	{
-		connect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+		connect(m_commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
 	}
 	else
 	{
-		disconnect(commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+		disconnect(m_commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
 	}
 }
 
@@ -463,12 +498,12 @@ void Manager_Docks::update()
 	DataMapper<Data::Transform> map_trans;
 	while(map_trans.hasNext())
 	{
-		map_trans.next();
+		Entity* e = map_trans.nextEntity();
 
 		if(entityCount >= rowCount && entityCount < 200)
 		{
 			QStandardItem* item;
-			item = new QStandardItem("Entity " + QString::number(entityCount));
+			item = new QStandardItem(e->name().c_str());
 			m_hierarchy_model->setItem(entityCount, item);
 		}
 		entityCount++;
@@ -498,31 +533,157 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 
 	// Add new selection
 	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
-
-	// Pick last clicked as pivot
-	DEBUGPRINT("");
-	DEBUGPRINT("SELECTED");
 	foreach(QModelIndex index, index_list)
 	{
 		int entityId = index.row();
 		Entity* e = Entity::findEntity(entityId);
 		e->addData(Data::Selected());
-		DEBUGPRINT("Entity " + Converter::IntToStr(e->id()));
-	}
-	while(index_list.count() > 0)
-	{
-		index_list.pop_back();
 	}
 
-	// Pick last clicked as pivot
-	Entity* picked_entity = Entity::findEntity(index.row());
-	Data::Selected::pivot = picked_entity->asPointer();
-	DEBUGPRINT("PIVOT");
-	DEBUGPRINT("Entity " + Converter::IntToStr(picked_entity->id()));
+	// Debug selection
+	DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+	}
 }
 
 
 void System_Editor::update()
 {
 	m_editor->update();
+}
+
+ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
+{
+	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
+	POST_DELAYED_EVENT(new IEvent(EVENT_REFRESH_SPLITTER), 0.0f);
+
+	setObjectName("Item Browser");
+
+	QWidget* window = Window::instance();
+	m_tree = new QListWidget(window);
+	m_tree->setObjectName("Item Tree");
+	m_grid = new QListWidget(window);
+	m_tree->setObjectName("Item Grid");
+
+	QVBoxLayout* l = new QVBoxLayout(this);
+	setLayout(l);
+
+	// Create splitter
+	m_splitter = new QSplitter(window);
+	m_tree->setObjectName("Item Splitter");
+	l->addWidget(m_splitter);
+	m_splitter->addWidget(m_tree);
+	m_splitter->addWidget(m_grid);
+
+	// Load tree
+	initTree();
+	
+	// Select first folder
+	QListWidgetItem* item = m_tree->item(0);
+	if(item)
+	{
+		item->setSelected(true);
+		loadGrid(0);
+	}
+
+	// Enable mouse click
+	connect(m_tree, SIGNAL(currentRowChanged(int)), this,  SLOT(loadGrid(int)));
+}
+
+void ItemBrowser::initTree()
+{
+	// Open 
+	QString path;
+	path = path + THUMBNAIL_PATH;
+	
+	// Load directory
+	QDir dir(path);
+	QStringList filters;
+	dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+	// Build from directory
+	QFileInfoList list = dir.entryInfoList();
+	foreach(QFileInfo i, list)
+	{
+		QString filename = i.fileName();
+		//DEBUGPRINT(filename.toStdString());
+
+		QListWidgetItem* item = new QListWidgetItem(filename);
+		m_tree->addItem(item);
+	}
+}
+
+void ItemBrowser::loadGrid( QListWidgetItem* item )
+{
+	m_grid->setIconSize(QSize(65, 65));
+	m_grid->setViewMode(QListView::IconMode);
+	m_grid->setLayoutMode(QListWidget::LayoutMode::Batched);
+	m_grid->setResizeMode(QListWidget::ResizeMode::Adjust);
+	m_grid->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	//setSortingEnabled(true);
+	m_grid->setWordWrap(true);
+
+	// Open 
+	QString path;
+	path = path + THUMBNAIL_PATH + "/" + item->text();
+	QDir dir(path);
+	QStringList filters;
+	filters << "*.png" << "*.jpg";
+	dir.setNameFilters(filters);
+	dir.setFilter(QDir::Files);
+
+	QFileInfoList list = dir.entryInfoList();
+	foreach(QFileInfo i, list)
+	{
+		QString filename = i.fileName();
+		//DEBUGPRINT(filename.toStdString());
+
+		QIcon icon(path + "/" + filename);
+		QListWidgetItem* item = new QListWidgetItem(icon, filename);
+		m_grid->addItem(item);
+	}
+
+	//for(int i=0; i<10; i++)
+	//{
+	//	QIcon icon;
+	//	static int id = 0;
+	//	QString iconText = "Item " + QString::number(id);
+	//	id++;
+
+	//	//setIconSize(QSize(50, 50));
+
+	//	int r = Math::randomInt(0, 255);
+	//	int g = Math::randomInt(0, 255);
+	//	int b = Math::randomInt(0, 255);
+
+	//	QColor color(r, g, b);
+	//	QPixmap pixmap(65, 65);
+	//	pixmap.fill(color);
+	//	icon.addPixmap(pixmap);
+
+	//	QListWidgetItem* item = new QListWidgetItem(icon, iconText);
+	//	m_grid.addItem(item);
+	//}
+}
+
+void ItemBrowser::loadGrid( int row )
+{
+	m_grid->clear();
+	loadGrid(m_tree->item(row));
+}
+
+void ItemBrowser::onEvent( IEvent* e )
+{
+	EventType type = e->type();
+	switch (type) 
+	{
+	case EVENT_REFRESH_SPLITTER: //Add command to the command history list in the GUI
+		moveHandle();
+		break;
+	default:
+		break;
+	}
 }

@@ -146,11 +146,13 @@
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commander.cpp" />
+    <ClCompile Include="CommanderSpy.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
     <ClCompile Include="Command_TranslateSceneEntity.cpp" />
     <ClCompile Include="Converter.cpp" />
     <ClCompile Include="Data.cpp" />
     <ClCompile Include="DataMapper.cpp" />
+    <ClCompile Include="Data_Camera.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityPointer.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -173,6 +175,7 @@
   <ItemGroup>
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commander.h" />
+    <ClInclude Include="CommanderSpy.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />
     <ClInclude Include="Command_TranslateSceneEntity.h" />
     <ClInclude Include="Converter.h" />

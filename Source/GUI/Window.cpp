@@ -24,6 +24,9 @@ void Window::init()
 	setWindowTitle("Ultimate Coffee");
 	//setWindowFlags( Qt::FramelessWindowHint );
 
+	m_manager_console = new Manager_Console();
+	m_manager_console->init();
+
 	m_renderWidget = new RenderWidget(this);
 	m_renderWidget->setMinimumSize(1, 1);
 
@@ -32,9 +35,6 @@ void Window::init()
 
 	m_manager_docks = new Manager_Docks();
 	m_manager_docks->init();
-
-	m_manager_console = new Manager_Console();
-	m_manager_console->init();
 
 	m_manager_commands = new Manager_Commands();
 	m_manager_commands->init();
@@ -126,40 +126,6 @@ QSpacerItem* Window::createSpacer( Qt::Orientation p_orientation )
 ISystem* Window::system_editor()
 {
 	return m_manager_docks->getAsSystem();
-}
-
-void Window::keyPressEvent( QKeyEvent *e )
-{
-	// Update camera
-	Entity* entity_camera = CAMERA_ENTITY().asEntity();
-	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
-
-	float delta = SETTINGS()->deltaTime * 1000.0f;
-	float strafe = 0.0f;
-	float walk = 0.0f;
-
-	if(e->key() == Qt::Key_W)
-	{
-		walk += delta;
-	}
-	if(e->key() == Qt::Key_A)
-	{
-		strafe -= delta;
-	}
-	if(e->key() == Qt::Key_S)
-	{
-		walk -= delta;
-	}
-	if(e->key() == Qt::Key_D)
-	{
-		strafe += delta;
-	}
-
-	// Rotate camera
-	d_camera->strafe(d_transform->position, strafe);
-	d_camera->walk(d_transform->position, walk);
-	d_camera->updateViewMatrix(d_transform->position);
 }
 
 bool Window::eventFilter( QObject* object, QEvent* event )

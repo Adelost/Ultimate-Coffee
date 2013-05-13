@@ -17,15 +17,29 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 	if(p_type == ENTITY_EMPTY)
 	{
+		static int id = 0;
+		e->setName("empty", id);
+		id++;
 	}
 
 	if(p_type == ENTITY_CUBE)
 	{
+		static int id = 0;
+		e->setName("cube", id);
+		id++;
+
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->position.x = Math::randomFloat(-3.0f, 3.0f);
-		d_transform->position.y = Math::randomFloat(-3.0f, 3.0f);
-		d_transform->position.z = Math::randomFloat(-3.0f, 3.0f);
+		/*float s =  4.0f;
+		d_transform->position.x = Math::randomFloat(-s, s);
+		d_transform->position.y = Math::randomFloat(-s, s);
+		d_transform->position.z = Math::randomFloat(-s, s);
+		*/
+		static float d = -8.0f;
+		d += 4.0f;
+		d_transform->position.x = d;
+		d_transform->position.y = 0.0f;
+		d_transform->position.z = 0.0f;
 		
 		e->addData(Data::Bounding());
 		e->addData(Data::Render());
@@ -33,6 +47,10 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 	if(p_type == ENTITY_CAMERA)
 	{
+		static int id = 0;
+		e->setName("camera", id);
+		id++;
+
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		d_transform->position = Vector3(0.0f, 0.0f, -15.0f);
 

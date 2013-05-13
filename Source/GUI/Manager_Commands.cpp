@@ -3,6 +3,7 @@
 
 #include <Core/World.h> //SETTINGS
 #include <Core/Commander.h>
+#include <Core/CommanderSpy.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 #include <Core/Events.h>
 #include "ui_MainWindow.h"
@@ -27,6 +28,7 @@ void Manager_Commands::init()
 	{
 		MESSAGEBOX("Commander failed to init.");
 	}
+	m_commanderSpy = new CommanderSpy(m_commander);
 	m_lastValidProjectPath = "";
 
 	setupMenu();
@@ -130,6 +132,7 @@ void Manager_Commands::translateSceneEntity()
 Manager_Commands::~Manager_Commands()
 {
 	delete m_commander;
+	delete m_commanderSpy;
 }
 
 void Manager_Commands::redoLatestCommand()
@@ -178,6 +181,12 @@ void Manager_Commands::saveCommandHistory()
 		{
 			MESSAGEBOX("Failed to save project.");
 		}
+		else
+		{
+			// check, remove if the command list gets very long and takes time to print
+			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
+			m_commander->printCommandHistory();
+		}
 	}
 }
 
@@ -209,14 +218,31 @@ void Manager_Commands::loadCommandHistory()
 	// If the user clicks "Open"
 	if(!fileName.isEmpty())
 	{
+		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
+
 		std::string path = fileName.toLocal8Bit();
-		if(!m_commander->tryToLoadCommandHistory(path))
+		if(m_commander->tryToLoadCommandHistory(path))
 		{
-			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger.");
+			m_lastValidProjectPath = path;
+
+			std::vector<Command*>* commands = m_commanderSpy->getCommands();
+			int nrOfCommands = commands->size();
+			for(int i=0;i<nrOfCommands;i++)
+			{
+				Command* command = commands->at(i);
+				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Add all commands to GUI
+			}
+
+			int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+			SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
+
+			// check, remove if the command list gets very long and takes time to print
+			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
+			m_commander->printCommandHistory();
 		}
 		else
 		{
-			m_lastValidProjectPath = path;
+			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger.");
 		}
 	}
 }
@@ -238,8 +264,14 @@ void Manager_Commands::onEvent(IEvent* e)
 		{
 			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 			Command* command = commandEvent->command;
+			bool executeCommandWhenAdding = commandEvent->execute;
+
+			int nrOfCommandsBeforeAdd = m_commander->getNrOfCommands();
+			//--------------------------------------------------------------------------------------
+			// Update Command history
+			//--------------------------------------------------------------------------------------
 			bool addCommandSucceeded = true;
-			if(commandEvent->execute)
+			if(executeCommandWhenAdding)
 			{
 				addCommandSucceeded = m_commander->tryToAddCommandToHistoryAndExecute(command);
 			}
@@ -248,10 +280,20 @@ void Manager_Commands::onEvent(IEvent* e)
 				addCommandSucceeded = m_commander->tryToAddCommandToHistory(command);
 			}
 
+			//--------------------------------------------------------------------------------------
+			// Update GUI
+			//--------------------------------------------------------------------------------------
 			if(addCommandSucceeded)
 			{
-				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command)); //Update command history in GUI
-				int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+				int nrOfCommandsAfterAdd = m_commander->getNrOfCommands();
+				int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), nrOfCommandsAfterAdd);
+
+				if(nrOfCommandsAfterAdd <= nrOfCommandsBeforeAdd)
+				{
+					int nrOfCommandToBeRemovedFromGUI = nrOfCommandsBeforeAdd - nrOfCommandsAfterAdd;
+					SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(GUI_Index, nrOfCommandToBeRemovedFromGUI+1));
+				}
+				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command));
 				SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
 			}
 			else

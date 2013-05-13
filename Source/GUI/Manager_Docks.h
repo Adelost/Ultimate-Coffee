@@ -4,14 +4,15 @@
 #include "QObject.h"
 #include <Core/IObserver.h>
 #include <QDockWidget.h>
+#include <QListWidget.h>
 class Window;
 class QDockWidget;
 class QMenu;
 class QAction;
 class QStandardItemModel;
 class QListWidget;
-class QListView;
 class Manager_Docks;
+class ItemBrowser;
 
 class Manager_Docks : public QObject, public IObserver
 {
@@ -23,8 +24,8 @@ private:
 	QTreeView* m_hierarchy_tree;
 	QStandardItemModel* m_hierarchy_model;
 	QMenu* m_menu;
-	QListWidget* commandHistoryListWidget;
-	QListView* listT;
+	QListWidget* m_commandHistoryListWidget;
+	ItemBrowser* m_itemBrowser;
 
 public:
 	~Manager_Docks();
@@ -63,4 +64,33 @@ public:
 		m_editor = p_editor;
 	}
 	void update();
+};
+
+
+class ItemBrowser : public QWidget, public IObserver
+{
+	Q_OBJECT
+
+private:
+	QListWidget* m_tree;
+	QListWidget* m_grid;
+	QSplitter* m_splitter;
+
+public:
+	ItemBrowser(QWidget* parent);
+	void initTree();
+	void onEvent(IEvent* e);
+public slots:
+	void loadGrid(QListWidgetItem * item);
+	void loadGrid(int row);
+	void moveHandle()
+	{
+		// Move splitter handle
+		QList<int> sizes;
+		int p = 200;
+		sizes.append(p);
+		sizes.append(width() - p);
+		m_splitter->setSizes(sizes);
+		m_splitter->refresh();
+	}
 };

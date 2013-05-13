@@ -28,10 +28,11 @@ template<typename T>
 class DataMapper : public IDataMapper
 {
 private:
-	std::vector<T>* m_data_list;
-	int* m_index_lastGap;
-	std::vector<int>* m_owner_list;
 	int m_index_next;
+	int* m_dataCount;
+	int* m_index_lastGap;
+	std::vector<T>* m_data_list;
+	std::vector<int>* m_owner_list;
 
 public:
 	DataMapper()
@@ -42,8 +43,9 @@ public:
 		Init_DataMapper init;
 		mapToData<T>(&init);
 		m_data_list = init.dataList<T>();
-		m_owner_list = init.owner_list;
 		m_index_lastGap = init.index_lastGap;
+		m_dataCount = init.m_dataCount;
+		m_owner_list = init.owner_list;
 	}
 
 	bool hasNext()
@@ -76,6 +78,11 @@ public:
 	void resetIndex()
 	{
 		m_index_next = 0;
+	}
+
+	int dataCount()
+	{
+		return *m_dataCount;
 	}
 	
 	/**

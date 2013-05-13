@@ -42,6 +42,9 @@ void UpdateLoop::update()
 	m_updateTimer->tick();
 	SETTINGS()->deltaTime = m_updateTimer->deltaTime();
 	m_world->update();
+
+	// Update EventManager to enable queued messages
+	EventManager::getInstance()->update(SETTINGS()->deltaTime);
 }
 
 void UpdateLoop::computeFPS()

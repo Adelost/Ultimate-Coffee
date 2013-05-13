@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "Manager_Data.h"
 #include "EntityPointer.h"
 
@@ -14,6 +15,7 @@ private:
 	int m_id;
 	int m_uniqueId;
 	Manager_Data* m_data;
+	std::string m_name;
 
 public:
 	Entity(int p_id, int p_uniqueId = 0);
@@ -22,10 +24,6 @@ public:
 	Called when deleting an Entity. 
 	*/
 	void clean();
-
-	int id();
-
-	int uniqueId();
 
 	/**
 	Saves the Entity into a batch pointer.
@@ -70,8 +68,13 @@ public:
 		return m_data->fetchData<T>(id(), p_batchIndex);
 	}
 
-	
 	static Entity* findEntity(int p_id);
 
 	void removeEntity();
+
+public:
+	int id();
+	int uniqueId();
+	std::string name();
+	void setName(std::string p_name, int p_number);
 };
