@@ -47,7 +47,7 @@ namespace Data
 		The Entity which is used as a pivot point e.g. 
 		when rotating.
 		*/
-		static EntityPointer pivot;
+		static EntityPointer lastSelected;
 		static void clearSelection();
 	};
 
