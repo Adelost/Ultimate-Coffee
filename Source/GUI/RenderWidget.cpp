@@ -237,25 +237,9 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		break;
 	case Qt::Key_Shift:
 		SETTINGS()->button.key_shift = state;
-		if(SETTINGS()->button.key_shift)
-		{
-			DEBUGPRINT("Shift: On");
-		}
-		else
-		{
-			DEBUGPRINT("Shift: Off");
-		}
 		break;
 	case Qt::Key_Control:
 		SETTINGS()->button.key_ctrl = state;
-		if(SETTINGS()->button.key_ctrl)
-		{
-			DEBUGPRINT("Ctrl: On");
-		}
-		else
-		{
-			DEBUGPRINT("Ctrl: Off");
-		}
 		break;
 	case Qt::Key_Alt:
 		SETTINGS()->button.key_alt = state;

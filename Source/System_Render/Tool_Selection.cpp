@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Core/Math.h"
 #include "Tool_Selection.h"
+#include <Core/Util.h>
 
 Tool_Selection::Tool_Selection()
 {
@@ -48,9 +49,9 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		r.position = Vector3::Transform(r.position, mat_world);
 		r.direction = Vector3::TransformNormal(r.direction, mat_world);
 		
-		//DEBUGPRINT("");
-		//DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
-		//DEBUGPRINT("");
+		DEBUGPRINT("");
+		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
+		DEBUGPRINT("");
 
 		// Find intersected Entity
 		Entity* e = Data::Bounding::intersect(r);
@@ -89,14 +90,15 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 			}
 		}
 
-		//// Debug selection
-		//DataMapper<Data::Selected> map_selected;
-		//DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
-		//while(map_selected.hasNext())
-		//{
-		//	Entity* e = map_selected.nextEntity();
-		//	DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-		//}
+		// Debug selection
+		DataMapper<Data::Selected> map_selected;
+		if(map_selected.dataCount()>0)
+			DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+		while(map_selected.hasNext())
+		{
+			Entity* e = map_selected.nextEntity();
+			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+		}
 
 
 		// Inform about selection

@@ -170,7 +170,6 @@
     </ClCompile>
     <ClCompile Include="System_Input.cpp" />
     <ClCompile Include="World.cpp" />
-    <ClCompile Include="xnacollision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
@@ -205,8 +204,8 @@
     <ClInclude Include="Manager_Systems.h" />
     <ClInclude Include="Batch.h" />
     <ClInclude Include="System_Input.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="World.h" />
-    <ClInclude Include="xnacollision.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl" />

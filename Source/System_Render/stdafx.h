@@ -10,6 +10,7 @@
 #include <Core/Factory_Entity.h>
 #include <Core/Settings.h>
 #include <Core/World.h>
+#include <Core/Converter.h>
 
 #include <Windows.h>
 #include <d3d11.h>
