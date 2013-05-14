@@ -22,6 +22,7 @@ enum EventType
 
 	// Commands
 	EVENT_STORE_COMMAND,
+	EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY,
 	EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI,
 	EVENT_SET_SELECTED_COMMAND_GUI,
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
@@ -218,7 +219,7 @@ class Event_StoreCommandInCommandHistory : public IEvent
 {
 public:
 	Command* command;
-	bool execute; //Call "doRedo" on the command before storing it in the command history. Standard is false. Specify true if the doings of the command is not done when sending this event.
+	bool execute; // Call "doRedo" on the command before storing it in the command history. Standard is false. Specify true if the doings of the command is not done when sending this event.
 
 public:
 	Event_StoreCommandInCommandHistory(Command* command, bool execute = false) : IEvent(EVENT_STORE_COMMAND)
@@ -228,23 +229,41 @@ public:
 	}
 };
 
+class Event_StoreCommandsAsSingleEntryInCommandHistoryGUI : public IEvent
+{
+public:
+	std::vector<Command*>* commands;
+	bool execute; // Whether or not to execute the commands when adding them to the command history. Standard is false.
+	
+public:
+	Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(std::vector<Command*>* commands, bool execute = false) : IEvent(EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY)
+	{
+		this->commands = commands;
+		this->execute = execute;
+	}
+};
+
 class Event_AddCommandToCommandHistoryGUI : public IEvent
 {
 public:
 	Command* command;
+	bool hidden;
+	int mergeNumber;
 
 public:
-	Event_AddCommandToCommandHistoryGUI(Command* command) : IEvent(EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI)
+	Event_AddCommandToCommandHistoryGUI(Command* command, bool hidden, int mergeNumber = 0) : IEvent(EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI)
 	{
 		this->command = command;
+		this->hidden = hidden;
+		this->mergeNumber = mergeNumber;
 	}
 };
 
 class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
 {
 public:
-	int startIndex; //Index of first command to be removed
-	int nrOfCommands; //Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex".
+	int startIndex; // Index of first command to be removed
+	int nrOfCommands; // Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex".
 
 public:
 	Event_RemoveCommandsFromCommandHistoryGUI(int startIndex, int nrOfCommands = 1) : IEvent(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
@@ -254,7 +273,7 @@ public:
 	}
 };
 
-//Backtracks by undoing until a command index is reached, or track forward by redoing until command index is reached
+// Backtracks by undoing until a command index is reached, or track forward by redoing until command index is reached
 class Event_TrackToCommandHistoryIndex : public IEvent
 {
 public:

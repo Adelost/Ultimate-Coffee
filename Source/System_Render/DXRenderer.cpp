@@ -101,6 +101,7 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
 	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
@@ -259,7 +260,7 @@ bool DXRenderer::initDX()
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
 
-	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
+	
 
 
 	// Create box
