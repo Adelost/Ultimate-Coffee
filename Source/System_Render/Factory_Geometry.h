@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <Core/Math.h>
+#include "Vertex.h"
+
 
 class Factory_Geometry
 {
@@ -32,6 +34,31 @@ public:
 	public:
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
+
+	public:
+		std::vector<Vector3> positionList()
+		{
+			std::vector<Vector3> list(vertices.size());
+			for(int i=0; i<(int)list.size(); i++)
+			{
+				list[i] = vertices[i].position;
+			}
+
+			return list;
+		}
+
+		std::vector<unsigned int> indexList()
+		{
+			std::vector<unsigned int> list(vertices.size());
+			for(int i=0; i<(int)vertices.size(); i++)
+			{
+				list[i] = indices[i];
+			}
+
+			return list;
+		}
+
+		std::vector<VertexPosColNorm> createVertexList_posColNorm();
 	};
 
 private:

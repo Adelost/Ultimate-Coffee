@@ -66,6 +66,7 @@ HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int
 
 	m_type = p_type;
 	m_elementSize = p_elementSize;
+	m_count = p_count;
 
 	return S_OK;
 }
@@ -74,38 +75,33 @@ void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext)
 {
 	switch(m_type)
 	{
-		case BufferType::VERTEX_BUFFER:
+	case BufferType::VERTEX_BUFFER:
 		{
 			UINT stride = m_elementSize;
 			UINT offset = 0;
 			p_deviceContext->IASetVertexBuffers(0, 1, &m_buffer, &stride, &offset);
-
-			break;
 		}
-		case BufferType::INDEX_BUFFER:
+		break;
+	case BufferType::INDEX_BUFFER:
 		{
 			p_deviceContext->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
-
-			break;
 		}
-		case BufferType::CONSTANT_BUFFER:
+		break;
+	case BufferType::CONSTANT_BUFFER:
 		{
 			p_deviceContext->VSSetConstantBuffers(0, 1, &m_buffer);
-
-			break;
 		}
-		case BufferType::UNINITIALIZED:
+		break;
+	case BufferType::UNINITIALIZED:
 		{
-			//MESSAGEBOX("Tried to set uninitialized buffer.");
-
-			break;
+			//MESSAGEBOX("Tried to set uninitialized buffer.");	
 		}
-		default:
+		break;
+	default:
 		{
 			//MESSAGEBOX("Failed to set buffer.");
-
-			break;
 		}
+		break;
 	}
 }
 

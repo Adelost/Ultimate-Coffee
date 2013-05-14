@@ -57,7 +57,7 @@ void UpdateLoop::computeFPS()
 	num_frames++;
 
 	// Compute averages FPS and ms over one second period.
-	if((m_updateTimer->totalTime()-timeElapsed) >= 1.0f)
+	if((m_updateTimer->totalTime() - timeElapsed) >= 1.0f)
 	{
 		// calculate statistics
 		float fps = (float)num_frames; // fps = frameCnt / 1

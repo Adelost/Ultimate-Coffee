@@ -18,7 +18,7 @@ struct VertexPosCol
 struct VertexPosColNorm
 {
 	Vector3 pos;
-	Vector4 color;
+	Color color;
 	Vector3 normal;
 };
 

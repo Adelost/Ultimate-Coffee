@@ -7,6 +7,8 @@
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
+typedef unsigned int uint;
+
 class Math
 {
 public:

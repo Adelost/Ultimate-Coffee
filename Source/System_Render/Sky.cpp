@@ -1,38 +1,9 @@
 #include "stdafx.h"
 #include "Sky.h"
 
+#include "TexLoader.h"
 
 
-Sky::Sky( ID3D11Device* device, const std::wstring& cubemapFilename, float skySphereRadius )
-{
-	Factory_Geometry::MeshData sphere;
-	Factory_Geometry::instance()->createSphere(skySphereRadius, 30, 30, sphere);
-
-	// Create vertex buffer
-	m_vertexBuffer = new Buffer();
-	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(Vector3), sphere.vertices.size(),  &sphere.vertices, m_device));
-	m_vertexBuffer->setDeviceContextBuffer(m_context);
-	
-	// Create index buffer
-	m_indexBuffer = new Buffer();
-	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), sphere.indices.size(), &sphere.indices, m_device));
-	m_indexBuffer->setDeviceContextBuffer(m_context);
-
-	// Create constant buffer
-	m_WVPBuffer = new Buffer();
-	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
-	m_WVPBuffer->setDeviceContextBuffer(m_context);
-
-
-	//// Load texture
-	//CreateTextureFromDDS(
-	//D3DX11CreateShaderResourceViewFromFile(dev,        // the Direct3D device
-	//	L"Wood.png",    // load Wood.png in the local folder
-	//	nullptr,           // no additional information
-	//	nullptr,           // no multithreading
-	//	&pTexture,      // address of the shader-resource-view
-	//	nullptr);          // no multithreading
-}
 
 Sky::~Sky()
 {
@@ -43,7 +14,7 @@ Sky::~Sky()
 
 ID3D11ShaderResourceView* Sky::CubeMapSRV()
 {
-	return mCubeMapSRV;
+	return m_rv_cubeMap;
 }
 
 void Sky::draw( ID3D11DeviceContext* dc )
@@ -65,7 +36,7 @@ void Sky::draw( ID3D11DeviceContext* dc )
 	m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_cbuffer, 0, 0);
 
 	// Set cube map
-	m_context->PSSetShaderResources(0, 1, &mCubeMapSRV);
+	m_context->PSSetShaderResources(0, 1, &m_rv_cubeMap);
 
 	unsigned int stride = sizeof(Vector3);
 	unsigned int  offset = 0;
@@ -85,4 +56,53 @@ void Sky::draw( ID3D11DeviceContext* dc )
 
 	//	dc->DrawIndexed(mIndexCount, 0, 0);
 	//}
+}
+
+Sky::Sky( ID3D11Device* device, const std::string& cubemapFilename, float sphereRadius )
+{
+	// Create SkySphere
+	Factory_Geometry::MeshData sphere;
+	Factory_Geometry::instance()->createSphere(sphereRadius, 30, 30, sphere);
+	std::vector<Vector3> position_list = sphere.positionList();
+	std::vector<unsigned int> index_list = sphere.indexList();
+
+	// Create vertex buffer
+	m_vertexBuffer = new Buffer();
+	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(Vector3), position_list.size(),  &position_list, m_device));
+	m_vertexBuffer->setDeviceContextBuffer(m_context);
+
+	// Create index buffer
+	m_indexBuffer = new Buffer();
+	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list, m_device));
+	m_indexBuffer->setDeviceContextBuffer(m_context);
+
+	// Create constant buffer
+	m_WVPBuffer = new Buffer();
+	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
+	m_WVPBuffer->setDeviceContextBuffer(m_context);
+
+
+	// Load texture
+	std::string texPath = "";
+	std::string texFileName = "";
+	std::string fullPath = texPath + texFileName;
+	HRESULT hr = createTexFromFile(
+		device,
+		fullPath,
+		&m_rv_cubeMap);
+
+	if(FAILED(hr))
+	{
+		DEBUGPRINT("ManagementTex::handleTexDesc Could not load texture: " + texFileName);
+	}
+
+
+
+	//CreateTextureFromDDS(
+	//createTextureFromFile(dev,        // the Direct3D device
+	//	L"Wood.png",    // load Wood.png in the local folder
+	//	nullptr,           // no additional information
+	//	nullptr,           // no multi threading
+	//	&pTexture,      // address of the shader-resource-view
+	//	nullptr);          // no multithreading
 }

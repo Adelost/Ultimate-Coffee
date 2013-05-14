@@ -2,6 +2,7 @@
 
 #include <Core/IObserver.h>
 #include <Core/Math.h>
+#include "CBuffers.h"
 
 typedef struct HWND__* HWND;
 typedef unsigned int UINT;
@@ -19,11 +20,7 @@ struct ID3D11Buffer;
 class Manager_3DTools;
 
 class Buffer;
-
-struct ConstantBuffer
-{
-	Matrix WVP;
-};
+class Sky;
 
 class DXRenderer
 	: public IObserver
@@ -43,6 +40,7 @@ private:
 	Buffer*						m_vertexBuffer;
 	Buffer*						m_indexBuffer;
 	Buffer*						m_WVPBuffer;
+	Sky*						m_sky;
 
 	ConstantBuffer				m_CBuffer;
 

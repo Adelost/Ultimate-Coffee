@@ -103,6 +103,9 @@
     <ClInclude Include="TexLoader.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
+    <ClInclude Include="CBuffers.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -172,6 +175,9 @@
       <Filter>Source\Util</Filter>
     </ClCompile>
     <ClCompile Include="TexLoader.cpp">
+      <Filter>Source\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Factory_Geometry.cpp">
       <Filter>Source\Util</Filter>
     </ClCompile>
   </ItemGroup>

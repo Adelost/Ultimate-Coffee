@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
+    <ClInclude Include="CBuffers.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DXRenderer.h" />
     <ClInclude Include="Factory_Geometry.h" />
@@ -196,6 +197,7 @@
   <ItemGroup>
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DXRenderer.cpp" />
+    <ClCompile Include="Factory_Geometry.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Handle_RotationCircle.cpp" />
     <ClCompile Include="Handle_RotationPlane.cpp" />
