@@ -533,6 +533,8 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 	// Add new selection
 	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
+	if(index_list.count() == 0)
+		Data::Selected::lastSelected.invalidate();
 	foreach(QModelIndex index, index_list)
 	{
 		int entityId = index.row();
@@ -540,20 +542,13 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 		e->addData(Data::Selected());
 	}
 
-	// Choose clicked entity
+	// If clicked was selected (not deselected with CTRL click)
+	// add as LastClicked
 	Entity* clickedEntity = Entity::findEntity(index.row());
-	Data::Selected::lastSelected = clickedEntity->asPointer();
-	DEBUGPRINT("CLICKED:");
-	DEBUGPRINT(" Entity: " + Converter::IntToStr(clickedEntity->id()));
-
-	// Debug selection
-	if(map_selected.dataCount()>0)
-		DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
-	while(map_selected.hasNext())
-	{
-		Entity* e = map_selected.nextEntity();
-		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-	}
+	if(clickedEntity->fetchData<Data::Selected>())
+		Data::Selected::select(clickedEntity);
+	else
+		Data::Selected::findLastSelected();
 
 	// Inform about selection
 	SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));

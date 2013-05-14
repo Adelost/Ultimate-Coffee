@@ -18,17 +18,16 @@ private:
 	Buffer*	m_WVPBuffer;
 	ConstantBuffer m_cbuffer;
 	
-
-	float height_scale;
-	float height_offset;
-
 	ID3D11Device* m_device;
 	ID3D11DeviceContext* m_context;
 	ID3D11ShaderResourceView* m_rv_cubeMap;
 
+	ID3D11VertexShader*	m_vertexShader;
+	ID3D11PixelShader* m_pixelShader;
+
 	UINT mIndexCount;
 public:
-	Sky(ID3D11Device* device, const std::string& cubemapFilename, float sphereRadius);
+	Sky(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& cubemapFilename, float sphereRadius);
 	~Sky();
 
 	ID3D11ShaderResourceView* CubeMapSRV();

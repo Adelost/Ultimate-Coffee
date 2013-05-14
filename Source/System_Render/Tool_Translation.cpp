@@ -349,9 +349,11 @@ void Tool_Translation::setActiveObject(int entityId)
 		//}
 	 }
 
-	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
-	{
-		this->activeEntityId = Data::Selected::lastSelected->id(); //e->id();
+if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
+{
+		this->activeEntityId = e->id();
+
+		Data::Selected::lastSelected->toPointer();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
@@ -555,17 +557,6 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 			++i;
 		}
 	
-
-	//DataMapper<Data::Selected> map_selected;
-	//while(map_selected.hasNext())
-	//{
-	//	Entity* e = map_selected.nextEntity();
-	//	//e->removeData<Data::Selected>();
-
-	//	Data::Transform *trans = e->fetchData<Data::Transform>();
-
-	//	trans->position = 
-	//}
 }
 
 /* Called when the translation tool is unselected, which makes any hitherto made translation final (and undoable). */

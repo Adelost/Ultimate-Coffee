@@ -34,10 +34,3 @@
 #include <QPushButton>
 #include <QDir>
 #include <QSplitter>
-
-
-// Paths
-#define ICON_PATH												\
-	"../../Assets/GUI/Icons/"
-#define THUMBNAIL_PATH												\
-	"../../Assets/GUI/Thumbnails/"

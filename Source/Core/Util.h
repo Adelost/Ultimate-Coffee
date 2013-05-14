@@ -18,3 +18,11 @@
 	os << stream << "\n";						\
 	OutputDebugString(os.str().c_str());		\
 }
+
+// Paths
+#define ICON_PATH												\
+	"../../Assets/GUI/Icons/"
+#define THUMBNAIL_PATH												\
+	"../../Assets/GUI/Thumbnails/"
+#define TEXTURES_PATH												\
+	"../../Assets/Textures/"
