@@ -25,15 +25,8 @@ namespace Data
 			scale = Vector3(1.0f, 1.0f, 1.0f);
 		}
 
-		Matrix toWorldMatrix()
-		{
-			Matrix mat_pos = Matrix::CreateTranslation(position);
-			Matrix mat_rot = Matrix::CreateFromQuaternion(rotation);
-			Matrix mat_scale = Matrix::CreateScale(scale);
-
-			Matrix m = mat_scale*mat_rot*mat_pos;
-			return m;
-		}
+		Matrix toWorldMatrix();
+		Matrix toRotPosMatrix();
 	};
 
 	/**

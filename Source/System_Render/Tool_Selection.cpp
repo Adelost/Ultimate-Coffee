@@ -45,7 +45,7 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		d_camera->getPickingRay(Vector2(mouseCursorPoint.x, mouseCursorPoint.y), windowSize, &r);
 
 		// Translate ray to world space
-		Matrix mat_world = d_transform->toWorldMatrix();
+		Matrix mat_world = d_transform->toRotPosMatrix();
 		r.position = Vector3::Transform(r.position, mat_world);
 		r.direction = Vector3::TransformNormal(r.direction, mat_world);
 		

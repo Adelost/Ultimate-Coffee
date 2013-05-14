@@ -130,11 +130,17 @@ void DXRenderer::renderFrame()
 	DataMapper<Data::Render> map_render;
 	while(map_render.hasNext())
 	{
-		Entity* entity = map_render.nextEntity();
-		Data::Transform* d_transform = entity->fetchData<Data::Transform>();
-		Data::Render* d_render= entity->fetchData<Data::Render>();
+		Entity* e = map_render.nextEntity();
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		Data::Render* d_render= e->fetchData<Data::Render>();
 
-		m_CBuffer.WVP = d_transform->toWorldMatrix() * viewProjection;
+		Matrix mat_scale;
+		if(e->fetchData<Data::Selected>())
+			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
+		else
+			mat_scale = Matrix::CreateScale(d_transform->scale);
+
+		m_CBuffer.WVP = mat_scale * d_transform->toRotPosMatrix() * viewProjection;
 		m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
 		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_CBuffer, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
