@@ -60,7 +60,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
-//	m_sky = new Sky(m_dxDevice, "root/Textures/Skyboxes/plain.dds", 5000.0f);
+	m_sky = new Sky(m_dxDevice, m_dxDeviceContext, "root/Textures/Skyboxes/plain.dds", 5000.0f);
 	
 	return result;
 }
@@ -101,6 +101,7 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
 	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
@@ -253,7 +254,7 @@ bool DXRenderer::initDX()
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
 
-	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
+	
 
 
 	// Create box

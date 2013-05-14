@@ -322,71 +322,69 @@ void Tool_Translation::setActiveObject(int entityId)
 
 	//DataMapper<Data::Selected> map_selected;
 
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+
+	originalWorldsOfSelectedEntities.clear();
+
+	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+	while(map_selected.hasNext())
+	{
+
+		e = map_selected.nextEntity();
+		Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
 
-DataMapper<Data::Selected> map_selected;
-Entity* e;
+		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
+		XMFLOAT4X4 origWorld;
+		XMStoreFloat4x4(&origWorld, world);
+		originalWorldsOfSelectedEntities.push_back(origWorld);
 
-originalWorldsOfSelectedEntities.clear();
+		//if(!map_selected.hasNext())
+		//{
+		//	this->activeEntityId = e->id();
 
-bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
-while(map_selected.hasNext())
+		//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+		//	updateWorld();
+		//}
+	 }
+
+if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 {
-
-	e = map_selected.nextEntity();
-	Data::Selected* d_selected = e->fetchData<Data::Selected>();
-
-
-	XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
-	XMFLOAT4X4 origWorld;
-	XMStoreFloat4x4(&origWorld, world);
-	originalWorldsOfSelectedEntities.push_back(origWorld);
-
-	//if(!map_selected.hasNext())
-	//{
-	//	this->activeEntityId = e->id();
-
-	//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-	//	updateWorld();
-	//}
- }
-
-if(thereIsAtLeastOneSelectedEntity)
-{
-		this->activeEntityId = e->id();
+		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
-}
-else
-	activeEntityId = -1;
+	}
+	else
+		activeEntityId = -1;
 
-	//if(map_selected.hasNext())
-	//{
-	//	Entity* e;
-	//				
-	//	while(map_selected.hasNext())
-	//	{
-	//		Entity* e = map_selected.nextEntity();
+		//if(map_selected.hasNext())
+		//{
+		//	Entity* e;
+		//				
+		//	while(map_selected.hasNext())
+		//	{
+		//		Entity* e = map_selected.nextEntity();
 
-	//		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
+		//		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
 
-	//		XMFLOAT4X4 origWorld;
-	//		XMStoreFloat4x4(&origWorld, world);
+		//		XMFLOAT4X4 origWorld;
+		//		XMStoreFloat4x4(&origWorld, world);
 
-	//		originalWorldsOfSelectedEntities.push_back(origWorld);
+		//		originalWorldsOfSelectedEntities.push_back(origWorld);
 
-	//		//map_selected.next();
+		//		//map_selected.next();
 
-	//		if(!map_selected.hasNext())
-	//		{
-	//			this->activeEntityId = e->id();
+		//		if(!map_selected.hasNext())
+		//		{
+		//			this->activeEntityId = e->id();
 
-	//			// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-	//			updateWorld();
-	//		}
-	//	}
-	//}
+		//			// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+		//			updateWorld();
+		//		}
+		//	}
+		//}
 }
 
 int Tool_Translation::getActiveObject()
@@ -552,23 +550,11 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 			Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
 			e->fetchData<Data::Transform>()->position = XMVectorSet(originalWorldsOfSelectedEntities.at(i)._41,
-													originalWorldsOfSelectedEntities.at(i)._42,
-													originalWorldsOfSelectedEntities.at(i)._43, 1.0f) + transDelta;
-
+																	originalWorldsOfSelectedEntities.at(i)._42,
+																	originalWorldsOfSelectedEntities.at(i)._43, 1.0f) + transDelta;
 			++i;
 		}
 	
-
-	//DataMapper<Data::Selected> map_selected;
-	//while(map_selected.hasNext())
-	//{
-	//	Entity* e = map_selected.nextEntity();
-	//	//e->removeData<Data::Selected>();
-
-	//	Data::Transform *trans = e->fetchData<Data::Transform>();
-
-	//	trans->position = 
-	//}
 }
 
 /* Called when the translation tool is unselected, which makes any hitherto made translation final (and undoable). */
@@ -576,8 +562,9 @@ void Tool_Translation::unselect()
 {
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
 	
+	
+	//setActiveObject(1); //updateWorld();
 	//updateWorld();
-	setActiveObject(1); //updateWorld();
 
 	if(currentlySelectedPlane)
 	{
@@ -590,16 +577,23 @@ void Tool_Translation::unselect()
 		currentlySelectedAxis = NULL;
 	}
 
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
 
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+		command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
+		command->setUndoTranslation(originalWorldsOfSelectedEntities.at(i)._41, originalWorldsOfSelectedEntities.at(i)._42, originalWorldsOfSelectedEntities.at(i)._43);
+		SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
 
-	//Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(activeEntityId);
-	//Entity e(activeEntityId);
-	//Data::Transform* trans = e.fetchData<Data::Transform>();
-	//command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
-	//command->setUndoTranslation(originalWorldOfActiveObject._41, originalWorldOfActiveObject._42, originalWorldOfActiveObject._43);
-	//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
+		++i;
+	}
 
-
+	setActiveObject(1);
 	//activeEntityId = -1;
 
 	isSelected = false;
@@ -1035,7 +1029,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Indices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_axisArrow_IB));
+	HR(md3dDevice->CreateBuffer(&ibd, &vinitData, &mMeshTransTool_axisArrow_IB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;

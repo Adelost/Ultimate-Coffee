@@ -29,9 +29,9 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
-	for(int i=0; i<3; i++)
+	for(int i=0; i<30; i++)
 	{
-		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->asPointer();
+		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->toPointer();
 	}
 }
 
