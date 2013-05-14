@@ -109,7 +109,10 @@ bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR
 
 	currentlySelectedPlane = NULL;
 	currentlySelectedAxis = NULL;
-	
+
+	if(activeEntityId != -1) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
+		updateWorld();
+
 	if(rayIntersectsWithToolBoundingBox)
 	{
 		// Check if the ray intersects with any of the control handles.
@@ -324,6 +327,8 @@ void Tool_Translation::setActiveObject(int entityId)
 DataMapper<Data::Selected> map_selected;
 Entity* e;
 
+originalWorldsOfSelectedEntities.clear();
+
 bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
 while(map_selected.hasNext())
 {
@@ -350,6 +355,11 @@ while(map_selected.hasNext())
 if(thereIsAtLeastOneSelectedEntity)
 {
 		this->activeEntityId = e->id();
+
+		if(activeEntityId == -1)
+		{
+			int test = 4;
+		}
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
@@ -501,9 +511,9 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 
 		float scaleFactor = scale;
 		Vector3 newTranslation;
-		newTranslation.x = /*originalWorldOfActiveObject._41 +*/ transDelta.m128_f32[0] * scaleFactor;
-		newTranslation.y = /*originalWorldOfActiveObject._42 +*/ transDelta.m128_f32[1] * scaleFactor;
-		newTranslation.z = /*originalWorldOfActiveObject._43 +*/ transDelta.m128_f32[2] * scaleFactor;
+		transDelta.m128_f32[0] = /*originalWorldOfActiveObject._41 +*/ transDelta.m128_f32[0] * scaleFactor;
+		transDelta.m128_f32[1] = /*originalWorldOfActiveObject._42 +*/ transDelta.m128_f32[1] * scaleFactor;
+		transDelta.m128_f32[2] = /*originalWorldOfActiveObject._43 +*/ transDelta.m128_f32[2] * scaleFactor;
 
 		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
 		//transform->position = newTranslation;
@@ -522,15 +532,15 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		
 		if(currentlySelectedPlane != camViewTranslationPlane)
 		{
-			newTranslation.x = originalWorldOfActiveObject._41 + transDelta.m128_f32[0] * scaleFactor;
-			newTranslation.y = originalWorldOfActiveObject._42 + transDelta.m128_f32[1] * scaleFactor;
-			newTranslation.z = originalWorldOfActiveObject._43 + transDelta.m128_f32[2] * scaleFactor;
+			transDelta.m128_f32[0] = transDelta.m128_f32[0] * scaleFactor; //newTranslation.x = originalWorldOfActiveObject._41 + transDelta.m128_f32[0] * scaleFactor;
+			transDelta.m128_f32[1] = transDelta.m128_f32[1] * scaleFactor; //newTranslation.y = originalWorldOfActiveObject._42 + transDelta.m128_f32[1] * scaleFactor;
+			transDelta.m128_f32[2] = transDelta.m128_f32[2] * scaleFactor; //newTranslation.z = originalWorldOfActiveObject._43 + transDelta.m128_f32[2] * scaleFactor;
 		}
 		else // Temp stuff until cam view translation works:
 		{
-			newTranslation.x = originalWorldOfActiveObject._41 + 0.0f;
-			newTranslation.y = originalWorldOfActiveObject._42 + 0.0f;
-			newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
+			transDelta.m128_f32[0] = 0.0f; //newTranslation.x = originalWorldOfActiveObject._41 + 0.0f;
+			transDelta.m128_f32[0] = 0.0f; //newTranslation.y = originalWorldOfActiveObject._42 + 0.0f;
+			transDelta.m128_f32[0] = 0.0f; //newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
 		}
 
 		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
@@ -571,7 +581,9 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 void Tool_Translation::unselect()
 {
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
-	updateWorld();
+	
+	//updateWorld();
+	setActiveObject(1); //updateWorld();
 
 	if(currentlySelectedPlane)
 	{
@@ -586,15 +598,15 @@ void Tool_Translation::unselect()
 
 
 
-	Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(activeEntityId);
-	Entity e(activeEntityId);
-	Data::Transform* trans = e.fetchData<Data::Transform>();
-	command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
-	command->setUndoTranslation(originalWorldOfActiveObject._41, originalWorldOfActiveObject._42, originalWorldOfActiveObject._43);
-	SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
+	//Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(activeEntityId);
+	//Entity e(activeEntityId);
+	//Data::Transform* trans = e.fetchData<Data::Transform>();
+	//command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
+	//command->setUndoTranslation(originalWorldOfActiveObject._41, originalWorldOfActiveObject._42, originalWorldOfActiveObject._43);
+	//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
 
 
-	activeEntityId = -1;
+	//activeEntityId = -1;
 
 	isSelected = false;
 }
@@ -1311,27 +1323,27 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisArrow_VB, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-	md3dImmediateContext->DrawIndexed(666, 0, 0);
+	md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisArrow2_VB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-		md3dImmediateContext->DrawIndexed(666, 0, 0);
+		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow_VB, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-	md3dImmediateContext->DrawIndexed(666, 0, 0);
+	md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow2_VB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-		md3dImmediateContext->DrawIndexed(666, 0, 0);
+		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow_VB, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-	md3dImmediateContext->DrawIndexed(666, 0, 0);
+	md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow2_VB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-		md3dImmediateContext->DrawIndexed(666, 0, 0);
+		md3dImmediateContext->DrawIndexed(660, 0, 0);
 	
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
