@@ -46,4 +46,34 @@ void Data::Selected::clearSelection()
 		Entity* e = map_selected.nextEntity();
 		e->removeData<Data::Selected>();
 	}
+
+	// All selection was cleared, no entity is selected
+	Data::Selected::lastSelected.invalidate();
+}
+
+void Data::Selected::select( Entity* e )
+{
+	e->addData(Data::Selected());
+	Data::Selected::lastSelected = e->asPointer();
+}
+
+void Data::Selected::unselect( Entity* e )
+{
+	e->removeData<Data::Selected>();
+
+	// Find new Entity to select if we unselected our last entity
+	if(Data::Selected::lastSelected == e)
+	{
+		findLastSelected();
+	}
+}
+
+void Data::Selected::findLastSelected()
+{
+	Data::Selected::lastSelected.invalidate();
+	DataMapper<Data::Selected> map_selected;
+	if(map_selected.hasNext())
+	{
+		Data::Selected::lastSelected = map_selected.nextEntity()->asPointer();
+	}
 }

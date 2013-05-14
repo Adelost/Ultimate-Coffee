@@ -25,4 +25,11 @@ public:
 	Entity* operator->();
 
 	Entity* asEntity();
+
+	void invalidate()
+	{
+		m_index = -1;
+	}
+
+	bool operator==(Entity* e);
 };

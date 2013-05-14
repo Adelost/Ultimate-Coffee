@@ -49,6 +49,9 @@ namespace Data
 		*/
 		static EntityPointer lastSelected;
 		static void clearSelection();
+		static void select(Entity* e);
+		static void unselect(Entity* e);
+		static void findLastSelected();
 	};
 
 	/**

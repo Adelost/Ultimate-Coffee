@@ -51,4 +51,9 @@ Entity* EntityPointer::asEntity()
 	return e;
 }
 
+bool EntityPointer::operator==( Entity* e )
+{
+	return e->uniqueId() == m_uniqueId;
+}
+
 void* EntityPointer::s_hostEntity_list = nullptr;

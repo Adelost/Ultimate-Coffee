@@ -51,7 +51,6 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		
 		DEBUGPRINT("");
 		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
-		DEBUGPRINT("");
 
 		// Find intersected Entity
 		Entity* e = Data::Bounding::intersect(r);
@@ -62,23 +61,24 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 			ButtonState* buttonState = &SETTINGS()->button;
 			if(SETTINGS()->button.key_ctrl)
 			{
-				if(e->fetchData<Data::Selected>() == nullptr)
+				if(!e->fetchData<Data::Selected>())
 				{
-					e->addData(Data::Selected());
+					Data::Selected::select(e);
 				}	
 				else
 				{
-					e->removeData<Data::Selected>();
+					// Unselect Entity, if already selected
+					// to allow for user to toggle selection
+					Data::Selected::unselect(e);
 				}
 			}
 			else
 			{
 				Data::Selected::clearSelection();
 
-				e->addData(Data::Selected());
+				Data::Selected::select(e);
 			}
 
-			Data::Selected::lastSelected = e->asPointer();
 			//DEBUGPRINT("CLICKED:");
 			//DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
 		}
@@ -89,17 +89,6 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 				Data::Selected::clearSelection();
 			}
 		}
-
-		// Debug selection
-		DataMapper<Data::Selected> map_selected;
-		if(map_selected.dataCount()>0)
-			DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
-		while(map_selected.hasNext())
-		{
-			Entity* e = map_selected.nextEntity();
-			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-		}
-
 
 		// Inform about selection
 		SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
