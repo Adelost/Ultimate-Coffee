@@ -342,7 +342,12 @@ QSplitter::handle
 
 	border: 1px solid #181818;
 	border: 1px solid #282828;
- }</string>
+ }
+
+QDockWidget
+{
+	background-color: #282828;
+}</string>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
