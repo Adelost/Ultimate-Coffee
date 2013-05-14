@@ -3,6 +3,7 @@
 #include "Box.h"
 #include "Manager_3DTools.h"
 #include "Buffer.h"
+#include "Sky.h"
 
 DXRenderer::DXRenderer()
 {
@@ -17,6 +18,7 @@ DXRenderer::DXRenderer()
 	m_view_depthStencil = nullptr;
 	m_tex_depthStencil = nullptr;
 	m_viewport_screen = nullptr;
+	m_sky = nullptr;
 
 	m_CBuffer.WVP.Identity();
 	m_CBuffer.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
@@ -39,7 +41,7 @@ DXRenderer::~DXRenderer()
 	ReleaseCOM(m_dxDeviceContext);
 	ReleaseCOM(m_dxDevice);
 	delete m_viewport_screen;
-
+	delete m_sky;
 	delete m_manager_tools;
 }
 
@@ -58,6 +60,8 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
+//	m_sky = new Sky(m_dxDevice, "root/Textures/Skyboxes/plain.dds", 5000.0f);
+	
 	return result;
 }
 
@@ -108,29 +112,16 @@ void DXRenderer::renderFrame()
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
-	static float delta = 0.0f;
-	delta += SETTINGS()->deltaTime;
-
-	Matrix X, Y, Z;
-	X = m_CBuffer.WVP.CreateRotationX(delta);
-	Y = m_CBuffer.WVP.CreateRotationY(delta);
-	Z = m_CBuffer.WVP.CreateRotationZ(delta);
-	Matrix world;
-	world = X * Y * Z;
-
-
 
 	// Start rendering
 
 	Matrix viewProjection;
-
 	// HACK: Adding camera to renderer
 	// don't know where else to put it.
 	// Please move to better location.
 	{
 		Data::Camera* d_camera = CAMERA_ENTITY()->fetchData<Data::Camera>();
 
-		//m_CBuffer.WVP = XMMatrixTranspose(world) * XMMatrixTranspose(d_camera->view()) * XMMatrixTranspose(d_camera->projection());
 		viewProjection = d_camera->viewProjection();
 	}
 
@@ -146,7 +137,7 @@ void DXRenderer::renderFrame()
 		m_CBuffer.WVP = d_transform->toWorldMatrix() * viewProjection;
 		m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
 		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_CBuffer, 0, 0);
-		m_dxDeviceContext->Draw(36, 0);
+		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
 
 	// Draw tools
@@ -264,16 +255,24 @@ bool DXRenderer::initDX()
 
 	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
 
+
+	// Create box
+	Factory_Geometry::MeshData box;
+	//Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
+	Factory_Geometry::instance()->createSphere(1.0f, 20, 20, box);
+	std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
+	std::vector<unsigned int> index_list = box.indexList();
+
 	// Create vertex buffer
 
 	m_vertexBuffer = new Buffer();
-	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), 36, Shape::BoxVertices, m_dxDevice));
+	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), vertex_list.size(), &vertex_list[0], m_dxDevice));
 	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Create index buffer
 
 	m_indexBuffer = new Buffer();
-	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), 36, Shape::BoxIndex, m_dxDevice));
+	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_dxDevice));
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Create constant buffer
@@ -282,7 +281,24 @@ bool DXRenderer::initDX()
 	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_CBuffer, m_dxDevice));
 	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
-	////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	//Factory_Geometry::MeshData sphere;
+	//Factory_Geometry::instance()->createSphere(10.0f, 30, 30, sphere);
+
+	//// Fetch positions
+	//std::vector<Vector3> vertex_list(sphere.vertices.size());
+	//for(size_t i = 0; i < sphere.vertices.size(); ++i)
+	//{
+	//	vertex_list[i] = sphere.vertices[i].position;
+	//}
+
+	//// Create vertex buffer
+	//Buffer* m_vertexBuffer = new Buffer();
+	//HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(Vector3), vertex_list.size(),  &vertex_list, m_dxDevice));
+	//m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Resize
 	resizeDX();
@@ -363,17 +379,6 @@ void DXRenderer::resizeDX()
 	SETTINGS()->DXViewPortTopLeftY = (int)m_viewport_screen->TopLeftY;
 	SETTINGS()->DXViewPortMinDepth = (int)m_viewport_screen->MinDepth;
 	SETTINGS()->DXViewPortMaxDepth = (int)m_viewport_screen->MaxDepth;
-
-	// Resize cameras
-	// NOTE: Don't know if this should be here,
-	// but in the meantime...
-	DataMapper<Data::Camera> map_camera;
-	while(map_camera.hasNext())
-	{
-		Data::Camera* d_camera = map_camera.next();
-		float aspectRatio =  static_cast<float>(m_clientWidth)/m_clientHeight;
-		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 1.0f, 3000.0f);
-	}
 }
 
 ID3D11Device* DXRenderer::getDevice()

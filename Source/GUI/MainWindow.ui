@@ -329,7 +329,20 @@ QMenu::separator
 QTabBar
 {
   border: 0px solid red;
-}</string>
+}
+
+QSplitter::handle
+{
+    background: #434343;
+	border: 1px solid #282828;
+	padding: 0px;
+	margin: 0px;
+	
+	background: #383838;
+
+	border: 1px solid #181818;
+	border: 1px solid #282828;
+ }</string>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>

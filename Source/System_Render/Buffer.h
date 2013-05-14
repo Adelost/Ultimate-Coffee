@@ -27,5 +27,12 @@ public:
 private:
 	ID3D11Buffer* m_buffer;
 	BufferType m_type;
+	unsigned int m_count;
 	unsigned int m_elementSize;
+
+public:
+	unsigned int count()
+	{
+		return m_count;
+	}
 };

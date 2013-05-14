@@ -155,6 +155,18 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	int height = this->height();
 	SETTINGS()->windowSize = Int2(width, height);
 
+	// Resize cameras
+	// NOTE: Don't know if this should be here,
+	// but in the meantime...
+	DataMapper<Data::Camera> map_camera;
+	while(map_camera.hasNext())
+	{
+		Data::Camera* d_camera = map_camera.next();
+		float aspectRatio =  static_cast<float>(width)/height;
+		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 1.0f, 3000.0f);
+	}
+
+	// Notify rest of code
 	SEND_EVENT(&Event_WindowResize(width, height));
 }
 
@@ -237,25 +249,9 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		break;
 	case Qt::Key_Shift:
 		SETTINGS()->button.key_shift = state;
-		if(SETTINGS()->button.key_shift)
-		{
-			DEBUGPRINT("Shift: On");
-		}
-		else
-		{
-			DEBUGPRINT("Shift: Off");
-		}
 		break;
 	case Qt::Key_Control:
 		SETTINGS()->button.key_ctrl = state;
-		if(SETTINGS()->button.key_ctrl)
-		{
-			DEBUGPRINT("Ctrl: On");
-		}
-		else
-		{
-			DEBUGPRINT("Ctrl: Off");
-		}
 		break;
 	case Qt::Key_Alt:
 		SETTINGS()->button.key_alt = state;

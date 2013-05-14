@@ -5,14 +5,10 @@
 
 #include <d3d11.h>
 #include "Buffer.h"
+#include "CBuffers.h"
 #include "Factory_Geometry.h"
 #include "Vertex.h"
 #include "DDSTextureLoader.h"
-
-struct ConstantBuffer
-{
-	Matrix WVP;
-};
 
 class Sky
 {
@@ -28,11 +24,11 @@ private:
 
 	ID3D11Device* m_device;
 	ID3D11DeviceContext* m_context;
-	ID3D11ShaderResourceView* mCubeMapSRV;
+	ID3D11ShaderResourceView* m_rv_cubeMap;
 
 	UINT mIndexCount;
 public:
-	Sky(ID3D11Device* device, const std::wstring& cubemapFilename, float skySphereRadius);
+	Sky(ID3D11Device* device, const std::string& cubemapFilename, float sphereRadius);
 	~Sky();
 
 	ID3D11ShaderResourceView* CubeMapSRV();

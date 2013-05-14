@@ -103,11 +103,8 @@
     <ClInclude Include="TexLoader.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Handle_CamViewPlane.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="Handle_OmniDimensionalScaling.h">
-      <Filter>Source\Tools</Filter>
+    <ClInclude Include="CBuffers.h">
+      <Filter>Source\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -180,11 +177,8 @@
     <ClCompile Include="TexLoader.cpp">
       <Filter>Source\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Handle_CamViewPlane.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Handle_OmniDimensionalScaling.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Factory_Geometry.cpp">
+      <Filter>Source\Util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

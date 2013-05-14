@@ -547,7 +547,8 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 	DEBUGPRINT(" Entity: " + Converter::IntToStr(clickedEntity->id()));
 
 	// Debug selection
-	DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+	if(map_selected.dataCount()>0)
+		DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
 	while(map_selected.hasNext())
 	{
 		Entity* e = map_selected.nextEntity();
@@ -647,7 +648,7 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 	QFileInfoList list = dir.entryInfoList();
 	foreach(QFileInfo i, list)
 	{
-		QString filename = i.fileName();
+		QString filename = i.baseName();
 		//DEBUGPRINT(filename.toStdString());
 
 		QIcon icon(path + "/" + filename);
