@@ -351,9 +351,7 @@ void Tool_Translation::setActiveObject(int entityId)
 
 if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 {
-		this->activeEntityId = e->id();
-
-		Data::Selected::lastSelected->toPointer();
+		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
