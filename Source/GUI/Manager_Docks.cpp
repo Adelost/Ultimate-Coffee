@@ -321,9 +321,11 @@ void Manager_Docks::onEvent(IEvent* e)
 		{
 			Event_AddCommandToCommandHistoryGUI* commandEvent = static_cast<Event_AddCommandToCommandHistoryGUI*>(e);
 			Command* command = commandEvent->command;
+			bool hidden = commandEvent->hidden;
+			int mergeNumber = commandEvent->mergeNumber;
 			
 			QIcon commandIcon;
-			QString commandText = "UNKNOWN COMMAND";
+			std::string commandText = "UNKNOWN COMMAND";
 			Enum::CommandType type = command->getType();
 			switch(type)
 			{
@@ -368,8 +370,14 @@ void Manager_Docks::onEvent(IEvent* e)
 				}
 			}
 
-			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandText);
+			if(mergeNumber > 0)
+			{
+				commandText += " (" +Converter::IntToStr(mergeNumber) +")";
+			}
+			QString commandtextAsQString = commandText.c_str();
+			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
 			m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			item->setHidden(hidden);
 			//commandHistoryListWidget->setItemSelected(item, true);
 
 			//int nrOfListItems = commandHistoryListWidget->count();
@@ -533,6 +541,8 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 	// Add new selection
 	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
+	if(index_list.count() == 0)
+		Data::Selected::lastSelected.invalidate();
 	foreach(QModelIndex index, index_list)
 	{
 		int entityId = index.row();
@@ -540,20 +550,13 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 		e->addData(Data::Selected());
 	}
 
-	// Choose clicked entity
+	// If clicked was selected (not deselected with CTRL click)
+	// add as LastClicked
 	Entity* clickedEntity = Entity::findEntity(index.row());
-	Data::Selected::lastSelected = clickedEntity->asPointer();
-	DEBUGPRINT("CLICKED:");
-	DEBUGPRINT(" Entity: " + Converter::IntToStr(clickedEntity->id()));
-
-	// Debug selection
-	if(map_selected.dataCount()>0)
-		DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
-	while(map_selected.hasNext())
-	{
-		Entity* e = map_selected.nextEntity();
-		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-	}
+	if(clickedEntity->fetchData<Data::Selected>())
+		Data::Selected::select(clickedEntity);
+	else
+		Data::Selected::findLastSelected();
 
 	// Inform about selection
 	SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));

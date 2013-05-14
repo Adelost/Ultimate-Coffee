@@ -383,6 +383,12 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			d_transform->position.y = e->m_transY;
 			d_transform->position.z = e->m_transZ;
 
+
+			if(currentlyChosenTransformTool)
+			{
+				currentlyChosenTransformTool->setActiveObject(1);
+			}
+
 			//if(currentlyChosenTransformTool->getActiveObject() == e->m_idOfTranslatableSceneEntity) // SELECTION HACK
 			//	currentlyChosenTransformTool->updateWorld();
 
@@ -392,9 +398,21 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 		}
 	case EVENT_ENTITY_SELECTION:
 		{
-			// TODO:
-			// Code goes here.
+			// Debug selection
+			DEBUGPRINT("");
+			DataMapper<Data::Selected> map_selected;
+			if(Data::Selected::lastSelected.isValid())
+				DEBUGPRINT("LAST_SELECTED: " + Converter::IntToStr(Data::Selected::lastSelected->id()));
+			DEBUGPRINT("SELECTED");
+			if(map_selected.dataCount() == 0)
+				DEBUGPRINT(" NONE");
+			while(map_selected.hasNext())
+			{
+				Entity* e = map_selected.nextEntity();
+				DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+			}
 
+			// Code goes here.
 			if(currentlyChosenTransformTool)
 			{
 				currentlyChosenTransformTool->setActiveObject(1);

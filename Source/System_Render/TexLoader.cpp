@@ -6,7 +6,7 @@
 
 
 
-HRESULT createTexFromFile( ID3D11Device* device, std::string file, ID3D11ShaderResourceView** srv )
+void createTextureFromFile( ID3D11Device* device, std::string file, ID3D11ShaderResourceView** srv )
 {
 	wchar_t* wstr = Converter::StrlToWstr(file);
 	HRESULT hr = DirectX::CreateDDSTextureFromFile(
@@ -16,5 +16,9 @@ HRESULT createTexFromFile( ID3D11Device* device, std::string file, ID3D11ShaderR
 		srv);
 
 	delete[] wstr;
-	return hr;
+
+	if(FAILED(hr))
+	{
+		DEBUGPRINT("ManagementTex::handleTexDesc Could not load texture: " + file);
+	}
 }

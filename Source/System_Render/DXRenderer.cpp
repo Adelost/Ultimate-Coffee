@@ -66,7 +66,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
-//	m_sky = new Sky(m_dxDevice, "root/Textures/Skyboxes/plain.dds", 5000.0f);
+	m_sky = new Sky(m_dxDevice, m_dxDeviceContext, "root/Textures/Skyboxes/plain.dds", 5000.0f);
 	
 	return result;
 }
@@ -107,6 +107,7 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->ClearRenderTargetView(m_view_renderTarget, static_cast<const float*>(SETTINGS()->backBufferColor));
 	m_dxDeviceContext->ClearDepthStencilView(m_view_depthStencil, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
 	m_dxDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
@@ -137,11 +138,17 @@ void DXRenderer::renderFrame()
 	DataMapper<Data::Render> map_render;
 	while(map_render.hasNext())
 	{
-		Entity* entity = map_render.nextEntity();
-		Data::Transform* d_transform = entity->fetchData<Data::Transform>();
-		Data::Render* d_render= entity->fetchData<Data::Render>();
+		Entity* e = map_render.nextEntity();
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		Data::Render* d_render= e->fetchData<Data::Render>();
 
-		m_CBPerObject.world = d_transform->toWorldMatrix();
+		Matrix mat_scale;
+		if(e->fetchData<Data::Selected>())
+			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
+		else
+			mat_scale = Matrix::CreateScale(d_transform->scale);
+
+		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
 		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
 		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
 		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
@@ -261,7 +268,7 @@ bool DXRenderer::initDX()
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
 
-	m_dxDeviceContext->IASetInputLayout(m_inputLayout);
+	
 
 
 	// Create box
