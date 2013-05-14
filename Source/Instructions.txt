@@ -62,3 +62,4 @@ case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
 
 ->GUI
 För att ange hur kommandot skall se ut i Qt-listan, gör ingrepp i Manager_Docks::onEvent, under "case EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI:".
+För att samla flera event under samma event i GUI-listan, avvänd eventet: Event_StoreCommandsAsSingleEntryInCommandHistoryGUI.

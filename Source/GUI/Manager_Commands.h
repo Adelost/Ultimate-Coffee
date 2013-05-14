@@ -22,11 +22,13 @@ private:
 	QToolBar* m_toolbar_commands;
 	Commander* m_commander;
 	CommanderSpy* m_commanderSpy;
-	QAction* m_action_redo;
-	QAction* m_action_undo;
 	std::string m_lastValidProjectPath;
 	//QTimer soundTimer;
 	//int nrOfSoundsPlayedSinceLastReset;
+
+	void storeCommandInCommandHistory(Command* command, bool execute, int nrOfJumps, bool hiddenInGUIList, int GUI_MergeNumber = 0);
+	void jumpInCommandHistory(int commandHistoryIndex);
+	void updateCurrentCommandGUI();
 
 public:
 	void init();
