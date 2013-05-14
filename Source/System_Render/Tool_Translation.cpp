@@ -351,21 +351,15 @@ while(map_selected.hasNext())
 	//}
  }
 
-
 if(thereIsAtLeastOneSelectedEntity)
 {
 		this->activeEntityId = e->id();
 
-		if(activeEntityId == -1)
-		{
-			int test = 4;
-		}
-
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
 }
-
- int test = 3;
+else
+	activeEntityId = -1;
 
 	//if(map_selected.hasNext())
 	//{
