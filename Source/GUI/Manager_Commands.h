@@ -7,6 +7,7 @@ class Window;
 namespace Ui{class MainWindow;}
 class QToolBar;
 class Commander;
+class CommanderSpy;
 class QAction;
 class QSignalMapper;
 
@@ -20,6 +21,7 @@ private:
 	Ui::MainWindow* m_ui;
 	QToolBar* m_toolbar_commands;
 	Commander* m_commander;
+	CommanderSpy* m_commanderSpy;
 	QAction* m_action_redo;
 	QAction* m_action_undo;
 	std::string m_lastValidProjectPath;

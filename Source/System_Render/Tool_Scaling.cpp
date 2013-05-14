@@ -13,6 +13,7 @@ Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 	isSelected = false;
 	currentlySelectedAxis = NULL;
 	currentlySelectedPlane = NULL;
+	currentlySelectedHandle = NULL;
 
 	XMFLOAT3 xDir(1.0f, 0.0f, 0.0f);
 	XMFLOAT3 yDir(0.0f, 1.0f, 0.0f);
@@ -58,11 +59,11 @@ Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 		boundingRectangle.P4 = XMFLOAT3( 0.0f, -1.0f, 0.0f);
 		xyScalingPlane2 = new Handle_ScalingPlane(-XMLoadFloat3(&zDir), 0.0f, boundingRectangle, /*windowHandle,*/ XY);
 
-	boundingRectangle.P1 = XMFLOAT3(-0.25f, -0.25f, 0.0f);
-	boundingRectangle.P2 = XMFLOAT3(-0.25f,  0.25f, 0.0f);
-	boundingRectangle.P3 = XMFLOAT3( 0.25f,  0.25f, 0.0f);
-	boundingRectangle.P4 = XMFLOAT3( 0.25f, -0.25f, 0.0f);
-	camViewScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&zDirNeg), 0.0f, boundingRectangle, /*windowHandle,*/ YZ);
+	//boundingRectangle.P1 = XMFLOAT3(-0.25f, -0.25f, 0.0f);
+	//boundingRectangle.P2 = XMFLOAT3(-0.25f,  0.25f, 0.0f);
+	//boundingRectangle.P3 = XMFLOAT3( 0.25f,  0.25f, 0.0f);
+	//boundingRectangle.P4 = XMFLOAT3( 0.25f, -0.25f, 0.0f);
+	//camViewScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&zDirNeg), 0.0f, boundingRectangle, /*windowHandle,*/ YZ);
 
 	relateToActiveObjectWorld = false;
 
@@ -84,7 +85,7 @@ Tool_Scaling::~Tool_Scaling()
 	delete xyScalingPlane2;
 	delete yzScalingPlane2;
 	delete zxScalingPlane2;
-	delete camViewScalingPlane;
+	delete omniScalingAxisHandle;
 
 	delete xScalingAxisHandle;
 	delete yScalingAxisHandle;
@@ -92,8 +93,6 @@ Tool_Scaling::~Tool_Scaling()
 	delete xScalingAxisHandle2;
 	delete yScalingAxisHandle2;
 	delete zScalingAxisHandle2;
-
-	delete omniScalingAxisHandle;
 
 	ReleaseCOM(mMeshTransTool_xAxisBox_VB);
 	ReleaseCOM(mMeshTransTool_yAxisBox_VB);
@@ -121,9 +120,8 @@ void Tool_Scaling::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
+bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint)
 {
-
 	bool boxSelected = false;
 	bool aTranslationToolHandleWasSelected = false;
 
@@ -212,17 +210,17 @@ bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &ra
 
 		if(!currentlySelectedAxis)
 		{
-			bool planeSelected = camViewScalingPlane->tryForSelection(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			bool planeSelected = omniScalingAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection, mouseCursorPoint);
 
 			// If the camera view translation plane is intersected, it is always selected...
 			if(planeSelected)
 			{
-				currentlySelectedPlane = camViewScalingPlane;
+				currentlySelectedHandle = omniScalingAxisHandle;
 				aTranslationToolHandleWasSelected = true;
 			}
 		}
 
-		if(!currentlySelectedPlane && !currentlySelectedAxis) // ... Else, the others are tested for intersection and prioritized by intersection point distance:
+		if(!currentlySelectedPlane && !currentlySelectedAxis && !currentlySelectedHandle) // ... Else, the others are tested for intersection and prioritized by intersection point distance:
 		{
 			bool planeSelected = false;
 
@@ -355,7 +353,9 @@ void Tool_Scaling::updateWorld()
 			zxScalingPlane2->setWorld(logicalWorld);
 			xyScalingPlane2->setWorld(logicalWorld);
 
-		camViewScalingPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
+		omniScalingAxisHandle->setWorld(logicalWorld);
+
+		//camViewScalingPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
 	}
 	else
 	{
@@ -433,24 +433,29 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		if(scaleDependantScaleFactorZ < 0.1f)
 			scaleDependantScaleFactorZ = 0.1f;
 
-		if(currentlySelectedPlane != camViewScalingPlane)
-		{
-			newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
-			newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
-			newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
+		transDelta.m128_f32[0] = originalWorldOfActiveObject._11 + transDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+		transDelta.m128_f32[1] = originalWorldOfActiveObject._22 + transDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+		transDelta.m128_f32[2] = originalWorldOfActiveObject._33 + transDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			if(newMatrix._11 < 0.01f)
-				newMatrix._11 = 0.01f;
-			if(newMatrix._22 < 0.01f)
-				newMatrix._22 = 0.01f;
-			if(newMatrix._33 < 0.01f)
-				newMatrix._33 = 0.01f;
-		}
-		else
-		{
-		}
+		//if(currentlySelectedPlane)
+		//{
+		//	newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
+		//	newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
+		//	newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = Vector3(newMatrix._11, newMatrix._22, newMatrix._33);
+		//	if(newMatrix._11 < 0.01f)
+		//		newMatrix._11 = 0.01f;
+		//	if(newMatrix._22 < 0.01f)
+		//		newMatrix._22 = 0.01f;
+		//	if(newMatrix._33 < 0.01f)
+		//		newMatrix._33 = 0.01f;
+		//}
+		//else
+		//{
+		//}
+
+		Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); 
+		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = Entity(activeEntityId).fetchData<Data::Transform>()->scale + Vector4(transDelta); //Vector3(transDelta.m128_f32[0], transDelta.m128_f32[1], transDelta.m128_f32[2]);
 	}
 	else if(currentlySelectedPlane)
 	{
@@ -473,24 +478,57 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		if(scaleDependantScaleFactorZ < 0.1f)
 			scaleDependantScaleFactorZ = 0.1f;
 
-		if(currentlySelectedPlane != camViewScalingPlane)
-		{
-			newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
-			newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
-			newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
+		transDelta.m128_f32[0] = originalWorldOfActiveObject._11 + transDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+		transDelta.m128_f32[1] = originalWorldOfActiveObject._22 + transDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+		transDelta.m128_f32[2] = originalWorldOfActiveObject._33 + transDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			if(newMatrix._11 < 0.01f)
-				newMatrix._11 = 0.01f;
-			if(newMatrix._22 < 0.01f)
-				newMatrix._22 = 0.01f;
-			if(newMatrix._33 < 0.01f)
-				newMatrix._33 = 0.01f;
-		}
-		else
-		{
-		}
+		//if(currentlySelectedPlane != camViewScalingPlane)
+		//{
+		//	newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
+		//	newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
+		//	newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = Vector3(newMatrix._11, newMatrix._22, newMatrix._33);
+		//	if(newMatrix._11 < 0.01f)
+		//		newMatrix._11 = 0.01f;
+		//	if(newMatrix._22 < 0.01f)
+		//		newMatrix._22 = 0.01f;
+		//	if(newMatrix._33 < 0.01f)
+		//		newMatrix._33 = 0.01f;
+		//}
+
+		Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); //newMatrix._11, newMatrix._22, newMatrix._33);
+	}
+	else if(currentlySelectedHandle)
+	{
+		omniScalingAxisHandle->update(mouseCursorPoint);
+		//omniScalingAxisHandle->calcLastScalingDelta();
+		POINT totalCursorDeltas = omniScalingAxisHandle->getTotalScalingDelta(); //getTotalMouseCursorXYDeltas(mouseCursorPoint);
+
+		float xScaleFactor = 0.01f;
+		float yScaleFactor = 0.01f;
+
+		float toolScaleDependantScaleFactor = scale;
+
+		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
+		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
+		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
+		float scaleDependantScaleFactorAvg = (scaleDependantScaleFactorX + scaleDependantScaleFactorY + scaleDependantScaleFactorZ) / 3;
+		
+		float xScaleContribution = totalCursorDeltas.x * xScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
+		float yScaleContribution = totalCursorDeltas.y * yScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;;
+
+		XMVECTOR newScale = XMVectorSet(	originalWorldOfActiveObject._11 + xScaleContribution + yScaleContribution,
+											originalWorldOfActiveObject._22 + xScaleContribution + yScaleContribution,
+											originalWorldOfActiveObject._33 + xScaleContribution + yScaleContribution, 1.0f);
+
+		if(newScale.m128_f32[0] < 0.01f)
+			newScale.m128_f32[0] = 0.01f;
+		if(newScale.m128_f32[1] < 0.01f)
+			newScale.m128_f32[1] = 0.01f;
+		if(newScale.m128_f32[2] < 0.01f)
+			newScale.m128_f32[2] = 0.01f;
+
+		Entity(activeEntityId).fetchData<Data::Transform>()->scale = newScale;
 	}
 }
 
@@ -505,9 +543,19 @@ void Tool_Scaling::unselect()
 		currentlySelectedPlane->unselect();
 		currentlySelectedPlane = NULL;
 	}
-	
-	currentlySelectedAxis = NULL;
 
+	if(currentlySelectedAxis)
+	{
+		currentlySelectedAxis->unselect();
+		currentlySelectedAxis = NULL;
+	}
+	
+	if(currentlySelectedHandle)
+	{
+		currentlySelectedHandle->unselect();
+		currentlySelectedHandle = NULL;
+	}
+	
 	//Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(activeEntityId);
 	//Entity e(activeEntityId);
 	//Data::Transform* trans = e.fetchData<Data::Transform>();
@@ -1195,7 +1243,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		listOfTrianglesAsPoints.push_back(trianglePointC);
 	}
 
-	omniScalingAxisHandle = new Handle_ScalingAxis(XMLoadFloat3(&zDir), listOfTrianglesAsPoints, 'z');
+	omniScalingAxisHandle = new Handle_OmniDimensionalScaling(listOfTrianglesAsPoints);
 	listOfTrianglesAsPoints.clear();
 
 	meshVertices.Vertices.clear();

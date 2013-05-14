@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Core/Math.h"
 #include "Tool_Selection.h"
+#include <Core/Util.h>
 
 Tool_Selection::Tool_Selection()
 {
@@ -24,11 +25,84 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 
 	MyRectangle selectionRectangle;
 
-	// The currently chosen transformation tool has an active object, then it is to be visible and selectable.
+	bool aTransformationToolWasSelected = false;
+	// If the currently chosen transformation tool has an active object, then it is to be visible and selectable.
 	if(currentlyChosenTransformationTool->getActiveObject())
 	{
-		currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView);
+		aTransformationToolWasSelected = currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, mouseCursorPoint);
 	}
+
+	if(!aTransformationToolWasSelected)
+	{
+		Entity* entity_camera = CAMERA_ENTITY().asEntity();
+		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+		// Compute picking ray
+		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+		Ray r;
+		//d_camera->getPickingRay(Vector2(mouseCursorPoint.x(), pos.y()), windowSize, &r);
+		d_camera->getPickingRay(Vector2(mouseCursorPoint.x, mouseCursorPoint.y), windowSize, &r);
+
+		// Translate ray to world space
+		Matrix mat_world = d_transform->toWorldMatrix();
+		r.position = Vector3::Transform(r.position, mat_world);
+		r.direction = Vector3::TransformNormal(r.direction, mat_world);
+		
+		DEBUGPRINT("");
+		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
+		DEBUGPRINT("");
+
+		// Find intersected Entity
+		Entity* e = Data::Bounding::intersect(r);
+		if(e)
+		{
+			// If Ctrl is pressed, Entity will be added to selection,
+			// otherwise previous selection will be cleared
+			ButtonState* buttonState = &SETTINGS()->button;
+			if(SETTINGS()->button.key_ctrl)
+			{
+				if(e->fetchData<Data::Selected>() == nullptr)
+				{
+					e->addData(Data::Selected());
+				}	
+				else
+				{
+					e->removeData<Data::Selected>();
+				}
+			}
+			else
+			{
+				Data::Selected::clearSelection();
+
+				e->addData(Data::Selected());
+			}
+
+			Data::Selected::lastSelected = e->asPointer();
+			//DEBUGPRINT("CLICKED:");
+			//DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+		}
+		else
+		{
+			if(!SETTINGS()->button.key_ctrl)
+			{
+				Data::Selected::clearSelection();
+			}
+		}
+
+		// Debug selection
+		DataMapper<Data::Selected> map_selected;
+		if(map_selected.dataCount()>0)
+			DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+		while(map_selected.hasNext())
+		{
+			Entity* e = map_selected.nextEntity();
+			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+		}
+
+
+		// Inform about selection
+		SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
 
 	// If a transformation tool handle is selected, it should be noted that the selection is already final with this function call,
 	// and so there is no need to call finalizeSelection elsewhere.
@@ -36,6 +110,7 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 	//bool aTransformationToolWasSelected = false;
 	//if(aTransformationToolWasSelected)
 	//	isSelected = false;
+	}
 }
 
 /* Called to get the last selected object(s). */

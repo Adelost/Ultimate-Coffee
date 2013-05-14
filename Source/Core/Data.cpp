@@ -6,7 +6,7 @@
 #include "DataMapper.h"
 #include "Entity.h"
 
-EntityPointer Data::Selected::pivot;
+EntityPointer Data::Selected::lastSelected;
 
 
 Entity* Data::Bounding::intersect( const Ray& ray )

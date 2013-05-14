@@ -524,7 +524,7 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 	delete commanderInfo;
 }
 
-void Manager_Docks::selectEntity( const QModelIndex & index )
+void Manager_Docks::selectEntity( const QModelIndex& index )
 {
 	DataMapper<Data::Selected> map_selected;
 
@@ -540,13 +540,23 @@ void Manager_Docks::selectEntity( const QModelIndex & index )
 		e->addData(Data::Selected());
 	}
 
+	// Choose clicked entity
+	Entity* clickedEntity = Entity::findEntity(index.row());
+	Data::Selected::lastSelected = clickedEntity->asPointer();
+	DEBUGPRINT("CLICKED:");
+	DEBUGPRINT(" Entity: " + Converter::IntToStr(clickedEntity->id()));
+
 	// Debug selection
-	DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+	if(map_selected.dataCount()>0)
+		DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
 	while(map_selected.hasNext())
 	{
 		Entity* e = map_selected.nextEntity();
 		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
 	}
+
+	// Inform about selection
+	SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
 }
 
 

@@ -4,7 +4,7 @@
 #include "ITool_Transformation.h"
 #include "Handle_ScalingAxis.h"
 #include "Handle_ScalingPlane.h"
-
+#include "Handle_OmniDimensionalScaling.h"
 
 #include "Effects.h"
 #include "Vertex.h"
@@ -68,7 +68,9 @@ private:
 	XMFLOAT4X4 world2;
 	float scale;
 
-	Handle_ScalingAxis	*omniScalingAxisHandle;
+	IHandle *currentlySelectedHandle;
+
+	Handle_OmniDimensionalScaling *omniScalingAxisHandle;
 
 	Handle_ScalingAxis	*xScalingAxisHandle,
 						*yScalingAxisHandle,
@@ -82,8 +84,9 @@ private:
 						*zxScalingPlane,
 						*xyScalingPlane2,
 						*yzScalingPlane2,
-						*zxScalingPlane2,
-						*camViewScalingPlane;
+						*zxScalingPlane2;
+	
+	//Handle_CamViewPlane *camViewPlane;
 	
 	Handle_ScalingAxis *currentlySelectedAxis;
 	Handle_ScalingPlane *currentlySelectedPlane;
@@ -105,7 +108,6 @@ private:
 	//ID3D11Buffer *xyPlaneBuffer;
 	//ID3D11Buffer *yzPlaneBuffer;
 	//ID3D11Buffer *zxPlaneBuffer;
-	
 
 public:
 	Tool_Scaling(/*HWND windowHandle*/);
@@ -113,7 +115,7 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
+	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint);
 
 	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any. */
 	void tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);

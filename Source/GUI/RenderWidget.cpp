@@ -69,70 +69,77 @@ void RenderWidget::mousePressEvent( QMouseEvent* e )
 	setFocus();
 	setMouseState(e, true);
 
-	// HACK: Select entity
-	QPoint pos = e->pos();
-	if(e->button() == Qt::LeftButton)
-	{
-		Entity* entity_camera = CAMERA_ENTITY().asEntity();
-		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
-		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+	//// HACK: Select entity
+	//QPoint pos = e->pos();
+	//if(e->button() == Qt::LeftButton)
+	//{
+	//	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	//	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+	//	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-		// Compute picking ray
-		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
-		Ray r;
-		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
+	//	// Compute picking ray
+	//	Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+	//	Ray r;
+	//	d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
 
-		// Translate ray to world space
-		Matrix mat_world = d_transform->toWorldMatrix();
-		r.position = Vector3::Transform(r.position, mat_world);
-		r.direction = Vector3::TransformNormal(r.direction, mat_world);
-		DEBUGPRINT("");
-		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
-		DEBUGPRINT("");
+	//	// Translate ray to world space
+	//	Matrix mat_world = d_transform->toWorldMatrix();
+	//	r.position = Vector3::Transform(r.position, mat_world);
+	//	r.direction = Vector3::TransformNormal(r.direction, mat_world);
+	//	DEBUGPRINT("");
+	//	DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
+	//	DEBUGPRINT("");
 
-		// Find intersected Entity
-		Entity* e = Data::Bounding::intersect(r);
-		if(e)
-		{
-			// If Ctrl is pressed, entity will be added to selection,
-			// otherwise previous selection will be cleared
-			ButtonState* buttonState = &SETTINGS()->button;
-			if(SETTINGS()->button.key_ctrl)
-			{
-				if(e->fetchData<Data::Selected>() == nullptr)
-				{
-					e->addData(Data::Selected());
-				}	
-				else
-				{
-					e->removeData<Data::Selected>();
-				}
-			}
-			else
-			{
-				Data::Selected::clearSelection();
+	//	// Find intersected Entity
+	//	Entity* e = Data::Bounding::intersect(r);
+	//	if(e)
+	//	{
+	//		// If Ctrl is pressed, Entity will be added to selection,
+	//		// otherwise previous selection will be cleared
+	//		ButtonState* buttonState = &SETTINGS()->button;
+	//		if(SETTINGS()->button.key_ctrl)
+	//		{
+	//			if(e->fetchData<Data::Selected>() == nullptr)
+	//			{
+	//				e->addData(Data::Selected());
+	//			}	
+	//			else
+	//			{
+	//				e->removeData<Data::Selected>();
+	//			}
+	//		}
+	//		else
+	//		{
+	//			Data::Selected::clearSelection();
 
-				e->addData(Data::Selected());
-			}
-		}
-		else
-		{
-			if(!SETTINGS()->button.key_ctrl)
-			{
-				Data::Selected::clearSelection();
-			}
-		}
+	//			e->addData(Data::Selected());
+	//		}
 
-		// Debug selection
-		DataMapper<Data::Selected> map_selected;
-		DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
-		while(map_selected.hasNext())
-		{
-			Entity* e = map_selected.nextEntity();
-			DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-		}
+	//		Data::Selected::lastSelected = e->asPointer();
+	//		DEBUGPRINT("CLICKED:");
+	//		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+	//	}
+	//	else
+	//	{
+	//		if(!SETTINGS()->button.key_ctrl)
+	//		{
+	//			Data::Selected::clearSelection();
+	//		}
+	//	}
 
-	}
+	//	// Debug selection
+	//	DataMapper<Data::Selected> map_selected;
+	//	DEBUGPRINT("SELECTED: " + Converter::IntToStr(map_selected.dataCount()));
+	//	while(map_selected.hasNext())
+	//	{
+	//		Entity* e = map_selected.nextEntity();
+	//		DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+	//	}
+
+
+	//	// Inform about selection
+	//	SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
+	//}
 }
 
 void RenderWidget::mouseReleaseEvent( QMouseEvent* p_event )
@@ -242,25 +249,9 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		break;
 	case Qt::Key_Shift:
 		SETTINGS()->button.key_shift = state;
-		if(SETTINGS()->button.key_shift)
-		{
-			DEBUGPRINT("Shift: On");
-		}
-		else
-		{
-			DEBUGPRINT("Shift: Off");
-		}
 		break;
 	case Qt::Key_Control:
 		SETTINGS()->button.key_ctrl = state;
-		if(SETTINGS()->button.key_ctrl)
-		{
-			DEBUGPRINT("Ctrl: On");
-		}
-		else
-		{
-			DEBUGPRINT("Ctrl: Off");
-		}
 		break;
 	case Qt::Key_Alt:
 		SETTINGS()->button.key_alt = state;

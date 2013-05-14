@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/stdafx.h>
 #include <Core/Converter.h>
 #include <Core/Data.h>
 #include <Core/Entity.h>
@@ -10,6 +9,7 @@
 #include <Core/IObserver.h>
 #include <Core/Settings.h>
 #include <Core/World.h>
+#include <Core/Util.h>
 
 #include <QAction>
 #include <QDockWidget.h>
@@ -34,6 +34,7 @@
 #include <QPushButton>
 #include <QDir>
 #include <QSplitter>
+
 
 // Paths
 #define ICON_PATH												\

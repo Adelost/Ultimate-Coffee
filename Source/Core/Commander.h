@@ -19,6 +19,7 @@ class Command;
 //--------------------------------------------------------------------------------------
 class Commander
 {
+	friend class CommanderSpy;
 private:
 	CommandHistory* m_commandHistory;
 
@@ -76,6 +77,7 @@ public:
 //--------------------------------------------------------------------------------------
 class CommandHistory
 {
+	friend class CommanderSpy;
 private:
 	std::vector<Command*> m_commands;		// Stores all commands that the "CommandHistory" is responsible for
 	int m_indexOfCurrentCommand;			// -1 means that no command is current

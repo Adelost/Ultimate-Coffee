@@ -1,7 +1,7 @@
 #ifndef IHANDLE_H
 #define IHANDLE_H
 
-//#include <Windows.h>
+#include <Windows.h>
 //#include <xnamath.h>
 
 class IHandle
@@ -9,6 +9,7 @@ class IHandle
 private:
 public:
 	virtual bool getIsSelected() = 0;
+	virtual void unselect() = 0;
 };
 
 #endif

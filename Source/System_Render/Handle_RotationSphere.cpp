@@ -213,3 +213,8 @@ void Handle_RotationSphere::setWorld(XMMATRIX &world)
 {
 	XMStoreFloat4x4(&this->world, world);
 }
+
+void Handle_RotationSphere::unselect()
+{
+	isSelected = false;
+}
