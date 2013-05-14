@@ -355,7 +355,7 @@ if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 {
 		this->activeEntityId = e->id();
 
-		Data::Selected::lastSelected->asPointer();
+		Data::Selected::lastSelected->toPointer();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();

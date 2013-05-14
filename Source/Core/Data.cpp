@@ -54,7 +54,7 @@ void Data::Selected::clearSelection()
 void Data::Selected::select( Entity* e )
 {
 	e->addData(Data::Selected());
-	Data::Selected::lastSelected = e->asPointer();
+	Data::Selected::lastSelected = e->toPointer();
 }
 
 void Data::Selected::unselect( Entity* e )
@@ -74,6 +74,6 @@ void Data::Selected::findLastSelected()
 	DataMapper<Data::Selected> map_selected;
 	if(map_selected.hasNext())
 	{
-		Data::Selected::lastSelected = map_selected.nextEntity()->asPointer();
+		Data::Selected::lastSelected = map_selected.nextEntity()->toPointer();
 	}
 }

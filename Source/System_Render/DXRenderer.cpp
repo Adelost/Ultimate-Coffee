@@ -60,7 +60,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
-	//m_sky = new Sky(m_dxDevice, "root/Textures/Skyboxes/plain.dds", 5000.0f);
+	m_sky = new Sky(m_dxDevice, m_dxDeviceContext, "root/Textures/Skyboxes/plain.dds", 5000.0f);
 	
 	return result;
 }

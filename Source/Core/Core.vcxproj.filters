@@ -205,7 +205,7 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
     <ClInclude Include="Util.h">
-      <Filter>Source\Util</Filter>
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

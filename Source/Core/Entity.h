@@ -29,7 +29,7 @@ public:
 	Saves the Entity into a batch pointer.
 	This makes it safer to access the Entity elsewhere.
 	*/
-	EntityPointer asPointer();
+	EntityPointer toPointer();
 
 	/**
 	Adds Data to Entity.

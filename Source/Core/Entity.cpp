@@ -32,7 +32,7 @@ int Entity::uniqueId()
 	return m_uniqueId;
 }
 
-EntityPointer Entity::asPointer()
+EntityPointer Entity::toPointer()
 {
 	EntityPointer ptr;
 	ptr.init(this);
