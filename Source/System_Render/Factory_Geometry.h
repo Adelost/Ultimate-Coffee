@@ -49,13 +49,7 @@ public:
 
 		std::vector<unsigned int> indexList()
 		{
-			std::vector<unsigned int> list(vertices.size());
-			for(int i=0; i<(int)vertices.size(); i++)
-			{
-				list[i] = indices[i];
-			}
-
-			return list;
+			return indices;
 		}
 
 		std::vector<VertexPosColNorm> createVertexList_posColNorm();

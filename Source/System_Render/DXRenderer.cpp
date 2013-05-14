@@ -142,7 +142,7 @@ void DXRenderer::renderFrame()
 
 	// Draw tools
 	m_manager_tools->update();
-	//m_manager_tools->draw(m_view_depthStencil);
+	m_manager_tools->draw(m_view_depthStencil);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));
@@ -258,7 +258,7 @@ bool DXRenderer::initDX()
 
 	// Create box
 	Factory_Geometry::MeshData box;
-//	Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
+	//Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
 	Factory_Geometry::instance()->createSphere(1.0f, 20, 20, box);
 	std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
 	std::vector<unsigned int> index_list = box.indexList();
