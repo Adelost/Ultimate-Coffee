@@ -648,7 +648,7 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 	QFileInfoList list = dir.entryInfoList();
 	foreach(QFileInfo i, list)
 	{
-		QString filename = i.fileName();
+		QString filename = i.baseName();
 		//DEBUGPRINT(filename.toStdString());
 
 		QIcon icon(path + "/" + filename);
