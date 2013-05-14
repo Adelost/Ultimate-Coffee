@@ -12,7 +12,8 @@ public:
 	{
 		VERTEX_BUFFER,
 		INDEX_BUFFER,
-		CONSTANT_BUFFER,
+		VS_CONSTANT_BUFFER,
+		PS_CONSTANT_BUFFER,
 
 		UNINITIALIZED,
 	};
@@ -29,6 +30,13 @@ private:
 	BufferType m_type;
 	unsigned int m_count;
 	unsigned int m_elementSize;
+
+	// Make a subclass or a manager?
+
+	// Constant buffers
+	static unsigned int m_numberOfVSConstantBuffers;
+	static unsigned int m_numberOfPSConstantBuffers;
+	unsigned int m_constantBufferNumber;
 
 public:
 	unsigned int count()

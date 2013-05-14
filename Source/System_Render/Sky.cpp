@@ -78,7 +78,7 @@ Sky::Sky( ID3D11Device* device, const std::string& cubemapFilename, float sphere
 
 	// Create constant buffer
 	m_WVPBuffer = new Buffer();
-	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
+	HR(m_WVPBuffer->init(Buffer::VS_CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
 	m_WVPBuffer->setDeviceContextBuffer(m_context);
 
 

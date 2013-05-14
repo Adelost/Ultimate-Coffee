@@ -16,7 +16,7 @@ private:
 	Buffer*	m_vertexBuffer;
 	Buffer*	m_indexBuffer;
 	Buffer*	m_WVPBuffer;
-	ConstantBuffer m_cbuffer;
+	CBPerObject m_cbuffer;
 	
 
 	float height_scale;
