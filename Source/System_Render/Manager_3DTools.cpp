@@ -383,6 +383,12 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			d_transform->position.y = e->m_transY;
 			d_transform->position.z = e->m_transZ;
 
+
+			if(currentlyChosenTransformTool)
+			{
+				currentlyChosenTransformTool->setActiveObject(1);
+			}
+
 			//if(currentlyChosenTransformTool->getActiveObject() == e->m_idOfTranslatableSceneEntity) // SELECTION HACK
 			//	currentlyChosenTransformTool->updateWorld();
 
@@ -392,9 +398,6 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 		}
 	case EVENT_ENTITY_SELECTION:
 		{
-			// TODO:
-			// Code goes here.
-
 			if(currentlyChosenTransformTool)
 			{
 				currentlyChosenTransformTool->setActiveObject(1);
