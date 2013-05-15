@@ -330,23 +330,13 @@ void Tool_Translation::setActiveObject(int entityId)
 	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
 	while(map_selected.hasNext())
 	{
-
 		e = map_selected.nextEntity();
 		Data::Selected* d_selected = e->fetchData<Data::Selected>();
-
 
 		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
 		XMFLOAT4X4 origWorld;
 		XMStoreFloat4x4(&origWorld, world);
 		originalWorldsOfSelectedEntities.push_back(origWorld);
-
-		//if(!map_selected.hasNext())
-		//{
-		//	this->activeEntityId = e->id();
-
-		//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-		//	updateWorld();
-		//}
 	 }
 
 if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
@@ -359,32 +349,6 @@ if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 	else
 		activeEntityId = -1;
 
-		//if(map_selected.hasNext())
-		//{
-		//	Entity* e;
-		//				
-		//	while(map_selected.hasNext())
-		//	{
-		//		Entity* e = map_selected.nextEntity();
-
-		//		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
-
-		//		XMFLOAT4X4 origWorld;
-		//		XMStoreFloat4x4(&origWorld, world);
-
-		//		originalWorldsOfSelectedEntities.push_back(origWorld);
-
-		//		//map_selected.next();
-
-		//		if(!map_selected.hasNext())
-		//		{
-		//			this->activeEntityId = e->id();
-
-		//			// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-		//			updateWorld();
-		//		}
-		//	}
-		//}
 }
 
 int Tool_Translation::getActiveObject()
@@ -491,7 +455,7 @@ void Tool_Translation::setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId)
 /* Called to send updated parameters to the translation tool, if it is still active. */
 void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
-	XMVECTOR transDelta;
+	XMVECTOR transDelta = XMVectorSet(0,0,0,0);
 	if(currentlySelectedAxis)
 	{
 		//currentlySelectedAxis->update(rayOrigin, rayDir, camView);
