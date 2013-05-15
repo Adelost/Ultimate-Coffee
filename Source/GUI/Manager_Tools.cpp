@@ -132,8 +132,8 @@ void Manager_Tools::setTool( int p_toolType )
 		SETTINGS()->selectedTool = m_selectedTool;
 		DEBUGPRINT("SELECTED TOOL: " + Converter::IntToStr(m_selectedTool));
 
-		// Do stuff
-
+		Event_SetTool e = Event_SetTool(m_selectedTool);
+		SEND_EVENT(&e);
 	}
 }
 

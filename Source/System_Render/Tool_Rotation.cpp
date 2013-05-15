@@ -5,7 +5,7 @@
 #include <Core/DataMapper.h>
 #include <Core/Events.h>
 
-//#include <Core/Command_TranslateSceneEntity.h>
+#include <Core/Command_RotateSceneEntity.h>
 
 Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 {
@@ -43,6 +43,9 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 	// TEST: Pretend we hit it.
 	rayIntersectsWithToolBoundingBox = true;
 	
+	if(activeEntityId != -1) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
+		updateWorld();
+
 	if(rayIntersectsWithToolBoundingBox)
 	{
 		// Check if the ray intersects with any of the control handles.
@@ -113,18 +116,49 @@ void Tool_Rotation::tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOr
 /* Called to bind the translatable object to the tool, so its translation can be modified. */
 void Tool_Rotation::setActiveObject(int entityId)
 {
-	this->activeEntityId = entityId;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
 
-	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-	updateWorld();
+	originalRotationQuatsOfActiveObject.clear();
 
-	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
-	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+		Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
-	XMVECTOR rotQuat = Entity(activeEntityId).fetchData<Data::Transform>()->rotation;
-	XMStoreFloat4(&originalRotationQuatOfActiveObject, rotQuat);
+		XMVECTOR rotQuat = e->fetchData<Data::Transform>()->rotation;
+		XMFLOAT4 origRotQuat;
+		XMStoreFloat4(&origRotQuat, rotQuat);
+		originalRotationQuatsOfActiveObject.push_back(origRotQuat);
+	 }
+
+	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
+	{
+		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
+
+		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+		updateWorld();
+	}
+	else
+		activeEntityId = -1;
 
 	omniRotateSphereHandle->resetRotationQuaternion();
+
+	//---
+
+	//this->activeEntityId = entityId;
+
+	//// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+	//updateWorld();
+
+	//XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	//XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+
+	//XMVECTOR rotQuat = Entity(activeEntityId).fetchData<Data::Transform>()->rotation;
+	//XMStoreFloat4(&originalRotationQuatOfActiveObject, rotQuat);
+
+	/*omniRotateSphereHandle->resetRotationQuaternion();*/
 }
 
 /* Called to set the entity at whose pivot the tool is to be displayed, when a selection of one or more entities has been made. */
@@ -202,6 +236,7 @@ bool Tool_Rotation::getIsSelected()
 /* Called to send updated parameters to the translation tool, if it is still active. */
 void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
+	XMVECTOR rotQuaternion = XMVectorSet(0, 0, 0, 1);
 	if(currentlySelectedHandle)
 	{
 		// Pick against the plane to update the translation delta.
@@ -209,13 +244,25 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 		{
 			omniRotateSphereHandle->pickSphere(selectionRectangle, rayOrigin, rayDir, camView, camProj, theViewport, mouseCursorPoint);
 
-			XMVECTOR rotQuaternion = omniRotateSphereHandle->getTotalRotationQuaternion(); //getLastRotationQuaternion();
+			rotQuaternion = omniRotateSphereHandle->getTotalRotationQuaternion(); //getLastRotationQuaternion();
 			
-			XMVECTOR newRotQuat = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatOfActiveObject), rotQuaternion);
-
-			Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
-			transform->rotation = newRotQuat;
+			//XMVECTOR newRotQuat = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatOfActiveObject), rotQuaternion);
+			//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
+			//transform->rotation = newRotQuat;
 		}
+	}
+
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+
+	int i = 0;
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+		Data::Selected* d_selected = e->fetchData<Data::Selected>();
+
+		e->fetchData<Data::Transform>()->rotation = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatsOfActiveObject.at(i)), rotQuaternion);
+		++i;
 	}
 }
 
@@ -230,9 +277,32 @@ void Tool_Rotation::translateObject()
 void Tool_Rotation::unselect()
 {
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
-	updateWorld();
+	//updateWorld();
 
 	currentlySelectedHandle = NULL;
+
+	std::vector<Command*> rotationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_RotateSceneEntity *command = new Command_RotateSceneEntity(e->id());
+		command->setDoRotQuat(trans->rotation.x, trans->rotation.y, trans->rotation.z, trans->rotation.w);
+		command->setUndoRotQuat(originalRotationQuatsOfActiveObject.at(i).x, originalRotationQuatsOfActiveObject.at(i).y, originalRotationQuatsOfActiveObject.at(i).z, originalRotationQuatsOfActiveObject.at(i).w);
+		rotationCommands.push_back(command);
+		
+		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		
+		++i;
+	}
+
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&rotationCommands, false));
+
+	setActiveObject(1);
 
 	// Set the cursor icon to the default/scene cursor icon.
 	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
@@ -463,7 +533,7 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 	
 	Entity e(activeEntityId);
 
-	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;;
+	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();

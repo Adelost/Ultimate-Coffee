@@ -10,6 +10,8 @@
 #include <Core/World.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 #include <Core/Command_TranslateSceneEntity.h>
+#include <Core/Command_RotateSceneEntity.h>
+#include <Core/Command_ScaleSceneEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -346,8 +348,42 @@ void Manager_Docks::onEvent(IEvent* e)
 				}
 			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
 				{
-					commandText = "Translate";
+					commandText = "Translating";
 					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
+
+					// Could have the translation tool icon be displayed, instead of a color, perhaps.
+
+					float r = 65.0f;
+					float g = 65.0f;
+					float b = 65.0f;
+
+					QColor color(r, g, b);
+					QPixmap pixmap(16, 16);
+					pixmap.fill(color);
+					commandIcon.addPixmap(pixmap);
+					break;
+				}
+			case Enum::CommandType::ROTATE_SCENE_ENTITY:
+				{
+					commandText = "Rotation";
+					Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
+
+					// Could have the translation tool icon be displayed, instead of a color, perhaps.
+
+					float r = 65.0f;
+					float g = 65.0f;
+					float b = 65.0f;
+
+					QColor color(r, g, b);
+					QPixmap pixmap(16, 16);
+					pixmap.fill(color);
+					commandIcon.addPixmap(pixmap);
+					break;
+				}
+			case Enum::CommandType::SCALE_SCENE_ENTITY:
+				{
+					commandText = "Scaling";
+					Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
 
 					// Could have the translation tool icon be displayed, instead of a color, perhaps.
 
@@ -376,7 +412,8 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 			QString commandtextAsQString = commandText.c_str();
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
-			m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			m_commandHistoryListWidget->addItem(item);
 			item->setHidden(hidden);
 			//commandHistoryListWidget->setItemSelected(item, true);
 

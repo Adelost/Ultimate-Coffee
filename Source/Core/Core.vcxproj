@@ -148,6 +148,8 @@
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="CommanderSpy.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
+    <ClCompile Include="Command_RotateSceneEntity.cpp" />
+    <ClCompile Include="Command_ScaleSceneEntity.cpp" />
     <ClCompile Include="Command_TranslateSceneEntity.cpp" />
     <ClCompile Include="Converter.cpp" />
     <ClCompile Include="Data.cpp" />
@@ -176,6 +178,8 @@
     <ClInclude Include="Commander.h" />
     <ClInclude Include="CommanderSpy.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />
+    <ClInclude Include="Command_RotateSceneEntity.h" />
+    <ClInclude Include="Command_ScaleSceneEntity.h" />
     <ClInclude Include="Command_TranslateSceneEntity.h" />
     <ClInclude Include="Converter.h" />
     <ClInclude Include="Data.h" />
