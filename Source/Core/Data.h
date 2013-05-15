@@ -27,6 +27,8 @@ namespace Data
 
 		Matrix toWorldMatrix();
 		Matrix toRotPosMatrix();
+		Matrix toPosMatrix();
+		Matrix toRotMatrix();
 	};
 
 	/**

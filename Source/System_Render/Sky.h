@@ -9,6 +9,7 @@
 #include "Factory_Geometry.h"
 #include "Vertex.h"
 #include "DDSTextureLoader.h"
+#include "RenderStates.h"
 
 class Sky
 {

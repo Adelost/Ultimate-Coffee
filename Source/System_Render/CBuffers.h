@@ -14,5 +14,12 @@ struct CBPerFrame
 	float ambient;
 	Vector3 dlDirection;
 	Vector3 dlColor;
-	float padding;
+	int drawDebug;
+};
+
+
+struct CBSettings
+{
+	bool ambient;
+	bool padding[15];
 };

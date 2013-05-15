@@ -4,6 +4,7 @@
 #include "Manager_3DTools.h"
 #include "Buffer.h"
 #include "Sky.h"
+#include "RenderStates.h"
 
 DXRenderer::DXRenderer()
 {
@@ -42,6 +43,7 @@ DXRenderer::~DXRenderer()
 	ReleaseCOM(m_view_renderTarget);
 	ReleaseCOM(m_view_depthStencil);
 	ReleaseCOM(m_dxSwapChain);
+	RenderStates::DestroyAll();
 	ReleaseCOM(m_tex_depthStencil);
 	if(m_dxDeviceContext)
 		m_dxDeviceContext->ClearState();
@@ -64,6 +66,8 @@ bool DXRenderer::init( HWND p_windowHandle )
 	m_viewport_screen = new D3D11_VIEWPORT();
 
 	result = initDX();
+	// Init RenderStates
+	RenderStates::InitAll(m_dxDevice);
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
@@ -118,6 +122,7 @@ void DXRenderer::renderFrame()
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_CBPerFrame.drawDebug = 0;
 	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	// Start rendering
@@ -132,8 +137,7 @@ void DXRenderer::renderFrame()
 		viewProjection = d_camera->viewProjection();
 	}
 
-
-	// Render all meshes
+		// Render all meshes
 	DataMapper<Data::Render> map_render;
 	while(map_render.hasNext())
 	{
@@ -141,11 +145,7 @@ void DXRenderer::renderFrame()
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
 		Data::Render* d_render= e->fetchData<Data::Render>();
 
-		Matrix mat_scale;
-	/*	if(e->fetchData<Data::Selected>())
-			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
-		else*/
-			mat_scale = Matrix::CreateScale(d_transform->scale);
+		Matrix mat_scale = Matrix::CreateScale(d_transform->scale);
 
 		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
 		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
@@ -153,11 +153,42 @@ void DXRenderer::renderFrame()
 		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
+
+	// Render all selected meshes
+	m_CBPerFrame.drawDebug = 1;
+	m_dxDeviceContext->RSSetState(RenderStates::WireframeRS);
+	m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		if(e->fetchData<Data::Render>())
+		{
+			Data::Transform* d_transform = e->fetchData<Data::Transform>();
+			Data::Render* d_render= e->fetchData<Data::Render>();
+
+			m_CBPerObject.world = d_transform->toWorldMatrix();
+			m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+			m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+			m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+			m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
+		}
+	}
+	m_dxDeviceContext->RSSetState(0);
+	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
+
+	// Draw SkyBox
 	m_sky->draw();
+
+	m_dxDeviceContext->RSSetState(0);
+	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
 
 	// Draw Tools
 	m_manager_tools->update();
 	m_manager_tools->draw(m_view_depthStencil);
+
+	
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));

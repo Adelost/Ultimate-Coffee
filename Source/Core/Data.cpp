@@ -103,6 +103,20 @@ Matrix Data::Transform::toRotPosMatrix()
 	return m;
 }
 
+Matrix Data::Transform::toPosMatrix()
+{
+	Matrix m = Matrix::CreateTranslation(position);
+
+	return m;
+}
+
+Matrix Data::Transform::toRotMatrix()
+{
+	Matrix m = Matrix::CreateFromQuaternion(rotation);
+
+	return m;
+}
+
 Data::Update::Update()
 {
 	direction = Math::randomDirection();
