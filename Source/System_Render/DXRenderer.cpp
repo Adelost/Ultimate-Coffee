@@ -27,7 +27,7 @@ DXRenderer::DXRenderer()
 
 	m_CBPerFrame.ambient = 0.2f;
 	m_CBPerFrame.dlColor = Vector3(1.0f, 1.0f, 1.0f);
-	m_CBPerFrame.dlDirection = Vector3(1.0f, 1.0f, -1.0f);
+	m_CBPerFrame.dlDirection = Vector3(0.0f, 1.0f, 0.0f);
 }
 
 DXRenderer::~DXRenderer()
