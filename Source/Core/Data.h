@@ -63,7 +63,7 @@ namespace Data
 		no intersection.
 		*/
 		static Entity* intersect(const Ray& ray);
-		bool intersect(Entity* entity, const Ray& ray);
+		bool intersect(Entity* entity, const Ray& ray, float* distance);
 	};
 
 	
