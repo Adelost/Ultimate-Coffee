@@ -15,7 +15,7 @@ cbuffer cbPerFrame
 	float3 dlColor;
 
 	// padding?
-	float padding;
+	//float padding;
 };
 
 struct VertexIn
@@ -51,5 +51,6 @@ float4 pixelMain( PixelIn pIn ) : SV_TARGET
 	float lightValue = max(dot(lightDir, normal), 0);
 	float3 light = dlColor*lightValue;
 	float3 ambientLight = float3(ambient, ambient, ambient);
-	return saturate(pIn.color*float4(light + ambientLight, 1));
+	return pIn.color*float4(light + ambientLight, 1);
+	//return float4(pIn.normal, 1);
 }

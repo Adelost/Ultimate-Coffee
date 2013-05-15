@@ -152,6 +152,7 @@ void DXRenderer::renderFrame()
 		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
 		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
 		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+		m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
 		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
