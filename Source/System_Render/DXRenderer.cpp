@@ -20,15 +20,21 @@ DXRenderer::DXRenderer()
 	m_viewport_screen = nullptr;
 	m_sky = nullptr;
 
-	m_CBuffer.WVP.Identity();
-	m_CBuffer.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
+	m_CBPerObject.world.Identity();
+	m_CBPerObject.WVP.Identity();
+	m_CBPerObject.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
+
+	m_CBPerFrame.ambient = 0.2f;
+	m_CBPerFrame.dlColor = Vector3(1.0f, 1.0f, 1.0f);
+	m_CBPerFrame.dlDirection = Vector3(1.0f, 1.0f, -1.0f);
 }
 
 DXRenderer::~DXRenderer()
 {
 	SafeDelete(m_vertexBuffer);
 	SafeDelete(m_indexBuffer);
-	SafeDelete(m_WVPBuffer);
+	SafeDelete(m_objectConstantBuffer);
+	SafeDelete(m_frameConstantBuffer);
 	ReleaseCOM(m_inputLayout);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
@@ -111,8 +117,9 @@ void DXRenderer::renderFrame()
 	UINT offset = 0;
 	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-
+	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	// Start rendering
 
@@ -141,9 +148,10 @@ void DXRenderer::renderFrame()
 		else
 			mat_scale = Matrix::CreateScale(d_transform->scale);
 
-		m_CBuffer.WVP = mat_scale * d_transform->toRotPosMatrix() * viewProjection;
-		m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
-		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_CBuffer, 0, 0);
+		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
+		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
 
@@ -282,13 +290,17 @@ bool DXRenderer::initDX()
 	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_dxDevice));
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
-	// Create constant buffer
+	// Create per object constant buffer
 
-	m_WVPBuffer = new Buffer();
-	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_CBuffer, m_dxDevice));
-	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_objectConstantBuffer = new Buffer();
+	HR(m_objectConstantBuffer->init(Buffer::VS_CONSTANT_BUFFER, sizeof(float), sizeof(m_CBPerObject)/sizeof(float), &m_CBPerObject, m_dxDevice));
+	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
+	// Create per frame constant buffer
 
+	m_frameConstantBuffer = new Buffer();
+	HR(m_frameConstantBuffer->init(Buffer::PS_CONSTANT_BUFFER, sizeof(float), sizeof(m_CBPerFrame)/sizeof(float), &m_CBPerFrame, m_dxDevice));
+	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	//Factory_Geometry::MeshData sphere;
 	//Factory_Geometry::instance()->createSphere(10.0f, 30, 30, sphere);

@@ -74,7 +74,7 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 	m_WVPBuffer = new Buffer();
 	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(Vector3), vertex_list.size(), &vertex_list[0], m_device));
 	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_device));
-	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
+	HR(m_WVPBuffer->init(Buffer::VS_CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
 	m_vertexBuffer->setDeviceContextBuffer(m_context);
 	m_indexBuffer->setDeviceContextBuffer(m_context);
 	m_WVPBuffer->setDeviceContextBuffer(m_context);

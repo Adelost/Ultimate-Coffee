@@ -16,7 +16,7 @@ private:
 	Buffer*	m_vertexBuffer;
 	Buffer*	m_indexBuffer;
 	Buffer*	m_WVPBuffer;
-	ConstantBuffer m_cbuffer;
+	CBPerObject m_cbuffer;
 	
 	ID3D11Device* m_device;
 	ID3D11DeviceContext* m_context;
