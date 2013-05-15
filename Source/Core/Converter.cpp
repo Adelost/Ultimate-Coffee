@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "Converter.h"
 
-std::string Converter::IntToStr( int n )
+std::string Converter::IntToStr(int n)
 {
 	std::stringstream ss;
 	ss << n;
 	return ss.str();
 }
 
-std::string Converter::FloatToStr( float f )
+std::string Converter::FloatToStr(float f)
 {
 	std::stringstream ss;
 	ss << std::fixed;
@@ -16,7 +16,7 @@ std::string Converter::FloatToStr( float f )
 	return ss.str();
 }
 
-int Converter::StrToInt( std::string str )
+int Converter::StrToInt(std::string str)
 {
 	int n;
 	std::stringstream ss(str);
@@ -29,7 +29,7 @@ int Converter::StrToInt( std::string str )
 	return n;
 }
 
-float Converter::StrToFloat( std::string str )
+float Converter::StrToFloat(std::string str)
 {
 	float n;
 	std::stringstream ss(str);
@@ -42,7 +42,7 @@ float Converter::StrToFloat( std::string str )
 	return n;
 }
 
-wchar_t* Converter::StrlToWstr( std::string string )
+wchar_t* Converter::StrlToWstr(std::string string)
 {
 	int wchars_num = MultiByteToWideChar(
 		CP_UTF8 , 
@@ -64,9 +64,10 @@ wchar_t* Converter::StrlToWstr( std::string string )
 	return wstr;
 }
 
-int Converter::convertBetweenCommandHistoryIndexAndGUIListIndex( int commandHistoryIndex, int nrOfCommands )
+int Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(int commandHistoryIndex, int nrOfCommands)
 {
 	/*
+	//check, obsolete 2013-05-15
 	The index of a command in the command history and the corresponding command in the GUI list is not the same,
 	because of "commandHistoryListWidget->insertItem(0, item);" in "Manager_Docks.cpp"
 
@@ -99,7 +100,8 @@ int Converter::convertBetweenCommandHistoryIndexAndGUIListIndex( int commandHist
 	*/
 	if(commandHistoryIndex != -1)
 	{
-		return nrOfCommands-1-commandHistoryIndex;
+		return commandHistoryIndex;
+		//return nrOfCommands-1-commandHistoryIndex;
 	}
 	else //special case: jump out of history
 	{

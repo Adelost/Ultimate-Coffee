@@ -376,7 +376,8 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 			QString commandtextAsQString = commandText.c_str();
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
-			m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			m_commandHistoryListWidget->addItem(item);
 			item->setHidden(hidden);
 			//commandHistoryListWidget->setItemSelected(item, true);
 
