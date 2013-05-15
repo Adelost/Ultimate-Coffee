@@ -148,8 +148,6 @@ void Manager_Tools::setTool( int p_toolType )
 		break;
 	case Enum::Tool_Entity:
 		{
-			if(SETTINGS()->button.mouse_left)
-				WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
 		}
 		break;
 	default:

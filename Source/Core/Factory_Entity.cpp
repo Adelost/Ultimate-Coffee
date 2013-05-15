@@ -30,19 +30,17 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		/*float s =  4.0f;
-		d_transform->position.x = Math::randomFloat(-s, s);
-		d_transform->position.y = Math::randomFloat(-s, s);
-		d_transform->position.z = Math::randomFloat(-s, s);
-		*/
-		static float d = -8.0f;
-		d += 4.0f;
-		d_transform->position.x = d;
-		d_transform->position.y = 0.0f;
-		d_transform->position.z = 0.0f;
+		d_transform->position.x = Math::randomFloat(-0.0f, 1.0f);
+		d_transform->position.y = Math::randomFloat(-0.2f, 0.2f);
+		d_transform->position.z = Math::randomFloat(-0.0f, 1.0f);
+		static float d = 10.0f;
+		d += 0.3f;
+		d_transform->position *= d;
+		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 		
 		e->addData(Data::Bounding());
 		e->addData(Data::Render());
+		e->addData(Data::Update());
 	}
 
 	if(p_type == ENTITY_CAMERA)

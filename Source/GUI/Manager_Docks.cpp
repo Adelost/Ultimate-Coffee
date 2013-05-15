@@ -508,7 +508,7 @@ void Manager_Docks::update()
 	{
 		Entity* e = map_trans.nextEntity();
 
-		if(entityCount >= rowCount && entityCount < 200)
+		if(entityCount >= rowCount && entityCount < 1000)
 		{
 			QStandardItem* item;
 			item = new QStandardItem(e->name().c_str());

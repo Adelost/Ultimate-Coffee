@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RenderWidget.h"
 #include <Core/DataMapper.h>
+#include <Core/Data_Camera.h>
 #include <QApplication.h>
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
@@ -233,6 +234,35 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 		else
 		{
 			SEND_EVENT(&Event_SetCursor(Event_SetCursor::NormalCursor));
+		}
+	}
+
+
+
+	// Hack place Entities if EntityTool is selected
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool == Enum::Tool_Entity)
+	{
+		// Compute picking ray to place entity onto
+		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+		Ray r;
+
+		Entity* cam = CAMERA_ENTITY().asEntity();
+		Data::Transform* d_transform = cam->fetchData<Data::Transform>();
+		Data::Camera* d_camera = cam->fetchData<Data::Camera>();
+		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
+
+		// Translate ray to world space
+		Matrix mat_world = d_transform->toRotPosMatrix();
+		r.position = Vector3::Transform(r.position, mat_world);
+		r.direction = Vector3::TransformNormal(r.direction, mat_world);
+
+		// Calculate entity position
+		{
+			Entity* entity = WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
+			entity->removeData<Data::Update>();
+			Data::Transform* d_transform = entity->fetchData<Data::Transform>();
+			Vector3 pos = r.position + r.direction * 15.0f;
+			d_transform->position = pos;
 		}
 	}
 }

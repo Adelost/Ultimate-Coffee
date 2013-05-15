@@ -266,7 +266,7 @@ bool DXRenderer::initDX()
 	// Create box
 	Factory_Geometry::MeshData box;
 	//Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
-	Factory_Geometry::instance()->createSphere(1.0f, 20, 20, box);
+	Factory_Geometry::instance()->createSphere(1.0f, 3, 3, box);
 	std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
 	std::vector<unsigned int> index_list = box.indexList();
 

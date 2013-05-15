@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Sky.h"
 
-#include "TexLoader.h"
+#include "TextureLoader.h"
 
 
 
@@ -10,6 +10,7 @@ Sky::~Sky()
 	SafeDelete(m_vertexBuffer);
 	SafeDelete(m_indexBuffer);
 	SafeDelete(m_WVPBuffer);
+	ReleaseCOM(m_inputLayout);
 }
 
 ID3D11ShaderResourceView* Sky::CubeMapSRV()
@@ -86,11 +87,31 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 
 
 
-	//CreateTextureFromDDS(
-	//createTextureFromFile(dev,        // the Direct3D device
-	//	L"Wood.png",    // load Wood.png in the local folder
-	//	nullptr,           // no additional information
-	//	nullptr,           // no multi threading
-	//	&pTexture,      // address of the shader-resource-view
-	//	nullptr);          // no multithreading
+	// Create shaders
+
+	ID3DBlob *PS_Buffer, *VS_Buffer;
+
+	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
+	HR(m_device->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
+
+	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
+	HR(m_device->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
+
+	m_context->PSSetShader(m_pixelShader, 0, 0);
+	m_context->VSSetShader(m_vertexShader, 0, 0);
+
+	// Create input layout
+	D3D11_INPUT_ELEMENT_DESC desc_pos[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	HR(m_device->CreateInputLayout(desc_pos, 1, VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), &m_inputLayout));
+
+	ReleaseCOM(VS_Buffer);
+	ReleaseCOM(PS_Buffer);
+
+
+
 }

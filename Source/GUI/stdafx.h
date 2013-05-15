@@ -10,6 +10,7 @@
 #include <Core/Settings.h>
 #include <Core/World.h>
 #include <Core/Util.h>
+#include <Core/Enums.h>
 
 #include <QAction>
 #include <QDockWidget.h>

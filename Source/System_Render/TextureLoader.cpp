@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TexLoader.h"
+#include "TextureLoader.h"
 
 #include <Core/Converter.h>
 #include "DDSTextureLoader.h"

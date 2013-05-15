@@ -76,5 +76,20 @@ namespace Data
 	public:
 		int meshId;
 	};
+
+	/**
+	Should contain everything render needs.
+	Position should be fetched from Translation.
+	*/
+	class Update : public Type<Update>
+	{
+	public:
+		Vector3 direction;
+		Vector3 rotation;
+		float speed;
+
+	public:
+		Update();
+	};
 }
 
