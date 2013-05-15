@@ -142,9 +142,9 @@ void DXRenderer::renderFrame()
 		Data::Render* d_render= e->fetchData<Data::Render>();
 
 		Matrix mat_scale;
-		if(e->fetchData<Data::Selected>())
+	/*	if(e->fetchData<Data::Selected>())
 			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
-		else
+		else*/
 			mat_scale = Matrix::CreateScale(d_transform->scale);
 
 		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
