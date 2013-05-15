@@ -1110,7 +1110,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;
 	listOfTrianglesAsPoints.resize(0);
-	ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
+	//ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
 
 	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
 	{
