@@ -77,3 +77,32 @@ void Data::Selected::findLastSelected()
 		Data::Selected::lastSelected = map_selected.nextEntity()->toPointer();
 	}
 }
+
+Matrix Data::Transform::toWorldMatrix()
+{
+	Matrix mat_scale = Matrix::CreateScale(scale);
+
+	Matrix m = mat_scale*toRotPosMatrix();
+	return m;
+}
+
+Matrix Data::Transform::toRotPosMatrix()
+{
+	Matrix mat_pos = Matrix::CreateTranslation(position);
+	Matrix mat_rot = Matrix::CreateFromQuaternion(rotation);
+
+	Matrix m = mat_rot*mat_pos;
+	return m;
+}
+
+Data::Update::Update()
+{
+	direction = Math::randomDirection();
+	speed = Math::randomFloat(0.0f, 0.3f);
+	Vector3 v = Math::randomVector();
+	v = v*2.0f - Vector3(1.0f);
+	float speed = 0.02f;
+	v = v*Math::Pi*2*speed;
+
+	rotation = v;
+}

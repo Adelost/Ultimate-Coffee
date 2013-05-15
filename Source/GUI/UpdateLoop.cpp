@@ -29,7 +29,7 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
-	for(int i=0; i<30; i++)
+	for(int i=0; i<2000; i++)
 	{
 		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->toPointer();
 	}

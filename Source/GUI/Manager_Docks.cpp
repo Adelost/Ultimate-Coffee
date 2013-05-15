@@ -321,9 +321,11 @@ void Manager_Docks::onEvent(IEvent* e)
 		{
 			Event_AddCommandToCommandHistoryGUI* commandEvent = static_cast<Event_AddCommandToCommandHistoryGUI*>(e);
 			Command* command = commandEvent->command;
+			bool hidden = commandEvent->hidden;
+			int mergeNumber = commandEvent->mergeNumber;
 			
 			QIcon commandIcon;
-			QString commandText = "UNKNOWN COMMAND";
+			std::string commandText = "UNKNOWN COMMAND";
 			Enum::CommandType type = command->getType();
 			switch(type)
 			{
@@ -368,8 +370,14 @@ void Manager_Docks::onEvent(IEvent* e)
 				}
 			}
 
-			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandText);
+			if(mergeNumber > 0)
+			{
+				commandText += " (" +Converter::IntToStr(mergeNumber) +")";
+			}
+			QString commandtextAsQString = commandText.c_str();
+			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
 			m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
+			item->setHidden(hidden);
 			//commandHistoryListWidget->setItemSelected(item, true);
 
 			//int nrOfListItems = commandHistoryListWidget->count();
@@ -500,7 +508,7 @@ void Manager_Docks::update()
 	{
 		Entity* e = map_trans.nextEntity();
 
-		if(entityCount >= rowCount && entityCount < 200)
+		if(entityCount >= rowCount && entityCount < 1000)
 		{
 			QStandardItem* item;
 			item = new QStandardItem(e->name().c_str());

@@ -993,7 +993,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Indices[0];
-	HR(md3dDevice->CreateBuffer(&ibd, &vinitData, &mMeshTransTool_axisArrow_IB));
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_axisArrow_IB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;

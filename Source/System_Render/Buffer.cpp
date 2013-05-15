@@ -3,19 +3,31 @@
 #include "Buffer.h"
 #include <Core/EventManager.h>
 
+// Set static variables to zero
+// Static counter of constant buffers in use
+unsigned int Buffer::m_numberOfVSConstantBuffers = 0;
+unsigned int Buffer::m_numberOfPSConstantBuffers = 0;
+
 Buffer::Buffer()
 {
 	m_buffer = nullptr;
 	m_type = BufferType::UNINITIALIZED;
 	m_elementSize = 0;
+	m_constantBufferNumber = 0;
 }
 
 Buffer::~Buffer()
 {
+	if(m_type == BufferType::VS_CONSTANT_BUFFER)
+		m_numberOfVSConstantBuffers--;
+	else if(m_type == BufferType::PS_CONSTANT_BUFFER)
+		m_numberOfPSConstantBuffers--;
+
 	ReleaseCOM(m_buffer);
 	m_buffer = nullptr;
 	m_type = BufferType::UNINITIALIZED;
 	m_elementSize = 0;
+	m_constantBufferNumber = 0;
 }
 
 HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int p_count, const void* p_data, ID3D11Device* p_device)
@@ -36,9 +48,18 @@ HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int
 			bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 			break;
 		}
-		case BufferType::CONSTANT_BUFFER:
+		case BufferType::VS_CONSTANT_BUFFER:
 		{
 			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			m_constantBufferNumber = m_numberOfVSConstantBuffers;
+			m_numberOfVSConstantBuffers++;
+			break;
+		}
+		case BufferType::PS_CONSTANT_BUFFER:
+		{
+			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			m_constantBufferNumber = m_numberOfPSConstantBuffers;
+			m_numberOfPSConstantBuffers++;
 			break;
 		}
 		default:
@@ -87,9 +108,14 @@ void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext)
 			p_deviceContext->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
 		}
 		break;
-	case BufferType::CONSTANT_BUFFER:
+	case BufferType::VS_CONSTANT_BUFFER:
 		{
-			p_deviceContext->VSSetConstantBuffers(0, 1, &m_buffer);
+			p_deviceContext->VSSetConstantBuffers(m_constantBufferNumber, 1, &m_buffer);
+		}
+		break;
+	case BufferType::PS_CONSTANT_BUFFER:
+		{
+			p_deviceContext->PSSetConstantBuffers(m_constantBufferNumber, 1, &m_buffer);
 		}
 		break;
 	case BufferType::UNINITIALIZED:

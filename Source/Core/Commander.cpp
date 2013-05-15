@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "Commander.h"
 #include "Command.h"
-#include <fstream>
 #include "Command_ChangeBackBufferColor.h"
 #include "Command_TranslateSceneEntity.h"
 #include <sys/stat.h> // struct stat
-#include <memory> // memcpy
-#include "Events.h"
+#include "Events.h" // MESSAGEBOX
 
 Commander::Commander(void)
 {
@@ -24,16 +22,6 @@ bool Commander::init()
 	return true;
 }
 
-bool Commander::undoIsPossible()
-{
-	return m_commandHistory->thereExistsCommandsBeforeCurrentCommand();
-}
-
-bool Commander::redoIsPossible()
-{
-	return m_commandHistory->thereExistsCommandsAfterCurrentCommand();
-}
-
 bool Commander::tryToAddCommandToHistoryAndExecute(Command* command)
 {
 	bool successfullyAdded = m_commandHistory->tryToAddCommand(command);
@@ -47,30 +35,6 @@ bool Commander::tryToAddCommandToHistoryAndExecute(Command* command)
 bool Commander::tryToAddCommandToHistory(Command* command)
 {
 	return m_commandHistory->tryToAddCommand(command);
-}
-
-bool Commander::tryToUndoLatestCommand()
-{
-	bool undoSucessful = false;
-	if(m_commandHistory->thereExistsCommandsBeforeCurrentCommand())
-	{
-		Command* command = m_commandHistory->getCurrentCommandAndDecrementCurrent();
-		command->undo();
-		undoSucessful = true;
-	}
-	return undoSucessful;
-}
-
-bool Commander::tryToRedoLatestUndoCommand()
-{
-	bool redoSucessful = false;
-	if(m_commandHistory->thereExistsCommandsAfterCurrentCommand())
-	{
-		Command* command = m_commandHistory->getNextCommandAndIncrementCurrent();
-		command->doRedo();
-		redoSucessful = true;
-	}
-	return redoSucessful;
 }
 
 bool Commander::tryToSaveCommandHistory(std::string path)
@@ -107,7 +71,7 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 	}
 	else
 	{
-		MESSAGEBOX("Struct stat did not work. Inform Henrik. Mailto spidermine1@hotmail.com")
+		MESSAGEBOX("Struct stat did not work. Inform Henrik: spidermine1@hotmail.com")
 	}
 
 	char* readData = new char[bufferSize];
@@ -125,36 +89,7 @@ bool Commander::tryToLoadCommandHistory(std::string path)
 
 bool Commander::tryToJumpInCommandHistory(int jumpToIndex)
 {
-	int indexOfCurrentCommand = m_commandHistory->getIndexOfCurrentCommand();
-	int nrOfCommands = m_commandHistory->getNrOfCommands();
-	if(jumpToIndex < -1 || jumpToIndex >= nrOfCommands || nrOfCommands < 1)
-	{
-		return false; // Jump failed. Possible reasons: *Trying to jump to invalid index. *No commands in command history.
-	}
-
-	int nrOfCommandsInvolvedInJump = 0;
-	if(indexOfCurrentCommand > -1) // Normal case: some command is current
-	{
-		if(jumpToIndex < indexOfCurrentCommand) // Backtrack by undoing commands
-		{
-			nrOfCommandsInvolvedInJump = indexOfCurrentCommand - jumpToIndex;
-			m_commandHistory->backwardJump(nrOfCommandsInvolvedInJump);
-		}
-		else if(jumpToIndex > indexOfCurrentCommand) // Jump forward by redoing commands
-		{
-			nrOfCommandsInvolvedInJump = jumpToIndex - indexOfCurrentCommand;
-			m_commandHistory->forwardJump(nrOfCommandsInvolvedInJump);
-		}
-		else if(jumpToIndex == indexOfCurrentCommand)
-		{
-			return true; // No jump needed. Treat jump as successful.
-		}
-	}
-	else // Special case: no command is current, i.e. the current command is the command before the first command, i.e. no command is current.
-	{
-		nrOfCommandsInvolvedInJump = nrOfCommands - jumpToIndex;
-		m_commandHistory->forwardJump(nrOfCommandsInvolvedInJump);
-	}
+	return m_commandHistory->tryToJumpInCommandHistory(jumpToIndex);
 }
 
 void Commander::printCommandHistory()
@@ -256,25 +191,13 @@ bool CommandHistory::tryToAddCommand(Command* command)
 	return true;
 }
 
-Command* CommandHistory::getCurrentCommandAndDecrementCurrent()
-{
-	Command* command = m_commands.at(m_indexOfCurrentCommand);
-	setCurrentCommand(m_indexOfCurrentCommand-1);
-	return command;
-}
-
-Command* CommandHistory::getNextCommandAndIncrementCurrent()
-{
-	setCurrentCommand(m_indexOfCurrentCommand+1);
-	Command* command = m_commands.at(m_indexOfCurrentCommand);
-	return command;
-}
-
 void CommandHistory::forwardJump(int nrOfSteps)
 {
 	for(int i=0;i<nrOfSteps;i++)
 	{
-		Command* command = getNextCommandAndIncrementCurrent();
+		//Command* command = getNextCommandAndIncrementCurrent();
+		setCurrentCommand(m_indexOfCurrentCommand+1);
+		Command* command = m_commands.at(m_indexOfCurrentCommand);
 		command->doRedo();
 	}
 }
@@ -283,21 +206,46 @@ void CommandHistory::backwardJump(int nrOfSteps)
 {
 	for(int i=0;i<nrOfSteps;i++)
 	{
-		Command* command = getCurrentCommandAndDecrementCurrent();
+		//Command* command = getCurrentCommandAndDecrementCurrent();
+		Command* command = m_commands.at(m_indexOfCurrentCommand);
+		setCurrentCommand(m_indexOfCurrentCommand-1);
 		command->undo();
 	}
 }
 
-bool CommandHistory::thereExistsCommandsAfterCurrentCommand()
+bool CommandHistory::tryToJumpInCommandHistory(int jumpToIndex)
 {
 	int nrOfCommands = m_commands.size();
-	int differance = abs(m_indexOfCurrentCommand-nrOfCommands);
-	return (differance > 1 && nrOfCommands > 0);
-}
+	if(jumpToIndex < -1 || jumpToIndex >= nrOfCommands || nrOfCommands < 1)
+	{
+		return false; // Jump failed. Possible reasons: *Trying to jump to invalid index. *No commands in command history.
+	}
 
-bool CommandHistory::thereExistsCommandsBeforeCurrentCommand()
-{
-	return (m_indexOfCurrentCommand > -1);
+	int nrOfCommandsInvolvedInJump = 0;
+	if(m_indexOfCurrentCommand > -1) // Normal case: some command is current
+	{
+		if(jumpToIndex < m_indexOfCurrentCommand) // Backtrack by undoing commands
+		{
+			nrOfCommandsInvolvedInJump = m_indexOfCurrentCommand - jumpToIndex;
+			backwardJump(nrOfCommandsInvolvedInJump);
+		}
+		else if(jumpToIndex > m_indexOfCurrentCommand) // Jump forward by redoing commands
+		{
+			nrOfCommandsInvolvedInJump = jumpToIndex - m_indexOfCurrentCommand;
+			forwardJump(nrOfCommandsInvolvedInJump);
+		}
+		else if(jumpToIndex == m_indexOfCurrentCommand)
+		{
+			return true; // No jump needed. Treat jump as successful.
+		}
+	}
+	else // Special case: no command is current, i.e. the current command is the command before the first command, i.e. no command is current.
+	{
+		nrOfCommandsInvolvedInJump = 1;
+		forwardJump(nrOfCommandsInvolvedInJump);
+	}
+
+	return true;
 }
 
 char* CommandHistory::receiveSerializedByteFormat(int& byteSize)
@@ -373,7 +321,7 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 			}
 		default:
 			{
-				return false;
+				return false; // Unknown command type found
 				break;
 			}
 		}

@@ -26,3 +26,18 @@ void Math::init()
 {
 	srand((unsigned)time(nullptr));
 }
+
+DirectX::SimpleMath::Vector3 Math::randomDirection()
+{
+	Vector3 v(Math::randomFloat(-1.0f, 1.0f), Math::randomFloat(-1.0f, 1.0f), Math::randomFloat(-1.0f, 1.0f));
+	v.Normalize();
+
+	return v;
+}
+
+DirectX::SimpleMath::Vector3 Math::randomVector()
+{
+	Vector3 v(Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f));
+
+	return v;
+}

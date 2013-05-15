@@ -19,16 +19,23 @@ DXRenderer::DXRenderer()
 	m_tex_depthStencil = nullptr;
 	m_viewport_screen = nullptr;
 	m_sky = nullptr;
+	m_msaa_enable = true;
 
-	m_CBuffer.WVP.Identity();
-	m_CBuffer.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
+	m_CBPerObject.world.Identity();
+	m_CBPerObject.WVP.Identity();
+	m_CBPerObject.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
+
+	m_CBPerFrame.ambient = 0.2f;
+	m_CBPerFrame.dlColor = Vector3(1.0f, 1.0f, 1.0f);
+	m_CBPerFrame.dlDirection = Vector3(1.0f, 1.0f, -1.0f);
 }
 
 DXRenderer::~DXRenderer()
 {
 	SafeDelete(m_vertexBuffer);
 	SafeDelete(m_indexBuffer);
-	SafeDelete(m_WVPBuffer);
+	SafeDelete(m_objectConstantBuffer);
+	SafeDelete(m_frameConstantBuffer);
 	ReleaseCOM(m_inputLayout);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
@@ -111,8 +118,9 @@ void DXRenderer::renderFrame()
 	UINT offset = 0;
 	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-
+	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	// Start rendering
 
@@ -131,13 +139,20 @@ void DXRenderer::renderFrame()
 	DataMapper<Data::Render> map_render;
 	while(map_render.hasNext())
 	{
-		Entity* entity = map_render.nextEntity();
-		Data::Transform* d_transform = entity->fetchData<Data::Transform>();
-		Data::Render* d_render= entity->fetchData<Data::Render>();
+		Entity* e = map_render.nextEntity();
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		Data::Render* d_render= e->fetchData<Data::Render>();
 
-		m_CBuffer.WVP = d_transform->toWorldMatrix() * viewProjection;
-		m_CBuffer.WVP = XMMatrixTranspose(m_CBuffer.WVP);
-		m_dxDeviceContext->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_CBuffer, 0, 0);
+		Matrix mat_scale;
+		if(e->fetchData<Data::Selected>())
+			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
+		else
+			mat_scale = Matrix::CreateScale(d_transform->scale);
+
+		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
+		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
 
@@ -192,12 +207,12 @@ bool DXRenderer::initDX()
 	// sample description, used to set MSAA
 	HR(m_dxDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m_msaa_quality));
 	assert(m_msaa_quality > 0);
-	//if(msaa_enable)
-	//{
-	//	desc_sc.SampleDesc.Count   = 4;
-	//	desc_sc.SampleDesc.Quality = msaa_quality-1;
-	//}
-	//else
+	if(m_msaa_enable)
+	{
+		desc_sc.SampleDesc.Count   = 4;
+		desc_sc.SampleDesc.Quality = m_msaa_quality-1;
+	}
+	else
 	{
 		desc_sc.SampleDesc.Count   = 1;
 		desc_sc.SampleDesc.Quality = 0;
@@ -260,7 +275,7 @@ bool DXRenderer::initDX()
 	// Create box
 	Factory_Geometry::MeshData box;
 	//Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
-	Factory_Geometry::instance()->createSphere(1.0f, 20, 20, box);
+	Factory_Geometry::instance()->createSphere(1.0f, 3, 3, box);
 	std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
 	std::vector<unsigned int> index_list = box.indexList();
 
@@ -276,13 +291,17 @@ bool DXRenderer::initDX()
 	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_dxDevice));
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
-	// Create constant buffer
+	// Create per object constant buffer
 
-	m_WVPBuffer = new Buffer();
-	HR(m_WVPBuffer->init(Buffer::CONSTANT_BUFFER, sizeof(float), 16, &m_CBuffer, m_dxDevice));
-	m_WVPBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+	m_objectConstantBuffer = new Buffer();
+	HR(m_objectConstantBuffer->init(Buffer::VS_CONSTANT_BUFFER, sizeof(float), sizeof(m_CBPerObject)/sizeof(float), &m_CBPerObject, m_dxDevice));
+	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
+	// Create per frame constant buffer
 
+	m_frameConstantBuffer = new Buffer();
+	HR(m_frameConstantBuffer->init(Buffer::PS_CONSTANT_BUFFER, sizeof(float), sizeof(m_CBPerFrame)/sizeof(float), &m_CBPerFrame, m_dxDevice));
+	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	//Factory_Geometry::MeshData sphere;
 	//Factory_Geometry::instance()->createSphere(10.0f, 30, 30, sphere);
@@ -342,12 +361,12 @@ void DXRenderer::resizeDX()
 	desc_depthStencil.ArraySize = 1;								// nr of textures in a texture array
 	desc_depthStencil.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;	// format
 	// set MSSA, settings must match those in swap chain
-	//if(msaa_enable)
-	//{
-	//	desc_depthStencil.SampleDesc.Count   = 4;
-	//	desc_depthStencil.SampleDesc.Quality = msaa_quality-1;
-	//}
-	//else
+	if(m_msaa_enable)
+	{
+		desc_depthStencil.SampleDesc.Count   = 4;
+		desc_depthStencil.SampleDesc.Quality = m_msaa_quality-1;
+	}
+	else
 	{
 		desc_depthStencil.SampleDesc.Count   = 1;
 		desc_depthStencil.SampleDesc.Quality = 0;

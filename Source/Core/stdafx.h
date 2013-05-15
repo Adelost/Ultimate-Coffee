@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <windows.h>
+#include <fstream>
+#include <memory>
 
 #include "Util.h"
 #include "Converter.h"

@@ -16,7 +16,7 @@ private:
 	Buffer*	m_vertexBuffer;
 	Buffer*	m_indexBuffer;
 	Buffer*	m_WVPBuffer;
-	ConstantBuffer m_cbuffer;
+	CBPerObject m_cbuffer;
 	
 	ID3D11Device* m_device;
 	ID3D11DeviceContext* m_context;
@@ -24,6 +24,7 @@ private:
 
 	ID3D11VertexShader*	m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
+	ID3D11InputLayout* m_inputLayout;
 
 	UINT mIndexCount;
 public:

@@ -39,12 +39,15 @@ private:
 	IDXGISwapChain*				m_dxSwapChain;
 	Buffer*						m_vertexBuffer;
 	Buffer*						m_indexBuffer;
-	Buffer*						m_WVPBuffer;
+	Buffer*						m_objectConstantBuffer;
+	Buffer*						m_frameConstantBuffer;
 	Sky*						m_sky;
 
-	ConstantBuffer				m_CBuffer;
-
-	UINT m_msaa_quality;
+	CBPerObject					m_CBPerObject;
+	CBPerFrame		
+	m_CBPerFrame;
+	bool m_msaa_enable;
+	unsigned int m_msaa_quality;
 	int m_clientHeight;
 	int m_clientWidth;
 	static DXRenderer* s_instance;

@@ -126,39 +126,13 @@ QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, int p_type, s
 void Manager_Tools::setTool( int p_toolType )
 {
 	m_selectedTool = static_cast<Enum::ToolType>(p_toolType);
-	SETTINGS()->selectedTool = m_selectedTool;
-
-	switch(m_selectedTool)
+	if(SETTINGS()->selectedTool != m_selectedTool)
 	{
-	case Enum::Tool_Translate:
-		{
-		}
-		break;
-	case Enum::Tool_Rotate:
-		{
-		}
-		break;
-	case Enum::Tool_Geometry:
-		{
-		}
-		break;
-	case Enum::Tool_Scale:
-		{
-		}
-		break;
-	case Enum::Tool_Entity:
-		{
-			if(SETTINGS()->button.mouse_left)
-				WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
-		}
-		break;
-	default:
-		{
-		}		
-	}
+		SETTINGS()->selectedTool = m_selectedTool;
 
-	/*if(unset)
-		m_window->renderWidget()->unsetCursor();*/
+		// Do stuff
+
+	}
 }
 
 void Manager_Tools::onEvent( IEvent* p_event )

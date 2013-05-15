@@ -10,8 +10,7 @@ class Command;
 //
 // Functionality:
 // *Store command (tryToAddCommandToHistory)
-// *Execute command (tryToAddCommandToHistoryAndExecute)
-// *Undo command (tryToUndoLatestCommand)
+// *Store and execute command (tryToAddCommandToHistoryAndExecute)
 // *Save command history to file (tryToSaveCommandHistory)
 // *Load command history from file (tryToLoadCommandHistory)
 // *Print command history information to std::cout (printCommandHistory)
@@ -29,24 +28,12 @@ public:
 	
 	// Initialilzes the command history. Success status is returned.
 	bool init();
-	
-	// Possible to use as a visual cue
-	bool redoIsPossible();
 
-	// Possible to use as a visual cue
-	bool undoIsPossible();
-	
 	// Stores "command" in the command history, and executes it, if it was successfully added. Returns true if "command" was successfully added, otherwise false.
 	bool tryToAddCommandToHistoryAndExecute(Command* command);
 
 	// Stores "command" in the command history, without executing it. Returns true if successfully added, otherwise false.
 	bool tryToAddCommandToHistory(Command* command);
-
-	// Returns true if undo was successful, otherwise false
-	bool tryToUndoLatestCommand();
-
-	// Returns true if redo was successful, otherwise false
-	bool tryToRedoLatestUndoCommand();
 
 	// Returns true if the command history was successfully saved to file given by "path", otherwise false
 	bool tryToSaveCommandHistory(std::string path);
@@ -54,7 +41,7 @@ public:
 	// Returns true if a command history was successfully loaded from file given by "path", otherwise false
 	bool tryToLoadCommandHistory(std::string path);
 
-	// Backtracks by undoing all commands from current until index is reached, OR track forward by redoing all commands from current until index is reached. Returns true if jump was successful, otherwise false.
+	// Jumps to "jumpToIndex" in command history. Returns true if successful, otherwise false.
 	bool tryToJumpInCommandHistory(int jumpToIndex);
 
 	// Prints command list to "std::cout"
@@ -69,11 +56,10 @@ public:
 // Encapsulates a vector of "Command"s and an index identifying the current command.
 // Functionality:
 // *Add command (tryToAddCommand)
-// *Retrieve command (getCurrentCommandAndDecrementCurrent, getNextCommandAndIncrementCurrent)
 // *Load from byte format (tryToLoadFromSerializationByteFormat)
 // *Save to byte format (receiveSerializedByteFormat)
 // *Retrieve as std::stringstream (getCommandHistoryAsText)
-// *History jumping (forwardJump, backwardJump)
+// *History jumping (tryToJumpInCommandHistory)
 //--------------------------------------------------------------------------------------
 class CommandHistory
 {
@@ -85,6 +71,12 @@ private:
 	void setCurrentCommand(int index);
 	int calculateSerializedByteSize();
 
+	// Tracks forward by redoing "nrOfSteps" "Command"s from current
+	void forwardJump(int nrOfSteps);
+
+	// Backtracks by undoing "nrOfSteps" "Command"s from current
+	void backwardJump(int nrOfSteps);
+
 public:
 	CommandHistory(void);
 	~CommandHistory(void);
@@ -92,21 +84,9 @@ public:
 	// Returns true if succeeded, otherwise false
 	bool tryToAddCommand(Command* command);
 	
-	// One of two ways to retrieve a "Command" from the command history, the other being "getNextCommandAndIncrementCurrent"
-	Command* getCurrentCommandAndDecrementCurrent();
+	// Backtracks by undoing all commands from current until index is reached, OR track forward by redoing all commands from current until index is reached. Returns true if jump was successful, otherwise false.
+	bool tryToJumpInCommandHistory(int jumpToIndex);
 
-	// One of two ways to retrieve a "Command" from the command history, the other being "getCurrentCommandAndDecrementCurrent"
-	Command* getNextCommandAndIncrementCurrent();
-	
-	// Tracks forward by redoing "nrOfSteps" "Command"s from current
-	void forwardJump(int nrOfSteps);
-
-	// Backtracks by undoing "nrOfSteps" "Command"s from current
-	void backwardJump(int nrOfSteps);
-
-	bool thereExistsCommandsAfterCurrentCommand();
-	bool thereExistsCommandsBeforeCurrentCommand();
-	
 	// "byteSize" is a return value. Refer to .cpp file for format description.
 	char* receiveSerializedByteFormat(int& byteSize); 
 
