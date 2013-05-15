@@ -63,6 +63,8 @@ private:
 	IHandle *currentlySelectedHandle;
 	Handle_RotationSphere *omniRotateSphereHandle;
 
+	std::vector<XMFLOAT4> originalRotationQuatsOfActiveObject;
+
 public:
 	Tool_Rotation(/*HWND windowHandle*/);
 	~Tool_Rotation();

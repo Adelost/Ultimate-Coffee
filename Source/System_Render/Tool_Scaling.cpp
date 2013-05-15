@@ -6,7 +6,7 @@
 #include <Core/DataMapper.h>
 #include <Core/Events.h>
 
-//#include <Core/Command_TranslateSceneEntity.h>
+#include <Core/Command_ScaleSceneEntity.h>
 
 Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 {
@@ -131,6 +131,9 @@ bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &ra
 	// TEST: Pretend we hit it.
 	rayIntersectsWithToolBoundingBox = true;
 	
+	if(activeEntityId != -1) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
+		updateWorld();
+
 	if(rayIntersectsWithToolBoundingBox)
 	{
 		// Check if the ray intersects with any of the control handles.
@@ -302,18 +305,51 @@ void Tool_Scaling::tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOri
 /* Called to bind the translatable object to the tool, so its translation can be modified. */
 void Tool_Scaling::setActiveObject(int entityId)
 {
-	this->activeEntityId = entityId;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
 
-	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
-	updateWorld();
+	originalWorldsOfSelectedEntities.clear();
 
-	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+		Data::Selected* d_selected = e->fetchData<Data::Selected>();
+
+		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
+		XMFLOAT4X4 origWorld;
+		XMStoreFloat4x4(&origWorld, world);
+		originalWorldsOfSelectedEntities.push_back(origWorld);
+	 }
+
+	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
+	{
+		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
+
+		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+		updateWorld();
+	}
+	else
+		activeEntityId = -1;
 
 	xyScalingPlane->resetScalingDelta();
 	zxScalingPlane->resetScalingDelta();
 	yzScalingPlane->resetScalingDelta();
 
-	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
+	//----
+
+	//this->activeEntityId = entityId;
+
+	//// Set the visual and bounding components of the translation tool to the pivot point of the active object.
+	//updateWorld();
+
+	//XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+
+	//xyScalingPlane->resetScalingDelta();
+	//zxScalingPlane->resetScalingDelta();
+	//yzScalingPlane->resetScalingDelta();
+
+	//XMStoreFloat4x4(&originalWorldOfActiveObject, world);
 }
 
 void Tool_Scaling::updateWorld()
@@ -407,6 +443,7 @@ void Tool_Scaling::setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId)
 /* Called to send updated parameters to the translation tool, if it is still active. */
 void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
+	XMVECTOR scaleDelta = XMVectorSet(0,0,0,0);
 	if(currentlySelectedAxis)
 	{
 		currentlySelectedAxis->update(rayOrigin, rayDir, camView);
@@ -416,26 +453,55 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		// Pick against the plane to update the translation delta.
 		currentlySelectedAxis->calcLastScalingDelta();
 		
-		XMVECTOR transDelta = currentlySelectedAxis->getTotalScalingDelta();
+		XMVECTOR scaleDelta = currentlySelectedAxis->getTotalScalingDelta();
 
-		XMFLOAT4X4 newMatrix;
-		newMatrix = originalWorldOfActiveObject;
+		//XMFLOAT4X4 newMatrix;
+		//newMatrix = originalWorldOfActiveObject;
 
 		float toolScaleDependantScaleFactor = scale;
 
-		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-		if(scaleDependantScaleFactorX < 0.1f)
-			scaleDependantScaleFactorX = 0.1f;
-		if(scaleDependantScaleFactorY < 0.1f)
-			scaleDependantScaleFactorY = 0.1f;
-		if(scaleDependantScaleFactorZ < 0.1f)
-			scaleDependantScaleFactorZ = 0.1f;
+		//float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
+		//float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
+		//float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
+		//if(scaleDependantScaleFactorX < 0.1f)
+		//	scaleDependantScaleFactorX = 0.1f;
+		//if(scaleDependantScaleFactorY < 0.1f)
+		//	scaleDependantScaleFactorY = 0.1f;
+		//if(scaleDependantScaleFactorZ < 0.1f)
+		//	scaleDependantScaleFactorZ = 0.1f;
 
-		transDelta.m128_f32[0] = originalWorldOfActiveObject._11 + transDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-		transDelta.m128_f32[1] = originalWorldOfActiveObject._22 + transDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-		transDelta.m128_f32[2] = originalWorldOfActiveObject._33 + transDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+		//scaleDelta.m128_f32[0] = /*originalWorldOfActiveObject._11 +*/ scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+		//scaleDelta.m128_f32[1] = /*originalWorldOfActiveObject._22 +*/ scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+		//scaleDelta.m128_f32[2] = /*originalWorldOfActiveObject._33 +*/ scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+
+		int i = 0;
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
+			Data::Selected* d_selected = e->fetchData<Data::Selected>();
+
+			float scaleDependantScaleFactorX = originalWorldsOfSelectedEntities.at(i)._11 * 0.1f;
+			float scaleDependantScaleFactorY = originalWorldsOfSelectedEntities.at(i)._22 * 0.1f;
+			float scaleDependantScaleFactorZ = originalWorldsOfSelectedEntities.at(i)._33 * 0.1f;
+			if(scaleDependantScaleFactorX < 0.1f)
+				scaleDependantScaleFactorX = 0.1f;
+			if(scaleDependantScaleFactorY < 0.1f)
+				scaleDependantScaleFactorY = 0.1f;
+			if(scaleDependantScaleFactorZ < 0.1f)
+				scaleDependantScaleFactorZ = 0.1f;
+
+			scaleDelta.m128_f32[0] = /*originalWorldOfActiveObject._11 +*/ scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+			scaleDelta.m128_f32[1] = /*originalWorldOfActiveObject._22 +*/ scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+			scaleDelta.m128_f32[2] = /*originalWorldOfActiveObject._33 +*/ scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+
+			e->fetchData<Data::Transform>()->scale = XMVectorSet(	originalWorldsOfSelectedEntities.at(i)._11,
+																	originalWorldsOfSelectedEntities.at(i)._22,
+																	originalWorldsOfSelectedEntities.at(i)._33, 1.0f) + scaleDelta;
+			++i;
+		}
 
 		//if(currentlySelectedPlane)
 		//{
@@ -454,7 +520,7 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		//{
 		//}
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); 
+		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); 
 		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = Entity(activeEntityId).fetchData<Data::Transform>()->scale + Vector4(transDelta); //Vector3(transDelta.m128_f32[0], transDelta.m128_f32[1], transDelta.m128_f32[2]);
 	}
 	else if(currentlySelectedPlane)
@@ -530,13 +596,15 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 
 		Entity(activeEntityId).fetchData<Data::Transform>()->scale = newScale;
 	}
+
+
 }
 
 /* Called when the translation tool is unselected, which makes any hitherto made translation final (and undoable). */
 void Tool_Scaling::unselect()
 {
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
-	updateWorld();
+	//updateWorld();
 
 	if(currentlySelectedPlane)
 	{
@@ -555,13 +623,29 @@ void Tool_Scaling::unselect()
 		currentlySelectedHandle->unselect();
 		currentlySelectedHandle = NULL;
 	}
-	
-	//Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(activeEntityId);
-	//Entity e(activeEntityId);
-	//Data::Transform* trans = e.fetchData<Data::Transform>();
-	//command->setDoScaling(trans->scale.x, trans->scale.y, trans->scale.z);
-	//command->setUndoScaling(originalWorldOfActiveObject._11, originalWorldOfActiveObject._22, originalWorldOfActiveObject._33);
-	//SEND_EVENT(&StoreCommandInCommandHistory(command, false)); 
+
+	std::vector<Command*> translationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+		command->setDoScale(trans->position.x, trans->position.y, trans->position.z);
+		command->setUndoScale(originalWorldsOfSelectedEntities.at(i)._11, originalWorldsOfSelectedEntities.at(i)._22, originalWorldsOfSelectedEntities.at(i)._33);
+		translationCommands.push_back(command);
+		
+		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		
+		++i;
+	}
+
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&translationCommands, false));
+
+	setActiveObject(1);
 
 	isSelected = false;
 }
@@ -1026,6 +1110,8 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;
 	listOfTrianglesAsPoints.resize(0);
+	//ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
+
 	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
 	{
 		unsigned int indexA = meshVertices.Indices.at(i);

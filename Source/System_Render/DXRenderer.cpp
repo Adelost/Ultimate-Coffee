@@ -114,8 +114,6 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
 	m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
 
-	UINT stride = sizeof(VertexPosCol);
-	UINT offset = 0;
 	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
@@ -144,9 +142,9 @@ void DXRenderer::renderFrame()
 		Data::Render* d_render= e->fetchData<Data::Render>();
 
 		Matrix mat_scale;
-		if(e->fetchData<Data::Selected>())
+	/*	if(e->fetchData<Data::Selected>())
 			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
-		else
+		else*/
 			mat_scale = Matrix::CreateScale(d_transform->scale);
 
 		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
@@ -155,8 +153,9 @@ void DXRenderer::renderFrame()
 		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
+	m_sky->draw();
 
-	// Draw tools
+	// Draw Tools
 	m_manager_tools->update();
 	m_manager_tools->draw(m_view_depthStencil);
 

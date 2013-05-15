@@ -109,6 +109,8 @@ private:
 	//ID3D11Buffer *yzPlaneBuffer;
 	//ID3D11Buffer *zxPlaneBuffer;
 
+	std::vector<XMFLOAT4X4> originalWorldsOfSelectedEntities;
+
 public:
 	Tool_Scaling(/*HWND windowHandle*/);
 	~Tool_Scaling();

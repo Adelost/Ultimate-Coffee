@@ -12,6 +12,8 @@ enum EventType
 	EVENT_SET_TOOL,
 	EVENT_SET_BACKBUFFER_COLOR,
 	EVENT_TRANSLATE_SCENE_ENTITY,
+	EVENT_ROTATE_SCENE_ENTITY,
+	EVENT_SCALE_SCENE_ENTITY,
 	EVENT_MOUSE_WHEEL,
 	EVENT_MOUSE_PRESS,
 	EVENT_MOUSE_MOVE,
@@ -120,6 +122,39 @@ public:
 	}
 };
 
+class Event_RotateSceneEntity : public IEvent
+{
+public:
+	int m_idOfRotatableSceneEntity;
+	float m_quatX, m_quatY, m_quatZ, m_quatW;
+
+public:
+	Event_RotateSceneEntity(int p_idOfRotatableSceneEntity, float p_quatX, float p_quatY, float p_quatZ, float p_quatW) : IEvent(EVENT_ROTATE_SCENE_ENTITY)
+	{
+		m_idOfRotatableSceneEntity = p_idOfRotatableSceneEntity;
+		m_quatX = p_quatX;
+		m_quatY = p_quatY;
+		m_quatZ = p_quatZ;
+		m_quatW = p_quatW;
+	}
+};
+
+class Event_ScaleSceneEntity : public IEvent
+{
+public:
+	int m_idOfScalableSceneEntity;
+	float m_scaleX, m_scaleY, m_scaleZ;
+
+public:
+	Event_ScaleSceneEntity(int p_idOfScalableSceneEntity, float p_scaleX, float p_scaleY, float p_scaleZ) : IEvent(EVENT_SCALE_SCENE_ENTITY)
+	{
+		m_idOfScalableSceneEntity = p_idOfScalableSceneEntity;
+		m_scaleX = p_scaleX;
+		m_scaleY = p_scaleY;
+		m_scaleZ = p_scaleZ;
+	}
+};
+
 class Event_ShowMessageBox : public IEvent
 {
 public:
@@ -171,6 +206,17 @@ public:
 
 		this->dx = dx;
 		this->dy = dy;
+	}
+};
+
+class Event_SetTool : public IEvent
+{
+public:
+	int m_toolId;
+
+	Event_SetTool(int p_toolId) : IEvent(EVENT_SET_TOOL)
+	{
+		m_toolId = p_toolId;
 	}
 };
 

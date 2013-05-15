@@ -110,7 +110,7 @@ void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext)
 		break;
 	case BufferType::VS_CONSTANT_BUFFER:
 		{
-			p_deviceContext->VSSetConstantBuffers(m_constantBufferNumber, 1, &m_buffer);
+			p_deviceContext->VSSetConstantBuffers(0, 1, &m_buffer);
 		}
 		break;
 	case BufferType::PS_CONSTANT_BUFFER:

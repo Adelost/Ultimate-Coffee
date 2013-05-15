@@ -3,6 +3,8 @@
 #include "Command.h"
 #include "Command_ChangeBackBufferColor.h"
 #include "Command_TranslateSceneEntity.h"
+#include "Command_RotateSceneEntity.h"
+#include "Command_ScaleSceneEntity.h"
 #include <sys/stat.h> // struct stat
 #include "Events.h" // MESSAGEBOX
 
@@ -309,9 +311,14 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 				command = new Command_TranslateSceneEntity();
 				break;
 			}
-		case Enum::CommandType::ROTATE:
+		case Enum::CommandType::ROTATE_SCENE_ENTITY:
 			{
-				// command = new Command_Rotate();
+				command = new Command_RotateSceneEntity();
+				break;
+			}
+		case Enum::CommandType::SCALE_SCENE_ENTITY:
+			{
+				command = new Command_ScaleSceneEntity();
 				break;
 			}
 		case Enum::CommandType::CHANGEBACKBUFFERCOLOR:

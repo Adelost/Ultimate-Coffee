@@ -59,7 +59,7 @@ void Manager_Tools::setupActions()
 	// Toolbar
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
-	createToolAction(mapper, Enum::Tool_Selection, "Selection")->setChecked(true);
+	createToolAction(mapper, Enum::Tool_Selection, "Selection")->activate(QAction::Trigger);
 	createToolAction(mapper, Enum::Tool_Translate, "Translate");
 	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate");
 	createToolAction(mapper, Enum::Tool_Scale,		"Scale");
@@ -125,13 +125,15 @@ QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, int p_type, s
 
 void Manager_Tools::setTool( int p_toolType )
 {
+
 	m_selectedTool = static_cast<Enum::ToolType>(p_toolType);
 	if(SETTINGS()->selectedTool != m_selectedTool)
 	{
 		SETTINGS()->selectedTool = m_selectedTool;
+		DEBUGPRINT("SELECTED TOOL: " + Converter::IntToStr(m_selectedTool));
 
-		// Do stuff
-
+		Event_SetTool e = Event_SetTool(m_selectedTool);
+		SEND_EVENT(&e);
 	}
 }
 
