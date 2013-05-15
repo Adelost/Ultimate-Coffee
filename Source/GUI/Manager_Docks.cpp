@@ -349,22 +349,15 @@ void Manager_Docks::onEvent(IEvent* e)
 					commandText = "Translate";
 					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
 
-					// Could have the translation tool icon be displayed, instead of a color, perhaps.
-
-					float r = 65.0f;
-					float g = 65.0f;
-					float b = 65.0f;
-
-					QColor color(r, g, b);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/translate";
+					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
 			default:
 				{
 					std::string iconPath = ICON_PATH;
-					iconPath += "Menu/save";
+					iconPath += "Tools/coffee";
 					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
@@ -372,26 +365,13 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			if(mergeNumber > 0)
 			{
-				commandText += " (" +Converter::IntToStr(mergeNumber) +")";
+				commandText += " (" + Converter::IntToStr(mergeNumber) +")";
 			}
 			QString commandtextAsQString = commandText.c_str();
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
 			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
 			m_commandHistoryListWidget->addItem(item);
 			item->setHidden(hidden);
-			//commandHistoryListWidget->setItemSelected(item, true);
-
-			//int nrOfListItems = commandHistoryListWidget->count();
-
-			// QListWidget
-			// to remove items from commandHistoryListWidget,
-			// use commandHistoryListWidget->takeItem(index);
-
-			//new QListWidgetItem(QIcon(iconPath.c_str()), commandList.at(i).c_str(), commandHistoryListWidget);
-			//commandHistoryListWidget->sortItems(Qt::SortOrder::DescendingOrder); //check performance hit if long list
-			//commandHistoryListWidget->setViewMode(QListView::ViewMode::IconMode);
-			//commandHistoryListWidget->setLayoutMode(QListView::LayoutMode::SinglePass);
-			//commandHistoryListWidget->setIconSize(QSize(10000, 10000));
 		break;
 		}
 	case EVENT_SET_SELECTED_COMMAND_GUI:

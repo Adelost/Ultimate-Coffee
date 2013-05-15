@@ -561,7 +561,7 @@ void Tool_Scaling::unselect()
 	//Data::Transform* trans = e.fetchData<Data::Transform>();
 	//command->setDoScaling(trans->scale.x, trans->scale.y, trans->scale.z);
 	//command->setUndoScaling(originalWorldOfActiveObject._11, originalWorldOfActiveObject._22, originalWorldOfActiveObject._33);
-	//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
+	//SEND_EVENT(&StoreCommandInCommandHistory(command, false)); 
 
 	isSelected = false;
 }

@@ -588,7 +588,7 @@ void Tool_Translation::unselect()
 		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
 		command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
 		command->setUndoTranslation(originalWorldsOfSelectedEntities.at(i)._41, originalWorldsOfSelectedEntities.at(i)._42, originalWorldsOfSelectedEntities.at(i)._43);
-		SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		SEND_EVENT(&StoreCommandInCommandHistory(command, false));
 
 		++i;
 	}

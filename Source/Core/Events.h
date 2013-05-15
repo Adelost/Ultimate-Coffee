@@ -215,17 +215,19 @@ public:
 };
 
 class Command;
-class Event_StoreCommandInCommandHistory : public IEvent
+class StoreCommandInCommandHistory : public IEvent
 {
 public:
 	Command* command;
 	bool execute; // Call "doRedo" on the command before storing it in the command history. Standard is false. Specify true if the doings of the command is not done when sending this event.
+	bool setAsCurrentInGUI; // Performance critical when sending lots of "StoreCommandInCommandHistory" events in a row. Set to false if this event is not the last "StoreCommandInCommandHistory" sent in a row. Standard is true, which is fitting for single commands.
 
 public:
-	Event_StoreCommandInCommandHistory(Command* command, bool execute = false) : IEvent(EVENT_STORE_COMMAND)
+	StoreCommandInCommandHistory(Command* command, bool execute = false, bool setAsCurrentInGUI = true) : IEvent(EVENT_STORE_COMMAND)
 	{
 		this->command = command;
 		this->execute = execute;
+		this->setAsCurrentInGUI = setAsCurrentInGUI;
 	}
 };
 
