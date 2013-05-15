@@ -23,6 +23,7 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRANSLATE_SCENE_ENTITY);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SET_TOOL);
 	//SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
 
 	// Initialize the transformation tools...
@@ -97,9 +98,9 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 }
 
 
-enum BoundaryType {BOUNDARY_TYPE_TRIANGLELIST = 0, BOUNDARY_TYPE_LINELIST, BOUNDARY_TYPE_BOX};
-
-class IBoundary;
+//enum BoundaryType {BOUNDARY_TYPE_TRIANGLELIST = 0, BOUNDARY_TYPE_LINELIST, BOUNDARY_TYPE_BOX};
+//
+//class IBoundary;
 
 //static bool doIntersectionTest(IBoundary *boundaryA, IBoundary *boundaryB)
 //{
@@ -420,9 +421,34 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 
 			break;
 		}
+	case EVENT_SET_TOOL:
+		{
+			Event_SetTool* e = static_cast<Event_SetTool*>(p_event);
 
-	default:
-		break;
+			switch(e->m_toolId)
+			{
+			case Enum::Tool_Translate:
+				{
+					currentlyChosenTransformTool = m_theTranslationTool;
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
+				break;
+			case Enum::Tool_Rotate:
+				{
+					currentlyChosenTransformTool = m_theRotationTool;
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
+				break;
+			case Enum::Tool_Scale:
+				{
+					currentlyChosenTransformTool = m_theScalingTool;
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
+				break; 
+			default:
+				break;
+		}
+		}
 	}
 }
 
