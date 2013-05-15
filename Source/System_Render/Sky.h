@@ -33,5 +33,5 @@ public:
 
 	ID3D11ShaderResourceView* CubeMapSRV();
 
-	void draw(ID3D11DeviceContext* dc);
+	void draw();
 };

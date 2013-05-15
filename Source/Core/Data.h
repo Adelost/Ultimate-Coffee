@@ -77,10 +77,7 @@ namespace Data
 		int meshId;
 	};
 
-	/**
-	Should contain everything render needs.
-	Position should be fetched from Translation.
-	*/
+
 	class Update : public Type<Update>
 	{
 	public:
@@ -90,6 +87,11 @@ namespace Data
 
 	public:
 		Update();
+	};
+
+	class Sky : public Type<Sky>
+	{
+	public:
 	};
 }
 

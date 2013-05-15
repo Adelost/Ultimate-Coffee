@@ -18,43 +18,34 @@ ID3D11ShaderResourceView* Sky::CubeMapSRV()
 	return m_rv_cubeMap;
 }
 
-void Sky::draw( ID3D11DeviceContext* dc )
+void Sky::draw()
 {
-	// Center sky about eye in world space
-	Vector3 eyePos;// = camera->GetPosition();
-	Matrix T = XMMatrixTranslation(eyePos.x, eyePos.y, eyePos.z);
-	Matrix scale = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-	Matrix viewProj = CAMERA_ENTITY()->fetchData<Data::Camera>()->viewProjection();
-	Matrix world = CAMERA_ENTITY()->fetchData<Data::Transform>()->toWorldMatrix();
-	Matrix WVP = XMMatrixMultiply(scale*T, viewProj);
-
-	// Set WorldViewProj
-	m_cbuffer.WVP = world * viewProj;
-	m_cbuffer.WVP = m_cbuffer.WVP.Transpose();
-	m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_cbuffer, 0, 0);
-
-	// Set shaders
+	m_context->IASetInputLayout(m_inputLayout);
+	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_context->VSSetShader(m_vertexShader, 0, 0);
 	m_context->PSSetShader(m_pixelShader, 0, 0);
-	m_vertexBuffer->setDeviceContextBuffer(m_context);
-	m_indexBuffer->setDeviceContextBuffer(m_context);
-	m_WVPBuffer->setDeviceContextBuffer(m_context);
-	m_context->PSSetShaderResources(0, 1, &m_rv_cubeMap);
 
-	/*m_context->IASetInputLayout(shaderManager->layout_pos);
-	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	D3DX11_TECHNIQUE_DESC techDesc;
-	fx->SkyTech->GetDesc( &techDesc );
-
-	for(UINT p = 0; p < techDesc.Passes; ++p)
+	// Find world
+	Matrix viewProj = CAMERA_ENTITY()->fetchData<Data::Camera>()->viewProjection();
+	Matrix world;
+	DataMapper<Data::Sky> map_sky;
+	if(map_sky.hasNext())
 	{
-		ID3DX11EffectPass* pass = fx->SkyTech->GetPassByIndex(p);
+		Entity* e = map_sky.nextEntity();
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		world = d_transform->toRotPosMatrix();
 
-		pass->Apply(0, dc);
+		// Set Shaders
+		m_vertexBuffer->setDeviceContextBuffer(m_context);
+		m_indexBuffer->setDeviceContextBuffer(m_context);
+		m_WVPBuffer->setDeviceContextBuffer(m_context);
+		m_cbuffer.WVP = world * viewProj;
+		m_cbuffer.WVP = m_cbuffer.WVP.Transpose();
+		m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_cbuffer, 0, 0);
 
-		dc->DrawIndexed(mIndexCount, 0, 0);
-	}*/
+		// Draw
+		m_context->DrawIndexed(m_indexBuffer->count(), 0, 0);
+	}
 }
 
 Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string& cubemapFilename, float sphereRadius )
@@ -74,32 +65,29 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 	m_WVPBuffer = new Buffer();
 	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(Vector3), vertex_list.size(), &vertex_list[0], m_device));
 	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_device));
-	HR(m_WVPBuffer->init(Buffer::VS_CONSTANT_BUFFER, sizeof(float), 16, &m_cbuffer, m_device));
+	HR(m_WVPBuffer->init(Buffer::VS_CONSTANT_BUFFER, sizeof(float), sizeof(m_cbuffer)/sizeof(float), &m_cbuffer, m_device));
 	m_vertexBuffer->setDeviceContextBuffer(m_context);
 	m_indexBuffer->setDeviceContextBuffer(m_context);
 	m_WVPBuffer->setDeviceContextBuffer(m_context);
 
 	// Load texture
 	std::string texPath = TEXTURES_PATH;
-	std::string texFileName = "default.dds";
+	std::string texFileName = "plain.dds";
 	std::string fullPath = texPath + texFileName;
 	createTextureFromFile(device, fullPath, &m_rv_cubeMap);
 
-
-
-	// Create shaders
-
+	// Create Shaders
 	ID3DBlob *PS_Buffer, *VS_Buffer;
 
 	//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
-	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
-	HR(m_device->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
-
-	HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
+	HR(D3DCompileFromFile(L"Shader_Sky.hlsl", NULL, NULL, "VS", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
 	HR(m_device->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
 
-	m_context->PSSetShader(m_pixelShader, 0, 0);
+	HR(D3DCompileFromFile(L"Shader_Sky.hlsl", NULL, NULL, "PS", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
+	HR(m_device->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
+
 	m_context->VSSetShader(m_vertexShader, 0, 0);
+	m_context->PSSetShader(m_pixelShader, 0, 0);
 
 	// Create input layout
 	D3D11_INPUT_ELEMENT_DESC desc_pos[] =
@@ -111,7 +99,4 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
-
-
-
 }
