@@ -19,6 +19,7 @@ DXRenderer::DXRenderer()
 	m_tex_depthStencil = nullptr;
 	m_viewport_screen = nullptr;
 	m_sky = nullptr;
+	m_msaa_enable = true;
 
 	m_CBPerObject.world.Identity();
 	m_CBPerObject.WVP.Identity();
@@ -206,12 +207,12 @@ bool DXRenderer::initDX()
 	// sample description, used to set MSAA
 	HR(m_dxDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m_msaa_quality));
 	assert(m_msaa_quality > 0);
-	//if(msaa_enable)
-	//{
-	//	desc_sc.SampleDesc.Count   = 4;
-	//	desc_sc.SampleDesc.Quality = msaa_quality-1;
-	//}
-	//else
+	if(m_msaa_enable)
+	{
+		desc_sc.SampleDesc.Count   = 4;
+		desc_sc.SampleDesc.Quality = m_msaa_quality-1;
+	}
+	else
 	{
 		desc_sc.SampleDesc.Count   = 1;
 		desc_sc.SampleDesc.Quality = 0;
@@ -360,12 +361,12 @@ void DXRenderer::resizeDX()
 	desc_depthStencil.ArraySize = 1;								// nr of textures in a texture array
 	desc_depthStencil.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;	// format
 	// set MSSA, settings must match those in swap chain
-	//if(msaa_enable)
-	//{
-	//	desc_depthStencil.SampleDesc.Count   = 4;
-	//	desc_depthStencil.SampleDesc.Quality = msaa_quality-1;
-	//}
-	//else
+	if(m_msaa_enable)
+	{
+		desc_depthStencil.SampleDesc.Count   = 4;
+		desc_depthStencil.SampleDesc.Quality = m_msaa_quality-1;
+	}
+	else
 	{
 		desc_depthStencil.SampleDesc.Count   = 1;
 		desc_depthStencil.SampleDesc.Quality = 0;

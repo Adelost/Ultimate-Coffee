@@ -44,9 +44,10 @@ private:
 	Sky*						m_sky;
 
 	CBPerObject					m_CBPerObject;
-	CBPerFrame					m_CBPerFrame;
-
-	UINT m_msaa_quality;
+	CBPerFrame		
+	m_CBPerFrame;
+	bool m_msaa_enable;
+	unsigned int m_msaa_quality;
 	int m_clientHeight;
 	int m_clientWidth;
 	static DXRenderer* s_instance;
