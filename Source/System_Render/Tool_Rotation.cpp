@@ -5,7 +5,7 @@
 #include <Core/DataMapper.h>
 #include <Core/Events.h>
 
-//#include <Core/Command_TranslateSceneEntity.h>
+#include <Core/Command_RotateSceneEntity.h>
 
 Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 {
@@ -281,10 +281,31 @@ void Tool_Rotation::unselect()
 
 	currentlySelectedHandle = NULL;
 
-	// Set the cursor icon to the default/scene cursor icon.
-	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
+	std::vector<Command*> rotationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_RotateSceneEntity *command = new Command_RotateSceneEntity(e->id());
+		command->setDoRotQuat(trans->rotation.x, trans->rotation.y, trans->rotation.z, trans->rotation.w);
+		command->setUndoRotQuat(originalRotationQuatsOfActiveObject.at(i).x, originalRotationQuatsOfActiveObject.at(i).y, originalRotationQuatsOfActiveObject.at(i).z, originalRotationQuatsOfActiveObject.at(i).w);
+		rotationCommands.push_back(command);
+		
+		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		
+		++i;
+	}
+
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&rotationCommands, false));
 
 	setActiveObject(1);
+
+	// Set the cursor icon to the default/scene cursor icon.
+	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
 
 	isSelected = false;
 }

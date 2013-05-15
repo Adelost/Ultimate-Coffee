@@ -22,14 +22,14 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_PRESS);
 	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRANSLATE_SCENE_ENTITY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ROTATE_SCENE_ENTITY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SCALE_SCENE_ENTITY);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_TOOL);
-	//SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
 
 	// Initialize the transformation tools...
 	currentlyChosenTransformTool = NULL;
-
-
+	
 	m_theSelectionTool = NULL;
 
 	m_theSelectionTool = new Tool_Selection();
@@ -370,7 +370,6 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 				//		}
 				//	}
 				//}
-			
 
 			break;
 		}
@@ -384,16 +383,45 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 			d_transform->position.y = e->m_transY;
 			d_transform->position.z = e->m_transZ;
 
+			if(currentlyChosenTransformTool)
+			{
+				currentlyChosenTransformTool->setActiveObject(1);
+			}
+
+			break;
+		}
+	case EVENT_ROTATE_SCENE_ENTITY:
+		{
+			Event_RotateSceneEntity* e = static_cast<Event_RotateSceneEntity*>(p_event);
+
+			Data::Transform* d_transform = Entity(e->m_idOfRotatableSceneEntity).fetchData<Data::Transform>();
+
+			d_transform->rotation.x = e->m_quatX;
+			d_transform->rotation.y = e->m_quatY;
+			d_transform->rotation.z = e->m_quatZ;
+			d_transform->rotation.w = e->m_quatW;
 
 			if(currentlyChosenTransformTool)
 			{
 				currentlyChosenTransformTool->setActiveObject(1);
 			}
 
-			//if(currentlyChosenTransformTool->getActiveObject() == e->m_idOfTranslatableSceneEntity) // SELECTION HACK
-			//	currentlyChosenTransformTool->updateWorld();
+			break;
+		}
+	case EVENT_SCALE_SCENE_ENTITY:
+		{
+			Event_ScaleSceneEntity* e = static_cast<Event_ScaleSceneEntity*>(p_event);
 
-			// Gotta make sure to re-scale the visual component of the tool given the redoing/undoing changing the distance.
+			Data::Transform* d_transform = Entity(e->m_idOfScalableSceneEntity).fetchData<Data::Transform>();
+
+			d_transform->scale.x = e->m_scaleX;
+			d_transform->scale.y = e->m_scaleY;
+			d_transform->scale.z = e->m_scaleZ;
+
+			if(currentlyChosenTransformTool)
+			{
+				currentlyChosenTransformTool->setActiveObject(1);
+			}
 
 			break;
 		}

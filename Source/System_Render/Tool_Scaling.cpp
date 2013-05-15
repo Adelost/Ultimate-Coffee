@@ -6,7 +6,7 @@
 #include <Core/DataMapper.h>
 #include <Core/Events.h>
 
-//#include <Core/Command_TranslateSceneEntity.h>
+#include <Core/Command_ScaleSceneEntity.h>
 
 Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 {
@@ -623,13 +623,27 @@ void Tool_Scaling::unselect()
 		currentlySelectedHandle->unselect();
 		currentlySelectedHandle = NULL;
 	}
-	
-	//Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(activeEntityId);
-	//Entity e(activeEntityId);
-	//Data::Transform* trans = e.fetchData<Data::Transform>();
-	//command->setDoScaling(trans->scale.x, trans->scale.y, trans->scale.z);
-	//command->setUndoScaling(originalWorldOfActiveObject._11, originalWorldOfActiveObject._22, originalWorldOfActiveObject._33);
-	//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false)); 
+
+	std::vector<Command*> translationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+	while(map_selected.hasNext())
+	{
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+		command->setDoScale(trans->position.x, trans->position.y, trans->position.z);
+		command->setUndoScale(originalWorldsOfSelectedEntities.at(i)._11, originalWorldsOfSelectedEntities.at(i)._22, originalWorldsOfSelectedEntities.at(i)._33);
+		translationCommands.push_back(command);
+		
+		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		
+		++i;
+	}
+
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&translationCommands, false));
 
 	setActiveObject(1);
 
@@ -1096,6 +1110,8 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;
 	listOfTrianglesAsPoints.resize(0);
+	ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
+
 	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
 	{
 		unsigned int indexA = meshVertices.Indices.at(i);
