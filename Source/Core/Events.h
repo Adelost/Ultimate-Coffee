@@ -30,6 +30,7 @@ enum EventType
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
 	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
 	EVENT_GET_COMMANDER_INFO,
+	EVENT_GET_NEXT_VISIBLE_COMMAND_ROW,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -355,5 +356,20 @@ public:
 public:
 	Event_GetCommanderInfo() : IEvent(EVENT_GET_COMMANDER_INFO)
 	{
+	}
+};
+
+class Event_GetNextOrPreviousVisibleCommandRowInCommandHistory : public IEvent
+{
+public:
+	int row; // Return value
+	bool next; // Next if true, previous if false.
+	int currentCommandHistoryIndex; // Needed for special case when jumping in and out of history (refer to Event_GetNextOrPreviousVisibleCommandRowInCommandHistory)
+
+public:
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory(bool next, int currentCommandHistoryIndex) : IEvent(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
+	{
+		this->next = next;
+		this->currentCommandHistoryIndex = currentCommandHistoryIndex;
 	}
 };

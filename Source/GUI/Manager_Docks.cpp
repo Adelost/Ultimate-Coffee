@@ -22,6 +22,7 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
@@ -361,33 +362,19 @@ void Manager_Docks::onEvent(IEvent* e)
 					commandText = "Rotation";
 					Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
 
-					// Could have the translation tool icon be displayed, instead of a color, perhaps.
-
-					float r = 65.0f;
-					float g = 65.0f;
-					float b = 65.0f;
-
-					QColor color(r, g, b);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/rotate";
+					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
 			case Enum::CommandType::SCALE_SCENE_ENTITY:
 				{
 					commandText = "Scaling";
 					Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
-
-					// Could have the translation tool icon be displayed, instead of a color, perhaps.
-
-					float r = 65.0f;
-					float g = 65.0f;
-					float b = 65.0f;
-
-					QColor color(r, g, b);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
+					
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/scale";
+					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
 			default:
@@ -399,7 +386,7 @@ void Manager_Docks::onEvent(IEvent* e)
 				}
 			}
 
-			if(mergeNumber > 0)
+			if(mergeNumber > 1)
 			{
 				commandText += " (" + Converter::IntToStr(mergeNumber) +")";
 			}
@@ -417,7 +404,8 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			if(index == -1) // Special case: jump out of history
 			{
-				m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
+				//m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
+				m_commandHistoryListWidget->item(0)->setSelected(false);
 			}
 			else
 			{
@@ -439,6 +427,39 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 			connectCommandHistoryWidget(true);
 
+			break;
+		}
+	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
+		{
+			Event_GetNextOrPreviousVisibleCommandRowInCommandHistory* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistory*>(e);
+			bool next = getEvent->next;
+			int currentCommand = getEvent->currentCommandHistoryIndex;
+
+			int nrOfRows = m_commandHistoryListWidget->count();
+			int currentRow = m_commandHistoryListWidget->currentRow();
+			int addValue;
+			if(next)
+			{
+				if(currentCommand > -1)
+				{
+					currentRow++;
+				}
+				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
+				{
+					currentRow++;
+				}
+			}
+			else
+			{
+				currentRow--;
+				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
+				{
+					currentRow--;
+				}
+			}
+
+			getEvent->row = currentRow; //Return value
+				
 			break;
 		}
 	}

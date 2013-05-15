@@ -223,6 +223,8 @@ bool CommandHistory::tryToJumpInCommandHistory(int jumpToIndex)
 		return false; // Jump failed. Possible reasons: *Trying to jump to invalid index. *No commands in command history.
 	}
 
+	//check -1
+
 	int nrOfCommandsInvolvedInJump = 0;
 	if(m_indexOfCurrentCommand > -1) // Normal case: some command is current
 	{
@@ -241,9 +243,14 @@ bool CommandHistory::tryToJumpInCommandHistory(int jumpToIndex)
 			return true; // No jump needed. Treat jump as successful.
 		}
 	}
-	else // Special case: no command is current, i.e. the current command is the command before the first command, i.e. no command is current.
+	// Special cases: no command is current, i.e. the current command is the command before the first command, i.e. current command is outside of history
+	else if(jumpToIndex <= -1) 
 	{
-		nrOfCommandsInvolvedInJump = 1;
+		return false; // Jump failed. Jump landed outside of history.
+	}
+	else // Jump back into history
+	{
+		nrOfCommandsInvolvedInJump = jumpToIndex+1;
 		forwardJump(nrOfCommandsInvolvedInJump);
 	}
 

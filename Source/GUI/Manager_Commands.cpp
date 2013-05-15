@@ -142,7 +142,8 @@ void Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 {
 	if(!m_commander->tryToJumpInCommandHistory(commandHistoryIndex))
 	{
-		MESSAGEBOX("Failed to jump in the command history.");
+		QSound sound("Windows Ding.wav");
+		sound.play();
 	}
 }
 
@@ -174,13 +175,23 @@ Manager_Commands::~Manager_Commands()
 
 void Manager_Commands::redoLatestCommand()
 {
-	jumpInCommandHistory(m_commander->getCurrentCommandIndex()+1);
+	//jumpInCommandHistory(m_commander->getCurrentCommandIndex()+1);
+	//updateCurrentCommandGUI();
+
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(true, m_commander->getCurrentCommandIndex());
+	SEND_EVENT(&returnValue);
+	jumpInCommandHistory(returnValue.row);
 	updateCurrentCommandGUI();
 }
 
 void Manager_Commands::undoLatestCommand()
 {
-	jumpInCommandHistory(m_commander->getCurrentCommandIndex()-1);
+	//jumpInCommandHistory(m_commander->getCurrentCommandIndex()-1);
+	//updateCurrentCommandGUI();
+
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(false, m_commander->getCurrentCommandIndex());
+	SEND_EVENT(&returnValue);
+	jumpInCommandHistory(returnValue.row);
 	updateCurrentCommandGUI();
 }
 
