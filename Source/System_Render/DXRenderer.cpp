@@ -156,7 +156,7 @@ void DXRenderer::renderFrame()
 
 	// Render all selected meshes
 	m_CBPerFrame.drawDebug = 1;
-	m_dxDeviceContext->RSSetState(RenderStates::WireframeRS);
+	m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
 	m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 	DataMapper<Data::Selected> map_selected;
@@ -181,14 +181,12 @@ void DXRenderer::renderFrame()
 	// Draw SkyBox
 	m_sky->draw();
 
-	m_dxDeviceContext->RSSetState(0);
-	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
-
 	// Draw Tools
 	m_manager_tools->update();
 	m_manager_tools->draw(m_view_depthStencil);
 
-	
+	m_dxDeviceContext->RSSetState(0);
+	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));

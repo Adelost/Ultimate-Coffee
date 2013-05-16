@@ -265,4 +265,13 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			d_transform->position = pos;
 		}
 	}
+
+	// Hack create more entities
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool == Enum::Tool_Geometry)
+	{
+		for(int i=0; i<1000; i++)
+		{
+			FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
+		}
+	}
 }

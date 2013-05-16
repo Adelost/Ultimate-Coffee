@@ -29,10 +29,11 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
+	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->toPointer();
 	 FACTORY_ENTITY()->createEntity(ENTITY_SKY);
 	for(int i=0; i<1000; i++)
 	{
-		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->toPointer();
+		FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
 	}
 }
 
