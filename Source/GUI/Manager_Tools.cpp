@@ -59,8 +59,8 @@ void Manager_Tools::setupActions()
 	// Toolbar
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
-	createToolAction(mapper, Enum::Tool_Selection, "Selection")->activate(QAction::Trigger);
-	createToolAction(mapper, Enum::Tool_Translate, "Translate");
+	//createToolAction(mapper, Enum::Tool_Selection, "Selection")->activate(QAction::Trigger);
+	createToolAction(mapper, Enum::Tool_Translate, "Translate")->activate(QAction::Trigger);
 	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate");
 	createToolAction(mapper, Enum::Tool_Scale,		"Scale");
 	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry");
