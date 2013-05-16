@@ -55,6 +55,8 @@ private:
 
 	Manager_3DTools*			m_manager_tools;
 
+	void updatePointLights();
+
 public:
 	DXRenderer();
 	~DXRenderer();

@@ -162,7 +162,7 @@ void Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 
 void Manager_Commands::updateCurrentCommandGUI()
 {
-	int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+	int GUI_Index = /*m_commander->getCurrentCommandIndex();*/Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
 	SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
 }
 

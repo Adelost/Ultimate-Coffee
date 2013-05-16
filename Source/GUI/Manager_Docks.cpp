@@ -562,7 +562,7 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 	SEND_EVENT(commanderInfo); //The event is assumed to have correct values below
 
 	//Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
-	int trackToCommandIndex = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
+	int trackToCommandIndex = /*currentRow;*/Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
 	if(commanderInfo->indexOfCurrentCommand != trackToCommandIndex)
 	{
 		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));

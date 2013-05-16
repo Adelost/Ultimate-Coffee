@@ -22,7 +22,7 @@ public:
 	~Buffer();
 
 	HRESULT init(BufferType p_type, unsigned int p_elementSize, unsigned int p_count, const void* p_data, ID3D11Device* p_device);
-	void setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext);
+	void setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext, unsigned int p_constantBufferIndex = 0);
 	ID3D11Buffer* getBuffer();
 
 private:
@@ -30,13 +30,6 @@ private:
 	BufferType m_type;
 	unsigned int m_count;
 	unsigned int m_elementSize;
-
-	// Make a subclass or a manager?
-
-	// Constant buffers
-	static unsigned int m_numberOfVSConstantBuffers;
-	static unsigned int m_numberOfPSConstantBuffers;
-	unsigned int m_constantBufferNumber;
 
 public:
 	unsigned int count()
