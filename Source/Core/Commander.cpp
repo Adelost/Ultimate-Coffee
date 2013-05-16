@@ -5,6 +5,7 @@
 #include "Command_TranslateSceneEntity.h"
 #include "Command_RotateSceneEntity.h"
 #include "Command_ScaleSceneEntity.h"
+#include "Command_SkyBox.h"
 #include <sys/stat.h> // struct stat
 #include "Events.h" // MESSAGEBOX
 
@@ -331,6 +332,11 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 		case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
 			{
 				command = new Command_ChangeBackBufferColor();
+				break;
+			}
+		case Enum::CommandType::SKYBOX:
+			{
+				command = new Command_SkyBox();
 				break;
 			}
 		default:

@@ -377,6 +377,16 @@ void Manager_Docks::onEvent(Event* e)
 					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
+			case Enum::CommandType::SKYBOX:
+				{
+					commandText = "Skybox";
+					
+					std::string iconPath = ICON_PATH;
+					iconPath += "Options/Skybox";
+					commandIcon.addFile(iconPath.c_str());
+
+					break;
+				}
 			default:
 				{
 					std::string iconPath = ICON_PATH;

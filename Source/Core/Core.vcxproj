@@ -147,6 +147,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="CommanderSpy.cpp" />
+    <ClCompile Include="Command_SkyBox.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
     <ClCompile Include="Command_RotateSceneEntity.cpp" />
     <ClCompile Include="Command_ScaleSceneEntity.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commander.h" />
     <ClInclude Include="CommanderSpy.h" />
+    <ClInclude Include="Command_SkyBox.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />
     <ClInclude Include="Command_RotateSceneEntity.h" />
     <ClInclude Include="Command_ScaleSceneEntity.h" />

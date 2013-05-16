@@ -5,6 +5,7 @@
 #include <Core/Commander.h>
 #include <Core/CommanderSpy.h>
 #include <Core/Command_ChangeBackBufferColor.h>
+#include <Core/Command_SkyBox.h>
 #include <Core/Events.h>
 #include "ui_MainWindow.h"
 #include "Manager_Docks.h"
@@ -172,7 +173,7 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 	Command_ChangeBackBufferColor* command0 = new Command_ChangeBackBufferColor();
 	command0->setDoColor(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f);
 	command0->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
-	SEND_EVENT(&StoreCommandInCommandHistory(command0, true));
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command0, true));
 }
 
 void Manager_Commands::translateSceneEntity()
@@ -303,7 +304,7 @@ void Manager_Commands::onEvent(Event* e)
 	{
 	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
 		{
-			StoreCommandInCommandHistory* commandEvent = static_cast<StoreCommandInCommandHistory*>(e);
+			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 			Command* command = commandEvent->command;
 			bool execute = commandEvent->execute;
 			bool setAsCurrentInGUI = commandEvent->setAsCurrentInGUI;
@@ -368,5 +369,7 @@ void Manager_Commands::onEvent(Event* e)
 
 void Manager_Commands::enableSkybox( bool state )
 {
-	SETTINGS()->showSkybox = state;
+	Command_SkyBox* command_SkyBox = new Command_SkyBox();
+	command_SkyBox->setShowSkyBox(state);
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command_SkyBox, true));
 }
