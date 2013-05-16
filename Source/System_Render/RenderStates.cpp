@@ -2,6 +2,7 @@
 #include "RenderStates.h"
 
 ID3D11RasterizerState* RenderStates::WireframeRS = 0;
+ID3D11RasterizerState* RenderStates::WireframeNoCullRS = 0;
 ID3D11RasterizerState* RenderStates::NoCullRS    = 0;
 	 
 ID3D11BlendState*      RenderStates::AlphaToCoverageBS = 0;
@@ -10,6 +11,7 @@ ID3D11BlendState*      RenderStates::TransparentBS     = 0;
 ID3D11DepthStencilState* RenderStates::LessEqualDSS = 0;
 
 ID3D11DepthStencilState* RenderStates::GreaterEqualDSS = 0;
+ID3D11DepthStencilState* RenderStates::AlwaysDSS = 0;
 
 void RenderStates::InitAll(ID3D11Device* device)
 {
@@ -24,6 +26,18 @@ void RenderStates::InitAll(ID3D11Device* device)
 	wireframeDesc.DepthClipEnable = true;
 
 	HR(device->CreateRasterizerState(&wireframeDesc, &WireframeRS));
+
+	//
+	// WireframeRS
+	//
+	D3D11_RASTERIZER_DESC wireframeNoCullDesc;
+	ZeroMemory(&wireframeDesc, sizeof(D3D11_RASTERIZER_DESC));
+	wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
+	wireframeDesc.CullMode = D3D11_CULL_NONE;
+	wireframeDesc.FrontCounterClockwise = false;
+	wireframeDesc.DepthClipEnable = true;
+
+	HR(device->CreateRasterizerState(&wireframeDesc, &WireframeNoCullRS));
 
 	//
 	// NoCullRS
@@ -83,24 +97,38 @@ void RenderStates::InitAll(ID3D11Device* device)
 	HR(device->CreateDepthStencilState(&lessEqualDesc, &LessEqualDSS));
 
 	//
-	// LessEqualDSS
+	// GreaterEqualDSS
 	//
 
 	D3D11_DEPTH_STENCIL_DESC greaterEqualDesc;
 	greaterEqualDesc.DepthEnable      = true;
 	greaterEqualDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ALL;
-	greaterEqualDesc.DepthFunc        = D3D11_COMPARISON_ALWAYS; 
+	greaterEqualDesc.DepthFunc        = D3D11_COMPARISON_GREATER_EQUAL; 
 	greaterEqualDesc.StencilEnable    = false;
 
 	HR(device->CreateDepthStencilState(&greaterEqualDesc, &GreaterEqualDSS));
+
+	//
+	// AlwaysDSS
+	//
+
+	D3D11_DEPTH_STENCIL_DESC alwaysDesc;
+	greaterEqualDesc.DepthEnable      = true;
+	greaterEqualDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ALL;
+	greaterEqualDesc.DepthFunc        = D3D11_COMPARISON_ALWAYS; 
+	greaterEqualDesc.StencilEnable    = false;
+
+	HR(device->CreateDepthStencilState(&greaterEqualDesc, &AlwaysDSS));
 }
 
 void RenderStates::DestroyAll()
 {
 	ReleaseCOM(WireframeRS);
+	ReleaseCOM(WireframeNoCullRS);
 	ReleaseCOM(NoCullRS);
 	ReleaseCOM(AlphaToCoverageBS);
 	ReleaseCOM(TransparentBS);
 	ReleaseCOM(LessEqualDSS)
 	ReleaseCOM(GreaterEqualDSS);
+	ReleaseCOM(AlwaysDSS);
 }

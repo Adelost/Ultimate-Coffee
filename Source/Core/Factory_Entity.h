@@ -7,6 +7,7 @@ class Entity;
 enum EntityType
 {
 	ENTITY_EMPTY,
+	ENTITY_SKY,
 	ENTITY_CUBE,
 	ENTITY_CAMERA,
 	ENTITY_POINTLIGHT,

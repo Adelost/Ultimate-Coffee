@@ -22,6 +22,17 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 		id++;
 	}
 
+	if(p_type == ENTITY_SKY)
+	{
+		static int id = 0;
+		e->setName("skybox", id);
+		id++;
+
+		e->addData(Data::Sky());
+		e->addData(Data::Transform());
+	}
+
+
 	if(p_type == ENTITY_CUBE)
 	{
 		static int id = 0;

@@ -541,6 +541,10 @@ void Tool_Translation::unselect()
 		currentlySelectedAxis = NULL;
 	}
 
+
+	//Event_StoreCommandsAsSingleEntryInCommandHistoryGUI e2 = Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(
+
+	std::vector<Command*> translationCommands;
 	DataMapper<Data::Selected> map_selected;
 	Entity* e;
 	unsigned int i = 0;
@@ -552,10 +556,14 @@ void Tool_Translation::unselect()
 		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
 		command->setDoTranslation(trans->position.x, trans->position.y, trans->position.z);
 		command->setUndoTranslation(originalWorldsOfSelectedEntities.at(i)._41, originalWorldsOfSelectedEntities.at(i)._42, originalWorldsOfSelectedEntities.at(i)._43);
-		SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
-
+		translationCommands.push_back(command);
+		
+		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		
 		++i;
 	}
+
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&translationCommands, false));
 
 	setActiveObject(1);
 	//activeEntityId = -1;
@@ -996,7 +1004,11 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_axisArrow_IB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
+	
 	std::vector<XMFLOAT4> listOfTrianglesAsPoints;
+	listOfTrianglesAsPoints.resize(0);
+	//ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
+
 	for(unsigned int i = 0; i < meshVertices.Indices.size(); i = i + 3)
 	{
 		unsigned int indexA = meshVertices.Indices.at(i);

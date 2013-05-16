@@ -27,6 +27,8 @@ namespace Data
 
 		Matrix toWorldMatrix();
 		Matrix toRotPosMatrix();
+		Matrix toPosMatrix();
+		Matrix toRotMatrix();
 	};
 
 	/**
@@ -63,7 +65,7 @@ namespace Data
 		no intersection.
 		*/
 		static Entity* intersect(const Ray& ray);
-		bool intersect(Entity* entity, const Ray& ray);
+		bool intersect(Entity* entity, const Ray& ray, float* distance);
 	};
 
 	
@@ -77,10 +79,7 @@ namespace Data
 		int meshId;
 	};
 
-	/**
-	Should contain everything render needs.
-	Position should be fetched from Translation.
-	*/
+
 	class Update : public Type<Update>
 	{
 	public:
@@ -101,6 +100,11 @@ namespace Data
 	public:
 		Vector3 color;
 		float range;
+	};
+
+	class Sky : public Type<Sky>
+	{
+	public:
 	};
 }
 

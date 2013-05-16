@@ -30,11 +30,14 @@ void UpdateLoop::init()
 	
 	// Create Entities
 
-	FACTORY_ENTITY()->createEntity(ENTITY_POINTLIGHT);
+	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->toPointer();
+	FACTORY_ENTITY()->createEntity(ENTITY_SKY);
 
-	for(int i=0; i<2000; i++)
+	FACTORY_ENTITY()->createEntity(ENTITY_POINTLIGHT);
+	 
+	for(int i=0; i<1000; i++)
 	{
-		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->toPointer();
+		FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
 	}
 }
 

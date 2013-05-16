@@ -10,6 +10,8 @@
 #include <Core/World.h>
 #include <Core/Command_ChangeBackBufferColor.h>
 #include <Core/Command_TranslateSceneEntity.h>
+#include <Core/Command_RotateSceneEntity.h>
+#include <Core/Command_ScaleSceneEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -20,6 +22,7 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
@@ -346,52 +349,52 @@ void Manager_Docks::onEvent(IEvent* e)
 				}
 			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
 				{
-					commandText = "Translate";
+					commandText = "Translating";
 					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
 
-					// Could have the translation tool icon be displayed, instead of a color, perhaps.
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/translate";
+					commandIcon.addFile(iconPath.c_str());
+					break;
+				}
+			case Enum::CommandType::ROTATE_SCENE_ENTITY:
+				{
+					commandText = "Rotation";
+					Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
 
-					float r = 65.0f;
-					float g = 65.0f;
-					float b = 65.0f;
-
-					QColor color(r, g, b);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/rotate";
+					commandIcon.addFile(iconPath.c_str());
+					break;
+				}
+			case Enum::CommandType::SCALE_SCENE_ENTITY:
+				{
+					commandText = "Scaling";
+					Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
+					
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/scale";
+					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
 			default:
 				{
 					std::string iconPath = ICON_PATH;
-					iconPath += "Menu/save";
+					iconPath += "Tools/coffee";
 					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
 			}
 
-			if(mergeNumber > 0)
+			if(mergeNumber > 1)
 			{
-				commandText += " (" +Converter::IntToStr(mergeNumber) +")";
+				commandText += " (" + Converter::IntToStr(mergeNumber) +")";
 			}
 			QString commandtextAsQString = commandText.c_str();
 			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
 			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
 			m_commandHistoryListWidget->addItem(item);
 			item->setHidden(hidden);
-			//commandHistoryListWidget->setItemSelected(item, true);
-
-			//int nrOfListItems = commandHistoryListWidget->count();
-
-			// QListWidget
-			// to remove items from commandHistoryListWidget,
-			// use commandHistoryListWidget->takeItem(index);
-
-			//new QListWidgetItem(QIcon(iconPath.c_str()), commandList.at(i).c_str(), commandHistoryListWidget);
-			//commandHistoryListWidget->sortItems(Qt::SortOrder::DescendingOrder); //check performance hit if long list
-			//commandHistoryListWidget->setViewMode(QListView::ViewMode::IconMode);
-			//commandHistoryListWidget->setLayoutMode(QListView::LayoutMode::SinglePass);
-			//commandHistoryListWidget->setIconSize(QSize(10000, 10000));
 		break;
 		}
 	case EVENT_SET_SELECTED_COMMAND_GUI:
@@ -401,7 +404,8 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			if(index == -1) // Special case: jump out of history
 			{
-				m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
+				//m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
+				m_commandHistoryListWidget->item(0)->setSelected(false);
 			}
 			else
 			{
@@ -423,6 +427,39 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 			connectCommandHistoryWidget(true);
 
+			break;
+		}
+	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
+		{
+			Event_GetNextOrPreviousVisibleCommandRowInCommandHistory* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistory*>(e);
+			bool next = getEvent->next;
+			int currentCommand = getEvent->currentCommandHistoryIndex;
+
+			int nrOfRows = m_commandHistoryListWidget->count();
+			int currentRow = m_commandHistoryListWidget->currentRow();
+			int addValue;
+			if(next)
+			{
+				if(currentCommand > -1)
+				{
+					currentRow++;
+				}
+				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
+				{
+					currentRow++;
+				}
+			}
+			else
+			{
+				currentRow--;
+				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
+				{
+					currentRow--;
+				}
+			}
+
+			getEvent->row = currentRow; //Return value
+				
 			break;
 		}
 	}

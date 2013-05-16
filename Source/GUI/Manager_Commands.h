@@ -26,7 +26,8 @@ private:
 	//QTimer soundTimer;
 	//int nrOfSoundsPlayedSinceLastReset;
 
-	void storeCommandInCommandHistory(Command* command, bool execute, int nrOfJumps, bool hiddenInGUIList, int GUI_MergeNumber = 0);
+	bool storeCommandInCommandHistory(Command* command, bool execute);
+	void updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd);
 	void jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
 

@@ -88,7 +88,7 @@ int Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(int commandHisto
 	->Mapping:
 	f(0)=3
 	f(1)=2
-	f(2)=1
+	f(2)=1-
 	f(3)=0
 
 	nrOfCommands: 4

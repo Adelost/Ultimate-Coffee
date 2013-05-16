@@ -12,28 +12,36 @@ EntityPointer Data::Selected::lastSelected;
 Entity* Data::Bounding::intersect( const Ray& ray )
 {
 	Entity* out = nullptr;
+	float hitDistance = FLT_MAX;
 
 	DataMapper<Data::Bounding> map_bounding;
 	while(map_bounding.hasNext())
 	{
 		Entity* entity = map_bounding.nextEntity();
 		Data::Bounding* d_bounding  = entity->fetchData<Data::Bounding>();
-		if(d_bounding->intersect(entity, ray))
-			out = entity;
+
+		float d;
+		if(d_bounding->intersect(entity, ray, &d))
+		{
+			if(d < hitDistance)
+			{
+				out = entity;
+				hitDistance = d;
+			}
+		}	
 	}
 
 	return out;
 }
 
-bool Data::Bounding::intersect( Entity* entity, const Ray& ray )
+bool Data::Bounding::intersect( Entity* entity, const Ray& ray, float* distance)
 {
 	// Create bounding shape
 	Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
 	BoundingSphere sphere(d_transform->position, 1.0f);
 
 	// Perform intersection test
-	float d;
-	bool out = ray.Intersects(sphere, d);
+	bool out = ray.Intersects(sphere, *distance);
 
 	return out;
 }
@@ -92,6 +100,20 @@ Matrix Data::Transform::toRotPosMatrix()
 	Matrix mat_rot = Matrix::CreateFromQuaternion(rotation);
 
 	Matrix m = mat_rot*mat_pos;
+	return m;
+}
+
+Matrix Data::Transform::toPosMatrix()
+{
+	Matrix m = Matrix::CreateTranslation(position);
+
+	return m;
+}
+
+Matrix Data::Transform::toRotMatrix()
+{
+	Matrix m = Matrix::CreateFromQuaternion(rotation);
+
 	return m;
 }
 

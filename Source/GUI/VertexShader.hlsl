@@ -19,6 +19,8 @@ cbuffer cbPerFrame
 	float4 plPosition[NUMBER_OF_POINTLIGHTS];
 	float4 plColor[NUMBER_OF_POINTLIGHTS];
 	float plRange[NUMBER_OF_POINTLIGHTS];
+
+	int drawDebug;
 };
 
 struct VertexIn
@@ -50,9 +52,14 @@ PixelIn vertexMain( VertexIn vIn )
 
 float4 pixelMain( PixelIn pIn ) : SV_TARGET
 {
+	if(drawDebug)
+	{
+		return float4(0.0, 1.0, 0.0, 1.0);
+		//return float4(0.4, 0.6, 0.9, 1.0);
+	}
+
 	float3 lightDir = normalize(dlDirectionAndAmbient.xyz);
-	float ambient = dlDirectionAndAmbient.w;
-	float3 normal = normalize(pIn.normal);
+	float ambient = dlDirectionAndAmbient.w;	float3 normal = normalize(pIn.normal);
 
 	// Calculate directional light
 	float lightValue = max(dot(lightDir, normal), 0);
