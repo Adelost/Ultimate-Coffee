@@ -40,6 +40,7 @@ public:
 	int DXViewPortTopLeftY;
 	int DXViewPortMinDepth;
 	int DXViewPortMaxDepth;
+	bool showSkybox;
 
 public:
 	Settings();

@@ -102,13 +102,26 @@ void Manager_Commands::setupMenu()
 	connect(mapper, SIGNAL(mapped(QString)), this, SLOT(setBackBufferColor(QString)));
 
 	// Setup actions
+	createTestButton("#6699e6", mapper);
+	createTestButton("#00d423", mapper);
+	createTestButton("#f30000", mapper);
+	
+	createTestButton("#fff", mapper);
 	createTestButton("#000", mapper);
-	createTestButton("#f00", mapper);
-	createTestButton("#0f0", mapper);
-	createTestButton("#00f", mapper);
-	createTestButton("#0ff", mapper);
-	createTestButton("#ff0", mapper);
-	createTestButton("#f0f", mapper);
+
+	// Toggle button
+	{
+		std::string path = "";
+		std::string icon_name = "Skybox";
+		path = path + ICON_PATH + "Options/" + icon_name;
+
+		QAction* a = new QAction(QIcon(path.c_str()), icon_name.c_str(), m_window);
+		a->setCheckable(true);
+		a->setChecked(true);
+		m_toolbar_commands->addAction(a);
+
+		connect(a, SIGNAL(triggered(bool)), this, SLOT(enableSkybox(bool)));
+	}
 }
 
 bool Manager_Commands::storeCommandInCommandHistory(Command* command, bool execute)
@@ -157,7 +170,7 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 {
 	QColor color = (p_str_color);
 	Command_ChangeBackBufferColor* command0 = new Command_ChangeBackBufferColor();
-	command0->setDoColor(color.red(), color.green(), color.blue());
+	command0->setDoColor(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f);
 	command0->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
 	SEND_EVENT(&StoreCommandInCommandHistory(command0, true));
 }
@@ -351,4 +364,9 @@ void Manager_Commands::onEvent(IEvent* e)
 			break;
 		}
 	}
+}
+
+void Manager_Commands::enableSkybox( bool state )
+{
+	SETTINGS()->showSkybox = state;
 }

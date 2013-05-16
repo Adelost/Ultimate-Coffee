@@ -337,9 +337,9 @@ void Manager_Docks::onEvent(IEvent* e)
 					commandText = "Backbuffer color";
 					Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
 				
-					float x = changeBackBufferColorEvent->getDoColorX();
-					float y = changeBackBufferColorEvent->getDoColorY();
-					float z = changeBackBufferColorEvent->getDoColorZ();
+					float x = changeBackBufferColorEvent->getDoColorX() * 255;
+					float y = changeBackBufferColorEvent->getDoColorY() * 255;
+					float z = changeBackBufferColorEvent->getDoColorZ() * 255;
 
 					QColor color(x,y,z);
 					QPixmap pixmap(16, 16);
@@ -546,7 +546,7 @@ void Manager_Docks::update()
 	{
 		Entity* e = map_trans.nextEntity();
 
-		if(entityCount >= rowCount && entityCount < 1000)
+		if(entityCount >= rowCount && entityCount < 10000)
 		{
 			QStandardItem* item;
 			item = new QStandardItem(e->name().c_str());

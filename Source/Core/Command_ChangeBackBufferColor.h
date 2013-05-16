@@ -28,7 +28,10 @@ public:
 	void loadDataStructFromBytes(char* data){m_commandData = *reinterpret_cast<BackBufferColorData*>(data);}
 
 	// Set/get functions
-	void setDoColor(float x, float y, float z){m_commandData.doX=x;m_commandData.doY=y;m_commandData.doZ=z;}
+	void setDoColor(float x, float y, float z)
+	{
+		m_commandData.doX=x;m_commandData.doY=y;m_commandData.doZ=z;
+	}
 	void setUndoColor(float x, float y, float z){m_commandData.undoX=x;m_commandData.undoY=y;m_commandData.undoZ=z;}
 	float getDoColorX(){return m_commandData.doX;}
 	float getDoColorY(){return m_commandData.doY;}

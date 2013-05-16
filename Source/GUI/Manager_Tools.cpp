@@ -68,15 +68,15 @@ void Manager_Tools::setupActions()
 
 	// Context bar
 	m_ui->contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-	QMenu* menu;
-	menu = new QMenu("Info", m_window);
-	menu->setIcon(createIcon("Selection"));
-	m_ui->contextBar->addAction(menu->menuAction());
+//	QMenu* menu;
+// 	menu = new QMenu("Info", m_window);
+// 	menu->setIcon(createIcon("Selection"));
+// 	m_ui->contextBar->addAction(menu->menuAction());
 
-	m_ui->contextBar->addSeparator();
-	createContextIcon("Toast");
+	//m_ui->contextBar->addSeparator();
+//	createContextIcon("Toast");
 	createContextIcon("Coffee");
-	createContextIcon("Wine");
+	//createContextIcon("Wine");
 	createContextIcon("Experiment");
 	createContextIcon("Tool");
 

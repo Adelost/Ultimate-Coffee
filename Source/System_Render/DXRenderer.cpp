@@ -179,7 +179,8 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
 
 	// Draw SkyBox
-	m_sky->draw();
+	if(SETTINGS()->showSkybox)
+		m_sky->draw();
 
 	// Draw Tools
 	m_manager_tools->update();
