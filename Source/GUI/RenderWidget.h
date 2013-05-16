@@ -4,7 +4,7 @@
 #include <Core/IObserver.h>
 #include <QKeyEvent>
 #include <QMouseEvent> // needed to grabb mouse input
-class IEvent;
+class Event;
 
 class RenderWidget : public QWidget, public IObserver
 {
@@ -15,7 +15,7 @@ public:
 	~RenderWidget();
 	QPoint prevMousePos;
 
-	void onEvent(IEvent* p_event);
+	void onEvent(Event* p_event);
 
 	 // Overrides Qt:s own paint engine. Prevents flicker.
 	QPaintEngine* paintEngine() const {return 0;}

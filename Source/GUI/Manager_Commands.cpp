@@ -296,7 +296,7 @@ void Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
 	mapper->setMapping(a, color);
 }
 
-void Manager_Commands::onEvent(IEvent* e)
+void Manager_Commands::onEvent(Event* e)
 {
 	EventType type = e->type();
 	switch (type)

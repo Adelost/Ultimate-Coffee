@@ -50,5 +50,5 @@ public slots:
 	void translateSceneEntity();
 	void enableSkybox(bool state);
 
-	void onEvent(IEvent* e);
+	void onEvent(Event* e);
 };

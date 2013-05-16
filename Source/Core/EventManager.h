@@ -2,21 +2,21 @@
 
 class IObserver;
 enum EventType;
-class IEvent;
+class Event;
 
 class DelayedEvent
 {
 private:
-	IEvent* e;
+	Event* e;
 	float delay;
 
 public:
-	DelayedEvent(IEvent* e, float delay);
+	DelayedEvent(Event* e, float delay);
 
 	// Returns TRUE if the delay timer expires or has expired
 	bool isReady(float delta);
 
-	IEvent* getEvent();
+	Event* getEvent();
 };
 
 // Redirect events to each appropriate IObserver.
@@ -25,7 +25,7 @@ class EventManager
 {
 private:
 	std::vector<std::vector<IObserver*>>* subscribers;	
-	std::vector<std::vector<IEvent*>>* queues;			//! Used to queue Events if queue feature is used
+	std::vector<std::vector<Event*>>* queues;			//! Used to queue Events if queue feature is used
 	std::vector<std::vector<DelayedEvent>>* delayedQueues;	//! Same function as queues, except message is delayed from sending until at specified time interval is sent
 
 	EventManager();
@@ -60,12 +60,12 @@ public:
 	/** 
 	Sends event to all relevant observers.
 	*/
-	void sendEvent(IEvent* e);
+	void sendEvent(Event* e);
 
 	/** 
 	Queue an event so it can be sent later by using flushEventQueue.
 	*/
-	void queueEvent(IEvent* e);
+	void queueEvent(Event* e);
 
 	/** 
 	Sends queued Events
@@ -76,7 +76,7 @@ public:
 	Get pointer to the internal vector holding the queued Events
 	Must be Flushed afterwards to make sure events are deleted.
 	*/
-	std::vector<IEvent*>* getPointerToQueuedEvents(EventType type);
+	std::vector<Event*>* getPointerToQueuedEvents(EventType type);
 
 	/** 
 	Removes all queued messages without sending them,
@@ -97,7 +97,7 @@ public:
 	/** 
 	Post an event that will be sent when the delay (in seconds) expires
 	*/
-	void postDelayedEvent(IEvent* e, float delay);
+	void postDelayedEvent(Event* e, float delay);
 };
 
 

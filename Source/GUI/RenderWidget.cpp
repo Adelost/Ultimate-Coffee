@@ -21,7 +21,7 @@ RenderWidget::~RenderWidget()
 {
 }
 
-void RenderWidget::onEvent( IEvent* p_event )
+void RenderWidget::onEvent( Event* p_event )
 {
 	EventType type = p_event->type();
 	switch (type)
@@ -222,7 +222,7 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 
 	// HACK: Set tools, should be refactored later
-	SEND_EVENT(&IEvent(EVENT_SET_TOOL));
+	SEND_EVENT(&Event(EVENT_SET_TOOL));
 
 	// HACK: Hide mouse when rotating camera
 	if(button == Qt::RightButton)

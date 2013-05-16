@@ -12,7 +12,7 @@ class Manager_Docks;
 class Manager_Tools;
 class QTimer;
 class UpdateLoop;
-class IEvent;
+class Event;
 class QColor;
 class QSpacerItem;
 class ISystem;
@@ -70,7 +70,7 @@ public:
 	void init();
 	~Window();
 
-	void onEvent(IEvent* p_event);
+	void onEvent(Event* p_event);
 	Ui::MainWindow* ui();
 	QIcon createIcon(QColor* p_color);
 	QSpacerItem* createSpacer(Qt::Orientation p_orientation);

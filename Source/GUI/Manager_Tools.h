@@ -9,7 +9,7 @@ class QActionGroup;
 class QAction;
 class QIcon;
 class QSignalMapper;
-class IEvent;
+class Event;
 
 class Manager_Tools : public QObject, public IObserver
 {
@@ -23,7 +23,7 @@ private:
 
 public:
 	void init();
-	void onEvent(IEvent* p_event);
+	void onEvent(Event* p_event);
 
 	void setupToolbar();
 	void setupActions();
@@ -34,4 +34,5 @@ public:
 public slots:
 	void action_about();
 	void setTool(int p_toolType);
+	void coffee();
 };

@@ -10,6 +10,8 @@ DXRenderer::DXRenderer()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_BACKBUFFER_COLOR);
 	SUBSCRIBE_TO_EVENT(this, EVENT_WINDOW_RESIZE);
+	SUBSCRIBE_TO_EVENT(this, EVENT_COFFEE);
+
 
 	m_dxDevice = nullptr;
 	m_dxDeviceContext = nullptr;
@@ -83,7 +85,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 	return result;
 }
 
-void DXRenderer::onEvent(IEvent* p_event)
+void DXRenderer::onEvent(Event* p_event)
 {
 	EventType type = p_event->type();
 	switch (type)
@@ -103,6 +105,21 @@ void DXRenderer::onEvent(IEvent* p_event)
 			m_clientHeight = windowResizeEvent->height;
 			resizeDX();
 		}
+		break;
+	case EVENT_COFFEE:
+		{
+			// Recreate geometry
+			Factory_Geometry::MeshData box;
+			Factory_Geometry::instance()->createSphere(1.0f, 3, 3, box);
+			std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
+
+			// Create vertex buffer
+			SafeDelete(m_vertexBuffer);
+			m_vertexBuffer = new Buffer();
+			HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), vertex_list.size(), &vertex_list[0], m_dxDevice));
+			m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+		}
+		break;
 	default:
 		break;
 	}

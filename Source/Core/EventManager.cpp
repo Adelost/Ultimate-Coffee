@@ -17,10 +17,10 @@ EventManager::EventManager()
 	}
 
 	// Queues
-	queues = new std::vector<std::vector<IEvent*>>;
+	queues = new std::vector<std::vector<Event*>>;
 	for(int i=0; i<EVENT_LAST; i++)
 	{
-		std::vector<IEvent*> v;
+		std::vector<Event*> v;
 		queues->push_back(v);
 	}
 
@@ -81,7 +81,7 @@ void EventManager::removeObserver(IObserver* observer, EventType type)
 }
 
 
-void EventManager::sendEvent(IEvent* e)
+void EventManager::sendEvent(Event* e)
 {
 	EventType eventTyp = e->type();
 	int index = eventTyp;
@@ -101,7 +101,7 @@ EventManager::~EventManager()
 	delete delayedQueues;
 }
 
-void EventManager::queueEvent( IEvent* e )
+void EventManager::queueEvent( Event* e )
 {
 	int index = e->type();
 	(*queues)[index].push_back(e);
@@ -124,7 +124,7 @@ void EventManager::flushQueuedEvents( EventType type )
 	(*queues)[index].clear();
 }
 
-std::vector<IEvent*>* EventManager::getPointerToQueuedEvents( EventType type )
+std::vector<Event*>* EventManager::getPointerToQueuedEvents( EventType type )
 {
 	int index = type;
 	return &queues->at(index);
@@ -143,7 +143,7 @@ void EventManager::cleanAllQueues()
 	{
 		for(unsigned j=0; j<delayedQueues->at(i).size(); j++)
 		{
-			IEvent* e = delayedQueues->at(i)[j].getEvent();
+			Event* e = delayedQueues->at(i)[j].getEvent();
 			delete e;
 		}
 	}
@@ -167,7 +167,7 @@ void EventManager::sendExpiredDelayedEvents( float delta )
 
 			if(delayedEvent->isReady(delta))
 			{
-				IEvent* e = delayedEvent->getEvent();
+				Event* e = delayedEvent->getEvent();
 
 				sendEvent(e);
 
@@ -185,7 +185,7 @@ void EventManager::sendExpiredDelayedEvents( float delta )
 	}
 }
 
-void EventManager::postDelayedEvent( IEvent* e, float delay )
+void EventManager::postDelayedEvent( Event* e, float delay )
 {
 	int index = e->type();
 	delayedQueues->at(index).push_back(DelayedEvent(e, delay));
@@ -193,7 +193,7 @@ void EventManager::postDelayedEvent( IEvent* e, float delay )
 
 
 
-DelayedEvent::DelayedEvent( IEvent* e, float delay )
+DelayedEvent::DelayedEvent( Event* e, float delay )
 {
 	this->e = e;
 	this->delay = delay;
@@ -212,7 +212,7 @@ bool DelayedEvent::isReady( float delta )
 	return false;
 }
 
-IEvent* DelayedEvent::getEvent()
+Event* DelayedEvent::getEvent()
 {
 	return e;
 }

@@ -21,6 +21,7 @@ enum EventType
 	EVENT_SET_CURSOR,
 	EVENT_REFRESH_SPLITTER,
 	EVENT_ENTITY_SELECTION,
+	EVENT_COFFEE,
 
 	// Commands
 	EVENT_STORE_COMMAND,
@@ -41,13 +42,13 @@ enum EventType
 
 
 /// Base class
-class IEvent
+class Event
 {
 private:
 	EventType m_type;
 
 public:
-	IEvent(EventType p_type)
+	Event(EventType p_type)
 	{ 
 		m_type = p_type;
 	}
@@ -63,25 +64,25 @@ public:
 EVENTS 
 */
 
-class Event_GetWindowHandle : public IEvent
+class Event_GetWindowHandle : public Event
 {
 public:
 	HWND handle;		
 
 public:
-	Event_GetWindowHandle() : IEvent(EVENT_GET_WINDOW_HANDLE)
+	Event_GetWindowHandle() : Event(EVENT_GET_WINDOW_HANDLE)
 	{
 	}
 };
 
-class Event_WindowResize : public IEvent
+class Event_WindowResize : public Event
 {
 public:
 	int width;		
 	int height;
 
 public:
-	Event_WindowResize(int p_width, int p_height) : IEvent(EVENT_WINDOW_RESIZE)
+	Event_WindowResize(int p_width, int p_height) : Event(EVENT_WINDOW_RESIZE)
 	{
 		width = p_width;
 		height = p_height;
@@ -93,13 +94,13 @@ public:
 	}
 };
 
-class Event_SetBackBufferColor : public IEvent
+class Event_SetBackBufferColor : public Event
 {
 public:
 	float x,y,z;
 
 public:
-	Event_SetBackBufferColor(float p_x, float p_y, float p_z) : IEvent(EVENT_SET_BACKBUFFER_COLOR)
+	Event_SetBackBufferColor(float p_x, float p_y, float p_z) : Event(EVENT_SET_BACKBUFFER_COLOR)
 	{
 		x = p_x;
 		y = p_y;
@@ -107,14 +108,14 @@ public:
 	}
 };
 
-class Event_TranslateSceneEntity : public IEvent
+class Event_TranslateSceneEntity : public Event
 {
 public:
 	int m_idOfTranslatableSceneEntity;
 	float m_transX, m_transY, m_transZ;
 
 public:
-	Event_TranslateSceneEntity(int p_idOfTranslatableSceneEntity, float p_transX, float p_transY, float p_transZ) : IEvent(EVENT_TRANSLATE_SCENE_ENTITY)
+	Event_TranslateSceneEntity(int p_idOfTranslatableSceneEntity, float p_transX, float p_transY, float p_transZ) : Event(EVENT_TRANSLATE_SCENE_ENTITY)
 	{
 		m_idOfTranslatableSceneEntity = p_idOfTranslatableSceneEntity;
 		m_transX = p_transX;
@@ -123,14 +124,14 @@ public:
 	}
 };
 
-class Event_RotateSceneEntity : public IEvent
+class Event_RotateSceneEntity : public Event
 {
 public:
 	int m_idOfRotatableSceneEntity;
 	float m_quatX, m_quatY, m_quatZ, m_quatW;
 
 public:
-	Event_RotateSceneEntity(int p_idOfRotatableSceneEntity, float p_quatX, float p_quatY, float p_quatZ, float p_quatW) : IEvent(EVENT_ROTATE_SCENE_ENTITY)
+	Event_RotateSceneEntity(int p_idOfRotatableSceneEntity, float p_quatX, float p_quatY, float p_quatZ, float p_quatW) : Event(EVENT_ROTATE_SCENE_ENTITY)
 	{
 		m_idOfRotatableSceneEntity = p_idOfRotatableSceneEntity;
 		m_quatX = p_quatX;
@@ -140,14 +141,14 @@ public:
 	}
 };
 
-class Event_ScaleSceneEntity : public IEvent
+class Event_ScaleSceneEntity : public Event
 {
 public:
 	int m_idOfScalableSceneEntity;
 	float m_scaleX, m_scaleY, m_scaleZ;
 
 public:
-	Event_ScaleSceneEntity(int p_idOfScalableSceneEntity, float p_scaleX, float p_scaleY, float p_scaleZ) : IEvent(EVENT_SCALE_SCENE_ENTITY)
+	Event_ScaleSceneEntity(int p_idOfScalableSceneEntity, float p_scaleX, float p_scaleY, float p_scaleZ) : Event(EVENT_SCALE_SCENE_ENTITY)
 	{
 		m_idOfScalableSceneEntity = p_idOfScalableSceneEntity;
 		m_scaleX = p_scaleX;
@@ -156,19 +157,19 @@ public:
 	}
 };
 
-class Event_ShowMessageBox : public IEvent
+class Event_ShowMessageBox : public Event
 {
 public:
 	std::string message;
 
 public:
-	Event_ShowMessageBox(std::string p_message) : IEvent(EVENT_SHOW_MESSAGEBOX)
+	Event_ShowMessageBox(std::string p_message) : Event(EVENT_SHOW_MESSAGEBOX)
 	{
 		message = p_message;
 	}
 };
 
-class Event_SetCursor : public IEvent
+class Event_SetCursor : public Event
 {
 public:
 	enum CursorShape
@@ -185,13 +186,13 @@ public:
 	CursorShape cursorShape;
 
 public:
-	Event_SetCursor(CursorShape p_cursor) : IEvent(EVENT_SET_CURSOR)
+	Event_SetCursor(CursorShape p_cursor) : Event(EVENT_SET_CURSOR)
 	{
 		cursorShape = p_cursor;
 	}
 };
 
-class Event_MouseMove : public IEvent
+class Event_MouseMove : public Event
 {
 public:
 	int x;
@@ -200,7 +201,7 @@ public:
 	int dy;
 
 public:
-	Event_MouseMove(int x, int y, int dx, int dy) : IEvent(EVENT_MOUSE_MOVE)
+	Event_MouseMove(int x, int y, int dx, int dy) : Event(EVENT_MOUSE_MOVE)
 	{
 		this->x = x;
 		this->y = y;
@@ -210,18 +211,18 @@ public:
 	}
 };
 
-class Event_SetTool : public IEvent
+class Event_SetTool : public Event
 {
 public:
 	int m_toolId;
 
-	Event_SetTool(int p_toolId) : IEvent(EVENT_SET_TOOL)
+	Event_SetTool(int p_toolId) : Event(EVENT_SET_TOOL)
 	{
 		m_toolId = p_toolId;
 	}
 };
 
-class Event_MousePress : public IEvent
+class Event_MousePress : public Event
 {
 public:
 	int x;
@@ -229,7 +230,7 @@ public:
 	int keyEnum;
 	bool isPressed;
 	
-	Event_MousePress(int p_x, int p_y, int p_keyEnum, bool p_isPressed) : IEvent(EVENT_MOUSE_PRESS)
+	Event_MousePress(int p_x, int p_y, int p_keyEnum, bool p_isPressed) : Event(EVENT_MOUSE_PRESS)
 	{
 		x = p_x;
 		y = p_y;
@@ -238,31 +239,31 @@ public:
 	}
 };
 
-class Event_MouseWheel : public IEvent
+class Event_MouseWheel : public Event
 {
 public:
 	int value;
 
-	Event_MouseWheel( int value ) : IEvent(EVENT_MOUSE_WHEEL)
+	Event_MouseWheel( int value ) : Event(EVENT_MOUSE_WHEEL)
 	{
 		this->value = value;
 	}
 };
 
-class Event_SetCursorPosition : public IEvent
+class Event_SetCursorPosition : public Event
 {
 public:
 	Int2 position;
 
 public:
-	Event_SetCursorPosition( Int2 position ) : IEvent(EVENT_SET_CURSOR_POSITION)
+	Event_SetCursorPosition( Int2 position ) : Event(EVENT_SET_CURSOR_POSITION)
 	{
 		this->position = position;
 	}
 };
 
 class Command;
-class StoreCommandInCommandHistory : public IEvent
+class StoreCommandInCommandHistory : public Event
 {
 public:
 	Command* command;
@@ -270,7 +271,7 @@ public:
 	bool setAsCurrentInGUI; // Performance critical when sending lots of "StoreCommandInCommandHistory" events in a row. Set to false if this event is not the last "StoreCommandInCommandHistory" sent in a row. Standard is true, which is fitting for single commands.
 
 public:
-	StoreCommandInCommandHistory(Command* command, bool execute = false, bool setAsCurrentInGUI = true) : IEvent(EVENT_STORE_COMMAND)
+	StoreCommandInCommandHistory(Command* command, bool execute = false, bool setAsCurrentInGUI = true) : Event(EVENT_STORE_COMMAND)
 	{
 		this->command = command;
 		this->execute = execute;
@@ -278,21 +279,21 @@ public:
 	}
 };
 
-class Event_StoreCommandsAsSingleEntryInCommandHistoryGUI : public IEvent
+class Event_StoreCommandsAsSingleEntryInCommandHistoryGUI : public Event
 {
 public:
 	std::vector<Command*>* commands;
 	bool execute; // Whether or not to execute the commands when adding them to the command history. Standard is false.
 	
 public:
-	Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(std::vector<Command*>* commands, bool execute = false) : IEvent(EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY)
+	Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(std::vector<Command*>* commands, bool execute = false) : Event(EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY)
 	{
 		this->commands = commands;
 		this->execute = execute;
 	}
 };
 
-class Event_AddCommandToCommandHistoryGUI : public IEvent
+class Event_AddCommandToCommandHistoryGUI : public Event
 {
 public:
 	Command* command;
@@ -300,7 +301,7 @@ public:
 	int mergeNumber;
 
 public:
-	Event_AddCommandToCommandHistoryGUI(Command* command, bool hidden, int mergeNumber = 0) : IEvent(EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI)
+	Event_AddCommandToCommandHistoryGUI(Command* command, bool hidden, int mergeNumber = 0) : Event(EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI)
 	{
 		this->command = command;
 		this->hidden = hidden;
@@ -308,14 +309,14 @@ public:
 	}
 };
 
-class Event_RemoveCommandsFromCommandHistoryGUI : public IEvent
+class Event_RemoveCommandsFromCommandHistoryGUI : public Event
 {
 public:
 	int startIndex; // Index of first command to be removed
 	int nrOfCommands; // Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex".
 
 public:
-	Event_RemoveCommandsFromCommandHistoryGUI(int startIndex, int nrOfCommands = 1) : IEvent(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
+	Event_RemoveCommandsFromCommandHistoryGUI(int startIndex, int nrOfCommands = 1) : Event(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
 	{
 		this->startIndex = startIndex;
 		this->nrOfCommands = nrOfCommands;
@@ -323,43 +324,43 @@ public:
 };
 
 // Backtracks by undoing until a command index is reached, or track forward by redoing until command index is reached
-class Event_TrackToCommandHistoryIndex : public IEvent
+class Event_TrackToCommandHistoryIndex : public Event
 {
 public:
 	int indexOfCommand;
 
 public:
-	Event_TrackToCommandHistoryIndex(int indexOfCommand) : IEvent(EVENT_TRACK_TO_COMMAND_HISTORY_INDEX)
+	Event_TrackToCommandHistoryIndex(int indexOfCommand) : Event(EVENT_TRACK_TO_COMMAND_HISTORY_INDEX)
 	{
 		this->indexOfCommand = indexOfCommand;
 	}
 };
 
-class Event_SetSelectedCommandGUI : public IEvent
+class Event_SetSelectedCommandGUI : public Event
 {
 public:
 	int indexOfCommand;
 
 public:
-	Event_SetSelectedCommandGUI(int indexOfCommand) : IEvent(EVENT_SET_SELECTED_COMMAND_GUI)
+	Event_SetSelectedCommandGUI(int indexOfCommand) : Event(EVENT_SET_SELECTED_COMMAND_GUI)
 	{
 		this->indexOfCommand = indexOfCommand;
 	}
 };
 
-class Event_GetCommanderInfo : public IEvent
+class Event_GetCommanderInfo : public Event
 {
 public:
 	int indexOfCurrentCommand;
 	int nrOfCommands;
 
 public:
-	Event_GetCommanderInfo() : IEvent(EVENT_GET_COMMANDER_INFO)
+	Event_GetCommanderInfo() : Event(EVENT_GET_COMMANDER_INFO)
 	{
 	}
 };
 
-class Event_GetNextOrPreviousVisibleCommandRowInCommandHistory : public IEvent
+class Event_GetNextOrPreviousVisibleCommandRowInCommandHistory : public Event
 {
 public:
 	int row; // Return value
@@ -367,7 +368,7 @@ public:
 	int currentCommandHistoryIndex; // Needed for special case when jumping in and out of history (refer to Event_GetNextOrPreviousVisibleCommandRowInCommandHistory)
 
 public:
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory(bool next, int currentCommandHistoryIndex) : IEvent(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory(bool next, int currentCommandHistoryIndex) : Event(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
 	{
 		this->next = next;
 		this->currentCommandHistoryIndex = currentCommandHistoryIndex;

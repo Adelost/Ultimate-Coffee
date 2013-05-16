@@ -75,7 +75,8 @@ void Manager_Tools::setupActions()
 
 	//m_ui->contextBar->addSeparator();
 //	createContextIcon("Toast");
-//	QAction* a = createContextIcon("Coffee");
+	a = createContextIcon("Coffee");
+	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
 
 	//createContextIcon("Wine");
 	createContextIcon("Experiment");
@@ -138,7 +139,7 @@ void Manager_Tools::setTool( int p_toolType )
 	}
 }
 
-void Manager_Tools::onEvent( IEvent* p_event )
+void Manager_Tools::onEvent( Event* p_event )
 {
 	EventType type = p_event->type();
 	switch (type)
@@ -151,4 +152,9 @@ void Manager_Tools::onEvent( IEvent* p_event )
 	default:
 		break;
 	}
+}
+
+void Manager_Tools::coffee()
+{
+	SEND_EVENT(&Event(EVENT_COFFEE));
 }

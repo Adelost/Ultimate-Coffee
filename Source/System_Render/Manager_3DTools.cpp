@@ -132,7 +132,7 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 //	}
 //}
 
-void Manager_3DTools::onEvent( IEvent* p_event )
+void Manager_3DTools::onEvent( Event* p_event )
 {
 	EventType type = p_event->type();
 

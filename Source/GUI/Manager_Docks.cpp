@@ -315,7 +315,7 @@ ISystem* Manager_Docks::getAsSystem()
 	return new System_Editor(this);
 }
 
-void Manager_Docks::onEvent(IEvent* e)
+void Manager_Docks::onEvent(Event* e)
 {
 	EventType type = e->type();
 	switch (type) 
@@ -597,7 +597,7 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 		Data::Selected::findLastSelected();
 
 	// Inform about selection
-	SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
+	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
 }
 
 
@@ -609,7 +609,7 @@ void System_Editor::update()
 ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
-	POST_DELAYED_EVENT(new IEvent(EVENT_REFRESH_SPLITTER), 0.0f);
+	POST_DELAYED_EVENT(new Event(EVENT_REFRESH_SPLITTER), 0.0f);
 
 	setObjectName("Item Browser");
 
@@ -726,7 +726,7 @@ void ItemBrowser::loadGrid( int row )
 	loadGrid(m_tree->item(row));
 }
 
-void ItemBrowser::onEvent( IEvent* e )
+void ItemBrowser::onEvent( Event* e )
 {
 	EventType type = e->type();
 	switch (type) 

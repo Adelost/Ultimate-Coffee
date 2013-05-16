@@ -62,7 +62,7 @@ public:
 	~DXRenderer();
 
 	bool init(HWND p_windowHandle);
-	void onEvent(IEvent* p_event);
+	void onEvent(Event* p_event);
 	void renderFrame();
 
 	bool initDX();
