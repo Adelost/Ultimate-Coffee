@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <iomanip>
+#include <sstream>
 
 /**
 A Utility class to convert between common classes

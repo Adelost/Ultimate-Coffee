@@ -44,8 +44,8 @@ private:
 	Sky*						m_sky;
 
 	CBPerObject					m_CBPerObject;
-	CBPerFrame		
-	m_CBPerFrame;
+	CBPerFrame					m_CBPerFrame;
+
 	bool m_msaa_enable;
 	unsigned int m_msaa_quality;
 	int m_clientHeight;
@@ -53,6 +53,8 @@ private:
 	static DXRenderer* s_instance;
 
 	Manager_3DTools *m_manager_tools;
+
+	void updatePointLights();
 
 public:
 	DXRenderer();

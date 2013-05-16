@@ -56,5 +56,21 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 		d_camera->updateViewMatrix(d_transform->position);
 	}
 
+	if(p_type == ENTITY_POINTLIGHT)
+	{
+		static int id = 0;
+		e->setName("point light", id);
+		id++;
+
+		Data::Transform* transform = e->addData(Data::Transform());
+		transform->position = Vector3(30.0f, 0.0f, 30.0f);
+		
+		Data::PointLight* pointLight = e->addData(Data::PointLight());
+		pointLight->color = Vector3(1.0f, 0.0f, 0.0f);
+		pointLight->range = 50.0f;
+
+		e->addData(Data::Render());
+	}
+
 	return e;
 }

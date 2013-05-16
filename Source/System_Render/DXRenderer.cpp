@@ -25,9 +25,16 @@ DXRenderer::DXRenderer()
 	m_CBPerObject.WVP.Identity();
 	m_CBPerObject.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
 
-	m_CBPerFrame.ambient = 0.2f;
-	m_CBPerFrame.dlColor = Vector3(1.0f, 1.0f, 1.0f);
-	m_CBPerFrame.dlDirection = Vector3(0.0f, 1.0f, 0.0f);
+	float ambient = 0.2f;
+	m_CBPerFrame.dlColor = Vector4(1.0f, 1.0f, 1.0f, ambient);
+	m_CBPerFrame.dlDirection = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+
+	for(unsigned int i = 0; i < MAX_POINTLIGHTS; i++)
+	{
+		m_CBPerFrame.plColor[i] = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+		m_CBPerFrame.plPosition[i] = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+		m_CBPerFrame.plRange[i] = 0.0f;
+	}
 }
 
 DXRenderer::~DXRenderer()
@@ -120,9 +127,12 @@ void DXRenderer::renderFrame()
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	// Start rendering
+
+	updatePointLights();
+
+	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	Matrix viewProjection;
 	// HACK: Adding camera to renderer
@@ -270,9 +280,6 @@ bool DXRenderer::initDX()
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
 
-	
-
-
 	// Create box
 	Factory_Geometry::MeshData box;
 	//Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
@@ -415,4 +422,29 @@ ID3D11DeviceContext* DXRenderer::getDeviceContext()
 ID3D11DepthStencilView* DXRenderer::getDepthStencilView()
 {
 	return this->m_view_depthStencil;
+}
+
+void DXRenderer::updatePointLights()
+{
+	DataMapper<Data::PointLight> map_pointLight;
+	for(unsigned int i = 0; i < MAX_POINTLIGHTS; i++)
+	{
+		if(map_pointLight.hasNext())
+		{
+			Entity* e = map_pointLight.nextEntity();
+
+			Data::Transform* transform =  e->fetchData<Data::Transform>();
+			Data::PointLight* pointLight =  e->fetchData<Data::PointLight>();
+			
+			m_CBPerFrame.plPosition[i] = Vector4(transform->position.x, transform->position.y, transform->position.z, 0.0f);
+			m_CBPerFrame.plColor[i] = Vector4(pointLight->color.x, pointLight->color.y, pointLight->color.z, 0.0f);
+			m_CBPerFrame.plRange[i] = pointLight->range;
+		}
+		else
+		{
+			m_CBPerFrame.plColor[i] = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+			m_CBPerFrame.plPosition[i] = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+			m_CBPerFrame.plRange[i] = 0.0f;
+		}
+	}
 }

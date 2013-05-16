@@ -19,6 +19,8 @@
 	OutputDebugString(os.str().c_str());		\
 }
 
+#define MAX_POINTLIGHTS 4
+
 // Paths
 #define ICON_PATH												\
 	"../../Assets/GUI/Icons/"

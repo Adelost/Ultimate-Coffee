@@ -29,6 +29,9 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 	
 	// Create Entities
+
+	FACTORY_ENTITY()->createEntity(ENTITY_POINTLIGHT);
+
 	for(int i=0; i<2000; i++)
 	{
 		SETTINGS()->entity_selection = FACTORY_ENTITY()->createEntity(ENTITY_CUBE)->toPointer();
