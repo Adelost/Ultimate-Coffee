@@ -75,7 +75,8 @@ void Manager_Tools::setupActions()
 
 	//m_ui->contextBar->addSeparator();
 //	createContextIcon("Toast");
-	createContextIcon("Coffee");
+//	QAction* a = createContextIcon("Coffee");
+
 	//createContextIcon("Wine");
 	createContextIcon("Experiment");
 	createContextIcon("Tool");

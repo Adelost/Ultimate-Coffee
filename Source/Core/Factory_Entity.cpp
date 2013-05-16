@@ -70,7 +70,7 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 	if(p_type == ENTITY_POINTLIGHT)
 	{
 		static int id = 0;
-		e->setName("point light", id);
+		e->setName("point_light", id);
 		id++;
 
 		Data::Transform* transform = e->addData(Data::Transform());
