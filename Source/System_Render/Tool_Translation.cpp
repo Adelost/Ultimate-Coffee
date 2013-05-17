@@ -346,6 +346,10 @@ void Tool_Translation::setActiveObject(int entityId)
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
 	}
+	else
+	{
+		activeEntity.invalidate();
+	}
 }
 
 EntityPointer Tool_Translation::getActiveObject()
