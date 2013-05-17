@@ -74,7 +74,7 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 		id++;
 
 		Data::Transform* transform = e->addData(Data::Transform());
-		transform->position = Vector3(30.0f, 0.0f, 30.0f);
+		transform->position = Vector3(30.0f * id, 0.0f, 30.0f * id);
 		
 		Data::PointLight* pointLight = e->addData(Data::PointLight());
 		pointLight->color = Vector3(1.0f, 0.0f, 0.0f);

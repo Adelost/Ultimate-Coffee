@@ -30,13 +30,13 @@ DXRenderer::DXRenderer()
 
 	float ambient = 0.2f;
 	m_CBPerFrame.dlColor = Vector4(1.0f, 1.0f, 1.0f, ambient);
-	m_CBPerFrame.dlDirection = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+	m_CBPerFrame.dlDirectionAndAmbient = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
 
 	for(unsigned int i = 0; i < MAX_POINTLIGHTS; i++)
 	{
-		m_CBPerFrame.plColor[i] = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+		float range = 0.0f;
 		m_CBPerFrame.plPosition[i] = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-		m_CBPerFrame.plRange[i] = 0.0f;
+		m_CBPerFrame.plColorAndRange[i] = Vector4(0.0f, 0.0f, 0.0f, range);
 	}
 }
 
@@ -482,15 +482,15 @@ void DXRenderer::updatePointLights()
 			Data::Transform* transform =  e->fetchData<Data::Transform>();
 			Data::PointLight* pointLight =  e->fetchData<Data::PointLight>();
 			
-			m_CBPerFrame.plPosition[i] = Vector4(transform->position.x, transform->position.y, transform->position.z, 0.0f);
-			m_CBPerFrame.plColor[i] = Vector4(pointLight->color.x, pointLight->color.y, pointLight->color.z, 0.0f);
-			m_CBPerFrame.plRange[i] = pointLight->range;
+			float range = pointLight->range;
+			m_CBPerFrame.plPosition[i] = Vector4(transform->position.x, transform->position.y, transform->position.z, 1.0f);
+			m_CBPerFrame.plColorAndRange[i] = Vector4(pointLight->color.x, pointLight->color.y, pointLight->color.z, range);
 		}
 		else
 		{
-			m_CBPerFrame.plColor[i] = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+			float range = 0.0f;
 			m_CBPerFrame.plPosition[i] = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-			m_CBPerFrame.plRange[i] = 0.0f;
+			m_CBPerFrame.plColorAndRange[i] = Vector4(0.0f, 0.0f, 0.0f, range);
 		}
 	}
 }
