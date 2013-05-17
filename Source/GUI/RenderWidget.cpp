@@ -126,7 +126,7 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 		float y = XMConvertToRadians(0.20f*(float)dy);
 
 		// Rotate camera
-		d_camera->rotateZ(y);
+		d_camera->rotateX(y);
 		d_camera->rotateY(x);
 		d_camera->updateViewMatrix(d_transform->position);
 	}

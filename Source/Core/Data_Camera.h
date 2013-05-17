@@ -52,7 +52,7 @@ namespace Data
 			m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
 		};
 
-		void rotateZ(float p_angle)
+		void rotateX(float p_angle)
 		{
 			Matrix mat_rot = Matrix::CreateFromAxisAngle(m_right, p_angle);
 			m_up = Vector3::TransformNormal(m_up, mat_rot);
