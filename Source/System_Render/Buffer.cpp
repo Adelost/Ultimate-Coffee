@@ -3,31 +3,19 @@
 #include "Buffer.h"
 #include <Core/EventManager.h>
 
-// Set static variables to zero
-// Static counter of constant buffers in use
-unsigned int Buffer::m_numberOfVSConstantBuffers = 0;
-unsigned int Buffer::m_numberOfPSConstantBuffers = 0;
-
 Buffer::Buffer()
 {
 	m_buffer = nullptr;
 	m_type = BufferType::UNINITIALIZED;
 	m_elementSize = 0;
-	m_constantBufferNumber = 0;
 }
 
 Buffer::~Buffer()
 {
-	if(m_type == BufferType::VS_CONSTANT_BUFFER)
-		m_numberOfVSConstantBuffers--;
-	else if(m_type == BufferType::PS_CONSTANT_BUFFER)
-		m_numberOfPSConstantBuffers--;
-
 	ReleaseCOM(m_buffer);
 	m_buffer = nullptr;
 	m_type = BufferType::UNINITIALIZED;
 	m_elementSize = 0;
-	m_constantBufferNumber = 0;
 }
 
 HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int p_count, const void* p_data, ID3D11Device* p_device)
@@ -51,15 +39,11 @@ HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int
 		case BufferType::VS_CONSTANT_BUFFER:
 		{
 			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-			m_constantBufferNumber = m_numberOfVSConstantBuffers;
-			m_numberOfVSConstantBuffers++;
 			break;
 		}
 		case BufferType::PS_CONSTANT_BUFFER:
 		{
 			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-			m_constantBufferNumber = m_numberOfPSConstantBuffers;
-			m_numberOfPSConstantBuffers++;
 			break;
 		}
 		default:
@@ -92,7 +76,7 @@ HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int
 	return S_OK;
 }
 
-void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext)
+void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext, unsigned int p_constantBufferIndex)
 {
 	switch(m_type)
 	{
@@ -110,12 +94,12 @@ void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext)
 		break;
 	case BufferType::VS_CONSTANT_BUFFER:
 		{
-			p_deviceContext->VSSetConstantBuffers(0, 1, &m_buffer);
+			p_deviceContext->VSSetConstantBuffers(p_constantBufferIndex, 1, &m_buffer);
 		}
 		break;
 	case BufferType::PS_CONSTANT_BUFFER:
 		{
-			p_deviceContext->PSSetConstantBuffers(m_constantBufferNumber, 1, &m_buffer);
+			p_deviceContext->PSSetConstantBuffers(p_constantBufferIndex, 1, &m_buffer);
 		}
 		break;
 	case BufferType::UNINITIALIZED:

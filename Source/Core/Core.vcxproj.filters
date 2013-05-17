@@ -109,6 +109,9 @@
     <ClCompile Include="Command_ScaleSceneEntity.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
+    <ClCompile Include="Command_SkyBox.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="World.h">
@@ -217,6 +220,9 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
     <ClInclude Include="Command_ScaleSceneEntity.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Command_SkyBox.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
   </ItemGroup>

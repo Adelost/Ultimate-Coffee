@@ -132,7 +132,7 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 //	}
 //}
 
-void Manager_3DTools::onEvent( IEvent* p_event )
+void Manager_3DTools::onEvent( Event* p_event )
 {
 	EventType type = p_event->type();
 
@@ -428,18 +428,18 @@ void Manager_3DTools::onEvent( IEvent* p_event )
 	case EVENT_ENTITY_SELECTION:
 		{
 			// Debug selection
-			DEBUGPRINT("");
-			DataMapper<Data::Selected> map_selected;
-			if(Data::Selected::lastSelected.isValid())
-				DEBUGPRINT("LAST_SELECTED: " + Converter::IntToStr(Data::Selected::lastSelected->id()));
-			DEBUGPRINT("SELECTED");
-			if(map_selected.dataCount() == 0)
-				DEBUGPRINT(" NONE");
-			while(map_selected.hasNext())
-			{
-				Entity* e = map_selected.nextEntity();
-				DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
-			}
+// 			DEBUGPRINT("");
+// 			DataMapper<Data::Selected> map_selected;
+// 			if(Data::Selected::lastSelected.isValid())
+// 				DEBUGPRINT("LAST_SELECTED: " + Converter::IntToStr(Data::Selected::lastSelected->id()));
+// 			DEBUGPRINT("SELECTED");
+// 			if(map_selected.dataCount() == 0)
+// 				DEBUGPRINT(" NONE");
+// 			while(map_selected.hasNext())
+// 			{
+// 				Entity* e = map_selected.nextEntity();
+// 				DEBUGPRINT(" Entity: " + Converter::IntToStr(e->id()));
+// 			}
 
 			// Code goes here.
 			if(currentlyChosenTransformTool)

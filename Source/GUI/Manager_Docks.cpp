@@ -22,6 +22,7 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
@@ -314,7 +315,7 @@ ISystem* Manager_Docks::getAsSystem()
 	return new System_Editor(this);
 }
 
-void Manager_Docks::onEvent(IEvent* e)
+void Manager_Docks::onEvent(Event* e)
 {
 	EventType type = e->type();
 	switch (type) 
@@ -336,9 +337,9 @@ void Manager_Docks::onEvent(IEvent* e)
 					commandText = "Backbuffer color";
 					Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
 				
-					float x = changeBackBufferColorEvent->getDoColorX();
-					float y = changeBackBufferColorEvent->getDoColorY();
-					float z = changeBackBufferColorEvent->getDoColorZ();
+					float x = changeBackBufferColorEvent->getDoColorX() * 255;
+					float y = changeBackBufferColorEvent->getDoColorY() * 255;
+					float z = changeBackBufferColorEvent->getDoColorZ() * 255;
 
 					QColor color(x,y,z);
 					QPixmap pixmap(16, 16);
@@ -361,33 +362,29 @@ void Manager_Docks::onEvent(IEvent* e)
 					commandText = "Rotation";
 					Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
 
-					// Could have the translation tool icon be displayed, instead of a color, perhaps.
-
-					float r = 65.0f;
-					float g = 65.0f;
-					float b = 65.0f;
-
-					QColor color(r, g, b);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/rotate";
+					commandIcon.addFile(iconPath.c_str());
 					break;
 				}
 			case Enum::CommandType::SCALE_SCENE_ENTITY:
 				{
 					commandText = "Scaling";
 					Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
+					
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/scale";
+					commandIcon.addFile(iconPath.c_str());
+					break;
+				}
+			case Enum::CommandType::SKYBOX:
+				{
+					commandText = "Skybox";
+					
+					std::string iconPath = ICON_PATH;
+					iconPath += "Options/Skybox";
+					commandIcon.addFile(iconPath.c_str());
 
-					// Could have the translation tool icon be displayed, instead of a color, perhaps.
-
-					float r = 65.0f;
-					float g = 65.0f;
-					float b = 65.0f;
-
-					QColor color(r, g, b);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
 					break;
 				}
 			default:
@@ -399,7 +396,7 @@ void Manager_Docks::onEvent(IEvent* e)
 				}
 			}
 
-			if(mergeNumber > 0)
+			if(mergeNumber > 1)
 			{
 				commandText += " (" + Converter::IntToStr(mergeNumber) +")";
 			}
@@ -417,7 +414,8 @@ void Manager_Docks::onEvent(IEvent* e)
 
 			if(index == -1) // Special case: jump out of history
 			{
-				m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
+				//m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
+				m_commandHistoryListWidget->item(0)->setSelected(false);
 			}
 			else
 			{
@@ -439,6 +437,39 @@ void Manager_Docks::onEvent(IEvent* e)
 			}
 			connectCommandHistoryWidget(true);
 
+			break;
+		}
+	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
+		{
+			Event_GetNextOrPreviousVisibleCommandRowInCommandHistory* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistory*>(e);
+			bool next = getEvent->next;
+			int currentCommand = getEvent->currentCommandHistoryIndex;
+
+			int nrOfRows = m_commandHistoryListWidget->count();
+			int currentRow = m_commandHistoryListWidget->currentRow();
+			int addValue;
+			if(next)
+			{
+				if(currentCommand > -1)
+				{
+					currentRow++;
+				}
+				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
+				{
+					currentRow++;
+				}
+			}
+			else
+			{
+				currentRow--;
+				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
+				{
+					currentRow--;
+				}
+			}
+
+			getEvent->row = currentRow; //Return value
+				
 			break;
 		}
 	}
@@ -525,7 +556,7 @@ void Manager_Docks::update()
 	{
 		Entity* e = map_trans.nextEntity();
 
-		if(entityCount >= rowCount && entityCount < 1000)
+		if(entityCount >= rowCount && entityCount < 10000)
 		{
 			QStandardItem* item;
 			item = new QStandardItem(e->name().c_str());
@@ -541,7 +572,7 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 	SEND_EVENT(commanderInfo); //The event is assumed to have correct values below
 
 	//Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
-	int trackToCommandIndex = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
+	int trackToCommandIndex = /*currentRow;*/Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
 	if(commanderInfo->indexOfCurrentCommand != trackToCommandIndex)
 	{
 		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
@@ -576,7 +607,7 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 		Data::Selected::findLastSelected();
 
 	// Inform about selection
-	SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
+	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
 }
 
 
@@ -588,7 +619,7 @@ void System_Editor::update()
 ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
-	POST_DELAYED_EVENT(new IEvent(EVENT_REFRESH_SPLITTER), 0.0f);
+	POST_DELAYED_EVENT(new Event(EVENT_REFRESH_SPLITTER), 0.0f);
 
 	setObjectName("Item Browser");
 
@@ -705,7 +736,7 @@ void ItemBrowser::loadGrid( int row )
 	loadGrid(m_tree->item(row));
 }
 
-void ItemBrowser::onEvent( IEvent* e )
+void ItemBrowser::onEvent( Event* e )
 {
 	EventType type = e->type();
 	switch (type) 

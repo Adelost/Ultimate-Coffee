@@ -55,15 +55,18 @@ void System::Input::update()
 	while(map_update.hasNext())
 	{
 		Entity* e = map_update.nextEntity();
-		Data::Transform* d_transform = e->fetchData<Data::Transform>();
-		Data::Update* d_update = e->fetchData<Data::Update>();
-		d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime;
+		if(!e->fetchData<Data::Selected>())
+		{
+			Data::Transform* d_transform = e->fetchData<Data::Transform>();
+			Data::Update* d_update = e->fetchData<Data::Update>();
+			d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime;
 
-		// Apply rotation
-		Vector3 v = d_update->rotation * SETTINGS()->deltaTime;
-		Matrix m1 = Matrix::CreateFromQuaternion(d_transform->rotation);
-		Matrix m2 = Matrix::CreateFromYawPitchRoll(v.x, v.y, v.z);
-		m1 = m1 * m2;
-		d_transform->rotation = Quaternion::CreateFromRotationMatrix(m1);
+			// Apply rotation
+			Vector3 v = d_update->rotation * SETTINGS()->deltaTime;
+			Matrix m1 = Matrix::CreateFromQuaternion(d_transform->rotation);
+			Matrix m2 = Matrix::CreateFromYawPitchRoll(v.x, v.y, v.z);
+			m1 = m1 * m2;
+			d_transform->rotation = Quaternion::CreateFromRotationMatrix(m1);
+		}
 	}
 }

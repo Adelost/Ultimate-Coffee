@@ -91,7 +91,7 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		}
 
 		// Inform about selection
-		SEND_EVENT(&IEvent(EVENT_ENTITY_SELECTION));
+		SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
 
 	// If a transformation tool handle is selected, it should be noted that the selection is already final with this function call,
 	// and so there is no need to call finalizeSelection elsewhere.

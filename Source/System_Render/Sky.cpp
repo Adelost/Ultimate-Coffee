@@ -24,28 +24,35 @@ void Sky::draw()
 	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_context->VSSetShader(m_vertexShader, 0, 0);
 	m_context->PSSetShader(m_pixelShader, 0, 0);
+	m_context->RSSetState(RenderStates::NoCullRS);
+	m_context->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 
 	// Find world
 	Matrix viewProj = CAMERA_ENTITY()->fetchData<Data::Camera>()->viewProjection();
-	Matrix world;
+	Matrix mat_pos = CAMERA_ENTITY()->fetchData<Data::Transform>()->toPosMatrix();
 	DataMapper<Data::Sky> map_sky;
 	if(map_sky.hasNext())
 	{
 		Entity* e = map_sky.nextEntity();
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
-		world = d_transform->toRotPosMatrix();
-
+		Matrix world = d_transform->toRotMatrix() * mat_pos;
+		
 		// Set Shaders
 		m_vertexBuffer->setDeviceContextBuffer(m_context);
 		m_indexBuffer->setDeviceContextBuffer(m_context);
 		m_WVPBuffer->setDeviceContextBuffer(m_context);
+		m_context->PSSetShaderResources(0, 1, &(m_rv_cubeMap));
 		m_cbuffer.WVP = world * viewProj;
 		m_cbuffer.WVP = m_cbuffer.WVP.Transpose();
 		m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_cbuffer, 0, 0);
-
+		
 		// Draw
 		m_context->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
+
+	// Restore states
+	m_context->RSSetState(0);
+	m_context->OMSetDepthStencilState(0, 0);
 }
 
 Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string& cubemapFilename, float sphereRadius )
@@ -55,7 +62,7 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 
 	// Create box
 	Factory_Geometry::MeshData sphere;
-	Factory_Geometry::instance()->createSphere(2.0f, 30, 30, sphere);
+	Factory_Geometry::instance()->createSphere(100.0f, 30, 30, sphere);
 	std::vector<Vector3> vertex_list = sphere.positionList();
 	std::vector<unsigned int> index_list = sphere.indexList();
 

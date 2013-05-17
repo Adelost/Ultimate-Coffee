@@ -5,6 +5,7 @@
 #include <Core/Commander.h>
 #include <Core/CommanderSpy.h>
 #include <Core/Command_ChangeBackBufferColor.h>
+#include <Core/Command_SkyBox.h>
 #include <Core/Events.h>
 #include "ui_MainWindow.h"
 #include "Manager_Docks.h"
@@ -102,13 +103,26 @@ void Manager_Commands::setupMenu()
 	connect(mapper, SIGNAL(mapped(QString)), this, SLOT(setBackBufferColor(QString)));
 
 	// Setup actions
+	createTestButton("#6699e6", mapper);
+	createTestButton("#00d423", mapper);
+	createTestButton("#f30000", mapper);
+	
+	createTestButton("#fff", mapper);
 	createTestButton("#000", mapper);
-	createTestButton("#f00", mapper);
-	createTestButton("#0f0", mapper);
-	createTestButton("#00f", mapper);
-	createTestButton("#0ff", mapper);
-	createTestButton("#ff0", mapper);
-	createTestButton("#f0f", mapper);
+
+	// Toggle button
+	{
+		std::string path = "";
+		std::string icon_name = "Skybox";
+		path = path + ICON_PATH + "Options/" + icon_name;
+
+		QAction* a = new QAction(QIcon(path.c_str()), icon_name.c_str(), m_window);
+		a->setCheckable(true);
+		a->setChecked(true);
+		m_toolbar_commands->addAction(a);
+
+		connect(a, SIGNAL(triggered(bool)), this, SLOT(enableSkybox(bool)));
+	}
 }
 
 bool Manager_Commands::storeCommandInCommandHistory(Command* command, bool execute)
@@ -142,13 +156,14 @@ void Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 {
 	if(!m_commander->tryToJumpInCommandHistory(commandHistoryIndex))
 	{
-		MESSAGEBOX("Failed to jump in the command history.");
+		QSound sound("Windows Ding.wav");
+		sound.play();
 	}
 }
 
 void Manager_Commands::updateCurrentCommandGUI()
 {
-	int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+	int GUI_Index = /*m_commander->getCurrentCommandIndex();*/Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
 	SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
 }
 
@@ -156,9 +171,9 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 {
 	QColor color = (p_str_color);
 	Command_ChangeBackBufferColor* command0 = new Command_ChangeBackBufferColor();
-	command0->setDoColor(color.red(), color.green(), color.blue());
+	command0->setDoColor(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f);
 	command0->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
-	SEND_EVENT(&StoreCommandInCommandHistory(command0, true));
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command0, true));
 }
 
 void Manager_Commands::translateSceneEntity()
@@ -174,13 +189,23 @@ Manager_Commands::~Manager_Commands()
 
 void Manager_Commands::redoLatestCommand()
 {
-	jumpInCommandHistory(m_commander->getCurrentCommandIndex()+1);
+	//jumpInCommandHistory(m_commander->getCurrentCommandIndex()+1);
+	//updateCurrentCommandGUI();
+
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(true, m_commander->getCurrentCommandIndex());
+	SEND_EVENT(&returnValue);
+	jumpInCommandHistory(returnValue.row);
 	updateCurrentCommandGUI();
 }
 
 void Manager_Commands::undoLatestCommand()
 {
-	jumpInCommandHistory(m_commander->getCurrentCommandIndex()-1);
+	//jumpInCommandHistory(m_commander->getCurrentCommandIndex()-1);
+	//updateCurrentCommandGUI();
+
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(false, m_commander->getCurrentCommandIndex());
+	SEND_EVENT(&returnValue);
+	jumpInCommandHistory(returnValue.row);
 	updateCurrentCommandGUI();
 }
 
@@ -272,14 +297,14 @@ void Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
 	mapper->setMapping(a, color);
 }
 
-void Manager_Commands::onEvent(IEvent* e)
+void Manager_Commands::onEvent(Event* e)
 {
 	EventType type = e->type();
 	switch (type)
 	{
 	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
 		{
-			StoreCommandInCommandHistory* commandEvent = static_cast<StoreCommandInCommandHistory*>(e);
+			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 			Command* command = commandEvent->command;
 			bool execute = commandEvent->execute;
 			bool setAsCurrentInGUI = commandEvent->setAsCurrentInGUI;
@@ -340,4 +365,11 @@ void Manager_Commands::onEvent(IEvent* e)
 			break;
 		}
 	}
+}
+
+void Manager_Commands::enableSkybox( bool state )
+{
+	Command_SkyBox* command_SkyBox = new Command_SkyBox();
+	command_SkyBox->setShowSkyBox(state);
+	SEND_EVENT(&Event_StoreCommandInCommandHistory(command_SkyBox, true));
 }

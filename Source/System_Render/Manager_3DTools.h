@@ -34,5 +34,5 @@ public:
 
 	void update();
 	void draw(ID3D11DepthStencilView* p_depthStencilView);
-	void onEvent(IEvent* p_event);
+	void onEvent(Event* p_event);
 };

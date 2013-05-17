@@ -85,7 +85,7 @@ void Window::setFullscreen( bool checked )
 		this->showNormal();
 }
 
-void Window::onEvent( IEvent* p_event )
+void Window::onEvent( Event* p_event )
 {
 	EventType type = p_event->type();
 	switch (type)

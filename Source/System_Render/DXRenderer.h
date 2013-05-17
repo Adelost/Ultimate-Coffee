@@ -26,7 +26,7 @@ class DXRenderer
 	: public IObserver
 {
 private:
-	HWND m_windowHandle;
+	HWND						m_windowHandle;
 	D3D11_VIEWPORT*				m_viewport_screen;
 	ID3D11DepthStencilView*		m_view_depthStencil;
 	ID3D11Device*				m_dxDevice;
@@ -41,25 +41,28 @@ private:
 	Buffer*						m_indexBuffer;
 	Buffer*						m_objectConstantBuffer;
 	Buffer*						m_frameConstantBuffer;
+	Buffer*						m_setttingsConstantBuffer;
 	Sky*						m_sky;
 
 	CBPerObject					m_CBPerObject;
-	CBPerFrame		
-	m_CBPerFrame;
-	bool m_msaa_enable;
-	unsigned int m_msaa_quality;
-	int m_clientHeight;
-	int m_clientWidth;
-	static DXRenderer* s_instance;
+	CBPerFrame					m_CBPerFrame;
+	CBSettings					m_CBSettings;
+	bool						m_msaa_enable;
+	unsigned int				m_msaa_quality;
+	int							m_clientHeight;
+	int							m_clientWidth;
+	static DXRenderer*			s_instance;
 
-	Manager_3DTools *m_manager_tools;
+	Manager_3DTools*			m_manager_tools;
+
+	void updatePointLights();
 
 public:
 	DXRenderer();
 	~DXRenderer();
 
 	bool init(HWND p_windowHandle);
-	void onEvent(IEvent* p_event);
+	void onEvent(Event* p_event);
 	void renderFrame();
 
 	bool initDX();

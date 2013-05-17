@@ -9,10 +9,22 @@ struct CBPerObject
 	Matrix world;
 };
 
+
 struct CBPerFrame
 {
-	float ambient;
-	Vector3 dlDirection;
-	Vector3 dlColor;
-	float padding;
+	Vector4 dlDirectionAndAmbient;
+	Vector4 dlColor;
+
+	Vector4 plPosition[MAX_POINTLIGHTS]; // See shader file define for size
+	Vector4 plColorAndRange[MAX_POINTLIGHTS];
+
+	int drawDebug;
+	float padding[3];
+};
+
+
+struct CBSettings
+{
+	bool ambient;
+	bool padding[15];
 };

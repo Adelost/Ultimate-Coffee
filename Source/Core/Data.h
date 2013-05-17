@@ -27,6 +27,8 @@ namespace Data
 
 		Matrix toWorldMatrix();
 		Matrix toRotPosMatrix();
+		Matrix toPosMatrix();
+		Matrix toRotMatrix();
 	};
 
 	/**
@@ -87,6 +89,17 @@ namespace Data
 
 	public:
 		Update();
+	};
+
+	/**
+	Should containt point light information.
+	Position should be fetched from Translation.
+	*/
+	class PointLight : public Type<PointLight>
+	{
+	public:
+		Vector3 color;
+		float range;
 	};
 
 	class Sky : public Type<Sky>

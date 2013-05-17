@@ -4,11 +4,14 @@
 #include "Manager_3DTools.h"
 #include "Buffer.h"
 #include "Sky.h"
+#include "RenderStates.h"
 
 DXRenderer::DXRenderer()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_BACKBUFFER_COLOR);
 	SUBSCRIBE_TO_EVENT(this, EVENT_WINDOW_RESIZE);
+	SUBSCRIBE_TO_EVENT(this, EVENT_COFFEE);
+
 
 	m_dxDevice = nullptr;
 	m_dxDeviceContext = nullptr;
@@ -25,9 +28,16 @@ DXRenderer::DXRenderer()
 	m_CBPerObject.WVP.Identity();
 	m_CBPerObject.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
 
-	m_CBPerFrame.ambient = 0.2f;
-	m_CBPerFrame.dlColor = Vector3(1.0f, 1.0f, 1.0f);
-	m_CBPerFrame.dlDirection = Vector3(1.0f, 1.0f, -1.0f);
+	float ambient = 0.2f;
+	m_CBPerFrame.dlColor = Vector4(1.0f, 1.0f, 1.0f, ambient);
+	m_CBPerFrame.dlDirectionAndAmbient = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+
+	for(unsigned int i = 0; i < MAX_POINTLIGHTS; i++)
+	{
+		float range = 0.0f;
+		m_CBPerFrame.plPosition[i] = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+		m_CBPerFrame.plColorAndRange[i] = Vector4(0.0f, 0.0f, 0.0f, range);
+	}
 }
 
 DXRenderer::~DXRenderer()
@@ -42,6 +52,7 @@ DXRenderer::~DXRenderer()
 	ReleaseCOM(m_view_renderTarget);
 	ReleaseCOM(m_view_depthStencil);
 	ReleaseCOM(m_dxSwapChain);
+	RenderStates::DestroyAll();
 	ReleaseCOM(m_tex_depthStencil);
 	if(m_dxDeviceContext)
 		m_dxDeviceContext->ClearState();
@@ -64,6 +75,8 @@ bool DXRenderer::init( HWND p_windowHandle )
 	m_viewport_screen = new D3D11_VIEWPORT();
 
 	result = initDX();
+	// Init RenderStates
+	RenderStates::InitAll(m_dxDevice);
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
@@ -72,7 +85,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 	return result;
 }
 
-void DXRenderer::onEvent(IEvent* p_event)
+void DXRenderer::onEvent(Event* p_event)
 {
 	EventType type = p_event->type();
 	switch (type)
@@ -92,6 +105,21 @@ void DXRenderer::onEvent(IEvent* p_event)
 			m_clientHeight = windowResizeEvent->height;
 			resizeDX();
 		}
+		break;
+	case EVENT_COFFEE:
+		{
+			// Recreate geometry
+			Factory_Geometry::MeshData box;
+			Factory_Geometry::instance()->createSphere(1.0f, 3, 3, box);
+			std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
+
+			// Create vertex buffer
+			SafeDelete(m_vertexBuffer);
+			m_vertexBuffer = new Buffer();
+			HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), vertex_list.size(), &vertex_list[0], m_dxDevice));
+			m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+		}
+		break;
 	default:
 		break;
 	}
@@ -118,9 +146,13 @@ void DXRenderer::renderFrame()
 	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	// Start rendering
+
+	updatePointLights();
+	m_CBPerFrame.drawDebug = 0;
+
+	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	Matrix viewProjection;
 	// HACK: Adding camera to renderer
@@ -132,8 +164,7 @@ void DXRenderer::renderFrame()
 		viewProjection = d_camera->viewProjection();
 	}
 
-
-	// Render all meshes
+		// Render all meshes
 	DataMapper<Data::Render> map_render;
 	while(map_render.hasNext())
 	{
@@ -141,7 +172,6 @@ void DXRenderer::renderFrame()
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
 		Data::Render* d_render= e->fetchData<Data::Render>();
 
-		Matrix mat_scale;
 	/*	if(e->fetchData<Data::Selected>())
 			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
 		else*/
@@ -150,14 +180,45 @@ void DXRenderer::renderFrame()
 		m_CBPerObject.world = d_transform->toWorldMatrix(); //mat_scale * d_transform->toRotPosMatrix();
 		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
 		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+		m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
 		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
 	}
-	m_sky->draw();
+
+	// Render all selected meshes
+	m_CBPerFrame.drawDebug = 1;
+	m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
+	m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		if(e->fetchData<Data::Render>())
+		{
+			Data::Transform* d_transform = e->fetchData<Data::Transform>();
+			Data::Render* d_render= e->fetchData<Data::Render>();
+
+			m_CBPerObject.world = d_transform->toWorldMatrix();
+			m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+			m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+			m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+			m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
+		}
+	}
+	m_dxDeviceContext->RSSetState(0);
+	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
+
+	// Draw SkyBox
+	if(SETTINGS()->showSkybox)
+		m_sky->draw();
 
 	// Draw Tools
 	m_manager_tools->update();
 	m_manager_tools->draw(m_view_depthStencil);
+
+	m_dxDeviceContext->RSSetState(0);
+	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
 
 	// Show the finished frame
 	HR(m_dxSwapChain->Present(0, 0));
@@ -267,9 +328,6 @@ bool DXRenderer::initDX()
 
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
-
-	
-
 
 	// Create box
 	Factory_Geometry::MeshData box;
@@ -413,4 +471,29 @@ ID3D11DeviceContext* DXRenderer::getDeviceContext()
 ID3D11DepthStencilView* DXRenderer::getDepthStencilView()
 {
 	return this->m_view_depthStencil;
+}
+
+void DXRenderer::updatePointLights()
+{
+	DataMapper<Data::PointLight> map_pointLight;
+	for(unsigned int i = 0; i < MAX_POINTLIGHTS; i++)
+	{
+		if(map_pointLight.hasNext())
+		{
+			Entity* e = map_pointLight.nextEntity();
+
+			Data::Transform* transform =  e->fetchData<Data::Transform>();
+			Data::PointLight* pointLight =  e->fetchData<Data::PointLight>();
+			
+			float range = pointLight->range;
+			m_CBPerFrame.plPosition[i] = Vector4(transform->position.x, transform->position.y, transform->position.z, 1.0f);
+			m_CBPerFrame.plColorAndRange[i] = Vector4(pointLight->color.x, pointLight->color.y, pointLight->color.z, range);
+		}
+		else
+		{
+			float range = 0.0f;
+			m_CBPerFrame.plPosition[i] = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+			m_CBPerFrame.plColorAndRange[i] = Vector4(0.0f, 0.0f, 0.0f, range);
+		}
+	}
 }

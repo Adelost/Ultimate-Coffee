@@ -40,7 +40,7 @@ public:
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
 	ISystem* getAsSystem();
-	void onEvent(IEvent* e);
+	void onEvent(Event* e);
 
 public slots:
 	void setMaximizeScene( bool p_checked );
@@ -79,7 +79,7 @@ private:
 public:
 	ItemBrowser(QWidget* parent);
 	void initTree();
-	void onEvent(IEvent* e);
+	void onEvent(Event* e);
 public slots:
 	void loadGrid(QListWidgetItem * item);
 	void loadGrid(int row);

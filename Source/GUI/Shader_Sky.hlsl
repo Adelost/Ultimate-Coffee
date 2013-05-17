@@ -1,35 +1,42 @@
 cbuffer cb_test
 {
-	float4x4 world;
+	float4x4 worldViewProj;
+};
+
+TextureCube cubeMap;
+
+SamplerState samTriLinearSam
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
 
 struct VertexIn
 {
-	float3 position : POSITION;
+	float3 posL  : POSITION;
 };
 
 struct PixelIn
 {
-	float4 position : SV_POSITION;
-	float4 color	: COLOR;
+	float4 posH  : SV_POSITION;
+	float3 posL : POSITION;
 };
 
-PixelIn VS( VertexIn vIn )
+PixelIn VS( VertexIn v_in )
 {
-	PixelIn pIn;
+	PixelIn p_in;
 
-	float4x4 m = float4x4(	1,0,0,0,
-							0,1,0,0,
-							0,0,1,0,
-							0,0,0,1);
+	// Set z = w so that z/w = 1 (i.e., skydome always on far plane).
+	p_in.posH = mul(float4(v_in.posL, 1.0f), worldViewProj).xyww;
 
-	pIn.position	= mul(float4(vIn.position, 1), world);
-	pIn.color		= float4(1,0,0,1);
+	// Use local vertex position as cubemap lookup vector.
+	p_in.posL = v_in.posL;
 
-	return pIn;
+	return p_in;
 }
 
-float4 PS( PixelIn pIn ) : SV_TARGET
+float4 PS( PixelIn p_in  ) : SV_TARGET
 {
-	return pIn.color;
+	return cubeMap.Sample(samTriLinearSam, p_in.posL );
 }

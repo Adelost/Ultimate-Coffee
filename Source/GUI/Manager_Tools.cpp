@@ -59,8 +59,8 @@ void Manager_Tools::setupActions()
 	// Toolbar
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
-	createToolAction(mapper, Enum::Tool_Selection, "Selection")->activate(QAction::Trigger);
-	createToolAction(mapper, Enum::Tool_Translate, "Translate");
+	//createToolAction(mapper, Enum::Tool_Selection, "Selection")->activate(QAction::Trigger);
+	createToolAction(mapper, Enum::Tool_Translate, "Translate")->activate(QAction::Trigger);
 	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate");
 	createToolAction(mapper, Enum::Tool_Scale,		"Scale");
 	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry");
@@ -68,15 +68,17 @@ void Manager_Tools::setupActions()
 
 	// Context bar
 	m_ui->contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-	QMenu* menu;
-	menu = new QMenu("Info", m_window);
-	menu->setIcon(createIcon("Selection"));
-	m_ui->contextBar->addAction(menu->menuAction());
+//	QMenu* menu;
+// 	menu = new QMenu("Info", m_window);
+// 	menu->setIcon(createIcon("Selection"));
+// 	m_ui->contextBar->addAction(menu->menuAction());
 
-	m_ui->contextBar->addSeparator();
-	createContextIcon("Toast");
-	createContextIcon("Coffee");
-	createContextIcon("Wine");
+	//m_ui->contextBar->addSeparator();
+//	createContextIcon("Toast");
+	a = createContextIcon("Coffee");
+	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+
+	//createContextIcon("Wine");
 	createContextIcon("Experiment");
 	createContextIcon("Tool");
 
@@ -137,7 +139,7 @@ void Manager_Tools::setTool( int p_toolType )
 	}
 }
 
-void Manager_Tools::onEvent( IEvent* p_event )
+void Manager_Tools::onEvent( Event* p_event )
 {
 	EventType type = p_event->type();
 	switch (type)
@@ -150,4 +152,9 @@ void Manager_Tools::onEvent( IEvent* p_event )
 	default:
 		break;
 	}
+}
+
+void Manager_Tools::coffee()
+{
+	SEND_EVENT(&Event(EVENT_COFFEE));
 }

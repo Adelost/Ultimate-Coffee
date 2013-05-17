@@ -4,7 +4,6 @@
 
 System::Render::Render()
 {
-	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(ENTITY_CAMERA)->toPointer();
 	setupDirectX();
 }
 

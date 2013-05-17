@@ -1,6 +1,6 @@
 #pragma once
 
-class IEvent;
+class Event;
 
 // Interface needed for receiving Events
 class IObserver
@@ -8,5 +8,5 @@ class IObserver
 public:
 	IObserver(){}
 	~IObserver(){}
-	virtual void onEvent(IEvent* e) = 0;
+	virtual void onEvent(Event* e) = 0;
 };

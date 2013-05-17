@@ -48,6 +48,7 @@ public slots:
 	void setBackBufferColor(QString p_str_color);
 
 	void translateSceneEntity();
+	void enableSkybox(bool state);
 
-	void onEvent(IEvent* e);
+	void onEvent(Event* e);
 };
