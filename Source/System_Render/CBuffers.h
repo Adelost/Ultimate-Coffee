@@ -12,12 +12,11 @@ struct CBPerObject
 
 struct CBPerFrame
 {
-	Vector4 dlDirection;
+	Vector4 dlDirectionAndAmbient;
 	Vector4 dlColor;
 
 	Vector4 plPosition[MAX_POINTLIGHTS]; // See shader file define for size
-	Vector4 plColor[MAX_POINTLIGHTS];
-	float plRange[MAX_POINTLIGHTS];
+	Vector4 plColorAndRange[MAX_POINTLIGHTS];
 
 	int drawDebug;
 	float padding[3];

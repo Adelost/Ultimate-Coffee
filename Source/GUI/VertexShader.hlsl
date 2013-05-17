@@ -17,8 +17,7 @@ cbuffer cbPerFrame
 
 	// Point light
 	float4 plPosition[NUMBER_OF_POINTLIGHTS];
-	float4 plColor[NUMBER_OF_POINTLIGHTS];
-	float plRange[NUMBER_OF_POINTLIGHTS];
+	float4 plColorAndRange[NUMBER_OF_POINTLIGHTS]; // xyz = Color, w = Range
 
 	int drawDebug;
 };
@@ -74,14 +73,15 @@ float4 pixelMain( PixelIn pIn ) : SV_TARGET
 		lightDir = plPosition[i].xyz - pIn.worldPos.xyz;
 
 		// Calculate lighting power
+		float range = plColorAndRange[i].w;
 		float lightDistance = length(lightDir);
-		float fallOff = min(plRange[i]/(lightDistance), 1);
+		float fallOff = min(range/(lightDistance), 1);
 		
 		// Calculate lighting color
 		lightValue = max(dot(normalize(lightDir), normal), 0);
 
 		// Add to final lighting
-		light += plColor[i].xyz*lightValue*fallOff;
+		light += plColorAndRange[i].xyz*lightValue*fallOff;
 	}
 
 	return pIn.color*float4(light + ambientLight, 1);
