@@ -172,9 +172,12 @@ void DXRenderer::renderFrame()
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
 		Data::Render* d_render= e->fetchData<Data::Render>();
 
-		Matrix mat_scale = Matrix::CreateScale(d_transform->scale);
+	/*	if(e->fetchData<Data::Selected>())
+			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
+		else*/
+			//mat_scale = Matrix::CreateScale(d_transform->scale);
 
-		m_CBPerObject.world = mat_scale * d_transform->toRotPosMatrix();
+		m_CBPerObject.world = d_transform->toWorldMatrix(); //mat_scale * d_transform->toRotPosMatrix();
 		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
 		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
 		m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
