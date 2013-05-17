@@ -94,7 +94,7 @@ private:
 	bool isSelected;
 	bool isVisible;
 
-	int activeEntityId;
+	EntityPointer activeEntity;
 
 	bool relateToActiveObjectWorld;
 
@@ -168,7 +168,7 @@ public:
 
 	XMFLOAT4X4 getWorld_visual_objectRelative();
 
-	int getActiveObject();
+	EntityPointer getActiveObject();
 	
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
 	void draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView);

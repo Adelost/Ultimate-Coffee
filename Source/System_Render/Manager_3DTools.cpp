@@ -61,7 +61,7 @@ void Manager_3DTools::update()
 	//if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() == -1)
 	//	currentlyChosenTransformTool->setActiveObject(SETTINGS()->entity_selection->id());
 
-	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject() != -1) // <- TEMP. ActiveEntity should be set via selection tool.
+	if(currentlyChosenTransformTool && currentlyChosenTransformTool->getActiveObject().isValid()) // <- TEMP. ActiveEntity should be set via selection tool.
 	{
 		Entity* entity_camera = CAMERA_ENTITY().asEntity();
 		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
@@ -84,7 +84,7 @@ void Manager_3DTools::draw(ID3D11DepthStencilView* p_depthStencilView)
 {
 	DataMapper<Data::Selected> map_selected;
 	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
-	if(currentlyChosenTransformTool && thereIsAtLeastOneSelectedEntity && currentlyChosenTransformTool->getActiveObject() != -1)
+	if(currentlyChosenTransformTool && thereIsAtLeastOneSelectedEntity && currentlyChosenTransformTool->getActiveObject().isValid())
 	{
 		Entity* entity_camera = CAMERA_ENTITY().asEntity();
 		Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
@@ -178,16 +178,20 @@ void Manager_3DTools::onEvent( Event* p_event )
 						mouseCursorPoint.x = (LONG)clickedScreenCoords.x;
 						mouseCursorPoint.y = (LONG)clickedScreenCoords.y;
 
-						// Begin selecting with the selection tool.
-						m_theSelectionTool->beginSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint, currentlyChosenTransformTool);
-
-						// If the chosen transform tool was selected at once, end the selecting.
-						if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+						// HACK (Mattias): Only run if a tool is selected,
+						// Prevents crash if no tool is selected.
+						// Please change if this is not appropriate measurement.
+						if(currentlyChosenTransformTool)
 						{
-							m_theSelectionTool->setIsSelecting(false);
+							// Begin selecting with the selection tool.
+							m_theSelectionTool->beginSelection(xm_rayOrigin, xm_rayDir, camView, *m_viewPort, mouseCursorPoint, currentlyChosenTransformTool);
+
+							// If the chosen transform tool was selected at once, end the selecting.
+							if(currentlyChosenTransformTool && currentlyChosenTransformTool->getIsSelected())
+								m_theSelectionTool->setIsSelecting(false);
+							else
+								m_theSelectionTool->setIsSelecting(false); //m_theSelectionTool->setIsSelecting(true);
 						}
-						else
-							m_theSelectionTool->setIsSelecting(false); //m_theSelectionTool->setIsSelecting(true);
 					}
 				}
 				else // Mouse left button up.
@@ -469,6 +473,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 				}
 				break; 
 			default:
+				currentlyChosenTransformTool = nullptr;
 				break;
 			}
 		}

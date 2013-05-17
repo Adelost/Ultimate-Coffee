@@ -104,7 +104,10 @@ namespace Data
 
 	class Sky : public Type<Sky>
 	{
-	public:
+		public:
 	};
+
+	class Created : public Type<Created>{};
+	class Deleted : public Type<Deleted>{};
 }
 

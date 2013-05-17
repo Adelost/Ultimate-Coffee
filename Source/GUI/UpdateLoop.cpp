@@ -38,7 +38,7 @@ void UpdateLoop::init()
 		FACTORY_ENTITY()->createEntity(ENTITY_POINTLIGHT);
 	}
 	 
-	for(int i=0; i<1000; i++)
+	for(int i=0; i<1; i++)
 	{
 		FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
 	}

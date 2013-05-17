@@ -73,8 +73,6 @@ Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 	yzScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
 
 	scale = 1.0f;
-
-	activeEntityId = -1;
 }
 
 Tool_Scaling::~Tool_Scaling()
@@ -131,7 +129,7 @@ bool Tool_Scaling::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &ra
 	// TEST: Pretend we hit it.
 	rayIntersectsWithToolBoundingBox = true;
 	
-	if(activeEntityId != -1) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
+	if(activeEntity.isValid()) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
 		updateWorld();
 
 	if(rayIntersectsWithToolBoundingBox)
@@ -324,13 +322,11 @@ void Tool_Scaling::setActiveObject(int entityId)
 
 	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 	{
-		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
+		this->activeEntity = Data::Selected::lastSelected->toPointer();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
 	}
-	else
-		activeEntityId = -1;
 
 	xyScalingPlane->resetScalingDelta();
 	zxScalingPlane->resetScalingDelta();
@@ -343,7 +339,7 @@ void Tool_Scaling::setActiveObject(int entityId)
 	//// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 	//updateWorld();
 
-	//XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	//XMMATRIX world = activeEntity->fetchData<Data::Transform>()->toWorldMatrix();
 
 	//xyScalingPlane->resetScalingDelta();
 	//zxScalingPlane->resetScalingDelta();
@@ -359,8 +355,7 @@ void Tool_Scaling::updateWorld()
 		// Just get the position of the active object, but keep the default orientation.
 		Matrix newWorld = XMMatrixIdentity();
 
-		Entity e(activeEntityId);
-		Data::Transform* trans = e.fetchData<Data::Transform>();
+		Data::Transform* trans = activeEntity->fetchData<Data::Transform>();
 
 		newWorld._41 = trans->position.x; //objectWorld._41;
 		newWorld._42 = trans->position.y; //objectWorld._42;
@@ -396,7 +391,7 @@ void Tool_Scaling::updateWorld()
 	else
 	{
 		// Get the position and orientation of the active object.
-		world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+		world = activeEntity->fetchData<Data::Transform>()->toWorldMatrix();
 
 		// Update the translation tool's (distance-from-camera-adjusted) scale.
 		world._11 = scale;
@@ -425,7 +420,7 @@ void Tool_Scaling::setRelateToActiveObjectWorld(bool relateToActiveObjectWorld)
 {
 	this->relateToActiveObjectWorld = relateToActiveObjectWorld;
 
-	if(activeEntityId != -1)
+	if(activeEntity.isValid())
 		updateWorld();
 }
 
@@ -520,8 +515,8 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		//{
 		//}
 
-		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); 
-		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = Entity(activeEntityId).fetchData<Data::Transform>()->scale + Vector4(transDelta); //Vector3(transDelta.m128_f32[0], transDelta.m128_f32[1], transDelta.m128_f32[2]);
+		//activeEntity->fetchData<Data::Transform>()->scale = /*activeEntity->fetchData<Data::Transform>()->scale + */Vector3(transDelta); 
+		//activeEntity->fetchData<Data::Transform>()->scale = activeEntity->fetchData<Data::Transform>()->scale + Vector4(transDelta); //Vector3(transDelta.m128_f32[0], transDelta.m128_f32[1], transDelta.m128_f32[2]);
 	}
 	else if(currentlySelectedPlane)
 	{
@@ -562,7 +557,7 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		//		newMatrix._33 = 0.01f;
 		//}
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); //newMatrix._11, newMatrix._22, newMatrix._33);
+		activeEntity->fetchData<Data::Transform>()->scale = /*activeEntity->fetchData<Data::Transform>()->scale + */Vector3(transDelta); //newMatrix._11, newMatrix._22, newMatrix._33);
 	}
 	else if(currentlySelectedHandle)
 	{
@@ -594,7 +589,7 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		if(newScale.m128_f32[2] < 0.01f)
 			newScale.m128_f32[2] = 0.01f;
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = newScale;
+		activeEntity->fetchData<Data::Transform>()->scale = newScale;
 	}
 
 
@@ -664,7 +659,7 @@ XMFLOAT4X4 Tool_Scaling::getWorld_logical()
 
 XMFLOAT4X4 Tool_Scaling::getWorld_visual()
 {
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
 	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	XMMATRIX scaling;
@@ -678,10 +673,10 @@ XMFLOAT4X4 Tool_Scaling::getWorld_visual()
 
 XMFLOAT4X4 Tool_Scaling::getWorld_visual_objectRelative()
 {
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
 	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
-	XMVECTOR scale = Entity(activeEntityId).fetchData<Data::Transform>()->scale;
+	XMVECTOR scale = activeEntity->fetchData<Data::Transform>()->scale;
 	XMMATRIX scaling = XMMatrixTranslationFromVector(trans);
 
 	XMFLOAT4X4 world_visual_objectRelative;
@@ -740,7 +735,7 @@ void Tool_Scaling::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVecto
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[2], loadedCamViewVector);
 	world_viewPlaneTranslationControl_visual.m[2][3] = 0.0f;
 
-	Vector3 activeEntityPos = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	Vector3 activeEntityPos = activeEntity->fetchData<Data::Transform>()->position;
 	world_viewPlaneTranslationControl_visual._41 = activeEntityPos.x;
 	world_viewPlaneTranslationControl_visual._42 = activeEntityPos.y;
 	world_viewPlaneTranslationControl_visual._43 = activeEntityPos.z;
@@ -769,9 +764,9 @@ XMFLOAT4X4 Tool_Scaling::getWorld_viewPlaneTranslationControl_visual()
 	return visualWorld;
 }
 
-int Tool_Scaling::getActiveObject()
+EntityPointer Tool_Scaling::getActiveObject()
 {
-	return activeEntityId;
+	return activeEntity;
 }
 	
 void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
@@ -1348,9 +1343,7 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
 	
-	Entity e(activeEntityId);
-
-	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;;
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();

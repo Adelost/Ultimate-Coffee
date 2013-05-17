@@ -93,8 +93,6 @@ Entity* Factory_Entity::createEntity( EntityType p_type )
 			break;
 		}
 		pointLight->range = 50.0f;
-
-		e->addData(Data::Render());
 	}
 
 	return e;

@@ -1,6 +1,7 @@
 #ifndef TOOL_TRANSLATION_H
 #define TOOL_TRANSLATION_H
 
+#include <Core/Entity.h>
 #include "ITool_Transformation.h"
 #include "Handle_TranslationAxis.h"
 #include "Handle_TranslationPlane.h"
@@ -87,7 +88,7 @@ private:
 	bool isSelected;
 	bool isVisible;
 
-	int activeEntityId;
+	EntityPointer activeEntity;
 
 	bool relateToActiveObjectWorld;
 
@@ -122,7 +123,7 @@ public:
 	void setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId);
 
 	/* Called to bind the translatable object to the tool, so its translation can be modified. */
-	int getActiveObject();
+	EntityPointer getActiveObject();
 
 	/* Transform all controls to the local coord. sys. of the active object. */
 	void setRelateToActiveObjectWorld(bool relateToActiveObjectWorld);

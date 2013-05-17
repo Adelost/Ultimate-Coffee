@@ -84,6 +84,16 @@ public:
 	{
 		return *m_dataCount;
 	}
+
+	bool isDeleted(int index)
+	{
+		return (*m_owner_list)[index] == -1;
+	}
+
+	int indexCount()
+	{
+		return *m_index_lastGap;
+	}
 	
 	/**
 	Fetch current item, and step to next item 

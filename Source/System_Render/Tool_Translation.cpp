@@ -63,8 +63,6 @@ Tool_Translation::Tool_Translation()
 	
 	relateToActiveObjectWorld = false;
 
-	activeEntityId = -1;
-
 	scale = 1.0f;
 }
 
@@ -110,7 +108,7 @@ bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR
 	currentlySelectedPlane = NULL;
 	currentlySelectedAxis = NULL;
 
-	if(activeEntityId != -1) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
+	if(activeEntity.isValid()) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
 		updateWorld();
 
 	if(rayIntersectsWithToolBoundingBox)
@@ -281,7 +279,7 @@ bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR
 	//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 	//	updateWorld();
 
-	//	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	//	XMMATRIX world = activeEntity->fetchData<Data::Transform>()->toWorldMatrix();
 
 	//	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
 	//}
@@ -308,7 +306,7 @@ void Tool_Translation::setActiveObject(int entityId)
 	//	// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 	//	updateWorld();
 
-	//	XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	//	XMMATRIX world = activeEntity->fetchData<Data::Transform>()->toWorldMatrix();
 
 	//	XMStoreFloat4x4(&originalWorldOfActiveObject, world);
 	//}
@@ -337,36 +335,32 @@ void Tool_Translation::setActiveObject(int entityId)
 		XMFLOAT4X4 origWorld;
 		XMStoreFloat4x4(&origWorld, world);
 		originalWorldsOfSelectedEntities.push_back(origWorld);
-	 }
+	}
 
-if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
-{
-		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
+	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
+	{
+		this->activeEntity = Data::Selected::lastSelected->toPointer();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
 	}
-	else
-		activeEntityId = -1;
-
 }
 
-int Tool_Translation::getActiveObject()
+EntityPointer Tool_Translation::getActiveObject()
 {
-	return activeEntityId;
+	return activeEntity;
 }
 
 void Tool_Translation::updateWorld()
 {
-	if(!relateToActiveObjectWorld)
+	if(!relateToActiveObjectWorld && activeEntity.isValid())
 	{
 		// Just get the position of the active object, but keep the default orientation.
 		Matrix newWorld = XMMatrixIdentity();
 
 		XMFLOAT4X4 objectWorld;
 
-		Entity e(activeEntityId);
-		Data::Transform* trans = e.fetchData<Data::Transform>();
+		Data::Transform* trans = activeEntity->fetchData<Data::Transform>();
 	
 		//XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
 		
@@ -402,7 +396,7 @@ void Tool_Translation::updateWorld()
 	}
 	else
 	{
-		world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+		world = activeEntity->fetchData<Data::Transform>()->toWorldMatrix();
 
 		// Get the position and orientation of the active object.
 		//XMStoreFloat4x4(&world, activeObject->getIRenderable()->getWorld());
@@ -437,7 +431,7 @@ void Tool_Translation::setRelateToActiveObjectWorld(bool relateToActiveObjectWor
 {
 	this->relateToActiveObjectWorld = relateToActiveObjectWorld;
 
-	if(activeEntityId != -1)
+	if(activeEntity.isValid())
 		updateWorld();
 }
 
@@ -471,7 +465,7 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		transDelta.m128_f32[1] = /*originalWorldOfActiveObject._42 +*/ transDelta.m128_f32[1] * scaleFactor;
 		transDelta.m128_f32[2] = /*originalWorldOfActiveObject._43 +*/ transDelta.m128_f32[2] * scaleFactor;
 
-		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
+		//Data::Transform* transform = activeEntity->fetchData<Data::Transform>();
 		//transform->position = newTranslation;
 	}
 	else if(currentlySelectedPlane)
@@ -499,7 +493,7 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 			transDelta.m128_f32[0] = 0.0f; //newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
 		}
 
-		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
+		//Data::Transform* transform = activeEntity->fetchData<Data::Transform>();
 		//transform->position = newTranslation;
 	}
 
@@ -585,7 +579,7 @@ XMFLOAT4X4 Tool_Translation::getWorld_logical()
 
 XMFLOAT4X4 Tool_Translation::getWorld_visual()
 {
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
 	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
@@ -637,7 +631,8 @@ void Tool_Translation::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewV
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[2], loadedCamViewVector);
 	world_viewPlaneTranslationControl_visual.m[2][3] = 0.0f;
 
-	Vector3 activeEntityPos = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	
+	Vector3 activeEntityPos = activeEntity->fetchData<Data::Transform>()->position;
 	world_viewPlaneTranslationControl_visual._41 = activeEntityPos.x;
 	world_viewPlaneTranslationControl_visual._42 = activeEntityPos.y;
 	world_viewPlaneTranslationControl_visual._43 = activeEntityPos.z;
@@ -1211,10 +1206,8 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
    
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
-	
-	Entity e(activeEntityId);
 
-	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;;
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();

@@ -164,7 +164,7 @@ void DXRenderer::renderFrame()
 		viewProjection = d_camera->viewProjection();
 	}
 
-		// Render all meshes
+	// Render all meshes
 	DataMapper<Data::Render> map_render;
 	while(map_render.hasNext())
 	{

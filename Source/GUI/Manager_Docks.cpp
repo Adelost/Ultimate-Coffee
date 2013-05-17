@@ -546,23 +546,66 @@ void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_d
 	}
 }
 
+class EntityItem : public QStandardItem
+{
+public:
+	int m_entityId;
+
+public:
+	EntityItem(int id ,const QString& text) : QStandardItem(text)
+	{
+		m_entityId = id;
+	}
+
+public:
+	int entityId()
+	{
+		return m_entityId;
+	}
+};
+
 void Manager_Docks::update()
 {
-	int rowCount = m_hierarchy_model->rowCount();
-	int entityCount = 0;
-
-	DataMapper<Data::Transform> map_trans;
-	while(map_trans.hasNext())
+	// Add entities to list
+	DataMapper<Data::Created> map_created;
+	while(map_created.hasNext())
 	{
-		Entity* e = map_trans.nextEntity();
+		Entity* e = map_created.nextEntity();
+		e->removeData<Data::Created>();
+		int entityId = e->id();
 
-		if(entityCount >= rowCount && entityCount < 10000)
+		// Make room for item
+		QStandardItem* item = m_hierarchy_model->item(entityId);
+		if(!item)
 		{
-			QStandardItem* item;
-			item = new QStandardItem(e->name().c_str());
-			m_hierarchy_model->setItem(entityCount, item);
+			item = new QStandardItem();
+			m_hierarchy_model->setItem(entityId, item);
 		}
-		entityCount++;
+
+		// Assign item
+		item->setText(e->name().c_str());
+		item->setEnabled(true);
+		item->setSelectable(true);
+
+		// HACK: Make camera undeletable
+		if(e->fetchData<Data::Camera>())
+		{
+			item->setSelectable(false);
+		}
+	}
+	
+	// Remove entries from list
+	DataMapper<Data::Deleted> map_removed;
+	while(map_removed.hasNext())
+	{
+		Entity* e = map_removed.nextEntity();
+		e->removeData<Data::Deleted>();
+		int entityId = e->id();
+
+		// Assign item
+		QStandardItem* item = m_hierarchy_model->item(entityId);
+		item->setEnabled(false);
+		item->setSelectable(false);
 	}
 }
 

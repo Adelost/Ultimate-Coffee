@@ -8,6 +8,7 @@ class IDataBatch
 {
 public:
 	virtual ~IDataBatch(){}
+	virtual void vRemoveData(int p_entityId) = 0;
 };
 
 template<typename T>
@@ -93,6 +94,11 @@ public:
 			m_owner_list[dataIndex] = -1;
 			m_dataIndexFromEntityId_list[p_entityId] = -1;
 		}
+	}
+
+	void vRemoveData(int p_entityId)
+	{
+		removeData(p_entityId);
 	}
 
 	void mapToData(Init_DataMapper* p_init)

@@ -19,6 +19,7 @@ public:
 	bool key_down;
 	bool key_left;
 	bool key_right;
+
 	bool key_shift;
 	bool key_ctrl;
 	bool key_alt;

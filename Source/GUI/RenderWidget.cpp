@@ -185,6 +185,18 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 	case Qt::Key_Alt:
 		SETTINGS()->button.key_alt = state;
 		break;
+	case Qt::Key_Delete:
+		if(state)
+		{
+			// Delete all selected entities
+			DataMapper<Data::Selected> m_selected;
+			while(m_selected.hasNext())
+			{
+				Entity* e = m_selected.nextEntity();
+				e->removeEntity();
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -195,26 +207,20 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 	{
 		switch(key)
 		{
-		case Qt::Key_W:
-			SETTINGS()->button.key_up = state;
+		case Qt::Key_1:
+			SETTINGS()->setSelectedTool(Enum::Tool_Translate);
 			break;
-		case Qt::Key_S:
-			SETTINGS()->button.key_down = state;
+		case Qt::Key_2:
+			SETTINGS()->setSelectedTool(Enum::Tool_Rotate);
 			break;
-		case Qt::Key_A:
-			SETTINGS()->button.key_left = state;
+		case Qt::Key_3:
+			SETTINGS()->setSelectedTool(Enum::Tool_Scale);
 			break;
-		case Qt::Key_D:
-			SETTINGS()->button.key_right = state;
+		case Qt::Key_4:
+			SETTINGS()->setSelectedTool(Enum::Tool_Geometry);
 			break;
-		case Qt::Key_Shift:
-			SETTINGS()->button.key_shift = state;
-			break;
-		case Qt::Key_Control:
-			SETTINGS()->button.key_ctrl = state;
-			break;
-		case Qt::Key_Alt:
-			SETTINGS()->button.key_alt = state;
+		case Qt::Key_5:
+			SETTINGS()->setSelectedTool(Enum::Tool_Entity);
 			break;
 		default:
 			break;
@@ -297,11 +303,12 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 	}
 
 	// HACK: Create more entities
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
+	if(SETTINGS()->selectedTool() == Enum::Tool_Geometry && p_pressed)
 	{
-		for(int i=0; i<1000; i++)
+		if(button == Qt::LeftButton)
 		{
-			FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
+			for(int i=0; i<1000; i++)
+				FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
 		}
 	}
 }

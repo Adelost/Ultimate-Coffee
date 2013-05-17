@@ -26,7 +26,7 @@ public:
 	virtual bool getIsSelected() = 0;
 	virtual void setEntityAtWhosePivotTheToolIsToBeDisplayed(int entityId) = 0;
 	virtual void setActiveObject(int entityId) = 0;
-	virtual int getActiveObject() = 0;
+	virtual EntityPointer getActiveObject() = 0;
 	virtual void updateWorld() = 0;
 	virtual void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext) = 0;
 	virtual void draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView) = 0;

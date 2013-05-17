@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Manager_Entity.h"
-
+#include "Data.h"
 #include "EntityPointer.h"
 
 Manager_Entity::Manager_Entity()
@@ -22,11 +22,15 @@ Entity* Manager_Entity::create()
 	m_entity_list.addItem(Entity(entityId, nextUniqueIndex));
 	nextUniqueIndex++;
 
-	return m_entity_list.itemAt(entityId);
+	Entity* e = m_entity_list.itemAt(entityId);
+	e->addData(Data::Created());
+
+	return e;
 }
 
-void Manager_Entity::remove( Entity* p_entity )
+void Manager_Entity::remove( Entity* e )
 {
-	p_entity->clean();
-	m_entity_list.removeItemAt(p_entity->id());
+	e->clean();
+	m_entity_list.removeItemAt(e->id());
+	e->addData(Data::Deleted());
 }
