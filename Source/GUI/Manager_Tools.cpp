@@ -127,16 +127,7 @@ QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, int p_type, s
 
 void Manager_Tools::setTool( int p_toolType )
 {
-
-	m_selectedTool = static_cast<Enum::ToolType>(p_toolType);
-	if(SETTINGS()->selectedTool != m_selectedTool)
-	{
-		SETTINGS()->selectedTool = m_selectedTool;
-		DEBUGPRINT("SELECTED TOOL: " + Converter::IntToStr(m_selectedTool));
-
-		Event_SetTool e = Event_SetTool(m_selectedTool);
-		SEND_EVENT(&e);
-	}
+	SETTINGS()->setSelectedTool(p_toolType);
 }
 
 void Manager_Tools::onEvent( Event* p_event )
@@ -144,11 +135,6 @@ void Manager_Tools::onEvent( Event* p_event )
 	EventType type = p_event->type();
 	switch (type)
 	{
-	case EVENT_SET_TOOL:
-		{
-			setTool(m_selectedTool);
-		}
-		break;
 	default:
 		break;
 	}

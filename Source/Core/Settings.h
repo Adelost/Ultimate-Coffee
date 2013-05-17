@@ -26,6 +26,9 @@ public:
 
 class Settings
 {
+private:
+	int m_selectedTool;
+
 public:
 	ButtonState button;
 	Color backBufferColor;
@@ -34,7 +37,6 @@ public:
 	HWND windowHandle;
 	Int2 windowSize;
 	float deltaTime;
-	int selectedTool;
 
 	int DXViewPortTopLeftX;
 	int DXViewPortTopLeftY;
@@ -45,4 +47,8 @@ public:
 public:
 	Settings();
 	~Settings();
+
+public:
+	void setSelectedTool(int toolType);
+	int selectedTool();
 };

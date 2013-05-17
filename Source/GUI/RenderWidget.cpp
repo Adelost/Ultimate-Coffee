@@ -188,6 +188,38 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 	default:
 		break;
 	}
+
+
+	// Set tool hotkey
+	if(state)
+	{
+		switch(key)
+		{
+		case Qt::Key_W:
+			SETTINGS()->button.key_up = state;
+			break;
+		case Qt::Key_S:
+			SETTINGS()->button.key_down = state;
+			break;
+		case Qt::Key_A:
+			SETTINGS()->button.key_left = state;
+			break;
+		case Qt::Key_D:
+			SETTINGS()->button.key_right = state;
+			break;
+		case Qt::Key_Shift:
+			SETTINGS()->button.key_shift = state;
+			break;
+		case Qt::Key_Control:
+			SETTINGS()->button.key_ctrl = state;
+			break;
+		case Qt::Key_Alt:
+			SETTINGS()->button.key_alt = state;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
@@ -210,8 +242,8 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 		break;
 	}
 
-	// Also set Ctrl and Shift to allow 
-	// Ctrl-click without having Window focus
+	// Set Ctrl and Shift to allow  Ctrl-click
+	// without having Window focus
 	SETTINGS()->button.key_ctrl = (QApplication::keyboardModifiers() & Qt::ControlModifier);
 	SETTINGS()->button.key_shift = (QApplication::keyboardModifiers() & Qt::ShiftModifier);
 	SETTINGS()->button.key_alt = (QApplication::keyboardModifiers() & Qt::AltModifier);
@@ -221,8 +253,6 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));
 
 
-	// HACK: Set tools, should be refactored later
-	SEND_EVENT(&Event(EVENT_SET_TOOL));
 
 	// HACK: Hide mouse when rotating camera
 	if(button == Qt::RightButton)
@@ -239,10 +269,10 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 
 
-	// Hack place Entities if EntityTool is selected
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool == Enum::Tool_Entity)
+	// HACK: Place Entities if EntityTool is selected
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Entity)
 	{
-		// Compute picking ray to place entity onto
+		// Compute picking ray to place Entities onto
 		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
 		Ray r;
 
@@ -266,8 +296,8 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 		}
 	}
 
-	// Hack create more entities
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool == Enum::Tool_Geometry)
+	// HACK: Create more entities
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
 	{
 		for(int i=0; i<1000; i++)
 		{
