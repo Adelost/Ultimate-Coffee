@@ -26,10 +26,15 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 	MyRectangle selectionRectangle;
 
 	bool aTransformationToolWasSelected = false;
-	// If the currently chosen transformation tool has an active object, then it is to be visible and selectable.
-	if(currentlyChosenTransformationTool->getActiveObject().isValid())
+
+	// Skip if tool if Ctrl is pressed
+	if(!SETTINGS()->button.key_ctrl)
 	{
-		aTransformationToolWasSelected = currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, mouseCursorPoint);
+		// If the currently chosen transformation tool has an active object, then it is to be visible and selectable.
+		if(currentlyChosenTransformationTool->getActiveObject().isValid())
+		{
+			aTransformationToolWasSelected = currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, mouseCursorPoint);
+		}
 	}
 
 	if(!aTransformationToolWasSelected)
