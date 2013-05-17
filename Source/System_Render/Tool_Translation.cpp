@@ -120,89 +120,91 @@ bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR
 		float distanceToPointOfIntersection;
 		
 		bool arrowSelected = false;
-		bool planeSelected = camViewTranslationPlane->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		bool planeSelected = false;
+		
 		float distanceToClosestPointOfIntersection = FLT_MAX;
 
-		// If the camera view translation plane is intersected, it is always selected...
-		if(planeSelected)
+		distanceToClosestPointOfIntersection = FLT_MAX;
+
+		arrowSelected = xTranslationAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(arrowSelected)
 		{
-			currentlySelectedPlane = camViewTranslationPlane;
+			distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+			currentlySelectedAxis = xTranslationAxisHandle;
+
 			aTranslationToolHandleWasSelected = true;
 		}
-		else
-		{
-			distanceToClosestPointOfIntersection = FLT_MAX;
 
-			arrowSelected = xTranslationAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			arrowSelected = xTranslationAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(arrowSelected)
 			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = xTranslationAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		arrowSelected = yTranslationAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(arrowSelected)
+		{
+			if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+			{
 				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-				currentlySelectedAxis = xTranslationAxisHandle;
+				currentlySelectedAxis = yTranslationAxisHandle;
 
 				aTranslationToolHandleWasSelected = true;
 			}
-
-				arrowSelected = xTranslationAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
-				if(arrowSelected)
-				{
-					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
-					{
-						distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-						currentlySelectedAxis = xTranslationAxisHandle2;
-
-						aTranslationToolHandleWasSelected = true;
-					}
-				}
-
-			arrowSelected = yTranslationAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
-			if(arrowSelected)
-			{
-				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
-				{
-					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-					currentlySelectedAxis = yTranslationAxisHandle;
-
-					aTranslationToolHandleWasSelected = true;
-				}
-			}
-
-				arrowSelected = yTranslationAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
-				if(arrowSelected)
-				{
-					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
-					{
-						distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-						currentlySelectedAxis = yTranslationAxisHandle2;
-
-						aTranslationToolHandleWasSelected = true;
-					}
-				}
-
-			arrowSelected = zTranslationAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
-			if(arrowSelected)
-			{
-				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
-				{
-					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-					currentlySelectedAxis = zTranslationAxisHandle;
-
-					aTranslationToolHandleWasSelected = true;
-				}
-			}
-
-				arrowSelected = zTranslationAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
-				if(arrowSelected)
-				{
-					if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
-					{
-						distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
-						currentlySelectedAxis = zTranslationAxisHandle2;
-
-						aTranslationToolHandleWasSelected = true;
-					}
-				}
 		}
 
+			arrowSelected = yTranslationAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(arrowSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = yTranslationAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		arrowSelected = zTranslationAxisHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+		if(arrowSelected)
+		{
+			if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+			{
+				distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+				currentlySelectedAxis = zTranslationAxisHandle;
+
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+
+			arrowSelected = zTranslationAxisHandle2->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(arrowSelected)
+			{
+				if(distanceToPointOfIntersection < distanceToClosestPointOfIntersection)
+				{
+					distanceToClosestPointOfIntersection = distanceToPointOfIntersection;
+					currentlySelectedAxis = zTranslationAxisHandle2;
+
+					aTranslationToolHandleWasSelected = true;
+				}
+			}
+
+		if(!arrowSelected)
+		{
+			bool planeSelected = camViewTranslationPlane->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(planeSelected)
+			{
+				currentlySelectedPlane = camViewTranslationPlane;
+				aTranslationToolHandleWasSelected = true;
+			}
+		}
+		
 		if(!currentlySelectedPlane && !currentlySelectedAxis) // ... Else, the others are tested for intersection and prioritized by intersection point distance:
 		{
 			distanceToClosestPointOfIntersection = FLT_MAX;
@@ -494,9 +496,9 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		}
 		else // Temp stuff until cam view translation works:
 		{
-			transDelta.m128_f32[0] = 0.0f; //newTranslation.x = originalWorldOfActiveObject._41 + 0.0f;
-			transDelta.m128_f32[0] = 0.0f; //newTranslation.y = originalWorldOfActiveObject._42 + 0.0f;
-			transDelta.m128_f32[0] = 0.0f; //newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
+			transDelta.m128_f32[0] = transDelta.m128_f32[0] * scaleFactor; //0.0f; //newTranslation.x = originalWorldOfActiveObject._41 + 0.0f;
+			transDelta.m128_f32[1] = transDelta.m128_f32[1] * scaleFactor; //0.0f; //newTranslation.y = originalWorldOfActiveObject._42 + 0.0f;
+			transDelta.m128_f32[2] = transDelta.m128_f32[2] * scaleFactor; //0.0f; //newTranslation.z = originalWorldOfActiveObject._43 + 0.0f;
 		}
 
 		//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();

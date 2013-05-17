@@ -89,8 +89,11 @@ void Data::Selected::findLastSelected()
 Matrix Data::Transform::toWorldMatrix()
 {
 	Matrix mat_scale = Matrix::CreateScale(scale);
+	Matrix mat_rot = Matrix::CreateFromQuaternion(rotation);
+	Matrix mat_trans = Matrix::CreateTranslation(position);
 
-	Matrix m = mat_scale*toRotPosMatrix();
+	//Matrix m = mat_rot * mat_scale * mat_trans; //Matrix m = mat_scale*toRotPosMatrix();
+	Matrix m = mat_scale * mat_rot * mat_trans;
 	return m;
 }
 

@@ -65,7 +65,7 @@ Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 	//boundingRectangle.P4 = XMFLOAT3( 0.25f, -0.25f, 0.0f);
 	//camViewScalingPlane = new Handle_ScalingPlane(XMLoadFloat3(&zDirNeg), 0.0f, boundingRectangle, /*windowHandle,*/ YZ);
 
-	relateToActiveObjectWorld = false;
+	//relateToActiveObjectWorld = false;
 
 	shouldFlipMouseCursor = false;
 	xyScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
@@ -73,6 +73,8 @@ Tool_Scaling::Tool_Scaling(/*HWND windowHandle*/)
 	yzScalingPlane->setShouldFlipMouseCursor(shouldFlipMouseCursor);
 
 	scale = 1.0f;
+
+	transformInEntityLocalSpace = true;
 
 	activeEntityId = -1;
 }
@@ -308,19 +310,19 @@ void Tool_Scaling::setActiveObject(int entityId)
 	DataMapper<Data::Selected> map_selected;
 	Entity* e;
 
-	originalWorldsOfSelectedEntities.clear();
+	originalScalesOfSelectedEntities.clear();
 
 	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
 	while(map_selected.hasNext())
 	{
 		e = map_selected.nextEntity();
-		Data::Selected* d_selected = e->fetchData<Data::Selected>();
+		//Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
-		XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
-		XMFLOAT4X4 origWorld;
-		XMStoreFloat4x4(&origWorld, world);
-		originalWorldsOfSelectedEntities.push_back(origWorld);
-	 }
+		XMVECTOR scale = e->fetchData<Data::Transform>()->scale; //XMMATRIX world = e->fetchData<Data::Transform>()->toWorldMatrix();
+		XMFLOAT3 origScale;
+		XMStoreFloat3(&origScale, scale);
+		originalScalesOfSelectedEntities.push_back(origScale);
+	}
 
 	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 	{
@@ -354,8 +356,8 @@ void Tool_Scaling::setActiveObject(int entityId)
 
 void Tool_Scaling::updateWorld()
 {
-	if(!relateToActiveObjectWorld)
-	{
+	//if(!relateToActiveObjectWorld)
+	//{
 		// Just get the position of the active object, but keep the default orientation.
 		Matrix newWorld = XMMatrixIdentity();
 
@@ -392,32 +394,32 @@ void Tool_Scaling::updateWorld()
 		omniScalingAxisHandle->setWorld(logicalWorld);
 
 		//camViewScalingPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
-	}
-	else
-	{
-		// Get the position and orientation of the active object.
-		world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	//}
+	//else
+	//{
+	//	// Get the position and orientation of the active object.
+	//	world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
 
-		// Update the translation tool's (distance-from-camera-adjusted) scale.
-		world._11 = scale;
-		world._22 = scale;
-		world._33 = scale;
-		//XMStoreFloat4x4(&world, newWorld);
+	//	// Update the translation tool's (distance-from-camera-adjusted) scale.
+	//	world._11 = scale;
+	//	world._22 = scale;
+	//	world._33 = scale;
+	//	//XMStoreFloat4x4(&world, newWorld);
 
-		XMMATRIX logicalWorld = XMLoadFloat4x4(&getWorld_logical());
+	//	XMMATRIX logicalWorld = XMLoadFloat4x4(&getWorld_logical());
 
-		// Transform all the controls.
-		xScalingAxisHandle->setWorld(logicalWorld);
-		yScalingAxisHandle->setWorld(logicalWorld);
-		zScalingAxisHandle->setWorld(logicalWorld);
-		xScalingAxisHandle2->setWorld(logicalWorld);
-		yScalingAxisHandle2->setWorld(logicalWorld);
-		zScalingAxisHandle2->setWorld(logicalWorld);
+	//	// Transform all the controls.
+	//	xScalingAxisHandle->setWorld(logicalWorld);
+	//	yScalingAxisHandle->setWorld(logicalWorld);
+	//	zScalingAxisHandle->setWorld(logicalWorld);
+	//	xScalingAxisHandle2->setWorld(logicalWorld);
+	//	yScalingAxisHandle2->setWorld(logicalWorld);
+	//	zScalingAxisHandle2->setWorld(logicalWorld);
 
-		yzScalingPlane->setWorld(logicalWorld);
-		zxScalingPlane->setWorld(logicalWorld);
-		xyScalingPlane->setWorld(logicalWorld);
-	}
+	//	yzScalingPlane->setWorld(logicalWorld);
+	//	zxScalingPlane->setWorld(logicalWorld);
+	//	xyScalingPlane->setWorld(logicalWorld);
+	//}
 }
 
 /* Transform all controls to the local coord. sys. of the active object. */
@@ -447,45 +449,21 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 	if(currentlySelectedAxis)
 	{
 		currentlySelectedAxis->update(rayOrigin, rayDir, camView);
-
 		currentlySelectedAxis->pickAxisPlane(rayOrigin, rayDir, camView, camProj);
-		
-		// Pick against the plane to update the translation delta.
 		currentlySelectedAxis->calcLastScalingDelta();
-		
 		XMVECTOR scaleDelta = currentlySelectedAxis->getTotalScalingDelta();
-
-		//XMFLOAT4X4 newMatrix;
-		//newMatrix = originalWorldOfActiveObject;
-
-		float toolScaleDependantScaleFactor = scale;
-
-		//float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-		//float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-		//float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-		//if(scaleDependantScaleFactorX < 0.1f)
-		//	scaleDependantScaleFactorX = 0.1f;
-		//if(scaleDependantScaleFactorY < 0.1f)
-		//	scaleDependantScaleFactorY = 0.1f;
-		//if(scaleDependantScaleFactorZ < 0.1f)
-		//	scaleDependantScaleFactorZ = 0.1f;
-
-		//scaleDelta.m128_f32[0] = /*originalWorldOfActiveObject._11 +*/ scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-		//scaleDelta.m128_f32[1] = /*originalWorldOfActiveObject._22 +*/ scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-		//scaleDelta.m128_f32[2] = /*originalWorldOfActiveObject._33 +*/ scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
-
-		DataMapper<Data::Selected> map_selected;
-		Entity* e;
-
+		
 		int i = 0;
+		Entity* e;
+		DataMapper<Data::Selected> map_selected;
 		while(map_selected.hasNext())
 		{
 			e = map_selected.nextEntity();
-			Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
-			float scaleDependantScaleFactorX = originalWorldsOfSelectedEntities.at(i)._11 * 0.1f;
-			float scaleDependantScaleFactorY = originalWorldsOfSelectedEntities.at(i)._22 * 0.1f;
-			float scaleDependantScaleFactorZ = originalWorldsOfSelectedEntities.at(i)._33 * 0.1f;
+			float toolScaleDependantScaleFactor = scale;
+			float scaleDependantScaleFactorX = originalScalesOfSelectedEntities.at(i).x * 0.1f;
+			float scaleDependantScaleFactorY = originalScalesOfSelectedEntities.at(i).y * 0.1f;
+			float scaleDependantScaleFactorZ = originalScalesOfSelectedEntities.at(i).z * 0.1f;
 			if(scaleDependantScaleFactorX < 0.1f)
 				scaleDependantScaleFactorX = 0.1f;
 			if(scaleDependantScaleFactorY < 0.1f)
@@ -493,109 +471,92 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 			if(scaleDependantScaleFactorZ < 0.1f)
 				scaleDependantScaleFactorZ = 0.1f;
 
-			scaleDelta.m128_f32[0] = /*originalWorldOfActiveObject._11 +*/ scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-			scaleDelta.m128_f32[1] = /*originalWorldOfActiveObject._22 +*/ scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-			scaleDelta.m128_f32[2] = /*originalWorldOfActiveObject._33 +*/ scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+			scaleDelta.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			e->fetchData<Data::Transform>()->scale = XMVectorSet(	originalWorldsOfSelectedEntities.at(i)._11,
-																	originalWorldsOfSelectedEntities.at(i)._22,
-																	originalWorldsOfSelectedEntities.at(i)._33, 1.0f) + scaleDelta;
+			//XMVECTOR rotQuat = e->fetchData<Data::Transform>()->rotation;
+			//XMMATRIX rot = XMMatrixRotationQuaternion(rotQuat);
+			//XMMATRIX rotAdjust = XMMatrixInverse(&XMMatrixDeterminant(rot), rot);
+			//scaleDelta = XMVector3Transform(scaleDelta, rotAdjust);
+			//// Would need to get the actual dir for this the axis selected.
+			//scaleDelta.m128_f32[1] = 0.0f; scaleDelta.m128_f32[2] = 0.0f;
+
+			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
 			++i;
 		}
-
-		//if(currentlySelectedPlane)
-		//{
-		//	newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
-		//	newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
-		//	newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
-
-		//	if(newMatrix._11 < 0.01f)
-		//		newMatrix._11 = 0.01f;
-		//	if(newMatrix._22 < 0.01f)
-		//		newMatrix._22 = 0.01f;
-		//	if(newMatrix._33 < 0.01f)
-		//		newMatrix._33 = 0.01f;
-		//}
-		//else
-		//{
-		//}
-
-		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); 
-		//Entity(activeEntityId).fetchData<Data::Transform>()->scale = Entity(activeEntityId).fetchData<Data::Transform>()->scale + Vector4(transDelta); //Vector3(transDelta.m128_f32[0], transDelta.m128_f32[1], transDelta.m128_f32[2]);
 	}
 	else if(currentlySelectedPlane)
 	{
 		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView, camProj, theViewport);
 		currentlySelectedPlane->calcLastScalingDelta();
-		XMVECTOR transDelta = currentlySelectedPlane->getTotalScalingDelta();
+		XMVECTOR scaleDelta = currentlySelectedPlane->getTotalScalingDelta();
 
-		XMFLOAT4X4 newMatrix;
-		newMatrix = originalWorldOfActiveObject;
+		int i = 0;
+		Entity* e;
+		DataMapper<Data::Selected> map_selected;
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
 
-		float toolScaleDependantScaleFactor = scale;
+			float toolScaleDependantScaleFactor = scale;
+			float scaleDependantScaleFactorX = originalScalesOfSelectedEntities.at(i).x * 0.1f;
+			float scaleDependantScaleFactorY = originalScalesOfSelectedEntities.at(i).y * 0.1f;
+			float scaleDependantScaleFactorZ = originalScalesOfSelectedEntities.at(i).z * 0.1f;
+			if(scaleDependantScaleFactorX < 0.1f)
+				scaleDependantScaleFactorX = 0.1f;
+			if(scaleDependantScaleFactorY < 0.1f)
+				scaleDependantScaleFactorY = 0.1f;
+			if(scaleDependantScaleFactorZ < 0.1f)
+				scaleDependantScaleFactorZ = 0.1f;
 
-		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-		if(scaleDependantScaleFactorX < 0.1f)
-			scaleDependantScaleFactorX = 0.1f;
-		if(scaleDependantScaleFactorY < 0.1f)
-			scaleDependantScaleFactorY = 0.1f;
-		if(scaleDependantScaleFactorZ < 0.1f)
-			scaleDependantScaleFactorZ = 0.1f;
+			scaleDelta.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-		transDelta.m128_f32[0] = originalWorldOfActiveObject._11 + transDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-		transDelta.m128_f32[1] = originalWorldOfActiveObject._22 + transDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-		transDelta.m128_f32[2] = originalWorldOfActiveObject._33 + transDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+			//XMVECTOR rotQuat = e->fetchData<Data::Transform>()->rotation;
+			//XMMATRIX rot = XMMatrixRotationQuaternion(rotQuat);
+			//XMMATRIX rotAdjust = XMMatrixInverse(&XMMatrixDeterminant(rot), rot);
+			//scaleDelta = XMVector3Transform(scaleDelta, rotAdjust);
+			//// Would need to get the actual "dir" for this the plane selected.
+			//scaleDelta.m128_f32[1] = 0.0f; scaleDelta.m128_f32[2] = 0.0f;
 
-		//if(currentlySelectedPlane != camViewScalingPlane)
-		//{
-		//	newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
-		//	newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
-		//	newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
-
-		//	if(newMatrix._11 < 0.01f)
-		//		newMatrix._11 = 0.01f;
-		//	if(newMatrix._22 < 0.01f)
-		//		newMatrix._22 = 0.01f;
-		//	if(newMatrix._33 < 0.01f)
-		//		newMatrix._33 = 0.01f;
-		//}
-
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = /*Entity(activeEntityId).fetchData<Data::Transform>()->scale + */Vector3(transDelta); //newMatrix._11, newMatrix._22, newMatrix._33);
+			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+			++i;
+		}
 	}
-	else if(currentlySelectedHandle)
-	{
-		omniScalingAxisHandle->update(mouseCursorPoint);
-		//omniScalingAxisHandle->calcLastScalingDelta();
-		POINT totalCursorDeltas = omniScalingAxisHandle->getTotalScalingDelta(); //getTotalMouseCursorXYDeltas(mouseCursorPoint);
+	//else if(currentlySelectedHandle)
+	//{
+	//	omniScalingAxisHandle->update(mouseCursorPoint);
+	//	//omniScalingAxisHandle->calcLastScalingDelta();
+	//	POINT totalCursorDeltas = omniScalingAxisHandle->getTotalScalingDelta(); //getTotalMouseCursorXYDeltas(mouseCursorPoint);
 
-		float xScaleFactor = 0.01f;
-		float yScaleFactor = 0.01f;
+	//	float xScaleFactor = 0.01f;
+	//	float yScaleFactor = 0.01f;
 
-		float toolScaleDependantScaleFactor = scale;
+	//	float toolScaleDependantScaleFactor = scale;
 
-		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-		float scaleDependantScaleFactorAvg = (scaleDependantScaleFactorX + scaleDependantScaleFactorY + scaleDependantScaleFactorZ) / 3;
-		
-		float xScaleContribution = totalCursorDeltas.x * xScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
-		float yScaleContribution = totalCursorDeltas.y * yScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;;
+	//	float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
+	//	float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
+	//	float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
+	//	float scaleDependantScaleFactorAvg = (scaleDependantScaleFactorX + scaleDependantScaleFactorY + scaleDependantScaleFactorZ) / 3;
+	//	
+	//	float xScaleContribution = totalCursorDeltas.x * xScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
+	//	float yScaleContribution = totalCursorDeltas.y * yScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;;
 
-		XMVECTOR newScale = XMVectorSet(	originalWorldOfActiveObject._11 + xScaleContribution + yScaleContribution,
-											originalWorldOfActiveObject._22 + xScaleContribution + yScaleContribution,
-											originalWorldOfActiveObject._33 + xScaleContribution + yScaleContribution, 1.0f);
+	//	XMVECTOR newScale = XMVectorSet(	originalWorldOfActiveObject._11 + xScaleContribution + yScaleContribution,
+	//										originalWorldOfActiveObject._22 + xScaleContribution + yScaleContribution,
+	//										originalWorldOfActiveObject._33 + xScaleContribution + yScaleContribution, 1.0f);
 
-		if(newScale.m128_f32[0] < 0.01f)
-			newScale.m128_f32[0] = 0.01f;
-		if(newScale.m128_f32[1] < 0.01f)
-			newScale.m128_f32[1] = 0.01f;
-		if(newScale.m128_f32[2] < 0.01f)
-			newScale.m128_f32[2] = 0.01f;
+	//	if(newScale.m128_f32[0] < 0.01f)
+	//		newScale.m128_f32[0] = 0.01f;
+	//	if(newScale.m128_f32[1] < 0.01f)
+	//		newScale.m128_f32[1] = 0.01f;
+	//	if(newScale.m128_f32[2] < 0.01f)
+	//		newScale.m128_f32[2] = 0.01f;
 
-		Entity(activeEntityId).fetchData<Data::Transform>()->scale = newScale;
-	}
+	//	Entity(activeEntityId).fetchData<Data::Transform>()->scale = newScale;
+	//}
 
 
 }
@@ -634,8 +595,8 @@ void Tool_Scaling::unselect()
 
 		Data::Transform* trans = e->fetchData<Data::Transform>();
 		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
-		command->setDoScale(trans->position.x, trans->position.y, trans->position.z);
-		command->setUndoScale(originalWorldsOfSelectedEntities.at(i)._11, originalWorldsOfSelectedEntities.at(i)._22, originalWorldsOfSelectedEntities.at(i)._33);
+		command->setDoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+		command->setUndoScale(originalScalesOfSelectedEntities.at(i).x, originalScalesOfSelectedEntities.at(i).y, originalScalesOfSelectedEntities.at(i).z);
 		translationCommands.push_back(command);
 		
 		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
@@ -652,26 +613,47 @@ void Tool_Scaling::unselect()
 
 XMFLOAT4X4 Tool_Scaling::getWorld_logical()
 {
-	XMMATRIX trans = XMMatrixTranslation(world._41, world._42, world._43);
+	XMFLOAT4X4 world_logical;
+	if(transformInEntityLocalSpace)
+	{
+		Entity e(activeEntityId);
+		Data::Transform* transform = e.fetchData<Data::Transform>();
 
-	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+		XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+		XMMATRIX translation = XMMatrixTranslation(transform->position.x, transform->position.y, transform->position.z);
+		XMMATRIX rotation = XMMatrixRotationQuaternion(XMVectorSet(transform->rotation.x, transform->rotation.y, transform->rotation.z, transform->rotation.w));
+		
+		XMStoreFloat4x4(&world_logical, scaling * rotation * translation);
+	}
 
-	XMFLOAT4X4 world;
-	XMStoreFloat4x4(&world, scaling * trans);
-
-	return world;
+	return world_logical;
 }
 
 XMFLOAT4X4 Tool_Scaling::getWorld_visual()
 {
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
-	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
-
-	XMMATRIX scaling;
-	scaling = XMMatrixScaling(scale, scale, scale);
-
 	XMFLOAT4X4 world_visual;
-	XMStoreFloat4x4(&world_visual, scaling * translation);
+	if(transformInEntityLocalSpace)
+	{
+		Entity e(activeEntityId);
+		Data::Transform* transform = e.fetchData<Data::Transform>();
+
+		XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+		XMMATRIX translation = XMMatrixTranslation(transform->position.x, transform->position.y, transform->position.z);
+
+		XMVECTOR rotQuat = transform->rotation; //XMVectorSet(transform->rotation.x, transform->rotation.y, transform->rotation.z, transform->rotation.w);
+		XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+		
+		XMStoreFloat4x4(&world_visual, scaling * rotation * translation);
+	}
+
+	//XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	//XMMATRIX translation = XMMatrixTranslationFromVector(trans);
+
+	//XMMATRIX scaling;
+	//scaling = XMMatrixScaling(scale, scale, scale);
+
+	//XMFLOAT4X4 world_visual;
+	//XMStoreFloat4x4(&world_visual, scaling * translation);
 
 	return world_visual;
 }
