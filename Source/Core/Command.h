@@ -17,7 +17,6 @@ class Command :
 {
 private:
 	Enum::CommandType m_type;
-	std::string m_name;
 
 protected:
 	void setType(Enum::CommandType type){m_type = type;}
@@ -33,6 +32,4 @@ public:
 
 	virtual void doRedo() = 0;
 	virtual void undo() = 0;
-	std::string getName();
-	void setName(std::string name);
 };

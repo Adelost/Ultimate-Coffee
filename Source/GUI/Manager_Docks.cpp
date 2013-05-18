@@ -389,7 +389,7 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			case Enum::CommandType::CREATE_ENTITY:
 				{
-					commandText = command->getName();
+					commandText = "Create entity";
 
 					std::string iconPath = ICON_PATH;
 					iconPath += "Tools/Geometry";
@@ -399,7 +399,7 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			case Enum::CommandType::REMOVE_ENTITY:
 				{
-					commandText = command->getName();
+					commandText = "Remove entity";
 
 					std::string iconPath = ICON_PATH;
 					iconPath += "Tools/Remove";

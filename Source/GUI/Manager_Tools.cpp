@@ -167,6 +167,8 @@ void Manager_Tools::createAsteroids()
 		command_list.push_back(new Command_CreateEntity(e));
 	}
 	// Add to history
-	command_list.back()->setName("New asteroid");
+
+	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
+	//command_list.back()->setName("New asteroid");
 	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
 }

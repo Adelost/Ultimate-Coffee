@@ -208,10 +208,12 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 			int count = command_list.size();
 			if(count>0)
 			{
-				if(count == 1)
-					command_list.back()->setName("Removed " + entityName);
-				else
-					command_list.back()->setName("Removed Entity");
+				//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
+				//if(count == 1)
+				//	command_list.back()->setName("Removed " + entityName);
+				//else
+				//	command_list.back()->setName("Removed Entity");
+
 				SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
 			}
 			

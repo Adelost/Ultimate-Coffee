@@ -38,7 +38,7 @@ int Command_CreateEntity::getByteSizeOfDataStruct()
 
 void Command_CreateEntity::loadDataStructFromBytes( char* data )
 {
-	m_data = *reinterpret_cast<dataStruct*>(&data);
+	m_data = *reinterpret_cast<dataStruct*>(data);
 }
 
 void Command_CreateEntity::createEntity()
@@ -74,11 +74,13 @@ Command_CreateEntity::Command_CreateEntity( Entity* e, bool create )
 	else
 		setType(Enum::CommandType::REMOVE_ENTITY);
 	std::string name;
-	if(create)
-		name = "New " + e->name();
-	else
-		name = "Remove " + e->name();
-	setName(name);
+	
+	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
+	//if(create)
+	//	name = "New " + e->name();
+	//else
+	//	name = "Remove " + e->name();
+	//setName(name);
 
 	Data::Transform* d_transform = e->fetchData<Data::Transform>();
 	m_data.entityId = e->id();
