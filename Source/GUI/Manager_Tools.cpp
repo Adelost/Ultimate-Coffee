@@ -33,7 +33,7 @@ void Manager_Tools::setupToolbar()
 	//path = iconPath + "Menu/new";
 	//a->setIcon(QIcon(path.c_str())); 
 	a->setShortcuts(QKeySequence::New);
-	a->setStatusTip(tr("NO FUNCTIONALITY YET (2013-04-24, 14.51)"));
+	connect(a, SIGNAL(triggered()), this, SLOT(newLevel()));
 
 	// Exit
 	a = m_ui->actionQuit;
@@ -171,4 +171,9 @@ void Manager_Tools::createAsteroids()
 	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 	//command_list.back()->setName("New asteroid");
 	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+}
+
+void Manager_Tools::newLevel()
+{
+	SEND_EVENT(&Event(EVENT_NEW_LEVEL));
 }

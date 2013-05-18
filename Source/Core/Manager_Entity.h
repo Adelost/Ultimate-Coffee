@@ -26,4 +26,5 @@ public:
 	{
 		m_reservedId = id;
 	}
+	void clear();
 };

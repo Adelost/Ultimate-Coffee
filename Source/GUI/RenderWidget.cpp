@@ -102,6 +102,10 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 
 void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 {
+	// Save mouse positoin
+	SETTINGS()->lastMousePosition.x = e->pos().x();
+	SETTINGS()->lastMousePosition.y = e->pos().y();
+
 	QPoint mouseAnchor = mapToGlobal(QPoint(width()*0.5f, height()*0.5f));
 	static QPoint mousePrev = e->globalPos();
 	int x = e->pos().x();

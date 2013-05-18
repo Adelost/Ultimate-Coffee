@@ -34,6 +34,10 @@ public:
 	{
 		return &m_index_lastGap;
 	}
+	int indexCount()
+	{
+		return m_index_lastGap;
+	}
 	std::vector<T>* itemList()
 	{
 		return &m_item_list;

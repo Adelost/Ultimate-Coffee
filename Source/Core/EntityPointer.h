@@ -15,12 +15,12 @@ public:
 	static void initClass(void* hostEntity_list);
 
 	/**
-	Makes sure the Entity we originally pointed to have not been replaced.
+	Makes sure the Entity we originally pointed to has not been replaced.
 	*/
 	bool isValid();
 
 	/**
-	Get Entity. Make sure to call isValid before, to make sure the Entity have not changed.
+	Get Entity. Make sure to call isValid before, to make sure the Entity has not changed.
 	*/
 	Entity* operator->();
 
