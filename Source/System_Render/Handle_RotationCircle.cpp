@@ -6,7 +6,7 @@ Handle_RotationCircle::Handle_RotationCircle(XMVECTOR &direction, std::vector<XM
 	isSelected = false;
 
 	XMStoreFloat3(&this->direction, direction);
-	this->boundingTriangles = boundingTriangles;
+	this->boundingLines = boundingLines;
 	
 	XMFLOAT3 dir;
 
@@ -34,8 +34,51 @@ Handle_RotationCircle::~Handle_RotationCircle()
 	delete singleAxisRotationPlane;
 }
 
+bool static pointVsRectangle(XMVECTOR &point, MyRectangle &rectangle)
+{
+	bool intersected = false;
+
+	XMVECTOR loadedP1 = XMLoadFloat3(&rectangle.P1); //transformedP1;
+	XMVECTOR loadedP2 = XMLoadFloat3(&rectangle.P2); //transformedP2;
+	XMVECTOR loadedP3 = XMLoadFloat3(&rectangle.P3); //transformedP3;
+	XMVECTOR loadedP4 = XMLoadFloat3(&rectangle.P4); //transformedP4;
+
+	XMVECTOR V1 = loadedP2 - loadedP1;
+	XMVECTOR V3 = loadedP4 - loadedP3;
+	XMVECTOR V4 = point - loadedP1;
+	XMVECTOR V5 = point - loadedP3;
+
+	XMVECTOR V6 = loadedP2 - loadedP3;
+	XMVECTOR V7 = loadedP4 - loadedP1;
+	XMVECTOR V8 = point - loadedP3;
+	XMVECTOR V9 = point - loadedP1;
+
+	V1 = XMVector3Normalize(V1);
+	V3 = XMVector3Normalize(V3);
+	V4 = XMVector3Normalize(V4);
+	V5 = XMVector3Normalize(V5);
+	V6 = XMVector3Normalize(V6);
+	V7 = XMVector3Normalize(V7);
+	V8 = XMVector3Normalize(V8);
+	V9 = XMVector3Normalize(V9);
+
+	XMVECTOR V1dotV4 = XMVector3Dot(V1, V4);
+	XMVECTOR V3dotV5 = XMVector3Dot(V3, V5);
+	XMVECTOR V6dotV8 = XMVector3Dot(V6, V8);
+	XMVECTOR V7dotV9 = XMVector3Dot(V7, V9);
+
+	if(		V1dotV4.m128_f32[0] >= 0.0f && V3dotV5.m128_f32[0] >= 0.0f
+		&&	V6dotV8.m128_f32[0] >= 0.0f && V7dotV9.m128_f32[0] >= 0.0f	)
+	{
+		intersected = true;
+		//distanceToIntersectionPoint = XMVector3Length(rayOrigin - point).m128_f32[0];
+	}
+
+	return intersected;
+}
+
 /* Called for initial selection and picking against the axis plane. */
-bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint)
+bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, float &distanceToIntersectionPoint)
 {
 	bool wasSelected = false;
 
@@ -53,33 +96,58 @@ bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMV
 	// Make the ray direction unit length for the intersection tests.
 	transRayDir = XMVector3Normalize(transRayDir);
 
-	float dist;
-	for(unsigned int i = 0; i < boundingTriangles.size(); i = i + 3)
+	bool theLineIntersectsTheSelectionRectangle = false;
+	for(unsigned int i = 0; i < boundingLines.size(); i = i + 2)
 	{
-		wasSelected = XNA::IntersectRayTriangle(transRayOrigin, transRayDir, XMLoadFloat4(&boundingTriangles.at(i)), XMLoadFloat4(&boundingTriangles.at(i + 1)), XMLoadFloat4(&boundingTriangles.at(i + 2)), &dist);
+		int viewPortHeight = SETTINGS()->windowSize.y;
+		int viewPortWidth = SETTINGS()->windowSize.x;
 
-		if(wasSelected)
+		int DXViewPortTopLeftX = SETTINGS()->DXViewPortTopLeftX;
+		int DXViewPortTopLeftY = SETTINGS()->DXViewPortTopLeftY;
+		int DXViewPortMinDepth = SETTINGS()->DXViewPortMinDepth;
+		int DXViewPortMaxDepth = SETTINGS()->DXViewPortMaxDepth;
+
+		// Project the 3D re-entry point to 2D, so that the screen coordinates can be calculated.
+		XMVECTOR lineSegmentPointAScreenPos = XMVector3Project(	XMLoadFloat4(&boundingLines.at(   i   )),
+			DXViewPortTopLeftX,	DXViewPortTopLeftY,
+			viewPortWidth,		viewPortHeight,
+			DXViewPortMinDepth,	DXViewPortMaxDepth,
+			camProj, camView, XMLoadFloat4x4(&world)	);
+
+		XMVECTOR lineSegmentPointBScreenPos = XMVector3Project(	XMLoadFloat4(&boundingLines.at( i + 1 )),
+			DXViewPortTopLeftX,	DXViewPortTopLeftY,
+			viewPortWidth,		viewPortHeight,
+			DXViewPortMinDepth,	DXViewPortMaxDepth,
+			camProj, camView, XMLoadFloat4x4(&world)	);
+
+		MyRectangle testRect;
+
+		//testRect.P1 = XMFLOAT3(0.0f,	0.0f,	0.0f);
+		//testRect.P2 = XMFLOAT3(0.0f,	1.0f,	0.0f);
+		//testRect.P3 = XMFLOAT3(1.0f,	1.0f,	0.0f);
+		//testRect.P4 = XMFLOAT3(1.0f,	0.0f,	0.0f);
+
+		testRect.P1 = XMFLOAT3(458.0f,	177.0f,	0.0f);
+		testRect.P2 = XMFLOAT3(458.0f,	178.0f, 0.0f);
+		testRect.P3 = XMFLOAT3(459.0f,	178.0f, 0.0f);
+		testRect.P4 = XMFLOAT3(459.0f,	177.0f,	0.0f);
+
+		theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointAScreenPos, selectionRectangle);
+		if(theLineIntersectsTheSelectionRectangle)
 		{
-			XMVECTOR normalizedRayDir = XMVector3Normalize(rayDir);
+			break;
+		}
 
-			XMFLOAT3 reorientedNormal;
-
-			if(direction.x == 1.0f)
-				reorientedNormal = XMFLOAT3(0.0f, normalizedRayDir.m128_f32[1], normalizedRayDir.m128_f32[2]);
-			else if(direction.y == 1.0f)
-				reorientedNormal = XMFLOAT3(normalizedRayDir.m128_f32[0], 0.0f, normalizedRayDir.m128_f32[2]);
-			else if(direction.z == 1.0f)
-				reorientedNormal = XMFLOAT3(normalizedRayDir.m128_f32[0], normalizedRayDir.m128_f32[1], 0.0f);
-
-			singleAxisRotationPlane->setPlaneOrientation(XMLoadFloat3(&reorientedNormal));
-
-			pickFirstPointOnAxisPlane(rayOrigin, rayDir, camView, distanceToIntersectionPoint);
-			distanceToIntersectionPoint = dist;
+		theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+		if(theLineIntersectsTheSelectionRectangle)
+		{
 			break;
 		}
 	}
 
-	isSelected = wasSelected;
+	// Try for selection against some plane or sphere or whatever, to se the first interaction point.
+	
+	isSelected = theLineIntersectsTheSelectionRectangle;
 
 	return wasSelected;
 }

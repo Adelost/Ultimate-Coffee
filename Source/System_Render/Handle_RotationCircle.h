@@ -1,5 +1,5 @@
-#ifndef HANDLE_ROTATIONSPHERE_H
-#define HANDLE_ROTATIONSPHERE_H
+#ifndef HANDLE_ROTATIONCIRCLE_H
+#define HANDLE_ROTATIONCIRCLE_H
 
 #include <Core/Math.h>
 
@@ -9,7 +9,7 @@
 
 #include <vector>
 
-class Handle_RotationCircle
+class Handle_RotationCircle : public IHandle
 {
 private:
 	XMFLOAT4X4 world;
@@ -21,7 +21,7 @@ private:
 	XMFLOAT3 prevPickedPointOnAxisPlane;
 	XMFLOAT3 nextPickedPointOnAxisPlane;
 
-	std::vector<XMFLOAT4> boundingTriangles;
+	std::vector<XMFLOAT4> boundingLines;
 
 	bool isSelected;
 
@@ -30,7 +30,7 @@ public:
 	~Handle_RotationCircle();
 	
 	/* Called for initial selection and picking against the axis plane. */
-	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToIntersectionPoint);
+	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, float &distanceToIntersectionPoint);
 	
 	bool pickFirstPointOnAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToPointOfIntersection);
 

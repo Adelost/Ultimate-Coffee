@@ -8,6 +8,8 @@ namespace Enum
 		SCALE_SCENE_ENTITY,
 		CHANGEBACKBUFFERCOLOR,
 		SKYBOX,
+		CREATE_ENTITY,
+		REMOVE_ENTITY,
 	};
 
 	enum ToolType
@@ -26,5 +28,17 @@ namespace Enum
 		QtKeyPress_NoButton = 0,
 		QtKeyPress_MouseLeft,
 		QtKeyPress_MouseRight
+	};
+
+	enum EntityType
+	{
+		Entity_Empty,
+		Entity_Sky,
+		Entity_Cube,
+		Entity_Asteroid,
+		Entity_Camera,
+		Entity_Pointlight,
+
+		Entity_End
 	};
 }

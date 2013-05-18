@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Command.h"
-#include "Enums.h"
+
+
 
 class Command_SkyBox : public Command
 {

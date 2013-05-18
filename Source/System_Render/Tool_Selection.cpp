@@ -13,7 +13,7 @@ Tool_Selection::~Tool_Selection()
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool )
+void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool )
 {
 	//isSelected = true;
 
@@ -25,11 +25,21 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 
 	MyRectangle selectionRectangle;
 
+	selectionRectangle.P1 = XMFLOAT3(firstMouseCursorPoint.x,			firstMouseCursorPoint.y + 10,		0.0f);
+	selectionRectangle.P2 = XMFLOAT3(firstMouseCursorPoint.x,			firstMouseCursorPoint.y,			0.0f);
+	selectionRectangle.P3 = XMFLOAT3(firstMouseCursorPoint.x + 10.0f,	firstMouseCursorPoint.y,			0.0f);
+	selectionRectangle.P4 = XMFLOAT3(firstMouseCursorPoint.x + 10.0f,	firstMouseCursorPoint.y + 10,		0.0f);
+
 	bool aTransformationToolWasSelected = false;
-	// If the currently chosen transformation tool has an active object, then it is to be visible and selectable.
-	if(currentlyChosenTransformationTool->getActiveObject() != -1)
+
+	// Skip if tool if Ctrl is pressed
+	if(!SETTINGS()->button.key_ctrl)
 	{
-		aTransformationToolWasSelected = currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, mouseCursorPoint);
+		// If the currently chosen transformation tool has an active object, then it is to be visible and selectable.
+		if(currentlyChosenTransformationTool->getActiveObject().isValid())
+		{
+			aTransformationToolWasSelected = currentlyChosenTransformationTool->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, mouseCursorPoint);
+		}
 	}
 
 	if(!aTransformationToolWasSelected)

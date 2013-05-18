@@ -40,5 +40,5 @@ int Command_SkyBox::getByteSizeOfDataStruct()
 
 void Command_SkyBox::loadDataStructFromBytes(char* data)
 {
-	dataStruct_ = *reinterpret_cast<dataStruct*>(&data);
+	dataStruct_ = *reinterpret_cast<dataStruct*>(data);
 }

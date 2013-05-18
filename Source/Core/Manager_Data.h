@@ -54,6 +54,14 @@ public:
 		}
 	}
 
+	void removeEntity(int entityId)
+	{
+		for(int i=0; i<(int)m_dataBatch_list.size(); i++)
+		{
+			m_dataBatch_list[i]->vRemoveData(entityId);
+		}
+	}
+
 	template<typename T>
 	int addBatch()
 	{

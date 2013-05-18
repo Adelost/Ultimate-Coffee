@@ -77,7 +77,7 @@ public:
 	~Tool_Selection();
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	void beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool);
+	void beginSelection(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint, ITool_Transformation *currentlyChosenTransformationTool);
 
 	/* Called to send updated parameters to the translation tool, if it is still in the process of making a selection. */
 	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint);

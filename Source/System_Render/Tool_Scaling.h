@@ -94,7 +94,7 @@ private:
 	bool isSelected;
 	bool isVisible;
 
-	int activeEntityId;
+	EntityPointer activeEntity;
 
 	bool relateToActiveObjectWorld;
 
@@ -119,7 +119,7 @@ public:
 	void setIsVisible(bool &isVisible);
 
 	/* Called for an instance of picking, possibly resulting in the tool being selected. */
-	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint);
+	bool tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, POINT &mouseCursorPoint);
 
 	/* Called to see if the mouse cursor is hovering over the tool, and what part of it, if any. */
 	void tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
@@ -170,7 +170,7 @@ public:
 
 	XMFLOAT4X4 getWorld_visual_objectRelative();
 
-	int getActiveObject();
+	EntityPointer getActiveObject();
 	
 	void init(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
 	void draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView);

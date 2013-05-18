@@ -211,17 +211,6 @@ public:
 	}
 };
 
-class Event_SetTool : public Event
-{
-public:
-	int m_toolId;
-
-	Event_SetTool(int p_toolId) : Event(EVENT_SET_TOOL)
-	{
-		m_toolId = p_toolId;
-	}
-};
-
 class Event_MousePress : public Event
 {
 public:

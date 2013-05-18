@@ -29,7 +29,7 @@
     <Filter Include="Source\Math">
       <UniqueIdentifier>{23325fda-77e7-402e-b224-abe9d308372a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Util">
+    <Filter Include="Source\Utilities">
       <UniqueIdentifier>{d0215337-035a-4c67-ba46-4aefedc100ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -95,7 +95,7 @@
       <Filter>Source\Data</Filter>
     </ClCompile>
     <ClCompile Include="Converter.cpp">
-      <Filter>Source\Util</Filter>
+      <Filter>Source\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="Data_Camera.cpp">
       <Filter>Source\Data</Filter>
@@ -110,6 +110,9 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
     <ClCompile Include="Command_SkyBox.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Command_CreateEntity.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
   </ItemGroup>
@@ -205,7 +208,7 @@
       <Filter>Source\Entity</Filter>
     </ClInclude>
     <ClInclude Include="Converter.h">
-      <Filter>Source\Util</Filter>
+      <Filter>Source\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Source</Filter>
@@ -223,6 +226,9 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
     <ClInclude Include="Command_SkyBox.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Command_CreateEntity.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
   </ItemGroup>

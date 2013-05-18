@@ -67,6 +67,7 @@ Manager_Entity* World::manager_entity()
 
 void World::removeEntity( Entity* p_entity )
 {
+	m_manager_data->removeEntity(p_entity->id());
 	m_manager_entity->remove(p_entity);
 }
 

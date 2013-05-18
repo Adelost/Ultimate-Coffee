@@ -17,8 +17,6 @@ Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 	omniRotateSphereHandle = new Handle_RotationSphere(center, scale /*, windowHandle*/);
 
 	relateToActiveObjectWorld = false;
-
-	activeEntityId = -1;
 }
 
 Tool_Rotation::~Tool_Rotation()
@@ -32,7 +30,7 @@ void Tool_Rotation::setIsVisible(bool &isVisible)
 }
 
 /* Called for an instance of picking, possibly resulting in the tool being selected. */
-bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, POINT &mouseCursorPoint)
+bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, POINT &mouseCursorPoint)
 {
 	bool aRotationToolHandleWasSelected = false;
 
@@ -43,7 +41,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 	// TEST: Pretend we hit it.
 	rayIntersectsWithToolBoundingBox = true;
 	
-	if(activeEntityId != -1) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
+	if(activeEntity.isValid()) // Necessary add for the multi-trans functionality. Previously, updateWorld was repeatedly call during hack-y resettings of the active object, which is now only set once, with selection events.
 		updateWorld();
 
 	if(rayIntersectsWithToolBoundingBox)
@@ -52,12 +50,25 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		
 		float distanceToPointOfIntersection;
 		
-		// Check if the ray intersects with the omni-rotation sphere.
-		bool sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
-		if(sphereSelected)
+		bool aSingleAxisRotationHandleWasSelected = false;
+		bool sphereSelected = false;
+
+		// Check if any of the control circles are selected.
+		aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 		{
-			currentlySelectedHandle = omniRotateSphereHandle;
+			currentlySelectedHandle = xRotationHandle;
 			aRotationToolHandleWasSelected = true;
+		}
+
+		if(!aSingleAxisRotationHandleWasSelected)
+			{
+			// Check if the ray intersects with the omni-rotation sphere.
+			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			if(sphereSelected)
+			{
+				currentlySelectedHandle = omniRotateSphereHandle;
+				aRotationToolHandleWasSelected = true;
+			}
 		}
 	}
 
@@ -135,13 +146,15 @@ void Tool_Rotation::setActiveObject(int entityId)
 
 	if(thereIsAtLeastOneSelectedEntity && Data::Selected::lastSelected.isValid())
 	{
-		this->activeEntityId = Data::Selected::lastSelected->toPointer()->id();
+		this->activeEntity = Data::Selected::lastSelected->toPointer();
 
 		// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 		updateWorld();
 	}
 	else
-		activeEntityId = -1;
+	{
+		activeEntity.invalidate();
+	}
 
 	omniRotateSphereHandle->resetRotationQuaternion();
 
@@ -152,10 +165,10 @@ void Tool_Rotation::setActiveObject(int entityId)
 	//// Set the visual and bounding components of the translation tool to the pivot point of the active object.
 	//updateWorld();
 
-	//XMMATRIX world = Entity(activeEntityId).fetchData<Data::Transform>()->toWorldMatrix();
+	//XMMATRIX world = activeEntity->fetchData<Data::Transform>()->toWorldMatrix();
 	//XMStoreFloat4x4(&originalWorldOfActiveObject, world);
 
-	//XMVECTOR rotQuat = Entity(activeEntityId).fetchData<Data::Transform>()->rotation;
+	//XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
 	//XMStoreFloat4(&originalRotationQuatOfActiveObject, rotQuat);
 
 	/*omniRotateSphereHandle->resetRotationQuaternion();*/
@@ -175,8 +188,7 @@ void Tool_Rotation::updateWorld()
 
 		XMFLOAT4X4 objectWorld;
 
-		Entity e(activeEntityId);
-		Data::Transform* trans = e.fetchData<Data::Transform>();
+		Data::Transform* trans = activeEntity->fetchData<Data::Transform>();
 		objectWorld = static_cast<XMFLOAT4X4>(world);
 		//XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
 		
@@ -194,6 +206,9 @@ void Tool_Rotation::updateWorld()
 
 		// Transform all the controls.
 		omniRotateSphereHandle->setWorld(logicalWorld);
+
+		logicalWorld = XMLoadFloat4x4(&getWorldRotationCircles_logical());
+		xRotationHandle->setWorld(logicalWorld);
 	}
 	else
 	{
@@ -223,7 +238,7 @@ void Tool_Rotation::setRelateToActiveObjectWorld(bool relateToActiveObjectWorld)
 {
 	this->relateToActiveObjectWorld = relateToActiveObjectWorld;
 
-	if(activeEntityId != -1)
+	if(activeEntity.isValid())
 		updateWorld();
 }
 
@@ -247,7 +262,7 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 			rotQuaternion = omniRotateSphereHandle->getTotalRotationQuaternion(); //getLastRotationQuaternion();
 			
 			//XMVECTOR newRotQuat = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatOfActiveObject), rotQuaternion);
-			//Data::Transform* transform = Entity(activeEntityId).fetchData<Data::Transform>();
+			//Data::Transform* transform = activeEntity->fetchData<Data::Transform>();
 			//transform->rotation = newRotQuat;
 		}
 	}
@@ -260,21 +275,20 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 	{
 		e = map_selected.nextEntity();
 
-		XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
-		
+		//XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
+		//
+		//XMMATRIX testQuatRotMatrix = XMMatrixRotationQuaternion(rotQuaternion);
 
-		XMMATRIX testQuatRotMatrix = XMMatrixRotationQuaternion(rotQuaternion);
+		//XMMATRIX testPivotTrans = XMMatrixTranslation(testPivot.m128_f32[0], testPivot.m128_f32[1], testPivot.m128_f32[2]);
+		//XMMATRIX testPivotTransInv = XMMatrixInverse(&XMMatrixDeterminant(testPivotTrans), testPivotTrans);
 
-		XMMATRIX testPivotTrans = XMMatrixTranslation(testPivot.m128_f32[0], testPivot.m128_f32[1], testPivot.m128_f32[2]);
-		XMMATRIX testPivotTransInv = XMMatrixInverse(&XMMatrixDeterminant(testPivotTrans), testPivotTrans);
+		//XMMATRIX testRotAroundPivotMatrix = testPivotTransInv * testQuatRotMatrix * testPivotTrans;
 
-		XMMATRIX testRotAroundPivotMatrix = testPivotTransInv * testQuatRotMatrix * testPivotTrans;
+		//XMVECTOR scale, rotation, translation;
+		//XMMatrixDecompose(&scale, &rotation, &translation, testRotAroundPivotMatrix);
 
-		XMVECTOR scale, rotation, translation;
-		XMMatrixDecompose(&scale, &rotation, &translation, testRotAroundPivotMatrix);
-
-		e->fetchData<Data::Transform>()->rotation = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatsOfActiveObject.at(i)), rotation);
-		e->fetchData<Data::Transform>()->position = translation;
+		e->fetchData<Data::Transform>()->rotation = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatsOfActiveObject.at(i)), rotQuaternion);
+		//e->fetchData<Data::Transform>()->position = translation;
 
 		++i;
 	}
@@ -326,12 +340,15 @@ void Tool_Rotation::unselect()
 
 XMFLOAT4X4 Tool_Rotation::getWorld_logical()
 {
-	XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
-
-	XMVECTOR trans = Vector3(testPivot); //Entity(activeEntityId).fetchData<Data::Transform>()->position
+	//XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
+	
+	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position; //Vector3(testPivot);
 	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 world;
 	XMStoreFloat4x4(&world, scaling * translation);
@@ -339,18 +356,38 @@ XMFLOAT4X4 Tool_Rotation::getWorld_logical()
 	return world;
 }
 
-XMFLOAT4X4 Tool_Rotation::getWorld_visual()
+XMFLOAT4X4 Tool_Rotation::getWorldRotationCircles_logical()
 {
+	//XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
 
-	XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
-
-	XMVECTOR trans = Vector3(testPivot); //Entity(activeEntityId).fetchData<Data::Transform>()->position
+	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position; //Vector3(testPivot);
 	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+	XMFLOAT4X4 world;
+	XMStoreFloat4x4(&world, scaling * rotation * translation);
+
+	return world;
+}
+
+XMFLOAT4X4 Tool_Rotation::getWorld_visual()
+{
+	//XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
+
+	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position; //Vector3(testPivot);
+	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
+
+	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
 	XMFLOAT4X4 world_visual;
-	XMStoreFloat4x4(&world_visual, scaling * translation);
+	XMStoreFloat4x4(&world_visual, scaling * rotation * translation);
 
 	return world_visual;
 }
@@ -396,7 +433,7 @@ void Tool_Rotation::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVect
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[2], loadedCamViewVector);
 	world_viewPlaneTranslationControl_visual.m[2][3] = 0.0f;
 
-	Vector3 activeEntityPos = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+	Vector3 activeEntityPos = activeEntity->fetchData<Data::Transform>()->position;
 	world_viewPlaneTranslationControl_visual._41 = activeEntityPos.x;
 	world_viewPlaneTranslationControl_visual._42 = activeEntityPos.y;
 	world_viewPlaneTranslationControl_visual._43 = activeEntityPos.z;
@@ -425,9 +462,9 @@ XMFLOAT4X4 Tool_Rotation::getWorld_viewPlaneTranslationControl_visual()
 	return visualWorld;
 }
 
-int Tool_Rotation::getActiveObject()
+EntityPointer Tool_Rotation::getActiveObject()
 {
-	return activeEntityId;
+	return activeEntity;
 }
 
 void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
@@ -494,11 +531,44 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 
 	//
 
+	XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
+	XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
+
 	color = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
 	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	radius = 1.0f;
 	nrOfPoints = 64;
 	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData2, 'x');
+
+	std::vector<XMFLOAT4> listOfLineSegmentsAsPoints;
+	listOfLineSegmentsAsPoints.resize(0);
+	//ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
+
+	// Convert line strip to line list.
+	for(unsigned int i = 0; i < circleMeshData2.Vertices.size(); i = i + 1)
+	{
+		if(i != circleMeshData2.Vertices.size() - 1)
+		{
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData2.Vertices.at(i).Position.x, circleMeshData2.Vertices.at(i).Position.y, circleMeshData2.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData2.Vertices.at(i + 1).Position.x, circleMeshData2.Vertices.at(i + 1).Position.y, circleMeshData2.Vertices.at(i + 1).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+		else
+		{
+
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData2.Vertices.at(i).Position.x, circleMeshData2.Vertices.at(i).Position.y, circleMeshData2.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData2.Vertices.at(0).Position.x, circleMeshData2.Vertices.at(0).Position.y, circleMeshData2.Vertices.at(0).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+	}
+
+	xRotationHandle = new Handle_RotationCircle(xAxis, listOfLineSegmentsAsPoints, 'x');
+	listOfLineSegmentsAsPoints.clear();
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData2.Vertices.size();
@@ -514,6 +584,31 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	nrOfPoints = 64;
 	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData3, 'y');
 
+	// Convert line strip to line list.
+	for(unsigned int i = 0; i < circleMeshData2.Vertices.size(); i = i + 1)
+	{
+		if(i != circleMeshData2.Vertices.size() - 1)
+		{
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData3.Vertices.at(i).Position.x, circleMeshData3.Vertices.at(i).Position.y, circleMeshData3.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData3.Vertices.at(i + 1).Position.x, circleMeshData3.Vertices.at(i + 1).Position.y, circleMeshData3.Vertices.at(i + 1).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+		else
+		{
+
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData3.Vertices.at(i).Position.x, circleMeshData3.Vertices.at(i).Position.y, circleMeshData3.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData3.Vertices.at(0).Position.x, circleMeshData3.Vertices.at(0).Position.y, circleMeshData3.Vertices.at(0).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+	}
+
+	xRotationHandle = new Handle_RotationCircle(yAxis, listOfLineSegmentsAsPoints, 'y');
+	listOfLineSegmentsAsPoints.clear();
+
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData3.Vertices.size();
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -527,6 +622,31 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	radius = 1.0f;
 	nrOfPoints = 64;
 	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData4, 'z');
+
+	// Convert line strip to line list.
+	for(unsigned int i = 0; i < circleMeshData2.Vertices.size(); i = i + 1)
+	{
+		if(i != circleMeshData2.Vertices.size() - 1)
+		{
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData4.Vertices.at(i).Position.x, circleMeshData4.Vertices.at(i).Position.y, circleMeshData4.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData4.Vertices.at(i + 1).Position.x, circleMeshData4.Vertices.at(i + 1).Position.y, circleMeshData4.Vertices.at(i + 1).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+		else
+		{
+
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData4.Vertices.at(i).Position.x, circleMeshData4.Vertices.at(i).Position.y, circleMeshData4.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData4.Vertices.at(0).Position.x, circleMeshData4.Vertices.at(0).Position.y, circleMeshData4.Vertices.at(0).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+	}
+
+	xRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+	listOfLineSegmentsAsPoints.clear();
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData4.Vertices.size();
@@ -550,16 +670,14 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
    
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
-	
-	Entity e(activeEntityId);
 
-	XMVECTOR rotQuat = e.fetchData<Data::Transform>()->rotation;
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
 	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
 	
-	XMMATRIX worldViewProj = rotation * world * camView * camProj; // Semi-HACK w/ the rotation, or rather here it is hardcoded that it will rotate about with the objects rotation.
+	XMMATRIX worldViewProj = world * camView * camProj; // Semi-HACK w/ the rotation, or rather here it is hardcoded that it will rotate about with the objects rotation.
 	worldViewProj = XMMatrixTranspose(worldViewProj);
 
 	ConstantBuffer2 WVP;

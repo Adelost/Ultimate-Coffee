@@ -19,6 +19,7 @@ public:
 	bool key_down;
 	bool key_left;
 	bool key_right;
+
 	bool key_shift;
 	bool key_ctrl;
 	bool key_alt;
@@ -26,6 +27,9 @@ public:
 
 class Settings
 {
+private:
+	int m_selectedTool;
+
 public:
 	ButtonState button;
 	Color backBufferColor;
@@ -34,7 +38,6 @@ public:
 	HWND windowHandle;
 	Int2 windowSize;
 	float deltaTime;
-	int selectedTool;
 
 	int DXViewPortTopLeftX;
 	int DXViewPortTopLeftY;
@@ -47,4 +50,8 @@ public:
 public:
 	Settings();
 	~Settings();
+
+public:
+	void setSelectedTool(int toolType);
+	int selectedTool();
 };
