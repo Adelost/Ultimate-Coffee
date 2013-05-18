@@ -48,7 +48,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		
 		e->addData(Data::Bounding());
 		e->addData(Data::Render());
-		e->addData(Data::Update());
 	}
 
 	if(type == Enum::Entity_Asteroid)
@@ -108,8 +107,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		}
 		pointLight->range = 50.0f;
 
-		e->addData(Data::Bounding());
-		e->addData(Data::Render());
 	}
 
 	// Add to history

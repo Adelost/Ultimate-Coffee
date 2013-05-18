@@ -37,7 +37,7 @@ void UpdateLoop::init()
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight, true);
 	}
 	 
-	for(int i=0; i<1; i++)
+	for(int i=0; i<3; i++)
 	{
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Cube, true);
 	}
