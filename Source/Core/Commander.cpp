@@ -404,6 +404,10 @@ std::stringstream* CommandHistory::getCommandHistoryAsText()
 
 void CommandHistory::reset()
 {
+	if(!tryToJumpInCommandHistory(0))
+	{
+		MESSAGEBOX("Failed to reset command history");
+	}
 	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
