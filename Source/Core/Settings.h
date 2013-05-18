@@ -44,6 +44,7 @@ public:
 	int DXViewPortMinDepth;
 	int DXViewPortMaxDepth;
 	bool showSkybox;
+	Int2 lastMousePosition;
 
 	bool colorBlindnessColorSchemeIsOn;
 

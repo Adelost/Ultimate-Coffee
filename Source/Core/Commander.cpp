@@ -390,14 +390,14 @@ std::stringstream* CommandHistory::getCommandHistoryAsText()
 	*text << "Byte size: " << calculateSerializedByteSize() << "\n";
 	*text << "Number of commands: " << nrOfCommands << "\n";
 	*text << "Index of current command: " << m_indexOfCurrentCommand << "\n";
-	*text << "Format of command list below: index, type, byte size\n";
-	for(int i=0;i<nrOfCommands;i++)
-	{
-		Command* command = m_commands.at(i);
-		int type = command->getType();
-		int size = command->getByteSizeOfDataStruct();
-		*text << i << ", " << type << ", " << size << "\n";
-	}
+//	*text << "Format of command list below: index, type, byte size\n";
+// 	for(int i=0;i<nrOfCommands;i++)
+// 	{
+// 		Command* command = m_commands.at(i);
+// 		int type = command->getType();
+// 		int size = command->getByteSizeOfDataStruct();
+// 		*text << i << ", " << type << ", " << size << "\n";
+// 	}
 	*text << "--------------------------------------\n";
 	return text;
 }

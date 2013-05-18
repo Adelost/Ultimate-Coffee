@@ -1,10 +1,12 @@
 #pragma once
 
+#include <Core/IObserver.h>
+
 class World;
 class UpdateTimer;
 
 // Class 
-class UpdateLoop
+class UpdateLoop : IObserver
 {
 private:
 	World* m_world;
@@ -15,6 +17,8 @@ public:
 	~UpdateLoop();
 
 	void init();
+	void onEvent(Event* e);
 	void update();
 	void computeFPS();
+
 };

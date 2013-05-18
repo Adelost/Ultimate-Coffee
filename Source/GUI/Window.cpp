@@ -22,7 +22,6 @@ void Window::init()
 	setDockOptions(AllowNestedDocks | AllowTabbedDocks);
 	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
-	//setWindowFlags( Qt::FramelessWindowHint );
 
 	m_manager_console = new Manager_Console();
 	m_manager_console->init();
@@ -40,6 +39,7 @@ void Window::init()
 	m_manager_commands->init();
 
 	m_manager_docks->resetLayout();
+	new SplashScreen(this);
 
 	m_refreshTimer = new QTimer(this);
 
@@ -156,3 +156,63 @@ Window* Window::instance()
 }
 
 Window* Window::s_instance = nullptr;
+
+SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate Coffee", parent)
+{
+	parent->addDockWidget(Qt::RightDockWidgetArea, this);
+	setFloating(true);
+	setAllowedAreas(Qt::NoDockWidgetArea);
+	setFixedSize(180, 100);
+	move(parent->x() + parent->width()/2 - width()/2, parent->y() +  + parent->height()/2 - height()/2);
+
+	// Create buttons
+	QWidget* w = new QWidget();
+	setWidget(w);
+	QLayout* l = new QVBoxLayout();
+	w->setLayout(l);
+	QPushButton* b;
+	b = new QPushButton("New");
+	connect(b, SIGNAL(clicked()), this, SLOT(newFile()));
+	l->addWidget(b);
+	b = new QPushButton("Load");
+	connect(b, SIGNAL(clicked()), this, SLOT(openFile()));
+	l->addWidget(b);
+	b = new QPushButton("Recent");
+	connect(b, SIGNAL(clicked()), this, SLOT(recentFile()));
+	l->addWidget(b);
+	
+
+	/*
+		QLabel* l = new QLabel("");
+		std::string path = "";
+
+		resize(sizeHint());
+		move(parent->x() + parent->x()/2 + width(), parent->y() + parent->y()/2 - height()/2);
+		path = path + ICON_PATH + "Misc/" + "spash";
+		l->setPixmap(QPixmap(path.c_str()));
+		*/
+}
+
+SplashScreen::~SplashScreen()
+{
+	int i = 0;
+	i = 0;
+}
+
+void SplashScreen::newFile()
+{
+	MESSAGEBOX("'newFile' is not implemented yet.");
+	close();
+}
+
+void SplashScreen::openFile()
+{
+	Window::instance()->ui()->actionOpen->trigger();
+	close();
+}
+
+void SplashScreen::recentFile()
+{
+	Window::instance()->ui()->actionRecent->trigger();
+	close();
+}

@@ -23,6 +23,8 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
+	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_LEVEL);
+	
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
 	m_menu = m_window->ui()->menuWindow;
@@ -425,8 +427,8 @@ void Manager_Docks::onEvent(Event* e)
 			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
 			m_commandHistoryListWidget->addItem(item);
 			item->setHidden(hidden);
-		break;
 		}
+		break;
 	case EVENT_SET_SELECTED_COMMAND_GUI:
 		{
 			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
@@ -441,9 +443,8 @@ void Manager_Docks::onEvent(Event* e)
 			{
 				m_commandHistoryListWidget->setCurrentRow(index);
 			}
-
-			break;
 		}
+		break;
 	case EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI:
 		{
 			Event_RemoveCommandsFromCommandHistoryGUI* removeCommandFromGUIEvent = static_cast<Event_RemoveCommandsFromCommandHistoryGUI*>(e);
@@ -456,9 +457,15 @@ void Manager_Docks::onEvent(Event* e)
 				delete m_commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
 			}
 			connectCommandHistoryWidget(true);
-
-			break;
 		}
+		break;
+	case EVENT_NEW_LEVEL:
+		{
+			connectCommandHistoryWidget(false);
+			m_commandHistoryListWidget->clear();
+			connectCommandHistoryWidget(true);
+		}
+		break;
 	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
 		{
 			Event_GetNextOrPreviousVisibleCommandRowInCommandHistory* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistory*>(e);
@@ -489,9 +496,10 @@ void Manager_Docks::onEvent(Event* e)
 			}
 
 			getEvent->row = currentRow; //Return value
-				
-			break;
 		}
+		break;
+	default:
+		break;
 	}
 }
 
@@ -624,8 +632,11 @@ void Manager_Docks::update()
 
 		// Assign item
 		QStandardItem* item = m_hierarchy_model->item(entityId);
-		item->setEnabled(false);
-		item->setSelectable(false);
+		if(item)
+		{
+			item->setEnabled(false);
+			item->setSelectable(false);
+		}
 	}
 }
 

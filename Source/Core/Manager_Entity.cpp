@@ -45,3 +45,15 @@ void Manager_Entity::remove( Entity* e )
 	m_entity_list.removeItemAt(e->id());
 	e->addData(Data::Deleted());
 }
+
+void Manager_Entity::clear()
+{
+	for(int i=0; i<m_entity_list.indexCount(); i++)
+	{
+		Entity* e = entityAt(i);
+		if(e->uniqueId() != -1)
+		{
+			e->removeEntity();
+		}
+	}
+}

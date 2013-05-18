@@ -5,6 +5,7 @@
 
 #include <Core/System.h>
 #include <Core/System_Input.h>
+#include <Core/Manager_Entity.h>
 #include <System_Render/System_Render.h>
 
 UpdateLoop::UpdateLoop()
@@ -12,6 +13,8 @@ UpdateLoop::UpdateLoop()
 	m_updateTimer = new UpdateTimer();
 	m_updateTimer->reset();
 	m_world = WORLD();
+
+	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_LEVEL);
 }
 
 UpdateLoop::~UpdateLoop()
@@ -27,17 +30,20 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Render());
 	m_world->addSystem(Window::instance()->system_editor());
 	m_world->addSystem(new System::Test());
-	
+
+	// Init game
+	//SEND_EVENT(&Event(EVENT_NEW_LEVEL));
+
 	// Create Entities
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
 	FACTORY_ENTITY()->createEntity(Enum::Entity_Sky);
 
-	for(unsigned int i = 0;  i < MAX_POINTLIGHTS; i++)
+	for(int i=0; i<1; i++)
 	{
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight, true);
 	}
-	 
-	for(int i=0; i<3; i++)
+
+	for(int i=0; i<1; i++)
 	{
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Cube, true);
 	}
@@ -88,5 +94,23 @@ void UpdateLoop::computeFPS()
 		// reset stats for next average.
 		num_frames = 0;
 		timeElapsed += 1.0f;
+	}
+}
+
+void UpdateLoop::onEvent( Event* e )
+{
+	EventType type = e->type();
+	switch (type)
+	{
+	case EVENT_NEW_LEVEL:
+		{
+			// Remove previous
+			//WORLD()->manager_entity()->clear();
+
+			
+		}
+		break;
+	default:
+		break;
 	}
 }

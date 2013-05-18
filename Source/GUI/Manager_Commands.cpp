@@ -62,6 +62,11 @@ void Manager_Commands::setupMenu()
 	a->setShortcuts(QKeySequence::Open);
 	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
 
+	// Recent
+	a = m_ui->actionRecent;
+	a->setStatusTip(tr("Open recent project"));
+	connect(a, SIGNAL(triggered()), this, SLOT(loadRecentCommandHistory()));
+
 	// Save
 	a = m_ui->actionSave;
 	/*path = iconPath + "Menu/save";
@@ -263,6 +268,7 @@ void Manager_Commands::loadCommandHistory()
 	if(!fileName.isEmpty())
 	{
 		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
+		//SEND_EVENT(&Event(EVENT_NEW_LEVEL)); // Clear command history GUI list
 
 		std::string path = fileName.toLocal8Bit();
 		if(m_commander->tryToLoadCommandHistory(path))
@@ -372,4 +378,40 @@ void Manager_Commands::enableSkybox( bool state )
 	Command_SkyBox* command_SkyBox = new Command_SkyBox();
 	command_SkyBox->setShowSkyBox(state);
 	SEND_EVENT(&Event_StoreCommandInCommandHistory(command_SkyBox, true));
+}
+
+void Manager_Commands::loadRecentCommandHistory()
+{
+	// Opens standard Windows "open file" dialog
+	QString fileName = "./recent.uc";
+
+	// If the user clicks "Open"
+	if(!fileName.isEmpty())
+	{
+		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
+		//SEND_EVENT(&Event(EVENT_NEW_LEVEL)); // Clear command history GUI list
+
+		std::string path = fileName.toLocal8Bit();
+		if(m_commander->tryToLoadCommandHistory(path))
+		{
+			m_lastValidProjectPath = path;
+
+			std::vector<Command*>* commands = m_commanderSpy->getCommands();
+			int nrOfCommands = commands->size();
+			for(int i=0;i<nrOfCommands;i++)
+			{
+				Command* command = commands->at(i);
+				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
+			}
+			updateCurrentCommandGUI();
+
+			// check, remove if the command list gets very long and takes time to print
+			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
+			m_commander->printCommandHistory();
+		}
+		else
+		{
+			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger. Tell him that 'Princess Adelaide has the whooping cough'");
+		}
+	}
 }

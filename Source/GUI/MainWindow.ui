@@ -453,6 +453,7 @@ QDockWidget
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
+    <addaction name="actionRecent"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
@@ -564,6 +565,11 @@ QDockWidget
   <action name="actionLoad_Layout">
    <property name="text">
     <string>Load Layout</string>
+   </property>
+  </action>
+  <action name="actionRecent">
+   <property name="text">
+    <string>Recent</string>
    </property>
   </action>
  </widget>

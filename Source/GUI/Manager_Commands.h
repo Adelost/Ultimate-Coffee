@@ -43,6 +43,7 @@ public slots:
 	void saveCommandHistory();
 	void saveCommandHistoryAs();
 	void loadCommandHistory();
+	void loadRecentCommandHistory();
 	
 	void createTestButton( QString color, QSignalMapper* mapper );
 	void setBackBufferColor(QString p_str_color);
