@@ -259,9 +259,23 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 	while(map_selected.hasNext())
 	{
 		e = map_selected.nextEntity();
-		Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
-		e->fetchData<Data::Transform>()->rotation = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatsOfActiveObject.at(i)), rotQuaternion);
+		XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
+		
+
+		XMMATRIX testQuatRotMatrix = XMMatrixRotationQuaternion(rotQuaternion);
+
+		XMMATRIX testPivotTrans = XMMatrixTranslation(testPivot.m128_f32[0], testPivot.m128_f32[1], testPivot.m128_f32[2]);
+		XMMATRIX testPivotTransInv = XMMatrixInverse(&XMMatrixDeterminant(testPivotTrans), testPivotTrans);
+
+		XMMATRIX testRotAroundPivotMatrix = testPivotTransInv * testQuatRotMatrix * testPivotTrans;
+
+		XMVECTOR scale, rotation, translation;
+		XMMatrixDecompose(&scale, &rotation, &translation, testRotAroundPivotMatrix);
+
+		e->fetchData<Data::Transform>()->rotation = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatsOfActiveObject.at(i)), rotation);
+		e->fetchData<Data::Transform>()->position = translation;
+
 		++i;
 	}
 }
@@ -312,19 +326,25 @@ void Tool_Rotation::unselect()
 
 XMFLOAT4X4 Tool_Rotation::getWorld_logical()
 {
-	XMMATRIX trans = XMMatrixTranslation(world._41, world._42, world._43);
+	XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
+
+	XMVECTOR trans = Vector3(testPivot); //Entity(activeEntityId).fetchData<Data::Transform>()->position
+	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
 	XMFLOAT4X4 world;
-	XMStoreFloat4x4(&world, scaling * trans);
+	XMStoreFloat4x4(&world, scaling * translation);
 
 	return world;
 }
 
 XMFLOAT4X4 Tool_Rotation::getWorld_visual()
 {
-	XMVECTOR trans = Entity(activeEntityId).fetchData<Data::Transform>()->position;
+
+	XMVECTOR testPivot = XMVectorSet(-4.0f, 0.0f, 0.0f, 1.0f);
+
+	XMVECTOR trans = Vector3(testPivot); //Entity(activeEntityId).fetchData<Data::Transform>()->position
 	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
 
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);

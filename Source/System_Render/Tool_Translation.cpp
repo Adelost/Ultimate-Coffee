@@ -982,7 +982,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	XMFLOAT3 zDir(0.0f, 0.0f, 1.0f);
 
 	float radianAngle = 90 * (Math::Pi / 180);
-	float bottomRadius = 0.046875f; //0.03125f;
+	float bottomRadius = 0.06735; //0.046875f; //0.03125f;
 	XMMATRIX arrowLocalTransform;
 	arrowLocalTransform = XMMatrixRotationZ(-radianAngle) * XMMatrixTranslation(1.0f, 0.0f, 0.0f);
 
@@ -1003,7 +1003,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
     vinitData.pSysMem = &meshVertices.Indices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_axisArrow_IB));
+	HR(md3dDevice->CreateBuffer(&ibd, &vinitData, &mMeshTransTool_axisArrow_IB));
 
 	// Record bounding triangles for the handle by creating a proper trianglelist from the indices.
 	
@@ -1292,23 +1292,18 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisArrow2_VB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
 		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow_VB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
 	md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow2_VB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
 		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow_VB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
 	md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow2_VB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
 		md3dImmediateContext->DrawIndexed(660, 0, 0);
 	
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);

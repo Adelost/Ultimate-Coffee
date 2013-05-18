@@ -251,9 +251,9 @@ void Manager_3DTools::onEvent( Event* p_event )
 						//	}
 						//}
 					}
-	
-				break;
 			}
+
+			break;
 		}
 	case EVENT_MOUSE_MOVE:
 		{

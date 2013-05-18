@@ -91,7 +91,7 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 		v[0] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[1] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[2] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
-		v[3] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[3] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 
 		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
 		v1pos = XMVector3Transform(XMVectorSet(+w2, -h2, +d2, 1.0f), localSpace);
@@ -102,7 +102,7 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 		v[4] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[5] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[6] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
-		v[7] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[7] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 
 		v0pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);
 		v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
@@ -113,7 +113,7 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 		v[8] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[9] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[10] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
-		v[11] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[11] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 
 		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
 		v1pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
@@ -124,7 +124,7 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 		v[12] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[13] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[14] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
-		v[15] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[15] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 
 		v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, +d2, 1.0f), localSpace);
 		v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, +d2, 1.0f), localSpace);
@@ -135,7 +135,7 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 		v[16] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[17] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[18] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
-		v[19] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[19] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 
 		v0pos = XMVector3Transform(XMVectorSet(+w2, -h2, -d2, 1.0f), localSpace);
 		v1pos = XMVector3Transform(XMVectorSet(+w2, +h2, -d2, 1.0f), localSpace);
@@ -146,7 +146,7 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 		v[20] = Vertex2(v0pos.m128_f32[0], v0pos.m128_f32[1], v0pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[21] = Vertex2(v1pos.m128_f32[0], v1pos.m128_f32[1], v1pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 		v[22] = Vertex2(v2pos.m128_f32[0], v2pos.m128_f32[1], v2pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
-		v[23] = Vertex2(v3pos.m128_f32[0], v0pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
+		v[23] = Vertex2(v3pos.m128_f32[0], v3pos.m128_f32[1], v3pos.m128_f32[2], color.m128_f32[0], color.m128_f32[1], color.m128_f32[2], color.m128_f32[3]);
 	}
 	else // Multi-color mode!
 	{

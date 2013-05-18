@@ -1066,7 +1066,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 	GeometryGenerator::MeshData2 meshVertices;
 
-	float widthHeightDepth = 0.046875f; //0.1275f;
+	float widthHeightDepth = 0.06735; // 0.1275f; //0.046875f; //0.1275f;
 
 	char colorMode = 'x';
 	XMMATRIX boxTrans = XMMatrixTranslation(1.0f, 0.0f, 0.0f);
@@ -1371,33 +1371,31 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	// Draw control boxes.
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox_VB, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+
+	// Omni-scaling box.
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+	// The other boxes...
+
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox_VB, &stride, &offset);
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox2_VB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox2_VB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox2_VB, &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
-	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary:
 }

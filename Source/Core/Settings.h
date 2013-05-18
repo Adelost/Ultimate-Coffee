@@ -42,6 +42,8 @@ public:
 	int DXViewPortMaxDepth;
 	bool showSkybox;
 
+	bool colorBlindnessColorSchemeIsOn;
+
 public:
 	Settings();
 	~Settings();
