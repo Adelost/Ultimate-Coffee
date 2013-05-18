@@ -1,19 +1,11 @@
 #pragma once
 
+#include "Enums.h"
 
 class Manager_Entity;
 class Entity;
+class Command;
 
-enum EntityType
-{
-	ENTITY_EMPTY,
-	ENTITY_SKY,
-	ENTITY_CUBE,
-	ENTITY_CAMERA,
-	ENTITY_POINTLIGHT,
-
-	ENTITY_END
-};
 
 class Factory_Entity
 {
@@ -22,5 +14,5 @@ private:
 
 public:
 	Factory_Entity();
-	Entity* createEntity(EntityType p_type);
+	Entity* createEntity(Enum::EntityType type, bool addToHistory = false);
 };

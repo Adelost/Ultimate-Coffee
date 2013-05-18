@@ -9,3 +9,13 @@ void Command::prependSerializationDataHook(char*& data, int& currentByteIndex)
 	memcpy(data+currentByteIndex, &type, byteSizeOfType); // Add the command type to the byte array "data"
 	currentByteIndex += byteSizeOfType; // Increment byte array index counter
 }
+
+std::string Command::getName()
+{
+	return m_name;
+}
+
+void Command::setName( std::string name )
+{
+	m_name = name;
+}

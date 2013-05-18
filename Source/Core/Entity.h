@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
-#include "Manager_Data.h"
 #include "EntityPointer.h"
+#include "Enums.h"
+#include "Manager_Data.h"
 
 class World;
 
@@ -16,6 +17,7 @@ private:
 	int m_uniqueId;
 	Manager_Data* m_data;
 	std::string m_name;
+	Enum::EntityType m_type;
 
 public:
 	Entity(int p_id, int p_uniqueId = 0);
@@ -77,4 +79,6 @@ public:
 	int uniqueId();
 	std::string name();
 	void setName(std::string p_name, int p_number);
+	Enum::EntityType type();
+	void setType(Enum::EntityType type);
 };

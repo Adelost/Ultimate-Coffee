@@ -5,7 +5,8 @@
 
 Manager_Entity::Manager_Entity()
 {
-	nextUniqueIndex = 0;
+	m_nextUniqueId = 0;
+	m_reservedId = -1;
 	EntityPointer::initClass(m_entity_list.itemList());
 }
 
@@ -19,8 +20,18 @@ Entity* Manager_Entity::entityAt( int p_index )
 Entity* Manager_Entity::create()
 {
 	int entityId = m_entity_list.nextAvailableIndex();
-	m_entity_list.addItem(Entity(entityId, nextUniqueIndex));
-	nextUniqueIndex++;
+	int uniqueId;
+	if(m_reservedId != -1)
+	{
+		uniqueId = m_reservedId;
+		m_reservedId = -1;
+	}
+	else
+	{
+		 uniqueId = m_nextUniqueId;
+		 m_nextUniqueId++;
+	}	
+	m_entity_list.addItem(Entity(entityId, uniqueId));
 
 	Entity* e = m_entity_list.itemAt(entityId);
 	e->addData(Data::Created());

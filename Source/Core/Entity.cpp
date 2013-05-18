@@ -10,6 +10,7 @@ Entity::Entity( int p_id, int p_uniqueId )
 	m_data = WORLD()->manager_data();
 
 	setName("Nameless", m_uniqueId);
+	m_type = Enum::Entity_Empty;
 }
 
 void Entity::removeEntity()
@@ -53,4 +54,14 @@ std::string Entity::name()
 void Entity::setName( std::string p_name, int p_number )
 {
 	m_name = p_name + "_" + Converter::IntToStr(p_number);
+}
+
+Enum::EntityType Entity::type()
+{
+	return m_type;
+}
+
+void Entity::setType( Enum::EntityType type )
+{
+	m_type = type;
 }

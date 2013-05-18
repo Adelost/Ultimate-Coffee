@@ -35,4 +35,5 @@ public slots:
 	void action_about();
 	void setTool(int p_toolType);
 	void coffee();
+	void createAsteroids();
 };

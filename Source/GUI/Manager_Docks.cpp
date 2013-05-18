@@ -387,10 +387,30 @@ void Manager_Docks::onEvent(Event* e)
 
 					break;
 				}
+			case Enum::CommandType::CREATE_ENTITY:
+				{
+					commandText = command->getName();
+
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/Geometry";
+					commandIcon.addFile(iconPath.c_str());
+
+					break;
+				}
+			case Enum::CommandType::REMOVE_ENTITY:
+				{
+					commandText = command->getName();
+
+					std::string iconPath = ICON_PATH;
+					iconPath += "Tools/Remove";
+					commandIcon.addFile(iconPath.c_str());
+
+					break;
+				}
 			default:
 				{
 					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/coffee";
+					iconPath += "Tools/Coffee";
 					commandIcon.addFile(iconPath.c_str());
 					break;
 				}

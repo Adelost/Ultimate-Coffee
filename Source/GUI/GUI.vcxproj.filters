@@ -73,9 +73,6 @@
     <ClCompile Include="Window.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
-    <ClCompile Include="RenderWidget.cpp">
-      <Filter>Source\Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Manager_Commands.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
@@ -100,6 +97,9 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="RenderWidget.cpp">
+      <Filter>Source\Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MainWindow.ui">
@@ -117,10 +117,10 @@
     <CustomBuild Include="Window.h">
       <Filter>Source\Window</Filter>
     </CustomBuild>
-    <CustomBuild Include="RenderWidget.h">
-      <Filter>Source\Utilities</Filter>
-    </CustomBuild>
     <CustomBuild Include="Manager_Tools.h">
+      <Filter>Source\Window</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RenderWidget.h">
       <Filter>Source\Window</Filter>
     </CustomBuild>
   </ItemGroup>

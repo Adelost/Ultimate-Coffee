@@ -380,7 +380,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 	case EVENT_TRANSLATE_SCENE_ENTITY:
 		{
 			Event_TranslateSceneEntity* e = static_cast<Event_TranslateSceneEntity*>(p_event);
-
+			
 			Data::Transform* d_transform = Entity(e->m_idOfTranslatableSceneEntity).fetchData<Data::Transform>();
 
 			d_transform->position.x = e->m_transX;
@@ -477,6 +477,9 @@ void Manager_3DTools::onEvent( Event* p_event )
 				break;
 			}
 		}
+		break;
+	default:
+		break;
 	}
 }
 

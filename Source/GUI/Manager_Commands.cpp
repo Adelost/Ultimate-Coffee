@@ -66,7 +66,7 @@ void Manager_Commands::setupMenu()
 	a = m_ui->actionSave;
 	/*path = iconPath + "Menu/save";
 	a->setIcon(QIcon(path.c_str())); */
-	a->setShortcuts(QKeySequence::Save);
+	//a->setShortcuts(QKeySequence::Save);
 	a->setStatusTip(tr("Save project"));
 	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
 
@@ -232,10 +232,10 @@ void Manager_Commands::saveCommandHistory()
 
 void Manager_Commands::saveCommandHistoryAs()
 {
-	//Opens standard Windows "save file" dialog
+	// Opens standard Windows "save file" dialog
 	QString fileName = QFileDialog::getSaveFileName(m_window, tr("Save Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
 
-	//If the user clicks "Save"
+	// If the user clicks "Save"
 	if(!fileName.isEmpty())
 	{
 		std::string path = fileName.toLocal8Bit();
@@ -274,7 +274,7 @@ void Manager_Commands::loadCommandHistory()
 			for(int i=0;i<nrOfCommands;i++)
 			{
 				Command* command = commands->at(i);
-				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); //Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
+				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
 			}
 			updateCurrentCommandGUI();
 
@@ -302,7 +302,7 @@ void Manager_Commands::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type)
 	{
-	case EVENT_STORE_COMMAND: //Add a command, sent in an event, to the commander. It might also be executed.
+	case EVENT_STORE_COMMAND: // Add a command, sent in an event, to the commander. It might also be executed.
 		{
 			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
 			Command* command = commandEvent->command;

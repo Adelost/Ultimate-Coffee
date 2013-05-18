@@ -8,6 +8,7 @@
 #include <Core/Events.h>
 #include "Window.h"
 #include "ui_MainWindow.h"
+#include <Core/Command_CreateEntity.h>
 
 void Manager_Tools::init()
 {
@@ -60,11 +61,11 @@ void Manager_Tools::setupActions()
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
 	//createToolAction(mapper, Enum::Tool_Selection, "Selection");
-	createToolAction(mapper, Enum::Tool_Translate, "Translate")->activate(QAction::Trigger);
+	createToolAction(mapper, Enum::Tool_Translate,	"Translate")->activate(QAction::Trigger);
 	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate");
 	createToolAction(mapper, Enum::Tool_Scale,		"Scale");
 	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry");
-	createToolAction(mapper, Enum::Tool_Entity,		"Entity");
+	//createToolAction(mapper, Enum::Tool_Entity,		"Entity");
 
 	// Context bar
 	m_ui->contextBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
@@ -74,12 +75,10 @@ void Manager_Tools::setupActions()
 // 	m_ui->contextBar->addAction(menu->menuAction());
 
 	//m_ui->contextBar->addSeparator();
-//	createContextIcon("Toast");
 	a = createContextIcon("Coffee");
 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
-
-	//createContextIcon("Wine");
-	createContextIcon("Experiment");
+	a = createContextIcon("Experiment");
+	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
 	createContextIcon("Tool");
 
 }
@@ -141,8 +140,8 @@ void Manager_Tools::onEvent( Event* p_event )
 			// HACK: Our index doesn't match with QActions
 			// correct manually in the meantime.
 			int toolIndex = SETTINGS()->selectedTool() - 2;
-			list[toolIndex]->setChecked(true);
-
+			if(toolIndex < list.count())
+				list[toolIndex]->setChecked(true);
 		}
 		break;
 	default:
@@ -153,4 +152,21 @@ void Manager_Tools::onEvent( Event* p_event )
 void Manager_Tools::coffee()
 {
 	SEND_EVENT(&Event(EVENT_COFFEE));
+}
+
+void Manager_Tools::createAsteroids()
+{
+	std::vector<Command*> command_list;
+	for(int i=0; i<1000; i++)
+	{
+		// Create Entity
+		Entity* e = FACTORY_ENTITY()->createEntity(Enum::Entity_Asteroid);
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+
+		// Create command
+		command_list.push_back(new Command_CreateEntity(e));
+	}
+	// Add to history
+	command_list.back()->setName("New asteroid");
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
 }

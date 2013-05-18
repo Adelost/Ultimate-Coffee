@@ -2,6 +2,7 @@
 #include "RenderWidget.h"
 #include <Core/DataMapper.h>
 #include <Core/Data_Camera.h>
+#include <Core/Command_CreateEntity.h>
 #include <QApplication.h>
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
@@ -189,18 +190,37 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		if(state)
 		{
 			// Delete all selected entities
+			std::vector<Command*> command_list;
 			DataMapper<Data::Selected> m_selected;
+			// Find name of deleted Entity
+			std::string entityName;
+			if(m_selected.dataCount() == 1)
+			{
+				entityName = m_selected.nextEntity()->name();
+				m_selected.resetIndex();
+			}
 			while(m_selected.hasNext())
 			{
 				Entity* e = m_selected.nextEntity();
+				command_list.push_back(new Command_CreateEntity(e, false));
 				e->removeEntity();
 			}
+			int count = command_list.size();
+			if(count>0)
+			{
+				if(count == 1)
+					command_list.back()->setName("Removed " + entityName);
+				else
+					command_list.back()->setName("Removed Entity");
+				SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+			}
+			
+			
 		}
 		break;
 	default:
 		break;
 	}
-
 
 	// Set tool hotkey
 	if(state)
@@ -276,7 +296,7 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 
 	// HACK: Place Entities if EntityTool is selected
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Entity)
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
 	{
 		// Compute picking ray to place Entities onto
 		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
@@ -294,21 +314,14 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 		// Calculate entity position
 		{
-			Entity* entity = WORLD()->factory_entity()->createEntity(EntityType::ENTITY_CUBE);
+			Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Cube);
 			entity->removeData<Data::Update>();
 			Data::Transform* d_transform = entity->fetchData<Data::Transform>();
 			Vector3 pos = r.position + r.direction * 15.0f;
 			d_transform->position = pos;
-		}
-	}
 
-	// HACK: Create more entities
-	if(SETTINGS()->selectedTool() == Enum::Tool_Geometry && p_pressed)
-	{
-		if(button == Qt::LeftButton)
-		{
-			for(int i=0; i<1000; i++)
-				FACTORY_ENTITY()->createEntity(ENTITY_CUBE);
+			// Add to history
+			SEND_EVENT(&Event_StoreCommandInCommandHistory(new Command_CreateEntity(entity), false));
 		}
 	}
 }

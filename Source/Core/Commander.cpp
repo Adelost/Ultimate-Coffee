@@ -6,6 +6,7 @@
 #include "Command_RotateSceneEntity.h"
 #include "Command_ScaleSceneEntity.h"
 #include "Command_SkyBox.h"
+#include "Command_CreateEntity.h"
 #include <sys/stat.h> // struct stat
 #include "Events.h" // MESSAGEBOX
 
@@ -337,6 +338,16 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 		case Enum::CommandType::SKYBOX:
 			{
 				command = new Command_SkyBox();
+				break;
+			}
+		case Enum::CommandType::CREATE_ENTITY:
+			{
+				command = new Command_CreateEntity(true);
+				break;
+			}
+		case Enum::CommandType::REMOVE_ENTITY:
+			{
+				command = new Command_CreateEntity(false);
 				break;
 			}
 		default:
