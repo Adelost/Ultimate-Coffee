@@ -181,6 +181,7 @@ public:
 		SizeAllCursor = 9,
 		OpenHandCursor = 17,
 		ClosedHandCursor = 18,
+		CustomCursor = 20,
 	};
 
 public:
