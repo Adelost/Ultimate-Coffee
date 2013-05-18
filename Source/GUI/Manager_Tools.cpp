@@ -79,7 +79,8 @@ void Manager_Tools::setupActions()
 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
 	a = createContextIcon("Experiment");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
-	createContextIcon("Tool");
+	a = createContextIcon("Tool");
+	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
 
 }
 
@@ -176,4 +177,23 @@ void Manager_Tools::createAsteroids()
 void Manager_Tools::newLevel()
 {
 	SEND_EVENT(&Event(EVENT_NEW_LEVEL));
+}
+
+void Manager_Tools::createAsteroid()
+{
+	std::vector<Command*> command_list;
+	for(int i=0; i<1; i++)
+	{
+		// Create Entity
+		Entity* e = FACTORY_ENTITY()->createEntity(Enum::Entity_Asteroid);
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+
+		// Create command
+		command_list.push_back(new Command_CreateEntity(e));
+	}
+	// Add to history
+
+	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
+	//command_list.back()->setName("New asteroid");
+	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
 }
