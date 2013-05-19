@@ -388,7 +388,7 @@ void Tool_MultiSelect::onEvent( Event* event )
 	case EVENT_MOUSE_PRESS:
 		{
 			// Stop "using" the tool if user releases LeftMouseButton
-			int limit = 10;
+			int limit = 100;
 			if(used)
 			{
 				Event_MousePress* e = static_cast<Event_MousePress*>(event);

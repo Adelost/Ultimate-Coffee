@@ -66,7 +66,6 @@ void Data::Bounding::intersect( const BoundingFrustum& frustum, std::vector<Enti
 		if(sphere.Intersects(frustum))
 		{
 			entity_list->push_back(entity);
-			DEBUGPRINT("HIT");
 		}
 	}
 }
