@@ -758,6 +758,7 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 	m_grid->setLayoutMode(QListWidget::LayoutMode::Batched);
 	m_grid->setResizeMode(QListWidget::ResizeMode::Adjust);
 	m_grid->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_grid->setMovement(QListView::Static);
 	//setSortingEnabled(true);
 	m_grid->setWordWrap(true);
 
