@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "IData.h"
 #include "Math.h"
 #include "Data_Camera.h"
@@ -65,6 +66,7 @@ namespace Data
 		no intersection.
 		*/
 		static Entity* intersect(const Ray& ray);
+		static void intersect(const BoundingFrustum& frustum, std::vector<Entity*>* entity_list);
 		bool intersect(Entity* entity, const Ray& ray, float* distance);
 	};
 

@@ -94,6 +94,11 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 			{
 				Data::Selected::clearSelection();
 			}
+
+			// HACK: If no Entity was selected, we 
+			// instead start a multi select which is handled
+			// in RenderWidget
+			SEND_EVENT(&Event(EVENT_START_MULTISELECT));
 		}
 
 		// Inform about selection

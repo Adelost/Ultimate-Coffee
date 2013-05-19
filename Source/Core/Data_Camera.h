@@ -112,6 +112,8 @@ namespace Data
 		{
 			p_cameraPos = p_cameraPos + m_up * p_distance;
 		}
+		BoundingFrustum toFrustum(Vector3& cameraPos, Quaternion& cameraRot);
+
 
 	public:
 		Vector3 look()

@@ -52,6 +52,25 @@ bool Data::Bounding::intersect( Entity* entity, const Ray& ray, float* distance)
 	return out;
 }
 
+void Data::Bounding::intersect( const BoundingFrustum& frustum, std::vector<Entity*>* entity_list )
+{
+	DataMapper<Data::Bounding> map_bounding;
+	while(map_bounding.hasNext())
+	{
+		Entity* entity = map_bounding.nextEntity();
+		Data::Bounding* d_bounding  = entity->fetchData<Data::Bounding>();
+		Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
+		
+		// Check intersection
+		BoundingSphere sphere(d_transform->position, 1.0f);
+		if(sphere.Intersects(frustum))
+		{
+			entity_list->push_back(entity);
+			DEBUGPRINT("HIT");
+		}
+	}
+}
+
 void Data::Selected::clearSelection()
 {
 	DataMapper<Data::Selected> map_selected;
