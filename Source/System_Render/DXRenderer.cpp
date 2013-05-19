@@ -110,7 +110,7 @@ void DXRenderer::onEvent(Event* p_event)
 		{
 			// Recreate geometry
 			Factory_Geometry::MeshData box;
-			Factory_Geometry::instance()->createSphere(1.0f, 3, 3, box);
+			Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
 			std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
 
 			// Create vertex buffer

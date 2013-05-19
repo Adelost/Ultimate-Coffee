@@ -54,6 +54,9 @@ void Window::init()
 	m_refreshTimer->setInterval(0);
 	connect(m_refreshTimer, SIGNAL(timeout()), this, SLOT(update()));
 	m_refreshTimer->start();
+
+
+	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CustomCursor));
 }
 
 Window::~Window()

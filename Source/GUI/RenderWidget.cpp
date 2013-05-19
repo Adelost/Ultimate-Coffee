@@ -52,6 +52,17 @@ void RenderWidget::onEvent( Event* p_event )
 					unsetCursor();	
 				}
 				break;
+			case Event_SetCursor::CustomCursor:
+				{
+					QString path = ICON_PATH;
+					path += "Cursors/Coffee";
+					QPixmap pixmap(path);
+					int hotspotX = 0;
+					int hotspotY = 0;
+					QCursor cursor(pixmap, hotspotX, hotspotY);
+					QWidget::setCursor(cursor);	
+				}
+				break;
 			default:
 				{
 					Qt::CursorShape cursor = static_cast<Qt::CursorShape>(cursorShape);
