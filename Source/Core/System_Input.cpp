@@ -76,6 +76,7 @@ void System::Input::update()
 
 
 	// Create loots of stuff
+	static std::vector<Command*> command_list;
 	if(SETTINGS()->selectedTool() == Enum::Tool_Geometry && SETTINGS()->button.mouse_left && SETTINGS()->button.key_ctrl)
 	{
 		static float cooldown = 0.0f;
@@ -91,7 +92,7 @@ void System::Input::update()
 			Data::Transform* d_transform = cam->fetchData<Data::Transform>();
 			Data::Camera* d_camera = cam->fetchData<Data::Camera>();
 			Int2 mousePos =  SETTINGS()->lastMousePosition;
-			d_camera->getPickingRay(Vector2(mousePos.x, mousePos.y), windowSize, &r);
+			d_camera->getPickingRay(Vector2((float)mousePos.x, (float)mousePos.y), windowSize, &r);
 
 			// Translate ray to world space
 			Matrix mat_world = d_transform->toRotPosMatrix();
@@ -106,11 +107,21 @@ void System::Input::update()
 				d_transform->position = pos;
 
 				// Add to history
-				SEND_EVENT(&Event_StoreCommandInCommandHistory(new Command_CreateEntity(entity), false));
+				command_list.push_back(new Command_CreateEntity(entity));
 			}
 
 			// Add cooldown
-			cooldown = 0.1f;
+			cooldown = 0.03f;
+		}
+	}
+	// If user is not creating more "Random Stuff (tm)" we
+	// we add the stuff to history
+	else
+	{
+		if(command_list.size()>0)
+		{
+			SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list));
+			command_list.clear();
 		}
 	}
 }

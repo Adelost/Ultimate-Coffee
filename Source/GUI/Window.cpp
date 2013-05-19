@@ -20,6 +20,7 @@ void Window::init()
 	m_ui = new Ui::MainWindow();
 	m_ui->setupUi(this);
 	setDockOptions(AllowNestedDocks | AllowTabbedDocks);
+	setContextMenuPolicy(Qt::PreventContextMenu);
 	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
 

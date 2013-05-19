@@ -302,7 +302,7 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 
 	// HACK: Place Entities if EntityTool is selected
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry && !SETTINGS()->button.key_ctrl)
 	{
 		// Compute picking ray to place Entities onto
 		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);

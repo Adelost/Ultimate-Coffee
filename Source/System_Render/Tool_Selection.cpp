@@ -50,12 +50,13 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		d_camera->getPickingRay(Vector2(mouseCursorPoint.x, mouseCursorPoint.y), windowSize, &r);
 
 		// Translate ray to world space
-		Matrix mat_world = d_transform->toRotPosMatrix();
+		Matrix mat_world = d_transform->toWorldMatrix();
 		r.position = Vector3::Transform(r.position, mat_world);
 		r.direction = Vector3::TransformNormal(r.direction, mat_world);
+		r.direction.Normalize();
 		
-		DEBUGPRINT("");
-		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
+ 		DEBUGPRINT("");
+ 		DEBUGPRINT("RAY:\n pos "+ Converter::FloatToStr(r.position.x) +","+ Converter::FloatToStr(r.position.y) +","+ Converter::FloatToStr(r.position.z) +"\n dir "+ Converter::FloatToStr(r.direction.x) +","+ Converter::FloatToStr(r.direction.y) +","+ Converter::FloatToStr(r.direction.z) +"");
 
 		// Find intersected Entity
 		Entity* e = Data::Bounding::intersect(r);

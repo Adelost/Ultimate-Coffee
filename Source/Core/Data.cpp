@@ -36,12 +36,18 @@ Entity* Data::Bounding::intersect( const Ray& ray )
 
 bool Data::Bounding::intersect( Entity* entity, const Ray& ray, float* distance)
 {
-	// Create bounding shape
+	// Translate Ray to local space
 	Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
-	BoundingSphere sphere(d_transform->position, 1.0f);
+	Matrix m = d_transform->toWorldMatrix();
+	m = m.Invert();
+	Ray r;
+	r.position = Vector3::Transform(ray.position, m);
+	r.direction = Vector3::TransformNormal(ray.direction, m);
+	r.direction.Normalize();
 
 	// Perform intersection test
-	bool out = ray.Intersects(sphere, *distance);
+	BoundingSphere sphere(Vector3(0.0f), 1.0f);
+	bool out = r.Intersects(sphere, *distance);
 
 	return out;
 }
