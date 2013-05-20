@@ -75,10 +75,9 @@ namespace Data
 			// Ray definition in view space.
 			p_rayOrigin = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 			p_rayDir    = Vector3(vx, vy, 1.0f);
-			p_rayDir.Normalize();
 		}
 
-		void getPickingRay(Vector2& p_pickedCordinate, Vector2 p_screenSize, Ray* p_ray)
+		void getPickingRay(Float2& p_pickedCordinate, Float2 p_screenSize, Ray* p_ray)
 		{
 			// Compute picking ray in view space.
 			float vx = (+2.0f*p_pickedCordinate.x/p_screenSize.x  - 1.0f)/m_mat_projection(0,0);
@@ -87,7 +86,6 @@ namespace Data
 			// Ray definition in view space.
 			p_ray->position = Vector3(0.0f, 0.0f, 0.0f);
 			p_ray->direction = Vector3(vx, vy, 1.0f);
-			p_ray->direction.Normalize();
 		}
 
 		void lookAt(const Vector3& p_cameraPos, const Vector3& p_target, const Vector3& p_up)
@@ -114,19 +112,7 @@ namespace Data
 
 		BoundingFrustum toFrustum( Vector3& cameraPos, Quaternion& cameraRot );
 
-		BoundingFrustum getSubFrustum(FloatRectangle& window, FloatRectangle& sub_window)
-		{
-
-			float sub_w_aspectRatio = sub_window.size.yRatio();
-			float sub_w_sizeYRatio = sub_window.sizeY() / window.sizeY();
-			float sub_w_fov = m_fov * sub_w_sizeYRatio;
-
-			// Compute sub window rotation from the angle of the center of the windows
-			Matrix projection = Matrix::CreatePerspectiveFieldOfView(sub_w_fov, sub_w_aspectRatio, m_nearPlane, m_farPlane);
-			BoundingFrustum out(projection);
-
-			return out;
-		}
+		BoundingFrustum getSubFrustum(FloatRectangle& window, FloatRectangle& sub_window);
 
 
 	public:

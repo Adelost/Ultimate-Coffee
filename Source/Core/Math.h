@@ -19,6 +19,10 @@ public:
 	static Vector3 randomDirection();
 	static Vector3 randomVector();
 	static int round(float value);
+	static float atann()
+	{
+		atan(Pi);
+	}
 	static void getPickingRay(int sx, int sy, XMVECTOR &rayOrigin, XMVECTOR &rayDir);
 	static const float Pi;
 };

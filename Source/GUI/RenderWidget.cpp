@@ -327,13 +327,13 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry && !SETTINGS()->button.key_ctrl)
 	{
 		// Compute picking ray to place Entities onto
-		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+		Float2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
 		Ray r;
 
 		Entity* cam = CAMERA_ENTITY().asEntity();
 		Data::Transform* d_transform = cam->fetchData<Data::Transform>();
 		Data::Camera* d_camera = cam->fetchData<Data::Camera>();
-		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
+		d_camera->getPickingRay(Float2(pos.x(), pos.y()), windowSize, &r);
 
 		// Translate ray to world space
 		Matrix mat_world = d_transform->toRotPosMatrix();
@@ -409,8 +409,6 @@ void Tool_MultiSelect::onEvent( Event* event )
 						FloatRectangle window(Float2(0, 0), Float2(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y));
 						FloatRectangle sub_window(Float2(rubberBand->x(), rubberBand->y()), Float2(rubberBand->width(), rubberBand->height()));
 						BoundingFrustum subFrustum = d_camera->getSubFrustum(window, sub_window);
-						subFrustum.Origin = d_transform->position;
-						subFrustum.Orientation = d_transform->rotation;
 
 						// Find intersected Entities
 						std::vector<Entity*> entity_list;

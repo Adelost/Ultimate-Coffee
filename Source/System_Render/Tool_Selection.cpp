@@ -44,10 +44,10 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
 		// Compute picking ray
-		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+		Float2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
 		Ray r;
 		//d_camera->getPickingRay(Vector2(mouseCursorPoint.x(), pos.y()), windowSize, &r);
-		d_camera->getPickingRay(Vector2(mouseCursorPoint.x, mouseCursorPoint.y), windowSize, &r);
+		d_camera->getPickingRay(Float2(mouseCursorPoint.x, mouseCursorPoint.y), windowSize, &r);
 
 		// Translate ray to world space
 		Matrix mat_world = d_transform->toWorldMatrix();

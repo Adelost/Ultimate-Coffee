@@ -85,14 +85,14 @@ void System::Input::update()
 		else
 		{
 			// Compute picking ray to place Entities onto
-			Vector2 windowSize((float)SETTINGS()->windowSize.x, (float)SETTINGS()->windowSize.y);
+			Float2 windowSize((float)SETTINGS()->windowSize.x, (float)SETTINGS()->windowSize.y);
 			Ray r;
 
 			Entity* cam = CAMERA_ENTITY().asEntity();
 			Data::Transform* d_transform = cam->fetchData<Data::Transform>();
 			Data::Camera* d_camera = cam->fetchData<Data::Camera>();
 			Int2 mousePos =  SETTINGS()->lastMousePosition;
-			d_camera->getPickingRay(Vector2((float)mousePos.x, (float)mousePos.y), windowSize, &r);
+			d_camera->getPickingRay(Float2((float)mousePos.x, (float)mousePos.y), windowSize, &r);
 
 			// Translate ray to world space
 			Matrix mat_world = d_transform->toRotPosMatrix();
