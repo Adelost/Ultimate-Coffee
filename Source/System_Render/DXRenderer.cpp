@@ -73,6 +73,10 @@ bool DXRenderer::init( HWND p_windowHandle )
 	m_clientHeight = 600;
 
 	m_viewport_screen = new D3D11_VIEWPORT();
+	SETTINGS()->DXViewPortTopLeftX = (int)m_viewport_screen->TopLeftX;
+	SETTINGS()->DXViewPortTopLeftY = (int)m_viewport_screen->TopLeftY;
+	SETTINGS()->DXViewPortMinDepth = (int)m_viewport_screen->MinDepth;
+	SETTINGS()->DXViewPortMaxDepth = (int)m_viewport_screen->MaxDepth;
 
 	result = initDX();
 	// Init RenderStates

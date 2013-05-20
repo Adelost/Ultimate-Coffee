@@ -55,7 +55,7 @@ void Window::init()
 	m_refreshTimer->start();
 
 
-	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CustomCursor));
+	SEND_EVENT(&Event_SetCursor(Event_SetCursor::SceneCursor));
 }
 
 Window::~Window()

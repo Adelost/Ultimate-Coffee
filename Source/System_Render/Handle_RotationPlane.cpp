@@ -1,11 +1,14 @@
 #include "stdafx.h"
 #include "Handle_RotationPlane.h"
 
-Handle_RotationPlane::Handle_RotationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle)
+Handle_RotationPlane::Handle_RotationPlane(XMVECTOR &direction, std::vector<XMFLOAT4> boundingLines, char axis)
 {
-	XMStoreFloat3(&plane.normal, normal);
-	plane.offset = offset;
-	this->boundingRectangle = boundingRectangle;
+	//XMStoreFloat3(&plane.normal, normal);
+	//plane.offset = offset;
+	//this->boundingRectangle = boundingRectangle;
+
+	sphere.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	sphere.Radius = 1.0f;
 }
 
 Handle_RotationPlane::~Handle_RotationPlane()
@@ -33,12 +36,6 @@ bool Handle_RotationPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir,
 {
 	bool rayIntersectedWithRectangle = false;
 
-	// Update the bounding rectangle... (Currently not used.)
-	//XMVECTOR transformedP1 = XMVector3Transform(XMLoadFloat3(&rectangle.P1), XMLoadFloat4x4(&world));
-	//XMVECTOR transformedP2 = XMVector3Transform(XMLoadFloat3(&rectangle.P2), XMLoadFloat4x4(&world));
-	//XMVECTOR transformedP3 = XMVector3Transform(XMLoadFloat3(&rectangle.P3), XMLoadFloat4x4(&world));
-	//XMVECTOR transformedP4 = XMVector3Transform(XMLoadFloat3(&rectangle.P4), XMLoadFloat4x4(&world));
-
 	// Calculate the definition of the plane that the rectangle is lying in.
 	XMVECTOR planeVector = XMPlaneFromPoints(XMLoadFloat3(&rectangle.P1), XMLoadFloat3(&rectangle.P2), XMLoadFloat3(&rectangle.P3));
 
@@ -53,10 +50,10 @@ bool Handle_RotationPlane::rayVsRectangle(XMVECTOR &rayOrigin, XMVECTOR &rayDir,
 
 	//XMVECTOR transformedIntersectionPoint = XMVector3Transform(pointOfIntersection, XMLoadFloat4x4(&world));
 
-	XMVECTOR loadedP1 = XMLoadFloat3(&rectangle.P1); //transformedP1;
-	XMVECTOR loadedP2 = XMLoadFloat3(&rectangle.P2); //transformedP2;
-	XMVECTOR loadedP3 = XMLoadFloat3(&rectangle.P3); //transformedP3;
-	XMVECTOR loadedP4 = XMLoadFloat3(&rectangle.P4); //transformedP4;
+	XMVECTOR loadedP1 = XMLoadFloat3(&rectangle.P1); 
+	XMVECTOR loadedP2 = XMLoadFloat3(&rectangle.P2); 
+	XMVECTOR loadedP3 = XMLoadFloat3(&rectangle.P3);
+	XMVECTOR loadedP4 = XMLoadFloat3(&rectangle.P4);
 
 	XMVECTOR V1 = loadedP2 - loadedP1;
 	XMVECTOR V3 = loadedP4 - loadedP3;
@@ -170,8 +167,6 @@ bool Handle_RotationPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTOR &
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
 void Handle_RotationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
-	//prevPickedPointOnAxisPlane = nextPickedPointOnAxisPlane;
-
 	// Tranform ray to local space.
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
 
@@ -185,35 +180,9 @@ void Handle_RotationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 
 	// Make the ray direction unit length for the intersection tests.
 	transRayDir = XMVector3Normalize(transRayDir);
-
-								//XMVECTOR transformedP1 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P1), XMLoadFloat4x4(&world));
-								//XMVECTOR transformedP2 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P2), XMLoadFloat4x4(&world));
-								//XMVECTOR transformedP3 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P3), XMLoadFloat4x4(&world));
-								//XMVECTOR transformedP4 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P4), XMLoadFloat4x4(&world));
-
-								//XMVECTOR planeVector = XMPlaneFromPoints(transformedP1, transformedP2, transformedP3);
-
-								//Plane plane;
-								//plane.normal.x = planeVector.m128_f32[0];
-								//plane.normal.y = planeVector.m128_f32[1];
-								//plane.normal.z = planeVector.m128_f32[2];
-								//plane.offset = planeVector.m128_f32[3];
-
-	// Calculate if and where the ray intersects the translation plane.
-	
-	//XMVECTOR planeVector = XMPlaneFromPoints(XMLoadFloat3(&boundingRectangle.P1), XMLoadFloat3(&boundingRectangle.P2), XMLoadFloat3(&boundingRectangle.P3));
-	//planeVector = XMPlaneTransform(planeVector, XMLoadFloat4x4(&world));
-
-	//Plane plane;
-	//plane.normal.x = planeVector.m128_f32[0];
-	//plane.normal.y = planeVector.m128_f32[1];
-	//plane.normal.z = planeVector.m128_f32[2];
-	//plane.offset = planeVector.m128_f32[3];
 	
 	XMVECTOR planeIntersectionPoint;
 	bool rayIntersectedWithPlane = rayVsPlane(transRayOrigin, transRayDir, plane, planeIntersectionPoint);
-
-	//nextPickedPointOnAxisPlane = planeIntersectionPoint;
 
 	XMStoreFloat3(&currentlyPickedPointOnAxisPlane, planeIntersectionPoint);
 }
@@ -237,20 +206,21 @@ bool Handle_RotationPlane::getIsSelected()
 }
 
 /* Called to retrieve the last made translation delta. */
-XMVECTOR Handle_RotationPlane::getLastTranslationDelta()
+XMVECTOR Handle_RotationPlane::getCurrentRotationQuaternion()
 {
-	//XMVECTOR deltaVector = nextPickedPointOnAxisPlane - prevPickedPointOnAxisPlane;
-
 	XMVECTOR loadedCurrentlyPickedPointOnAxisPlane = XMLoadFloat3(&currentlyPickedPointOnAxisPlane);
 	XMVECTOR loadedFirstPickedPointOnAxisPlane = XMLoadFloat3(&firstPickedPointOnAxisPlane);
-	XMVECTOR deltaVector = loadedCurrentlyPickedPointOnAxisPlane - loadedFirstPickedPointOnAxisPlane;
 
-	if(deltaVector.m128_f32[0] > 0.0f)
-	{
-		int test = 4;
-	}
+	// Calc. the angle between the two picked points.
+	XMVECTOR vecFromSphereCenterToFirstPoint = loadedFirstPickedPointOnAxisPlane - XMLoadFloat4(&centerPoint);
+	XMVECTOR vecFromSphereCenterToCurrentPoint = loadedCurrentlyPickedPointOnAxisPlane - XMLoadFloat4(&centerPoint);
 
-	return deltaVector;
+	XMVECTOR angleVec = XMVector3AngleBetweenVectors(vecFromSphereCenterToFirstPoint, vecFromSphereCenterToCurrentPoint);
+
+	XMVECTOR rotQuat;
+	rotQuat = XMQuaternionRotationAxis(XMLoadFloat3(&plane.normal), -angleVec.m128_f32[0]);
+
+	return rotQuat;
 }
 
 /* Called for the needed transform of the visual and/or bounding components of the handle. */
@@ -259,7 +229,7 @@ void Handle_RotationPlane::setWorld(XMMATRIX &world)
 	XMStoreFloat4x4(&this->world, world);
 }
 
-/* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */
+/* Called to set the plane orientation. */
 void Handle_RotationPlane::setPlaneOrientation(XMVECTOR &normal)
 {
 	XMStoreFloat3(&plane.normal, normal);

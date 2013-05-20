@@ -106,6 +106,8 @@ public:
 
 	// 
 
+	void createLine(XMVECTOR &endPointA, XMVECTOR &endPointB, unsigned int pointsInBetweenEndPoints, XMVECTOR &colorAtEndPointA, XMVECTOR &colorAtEndPointB, XMMATRIX &localSpaceTransform, MeshData2& meshData);
+
 	void createLineListCircle(XMVECTOR &center, float &radius, int &degreeWiseResolution, XMVECTOR &color, MeshData2& meshData, char axis);
 
 private:

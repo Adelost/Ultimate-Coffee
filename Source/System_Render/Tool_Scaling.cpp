@@ -1114,7 +1114,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Indices.size();
+	ibd.ByteWidth = sizeof(UINT) * meshVertices.Indices.size();
     ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
@@ -1379,24 +1379,33 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	// Draw control frames.
 
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
+	
+	if(!isSelected || currentlySelectedPlane == yzScalingPlane || currentlySelectedPlane == yzScalingPlane2)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
+	}
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
+	if(!isSelected || currentlySelectedPlane == zxScalingPlane || currentlySelectedPlane == zxScalingPlane2)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
+	}
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
+	if(!isSelected || currentlySelectedPlane == xyScalingPlane || currentlySelectedPlane == xyScalingPlane2)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
+	}
 
 	// Draw control boxes.
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1404,28 +1413,55 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
 
 	// Omni-scaling box.
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
+	if(!isSelected || currentlySelectedHandle == omniScalingAxisHandle)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
+	}
 
 	// The other boxes...
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
+	if(!isSelected || currentlySelectedAxis == xScalingAxisHandle
+				   || currentlySelectedAxis == xScalingAxisHandle2
+				   || currentlySelectedPlane == xyScalingPlane
+				   || currentlySelectedPlane == xyScalingPlane2
+				   || currentlySelectedPlane == zxScalingPlane
+				   || currentlySelectedPlane == zxScalingPlane2)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisBox2_VB, &stride, &offset);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
+	}
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
+	if(!isSelected || currentlySelectedAxis == yScalingAxisHandle
+				   || currentlySelectedAxis == yScalingAxisHandle2
+				   || currentlySelectedPlane == yzScalingPlane
+				   || currentlySelectedPlane == yzScalingPlane2
+				   || currentlySelectedPlane == xyScalingPlane
+				   || currentlySelectedPlane == xyScalingPlane2)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisBox2_VB, &stride, &offset);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
+	}
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox_VB, &stride, &offset);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
+	if(!isSelected || currentlySelectedAxis == zScalingAxisHandle
+				   || currentlySelectedAxis == zScalingAxisHandle2
+				   || currentlySelectedPlane == zxScalingPlane
+				   || currentlySelectedPlane == zxScalingPlane2
+				   || currentlySelectedPlane == yzScalingPlane
+				   || currentlySelectedPlane == yzScalingPlane2)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisBox2_VB, &stride, &offset);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
+	}
 
 
 }

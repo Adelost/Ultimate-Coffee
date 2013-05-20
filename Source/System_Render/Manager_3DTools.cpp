@@ -43,7 +43,7 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 	m_theTranslationTool->init(p_device, p_deviceContext);
 
 	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
-	currentlyChosenTransformTool = m_theTranslationTool;
+	currentlyChosenTransformTool = NULL;
 }
 
 Manager_3DTools::~Manager_3DTools()
@@ -70,13 +70,13 @@ void Manager_3DTools::update()
 		XMFLOAT4X4 toolWorld = currentlyChosenTransformTool->getWorld_logical(); // Use the "logical world" if we don't want it to retain its size even whilst translating an object (could be distracting by giving a "mixed message" re: the object's actual location?)
 		XMVECTOR origin = XMLoadFloat4(&XMFLOAT4(toolWorld._41, toolWorld._42, toolWorld._43, 1)); //XMLoadFloat4(&test_toolOrigo);
 		XMVECTOR camPos = XMVectorSet(d_transform->position.x, d_transform->position.y, d_transform->position.z, 1.0f);
-
+		
 		float dist = XMVector3Length(XMVectorSubtract(camPos, origin)).m128_f32[0];
 		float distanceAdjustedScale = dist / 6;
 		currentlyChosenTransformTool->setScale(distanceAdjustedScale);
 
 		if(currentlyChosenTransformTool == m_theTranslationTool)
-			m_theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look(), d_camera->up());
+			m_theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look(), d_camera->up(), d_camera->getRightVector());
 	}
 }
 

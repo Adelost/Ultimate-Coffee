@@ -3,13 +3,22 @@
 
 #include <Core/Math.h>
 
+#include "IHandle.h"
+#include "xnacollision.h"
+
+using XNA::Sphere;
+
 class Handle_RotationPlane
 {
 private:
-	XMFLOAT4X4 world;
+	XMFLOAT4 centerPoint;
 
+	XMFLOAT4X4 world;
+		
 	MyPlane plane;
 	MyRectangle boundingRectangle;
+
+	Sphere sphere;
 
 	XMFLOAT3 prevPickedPointOnAxisPlane;
 	XMFLOAT3 nextPickedPointOnAxisPlane;
@@ -20,7 +29,7 @@ private:
 	bool isSelected;
 
 public:
-	Handle_RotationPlane(XMVECTOR &normal, float offset, MyRectangle boundingRectangle);
+	Handle_RotationPlane(XMVECTOR &direction, std::vector<XMFLOAT4> boundingLines, char axis);
 	~Handle_RotationPlane();
 	
 	/* Called for initial selection and picking against the axis plane. */
@@ -39,7 +48,7 @@ public:
 	bool getIsSelected();
 
 	/* Called to retrieve the last made translation delta. */
-	XMVECTOR getLastTranslationDelta();
+	XMVECTOR getCurrentRotationQuaternion();
 
 	/* Called for the needed transform of the visual and/or bounding components of the handle. */
 	void setWorld(XMMATRIX &world);

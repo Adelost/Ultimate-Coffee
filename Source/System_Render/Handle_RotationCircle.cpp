@@ -5,6 +5,9 @@ Handle_RotationCircle::Handle_RotationCircle(XMVECTOR &direction, std::vector<XM
 {
 	isSelected = false;
 
+	sphere.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	sphere.Radius = 1.0f;
+
 	XMStoreFloat3(&this->direction, direction);
 	this->boundingLines = boundingLines;
 	
@@ -13,25 +16,38 @@ Handle_RotationCircle::Handle_RotationCircle(XMVECTOR &direction, std::vector<XM
 	switch (axis)
 	{
 		case 'x': 
-			dir = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			XMStoreFloat3(&plane.normal, XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 'y':
-			dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			XMStoreFloat3(&plane.normal, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 			break;
 		case 'z':
-			dir = XMFLOAT3(0.0f, 0.0f, 1.0f);
+			XMStoreFloat3(&plane.normal, XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f));
 			break;
 		default:
 			throw "Error in Handle_TranslationAxis constructor: Axis not specified correctly.";
 	}
-
-	MyRectangle boundingRectangle; // Dummy rectangle.
-	singleAxisRotationPlane = new Handle_RotationPlane(XMLoadFloat3(&dir), 0.0f, boundingRectangle);
 }
 
 Handle_RotationCircle::~Handle_RotationCircle()
 {
-	delete singleAxisRotationPlane;
+}
+
+static bool rayVsPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, MyPlane &plane, XMVECTOR &pointOfIntersection)
+{
+	bool rayIntersectedWithPlane = false;
+
+	// Make the ray direction unit length for the intersection tests.
+	rayDir = XMVector3Normalize(rayDir);
+
+	XMVECTOR loadedPlaneNormal = XMLoadFloat3(&plane.normal);
+	float t = -(XMVector3Dot(rayOrigin, loadedPlaneNormal).m128_f32[0]
+			  + plane.offset) / XMVector3Dot(rayDir, loadedPlaneNormal).m128_f32[0];
+
+	rayIntersectedWithPlane = true; // TEST: We always intersect.
+	pointOfIntersection = rayOrigin + t * rayDir;
+
+	return rayIntersectedWithPlane;
 }
 
 bool static pointVsRectangle(XMVECTOR &point, MyRectangle &rectangle)
@@ -75,6 +91,25 @@ bool static pointVsRectangle(XMVECTOR &point, MyRectangle &rectangle)
 	}
 
 	return intersected;
+}
+
+bool static lineVsLine(XMVECTOR &lineA_pointP, XMVECTOR &lineA_pointR, XMVECTOR &lineB_pointQ, XMVECTOR &lineB_pointS)
+{
+	bool intersection = false;
+
+	XMVECTOR test;
+
+	float t = (XMVector2Cross((lineB_pointQ - lineA_pointP), lineB_pointS - lineB_pointQ) / XMVector2Cross(lineA_pointR - lineA_pointP, lineB_pointS - lineB_pointQ)).m128_f32[0];
+	
+	float u = (XMVector2Cross((lineB_pointQ - lineA_pointP), lineA_pointR - lineA_pointP) / XMVector2Cross(lineA_pointR - lineA_pointP, lineB_pointS - lineB_pointQ)).m128_f32[0];
+
+	if(		t >= 0.0f && t <= 1.0f
+		&&	u >= 0.0f && u <= 1.0f	)
+	{
+		intersection = true;
+	}
+
+	return intersection;
 }
 
 /* Called for initial selection and picking against the axis plane. */
@@ -122,41 +157,78 @@ bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMV
 
 		MyRectangle testRect;
 
-		//testRect.P1 = XMFLOAT3(0.0f,	0.0f,	0.0f);
-		//testRect.P2 = XMFLOAT3(0.0f,	1.0f,	0.0f);
-		//testRect.P3 = XMFLOAT3(1.0f,	1.0f,	0.0f);
-		//testRect.P4 = XMFLOAT3(1.0f,	0.0f,	0.0f);
-
 		testRect.P1 = XMFLOAT3(458.0f,	177.0f,	0.0f);
 		testRect.P2 = XMFLOAT3(458.0f,	178.0f, 0.0f);
 		testRect.P3 = XMFLOAT3(459.0f,	178.0f, 0.0f);
 		testRect.P4 = XMFLOAT3(459.0f,	177.0f,	0.0f);
 
-		theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointAScreenPos, selectionRectangle);
+		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P1), XMLoadFloat3(&selectionRectangle.P2)); //theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointAScreenPos, selectionRectangle);
 		if(theLineIntersectsTheSelectionRectangle)
 		{
 			break;
 		}
 
-		theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P2), XMLoadFloat3(&selectionRectangle.P3)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+		if(theLineIntersectsTheSelectionRectangle)
+		{
+			break;
+		}
+
+		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P3), XMLoadFloat3(&selectionRectangle.P4)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+		if(theLineIntersectsTheSelectionRectangle)
+		{
+			break;
+		}
+
+		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P4), XMLoadFloat3(&selectionRectangle.P1)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
 		if(theLineIntersectsTheSelectionRectangle)
 		{
 			break;
 		}
 	}
 
-	// Try for selection against some plane or sphere or whatever, to se the first interaction point.
-	
+	// Try for selection against the rotation plane, to pick the first point on the plane.
+	float dist;
+	pickFirstPointOnAxisPlane(transRayOrigin, transRayDir, camView, dist);
+
 	isSelected = theLineIntersectsTheSelectionRectangle;
 
-	return wasSelected;
+	return isSelected;
 }
 
 bool Handle_RotationCircle::pickFirstPointOnAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, float &distanceToPointOfIntersection)
 {
-	bool pickedAPoint = singleAxisRotationPlane->pickFirstPointOnPlane(rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+	isSelected = false;
 
-	return pickedAPoint;
+	// Tranform ray to local space.
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
+
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
+
+	XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
+
+	XMVECTOR transRayOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
+	XMVECTOR transRayDir = XMVector3TransformNormal(rayDir, toLocal);
+
+	// Make the ray direction unit length for the intersection tests.
+	transRayDir = XMVector3Normalize(transRayDir);
+	
+	// Calculate if and where the ray intersects the translation plane.
+	XMVECTOR planeIntersectionPoint;
+	bool rayIntersectedWithPlane = rayVsPlane(transRayOrigin, transRayDir, plane, planeIntersectionPoint);
+	
+	if(rayIntersectedWithPlane)
+	{
+		//prevPickedPointOnAxisPlane = planeIntersectionPoint;
+
+		XMStoreFloat3(&firstPickedPointOnAxisPlane, planeIntersectionPoint);
+		currentlyPickedPointOnAxisPlane = firstPickedPointOnAxisPlane;
+
+		isSelected = rayIntersectedWithPlane;
+	}
+
+	return isSelected;
 }
 
 		/* The diagram shows an example of the process where: for translations along the single axis Y,
@@ -169,26 +241,30 @@ bool Handle_RotationCircle::pickFirstPointOnAxisPlane(XMVECTOR &rayOrigin, XMVEC
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
 void Handle_RotationCircle::pickAxisPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
-	if(singleAxisRotationPlane->getIsSelected())
-		singleAxisRotationPlane->pickPlane(rayOrigin, rayDir, camView);
+	// Tranform ray to local space.
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
 
-	//prevPickedPointOnAxisPlane = nextPickedPointOnAxisPlane;
+	XMMATRIX W = XMLoadFloat4x4(&world);
+	XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
 
-	//// Calculate where the picking ray that selected the handle intersects with the plane the handle lies in.
-	//// ...
+	XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
 
-	//XMVECTOR loadedDirection = XMLoadFloat3(&direction);
-	//XMVECTOR loadedPrevPointOnAxisPlane = XMLoadFloat3(&prevPickedPointOnAxisPlane);
-	//XMVECTOR intersectionPoint = loadedPrevPointOnAxisPlane + loadedDirection * 0.1f;
+	XMVECTOR transRayOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
+	XMVECTOR transRayDir = XMVector3TransformNormal(rayDir, toLocal);
 
-	//XMStoreFloat3(&nextPickedPointOnAxisPlane, intersectionPoint);
+	// Make the ray direction unit length for the intersection tests.
+	transRayDir = XMVector3Normalize(transRayDir);
+	
+	XMVECTOR planeIntersectionPoint;
+	bool rayIntersectedWithPlane = rayVsPlane(transRayOrigin, transRayDir, plane, planeIntersectionPoint);
+
+	XMStoreFloat3(&currentlyPickedPointOnAxisPlane, planeIntersectionPoint);
 }
 
 /* Called when picking against the axis plane should cease, if the LMB has been released. */
 void Handle_RotationCircle::unselect()
 {
 	isSelected = false;
-	singleAxisRotationPlane->unselect();
 }
 	
 /* Called to see if this is the currently selected translation axis, if any. */
@@ -198,67 +274,39 @@ bool Handle_RotationCircle::getIsSelected()
 }
 
 /* Called to retrieve the last made translation delta. */
-XMVECTOR Handle_RotationCircle::getLastTranslationDelta()
+XMVECTOR Handle_RotationCircle::getCurrentRotationQuaternion()
 {
-	//XMVECTOR loadedNextPickedPointOnAxisPlane; XMLoadFloat3(&nextPickedPointOnAxisPlane);
-	//XMVECTOR loadedPrevPickedPointOnAxisPlane; XMLoadFloat3(&prevPickedPointOnAxisPlane);
-	//XMVECTOR diffVector = loadedNextPickedPointOnAxisPlane - loadedPrevPickedPointOnAxisPlane;
-	//
-	//XMVECTOR loadedDirection = XMLoadFloat3(&direction);
-	//XMFLOAT3 tempVector(	loadedDirection.m128_f32[0] * diffVector.m128_f32[0],
-	//						loadedDirection.m128_f32[1] * diffVector.m128_f32[1],
-	//						loadedDirection.m128_f32[2] * diffVector.m128_f32[2]	);
-	//
-	//return XMLoadFloat3(&tempVector);
+	XMVECTOR loadedCurrentlyPickedPointOnAxisPlane = XMLoadFloat3(&currentlyPickedPointOnAxisPlane);
+	XMVECTOR loadedFirstPickedPointOnAxisPlane = XMLoadFloat3(&firstPickedPointOnAxisPlane);
 
-	XMFLOAT4 transDelta;
-	XMVECTOR oneAxisOnlyTransDelta = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	// Calc. the angle between the two picked points.
+	XMVECTOR vecFromSphereCenterToFirstPoint = loadedFirstPickedPointOnAxisPlane - XMLoadFloat3(&sphere.Center);
+	XMVECTOR vecFromSphereCenterToCurrentPoint = loadedCurrentlyPickedPointOnAxisPlane - XMLoadFloat3(&sphere.Center);
 
-	if(singleAxisRotationPlane->getIsSelected())
-	{
-		XMStoreFloat4(&transDelta, singleAxisRotationPlane->getLastTranslationDelta());
+	XMVECTOR angleVec = XMVector3AngleBetweenVectors(vecFromSphereCenterToFirstPoint, vecFromSphereCenterToCurrentPoint);
 
-		if(direction.x == 1.0f)
-		{
-			transDelta.y = 0.0f; transDelta.z = 0.0f;
-		}
-		else if(direction.y == 1.0f)
-		{
-			transDelta.x = 0.0f; transDelta.z = 0.0f;
-		}
-		else if(direction.z == 1.0f)
-		{
-			transDelta.x = 0.0f; transDelta.y = 0.0f;
-		}
-		
-		oneAxisOnlyTransDelta = XMLoadFloat4(&transDelta);
-	}
+	XMVECTOR rotQuat;
+	rotQuat = XMQuaternionRotationAxis(XMLoadFloat3(&plane.normal), -angleVec.m128_f32[0]);
 
-	return oneAxisOnlyTransDelta;
+	return rotQuat;
 }
 
 /* Called for the needed transform of the visual and/or bounding components of the handle. */
 void Handle_RotationCircle::setWorld(XMMATRIX &world)
 {
 	XMStoreFloat4x4(&this->world, world);
+	
+	XMVECTOR transformedNormal = XMVector3Transform(XMLoadFloat3(&plane.normal), world);
 
-	singleAxisRotationPlane->setWorld(world);
+	XMStoreFloat3(&plane.normal, transformedNormal);
+}
+
+void Handle_RotationCircle::setPlaneOrientation(XMVECTOR &normal)
+{
+	XMStoreFloat3(&plane.normal, normal);
 }
 
 void Handle_RotationCircle::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
-	//// Tranform ray to local space.
-	//XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
-
-	//XMMATRIX W = XMLoadFloat4x4(&world);
-	//XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
-
-	//XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
-
-	//XMVECTOR transRayOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
-	//XMVECTOR transRayDir = XMVector3TransformNormal(rayDir, toLocal);
-
-	//// Make the ray direction unit length for the intersection tests.
-	//transRayDir = XMVector3Normalize(transRayDir);
 }
 

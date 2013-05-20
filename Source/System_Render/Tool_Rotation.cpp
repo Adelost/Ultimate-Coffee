@@ -22,6 +22,11 @@ Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 Tool_Rotation::~Tool_Rotation()
 {
 	delete omniRotateSphereHandle;
+
+	delete xRotationHandle;
+	delete yRotationHandle;
+	delete zRotationHandle;
+	delete viewAxisRotationHandle;
 }
 
 void Tool_Rotation::setIsVisible(bool &isVisible)
@@ -55,13 +60,44 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 
 		// Check if any of the control circles are selected.
 		aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+		if(aSingleAxisRotationHandleWasSelected)
 		{
 			currentlySelectedHandle = xRotationHandle;
 			aRotationToolHandleWasSelected = true;
 		}
+		
+		if(!aSingleAxisRotationHandleWasSelected)
+		{
+			aSingleAxisRotationHandleWasSelected = yRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			if(aSingleAxisRotationHandleWasSelected)
+			{
+				currentlySelectedHandle = yRotationHandle;
+				aRotationToolHandleWasSelected = true;
+			}
+		}
+		
+		if(!aSingleAxisRotationHandleWasSelected)
+		{
+			aSingleAxisRotationHandleWasSelected = zRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			if(aSingleAxisRotationHandleWasSelected)
+			{
+				currentlySelectedHandle = zRotationHandle;
+				aRotationToolHandleWasSelected = true;
+			}
+		}
 
 		if(!aSingleAxisRotationHandleWasSelected)
+		{
+			aSingleAxisRotationHandleWasSelected = viewAxisRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			if(aSingleAxisRotationHandleWasSelected)
 			{
+				currentlySelectedHandle = viewAxisRotationHandle;
+				aRotationToolHandleWasSelected = true;
+			}
+		}
+
+		if(!aSingleAxisRotationHandleWasSelected)
+		{
 			// Check if the ray intersects with the omni-rotation sphere.
 			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(sphereSelected)
@@ -115,12 +151,12 @@ void Tool_Rotation::tryForHover(MyRectangle &selectionRectangle, XMVECTOR &rayOr
 		if(hoveredHandle == omniRotateSphereHandle)
 		{
 			// Set the cursor icon to the one indicating that the free rotation sphere is being handled.
-			SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::OpenHandCursor));
+			//SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::OpenHandCursor));
 		}
 	}
 	else
 	{
-		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
+		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::SceneCursor));
 	}
 }
 
@@ -190,16 +226,11 @@ void Tool_Rotation::updateWorld()
 
 		Data::Transform* trans = activeEntity->fetchData<Data::Transform>();
 		objectWorld = static_cast<XMFLOAT4X4>(world);
-		//XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
 		
-		newWorld._41 = trans->position.x; //objectWorld._41;
-		newWorld._42 = trans->position.y; //objectWorld._42;
-		newWorld._43 = trans->position.z; //objectWorld._43;
+		newWorld._41 = trans->position.x;
+		newWorld._42 = trans->position.y;
+		newWorld._43 = trans->position.z;
 
-		// Update the rotation tool's (distance-from-camera-adjusted) scale.
-		//newWorld._11 = scale;
-		//newWorld._22 = scale;
-		//newWorld._33 = scale;
 		XMStoreFloat4x4(&world, newWorld);
 
 		XMMATRIX logicalWorld = XMLoadFloat4x4(&getWorld_logical());
@@ -209,27 +240,11 @@ void Tool_Rotation::updateWorld()
 
 		logicalWorld = XMLoadFloat4x4(&getWorldRotationCircles_logical());
 		xRotationHandle->setWorld(logicalWorld);
+		yRotationHandle->setWorld(logicalWorld);
+		zRotationHandle->setWorld(logicalWorld);
 	}
 	else
 	{
-		//// Just get the position of the active object, but keep the default orientation.
-		//XMMATRIX newWorld = XMMatrixIdentity();
-		//XMFLOAT4X4 objectWorld;
-		//XMStoreFloat4x4(&objectWorld, activeObject->getIRenderable()->getWorld());
-		//newWorld._41 = objectWorld._41;
-		//newWorld._42 = objectWorld._42;
-		//newWorld._43 = objectWorld._43;
-
-		//// Update the rotation tool's (distance-from-camera-adjusted) scale.
-		////newWorld._11 = scale;
-		////newWorld._22 = scale;
-		////newWorld._33 = scale;
-		//XMStoreFloat4x4(&world, newWorld);
-
-		//XMMATRIX logicalWorld = XMLoadFloat4x4(&getWorld_logical());
-
-		//// Transform all the controls.
-		//omniRotateSphereHandle->setWorld(logicalWorld);
 	}
 }
 
@@ -255,7 +270,7 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 	if(currentlySelectedHandle)
 	{
 		// Pick against the plane to update the translation delta.
-		if(currentlySelectedHandle = omniRotateSphereHandle)
+		if(currentlySelectedHandle == omniRotateSphereHandle)
 		{
 			omniRotateSphereHandle->pickSphere(selectionRectangle, rayOrigin, rayDir, camView, camProj, theViewport, mouseCursorPoint);
 
@@ -265,7 +280,14 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 			//Data::Transform* transform = activeEntity->fetchData<Data::Transform>();
 			//transform->rotation = newRotQuat;
 		}
+		else if(currentlySelectedHandle == zRotationHandle)
+		{
+			zRotationHandle->pickAxisPlane(rayOrigin, rayDir, camView);
+
+			rotQuaternion = zRotationHandle->getCurrentRotationQuaternion();
+		}
 	}
+
 
 	DataMapper<Data::Selected> map_selected;
 	Entity* e;
@@ -333,7 +355,7 @@ void Tool_Rotation::unselect()
 	setActiveObject(1);
 
 	// Set the cursor icon to the default/scene cursor icon.
-	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::NormalCursor));
+	SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::SceneCursor));
 
 	isSelected = false;
 }
@@ -507,51 +529,71 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 
 	GeometryGenerator geoGen;
 
-	GeometryGenerator::MeshData2 circleMeshData;
-	GeometryGenerator::MeshData2 circleMeshData2;
-	GeometryGenerator::MeshData2 circleMeshData3;
-	GeometryGenerator::MeshData2 circleMeshData4;
-
-	XMVECTOR color = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
-	XMVECTOR center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-	float radius = 1.0f;
-	int nrOfPoints = 64;
-	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData, 'z');
-
 	D3D11_BUFFER_DESC vbd;
 	D3D11_SUBRESOURCE_DATA vinitData;
 
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData.Vertices.size();
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags = 0;
-    vbd.MiscFlags = 0;
-	vinitData.pSysMem = &circleMeshData.Vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_circle_VB));
+	std::vector<XMFLOAT4> listOfLineSegmentsAsPoints;
+	listOfLineSegmentsAsPoints.resize(0);
 
-	//
+	GeometryGenerator::MeshData2 circleMeshDataView;
+	GeometryGenerator::MeshData2 circleMeshDataX;
+	GeometryGenerator::MeshData2 circleMeshDataY;
+	GeometryGenerator::MeshData2 circleMeshDataZ;
 
 	XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f);
 	XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
 	XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
 
+	XMVECTOR color = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+	XMVECTOR center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	float radius = 1.1f;
+	int nrOfPoints = 64;
+	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataView, 'z');
+
+	// Convert line strip to line list.
+	for(unsigned int i = 0; i < circleMeshDataView.Vertices.size(); i = i + 1)
+	{
+		if(i != circleMeshDataView.Vertices.size() - 1)
+		{
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataView.Vertices.at(i).Position.x, circleMeshDataView.Vertices.at(i).Position.y, circleMeshDataView.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataView.Vertices.at(i + 1).Position.x, circleMeshDataView.Vertices.at(i + 1).Position.y, circleMeshDataView.Vertices.at(i + 1).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+		else
+		{
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataView.Vertices.at(i).Position.x, circleMeshDataView.Vertices.at(i).Position.y, circleMeshDataView.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataView.Vertices.at(0).Position.x, circleMeshDataView.Vertices.at(0).Position.y, circleMeshDataView.Vertices.at(0).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+	}
+	
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataView.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+	vinitData.pSysMem = &circleMeshDataView.Vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_circle_VB));
+
+	viewAxisRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+
 	color = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
 	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	radius = 1.0f;
 	nrOfPoints = 64;
-	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData2, 'x');
-
-	std::vector<XMFLOAT4> listOfLineSegmentsAsPoints;
-	listOfLineSegmentsAsPoints.resize(0);
-	//ZeroMemory(&listOfTrianglesAsPoints, sizeof(std::vector<XMFLOAT4>));
+	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataX, 'x');
 
 	// Convert line strip to line list.
-	for(unsigned int i = 0; i < circleMeshData2.Vertices.size(); i = i + 1)
+	for(unsigned int i = 0; i < circleMeshDataX.Vertices.size(); i = i + 1)
 	{
-		if(i != circleMeshData2.Vertices.size() - 1)
+		if(i != circleMeshDataX.Vertices.size() - 1)
 		{
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData2.Vertices.at(i).Position.x, circleMeshData2.Vertices.at(i).Position.y, circleMeshData2.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData2.Vertices.at(i + 1).Position.x, circleMeshData2.Vertices.at(i + 1).Position.y, circleMeshData2.Vertices.at(i + 1).Position.z, 1.0f);
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataX.Vertices.at(i).Position.x, circleMeshDataX.Vertices.at(i).Position.y, circleMeshDataX.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataX.Vertices.at(i + 1).Position.x, circleMeshDataX.Vertices.at(i + 1).Position.y, circleMeshDataX.Vertices.at(i + 1).Position.z, 1.0f);
 
 			listOfLineSegmentsAsPoints.push_back(linePointA);
 			listOfLineSegmentsAsPoints.push_back(linePointB);
@@ -559,8 +601,8 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 		else
 		{
 
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData2.Vertices.at(i).Position.x, circleMeshData2.Vertices.at(i).Position.y, circleMeshData2.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData2.Vertices.at(0).Position.x, circleMeshData2.Vertices.at(0).Position.y, circleMeshData2.Vertices.at(0).Position.z, 1.0f);
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataX.Vertices.at(i).Position.x, circleMeshDataX.Vertices.at(i).Position.y, circleMeshDataX.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataX.Vertices.at(0).Position.x, circleMeshDataX.Vertices.at(0).Position.y, circleMeshDataX.Vertices.at(0).Position.z, 1.0f);
 
 			listOfLineSegmentsAsPoints.push_back(linePointA);
 			listOfLineSegmentsAsPoints.push_back(linePointB);
@@ -571,26 +613,26 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	listOfLineSegmentsAsPoints.clear();
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData2.Vertices.size();
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataX.Vertices.size();
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
-	vinitData.pSysMem = &circleMeshData2.Vertices[0];
+	vinitData.pSysMem = &circleMeshDataX.Vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_Xcircle_VB));
 
 	color = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
 	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	radius = 1.0f;
 	nrOfPoints = 64;
-	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData3, 'y');
+	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataY, 'y');
 
 	// Convert line strip to line list.
-	for(unsigned int i = 0; i < circleMeshData2.Vertices.size(); i = i + 1)
+	for(unsigned int i = 0; i < circleMeshDataY.Vertices.size(); i = i + 1)
 	{
-		if(i != circleMeshData2.Vertices.size() - 1)
+		if(i != circleMeshDataY.Vertices.size() - 1)
 		{
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData3.Vertices.at(i).Position.x, circleMeshData3.Vertices.at(i).Position.y, circleMeshData3.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData3.Vertices.at(i + 1).Position.x, circleMeshData3.Vertices.at(i + 1).Position.y, circleMeshData3.Vertices.at(i + 1).Position.z, 1.0f);
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataY.Vertices.at(i).Position.x, circleMeshDataY.Vertices.at(i).Position.y, circleMeshDataY.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataY.Vertices.at(i + 1).Position.x, circleMeshDataY.Vertices.at(i + 1).Position.y, circleMeshDataY.Vertices.at(i + 1).Position.z, 1.0f);
 
 			listOfLineSegmentsAsPoints.push_back(linePointA);
 			listOfLineSegmentsAsPoints.push_back(linePointB);
@@ -598,38 +640,38 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 		else
 		{
 
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData3.Vertices.at(i).Position.x, circleMeshData3.Vertices.at(i).Position.y, circleMeshData3.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData3.Vertices.at(0).Position.x, circleMeshData3.Vertices.at(0).Position.y, circleMeshData3.Vertices.at(0).Position.z, 1.0f);
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataY.Vertices.at(i).Position.x, circleMeshDataY.Vertices.at(i).Position.y, circleMeshDataY.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataY.Vertices.at(0).Position.x, circleMeshDataY.Vertices.at(0).Position.y, circleMeshDataY.Vertices.at(0).Position.z, 1.0f);
 
 			listOfLineSegmentsAsPoints.push_back(linePointA);
 			listOfLineSegmentsAsPoints.push_back(linePointB);
 		}
 	}
 
-	xRotationHandle = new Handle_RotationCircle(yAxis, listOfLineSegmentsAsPoints, 'y');
+	yRotationHandle = new Handle_RotationCircle(yAxis, listOfLineSegmentsAsPoints, 'y');
 	listOfLineSegmentsAsPoints.clear();
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData3.Vertices.size();
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataY.Vertices.size();
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
-	vinitData.pSysMem = &circleMeshData3.Vertices[0];
+	vinitData.pSysMem = &circleMeshDataY.Vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_Ycircle_VB));
 
 	color = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
 	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	radius = 1.0f;
 	nrOfPoints = 64;
-	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshData4, 'z');
+	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataZ, 'z');
 
 	// Convert line strip to line list.
-	for(unsigned int i = 0; i < circleMeshData2.Vertices.size(); i = i + 1)
+	for(unsigned int i = 0; i < circleMeshDataZ.Vertices.size(); i = i + 1)
 	{
-		if(i != circleMeshData2.Vertices.size() - 1)
+		if(i != circleMeshDataZ.Vertices.size() - 1)
 		{
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData4.Vertices.at(i).Position.x, circleMeshData4.Vertices.at(i).Position.y, circleMeshData4.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData4.Vertices.at(i + 1).Position.x, circleMeshData4.Vertices.at(i + 1).Position.y, circleMeshData4.Vertices.at(i + 1).Position.z, 1.0f);
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataZ.Vertices.at(i).Position.x, circleMeshDataZ.Vertices.at(i).Position.y, circleMeshDataZ.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataZ.Vertices.at(i + 1).Position.x, circleMeshDataZ.Vertices.at(i + 1).Position.y, circleMeshDataZ.Vertices.at(i + 1).Position.z, 1.0f);
 
 			listOfLineSegmentsAsPoints.push_back(linePointA);
 			listOfLineSegmentsAsPoints.push_back(linePointB);
@@ -637,23 +679,23 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 		else
 		{
 
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshData4.Vertices.at(i).Position.x, circleMeshData4.Vertices.at(i).Position.y, circleMeshData4.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshData4.Vertices.at(0).Position.x, circleMeshData4.Vertices.at(0).Position.y, circleMeshData4.Vertices.at(0).Position.z, 1.0f);
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataZ.Vertices.at(i).Position.x, circleMeshDataZ.Vertices.at(i).Position.y, circleMeshDataZ.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataZ.Vertices.at(0).Position.x, circleMeshDataZ.Vertices.at(0).Position.y, circleMeshDataZ.Vertices.at(0).Position.z, 1.0f);
 
 			listOfLineSegmentsAsPoints.push_back(linePointA);
 			listOfLineSegmentsAsPoints.push_back(linePointB);
 		}
 	}
 
-	xRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+	zRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
 	listOfLineSegmentsAsPoints.clear();
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshData4.Vertices.size();
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataZ.Vertices.size();
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
-	vinitData.pSysMem = &circleMeshData4.Vertices[0];
+	vinitData.pSysMem = &circleMeshDataZ.Vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_Zcircle_VB));
 }
 

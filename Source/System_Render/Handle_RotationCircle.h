@@ -15,11 +15,15 @@ private:
 	XMFLOAT4X4 world;
 	XMFLOAT3 direction; // Should be X, Y, or Z.
 
-	Handle_RotationPlane *singleAxisRotationPlane;
+	Sphere sphere;
+	MyPlane plane; //Handle_RotationPlane *singleAxisRotationPlane;
 
 	// The delta between the first and last picked point on the axis plane gives the current translation from the active object's last set position.
 	XMFLOAT3 prevPickedPointOnAxisPlane;
 	XMFLOAT3 nextPickedPointOnAxisPlane;
+
+	XMFLOAT3 firstPickedPointOnAxisPlane;
+	XMFLOAT3 currentlyPickedPointOnAxisPlane;
 
 	std::vector<XMFLOAT4> boundingLines;
 
@@ -44,10 +48,13 @@ public:
 	bool getIsSelected();
 
 	/* Called to retrieve the last made translation delta. */
-	XMVECTOR getLastTranslationDelta();
+	XMVECTOR getCurrentRotationQuaternion();
 
 	/* Called for the needed transform of the visual and/or bounding components of the handle. */
 	void setWorld(XMMATRIX &world);
+
+	/* Set plane orientation/normal. */
+	void setPlaneOrientation(XMVECTOR &normal);
 
 	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 };

@@ -111,9 +111,21 @@ bool Handle_TranslationPlane::tryForSelection(MyRectangle &selectionRectangle, X
 	// Make the ray direction unit length for the intersection tests.
 	transRayDir = XMVector3Normalize(transRayDir);
 
+
+	
+	//XMVECTOR normalizedRayDir = XMVector3Normalize(transRayDir);
+
+	//XMVECTOR reorientedNormal;
+
+	//reorientedNormal = XMVectorSet(normalizedRayDir.m128_f32[0], normalizedRayDir.m128_f32[1], normalizedRayDir.m128_f32[2], 0.0f);
+
+	//XMStoreFloat3(&plane.normal, reorientedNormal);
+
+	//setPlaneOrientation(XMLoadFloat3(&reorientedNormal));
+
 	// Calculate if the ray intersects with the plane's rectangle handle.
 	isSelected = rayVsRectangle(transRayOrigin, transRayDir, boundingRectangle, distanceToIntersectionPoint);
-
+	
 	if(isSelected)
 	{
 		// Calculate if and where the ray intersects the translation plane.
@@ -170,8 +182,6 @@ bool Handle_TranslationPlane::pickFirstPointOnPlane(XMVECTOR &rayOrigin, XMVECTO
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
 void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView)
 {
-	//prevPickedPointOnAxisPlane = nextPickedPointOnAxisPlane;
-
 	// Tranform ray to local space.
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(camView), camView);
 
@@ -185,35 +195,9 @@ void Handle_TranslationPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, X
 
 	// Make the ray direction unit length for the intersection tests.
 	transRayDir = XMVector3Normalize(transRayDir);
-
-								//XMVECTOR transformedP1 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P1), XMLoadFloat4x4(&world));
-								//XMVECTOR transformedP2 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P2), XMLoadFloat4x4(&world));
-								//XMVECTOR transformedP3 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P3), XMLoadFloat4x4(&world));
-								//XMVECTOR transformedP4 = XMVector3Transform(XMLoadFloat3(&boundingRectangle.P4), XMLoadFloat4x4(&world));
-
-								//XMVECTOR planeVector = XMPlaneFromPoints(transformedP1, transformedP2, transformedP3);
-
-								//Plane plane;
-								//plane.normal.x = planeVector.m128_f32[0];
-								//plane.normal.y = planeVector.m128_f32[1];
-								//plane.normal.z = planeVector.m128_f32[2];
-								//plane.offset = planeVector.m128_f32[3];
-
-	// Calculate if and where the ray intersects the translation plane.
-	
-	//XMVECTOR planeVector = XMPlaneFromPoints(XMLoadFloat3(&boundingRectangle.P1), XMLoadFloat3(&boundingRectangle.P2), XMLoadFloat3(&boundingRectangle.P3));
-	//planeVector = XMPlaneTransform(planeVector, XMLoadFloat4x4(&world));
-
-	//Plane plane;
-	//plane.normal.x = planeVector.m128_f32[0];
-	//plane.normal.y = planeVector.m128_f32[1];
-	//plane.normal.z = planeVector.m128_f32[2];
-	//plane.offset = planeVector.m128_f32[3];
 	
 	XMVECTOR planeIntersectionPoint;
 	bool rayIntersectedWithPlane = rayVsPlane(transRayOrigin, transRayDir, plane, planeIntersectionPoint);
-
-	//nextPickedPointOnAxisPlane = planeIntersectionPoint;
 
 	XMStoreFloat3(&currentlyPickedPointOnAxisPlane, planeIntersectionPoint);
 }
@@ -257,6 +241,8 @@ XMVECTOR Handle_TranslationPlane::getLastTranslationDelta()
 void Handle_TranslationPlane::setWorld(XMMATRIX &world)
 {
 	XMStoreFloat4x4(&this->world, world);
+
+	//XMStoreFloat3(&plane.normal, XMVector3Transform(XMLoadFloat3(&plane.normal), world));
 }
 
 /* Called to set the plane orientation. Used for single-axis translation, by axis-specific handles relying on translation planes. */

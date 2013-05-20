@@ -39,6 +39,10 @@ private:
 	ID3D11Buffer* mMeshTransToolVB;
 	
 	// Debug:
+	ID3D11Buffer* mMeshTransTool_xAxisLine_VB;
+	ID3D11Buffer* mMeshTransTool_yAxisLine_VB;
+	ID3D11Buffer* mMeshTransTool_zAxisLine_VB;
+
 	ID3D11Buffer* mMeshTransTool_xAxisArrow_VB;
 	ID3D11Buffer* mMeshTransTool_yAxisArrow_VB;
 	ID3D11Buffer* mMeshTransTool_zAxisArrow_VB;
@@ -155,7 +159,7 @@ public:
 
 	//
 
-	void updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector);
+	void updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector, XMFLOAT3 &camRightVector);
 
 	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_logical();
 

@@ -66,6 +66,7 @@ private:
 	Handle_RotationCircle *xRotationHandle;
 	Handle_RotationCircle *yRotationHandle;
 	Handle_RotationCircle *zRotationHandle;
+	Handle_RotationCircle *viewAxisRotationHandle;
 
 	std::vector<XMFLOAT4> originalRotationQuatsOfActiveObject;
 

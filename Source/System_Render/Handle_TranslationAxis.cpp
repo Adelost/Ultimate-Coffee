@@ -60,7 +60,7 @@ bool Handle_TranslationAxis::tryForSelection(MyRectangle &selectionRectangle, XM
 
 		if(wasSelected)
 		{
-			XMVECTOR normalizedRayDir = XMVector3Normalize(rayDir);
+			XMVECTOR normalizedRayDir = XMVector3Normalize(transRayDir);
 
 			XMFLOAT3 reorientedNormal;
 

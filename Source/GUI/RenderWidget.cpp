@@ -52,10 +52,10 @@ void RenderWidget::onEvent( Event* p_event )
 					unsetCursor();	
 				}
 				break;
-			case Event_SetCursor::CustomCursor:
+			case Event_SetCursor::SceneCursor:
 				{
 					QString path = ICON_PATH;
-					path += "Cursors/Coffee";
+					path += "Cursors/scene";
 					QPixmap pixmap(path);
 					int hotspotX = 0;
 					int hotspotY = 0;

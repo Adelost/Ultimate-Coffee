@@ -710,6 +710,42 @@ void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadi
 	}
 }
 
+void GeometryGenerator::createLine(XMVECTOR &endPointA, XMVECTOR &endPointB, unsigned int pointsInBetweenEndPoints, XMVECTOR &colorAtEndPointA, XMVECTOR &colorAtEndPointB, XMMATRIX &localSpaceTransform, MeshData2& meshData)
+{
+	float distanceBetweenEndPoints = XMVector4Length(endPointA - endPointB).m128_f32[0];
+	float distanceBetweenInBetweenPoints = distanceBetweenEndPoints / pointsInBetweenEndPoints;
+
+	Vertex2 vertex;
+	
+	// Store end point A.
+	endPointA = XMVector3Transform(endPointA, localSpaceTransform);
+
+	XMStoreFloat3(&vertex.Position, endPointA);
+	XMStoreFloat4(&vertex.Color, colorAtEndPointA);
+	meshData.Vertices.push_back(vertex);
+	
+	XMFLOAT3 position;
+	XMVECTOR tempPos;
+	for(unsigned int i = 0; i < pointsInBetweenEndPoints; ++i)
+	{
+		position = meshData.Vertices.at(0).Position;
+		position.x += i * distanceBetweenInBetweenPoints;
+
+		tempPos = XMVector3Transform(XMLoadFloat3(&position), localSpaceTransform);
+
+		XMStoreFloat3(&vertex.Position, tempPos);
+		XMStoreFloat4(&vertex.Color, colorAtEndPointA);
+		meshData.Vertices.push_back(vertex);
+	}
+
+	// Store end point B.
+	endPointB = XMVector3Transform(endPointB, localSpaceTransform);
+
+	XMStoreFloat3(&vertex.Position, endPointB);
+	XMStoreFloat4(&vertex.Color, colorAtEndPointB);
+	meshData.Vertices.push_back(vertex);
+}
+
 //void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData)
 //{
 //	UINT vertexCount = m*n;

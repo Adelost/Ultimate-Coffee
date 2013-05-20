@@ -22,7 +22,7 @@ Handle_ScalingAxis::Handle_ScalingAxis(XMVECTOR &direction, std::vector<XMFLOAT4
 			dir = XMFLOAT3(0.0f, 0.0f, 1.0f);
 			break;
 		default:
-			throw "Error in Handle_TranslationAxis constructor: Axis not specified correctly.";
+			throw "Error in Handle_ScalingAxis constructor: Axis not specified correctly.";
 	}
 
 	DimensionTuple dummyTuple = XY;
@@ -62,7 +62,7 @@ bool Handle_ScalingAxis::tryForSelection(MyRectangle &selectionRectangle, XMVECT
 
 		if(wasSelected)
 		{
-			XMVECTOR normalizedRayDir = XMVector3Normalize(rayDir);
+			XMVECTOR normalizedRayDir = XMVector3Normalize(transRayDir);
 
 			XMFLOAT3 reorientedNormal;
 

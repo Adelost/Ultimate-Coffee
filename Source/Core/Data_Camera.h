@@ -136,6 +136,16 @@ namespace Data
 			return m_mat_projection;
 		}
 		Quaternion rotation(Vector3& position);
+
+		Vector3 getLookVector()
+		{
+			return m_look;
+		}
+
+		Vector3 getRightVector()
+		{
+			return m_right;
+		}
 	};
 }
 

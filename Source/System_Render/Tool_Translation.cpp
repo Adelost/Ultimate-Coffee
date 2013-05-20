@@ -59,7 +59,7 @@ Tool_Translation::Tool_Translation()
 	boundingRectangle.P2 = XMFLOAT3(-0.25f,  0.25f, 0.0f);
 	boundingRectangle.P3 = XMFLOAT3( 0.25f,  0.25f, 0.0f);
 	boundingRectangle.P4 = XMFLOAT3( 0.25f, -0.25f, 0.0f);
-	camViewTranslationPlane = new Handle_TranslationPlane(XMLoadFloat3(&zDirNeg), 0.0f, boundingRectangle);
+	camViewTranslationPlane = new Handle_TranslationPlane(-XMLoadFloat3(&zDir), 0.0f, boundingRectangle);
 	
 	relateToActiveObjectWorld = false;
 
@@ -198,6 +198,11 @@ bool Tool_Translation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR
 			bool planeSelected = camViewTranslationPlane->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(planeSelected)
 			{
+				float distanceToIntersectionPoint;
+				XMMATRIX logicalWorld = XMLoadFloat4x4(&getWorld_logical());
+				camViewTranslationPlane->setWorld(logicalWorld);
+				camViewTranslationPlane->pickFirstPointOnPlane(rayOrigin, rayDir, camView, distanceToIntersectionPoint);
+
 				currentlySelectedPlane = camViewTranslationPlane;
 				aTranslationToolHandleWasSelected = true;
 			}
@@ -398,7 +403,14 @@ void Tool_Translation::updateWorld()
 			zxTranslationPlane2->setWorld(logicalWorld);
 			xyTranslationPlane2->setWorld(logicalWorld);
 
+			//logicalWorld.r[0].m128_f32[0] *= 2.0f;
+			//logicalWorld.r[1].m128_f32[1] *= 2.0f;
+			//logicalWorld.r[2].m128_f32[2] *= 2.0f;
 		camViewTranslationPlane->setWorld(XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_logical()));
+		
+		Data::Camera *camData = SETTINGS()->entity_camera->fetchData<Data::Camera>();
+		XMVECTOR camLookVector = camData->getLookVector();
+		camViewTranslationPlane->setPlaneOrientation(camLookVector);
 	}
 	else
 	{
@@ -476,13 +488,21 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 	}
 	else if(currentlySelectedPlane)
 	{
+		//if(currentlySelectedPlane == camViewTranslationPlane)
+		//{
+		//	updateWorld();
+		//	Data::Camera *camData = SETTINGS()->entity_camera->fetchData<Data::Camera>();
+		//	XMVECTOR camLookVector = camData->getLookVector();
+		//	camViewTranslationPlane->setPlaneOrientation(-camLookVector);
+		//}
+
 		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView);
 
 		transDelta = currentlySelectedPlane->getLastTranslationDelta();
 
 		float scaleFactor = scale;
-		if(currentlySelectedPlane == camViewTranslationPlane)
-			scaleFactor = 1.0f;
+		//if(currentlySelectedPlane == camViewTranslationPlane)
+		//	scaleFactor *= 2.0f;
 
 		Vector3 newTranslation;
 		
@@ -612,33 +632,32 @@ bool Tool_Translation::getIsVisible()
 	return isVisible;
 }
 
-void Tool_Translation::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector)
+void Tool_Translation::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector, XMFLOAT3 &camRightVector)
 {
 	XMVECTOR loadedCamViewVector = XMLoadFloat3(&camViewVector);
 	XMVECTOR loadedCamUpVector = XMLoadFloat3(&camUpVector);
-	XMVECTOR camRightVector = XMVector3Cross(loadedCamUpVector, loadedCamViewVector);
+	XMVECTOR loadedCamRightVector = XMLoadFloat3(&camRightVector); //XMVector3Cross(loadedCamUpVector, loadedCamViewVector);
 
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[0], camRightVector);
+	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[0], loadedCamRightVector);
 	world_viewPlaneTranslationControl_logical.m[0][3] = 0.0f;
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[1], loadedCamUpVector);
 	world_viewPlaneTranslationControl_logical.m[1][3] = 0.0f;
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[2], loadedCamViewVector);
 	world_viewPlaneTranslationControl_logical.m[2][3] = 0.0f;
 
-	world_viewPlaneTranslationControl_logical._41 = world.m[3][0];
-	world_viewPlaneTranslationControl_logical._42 = world.m[3][1];
-	world_viewPlaneTranslationControl_logical._43 = world.m[3][2];
-	world_viewPlaneTranslationControl_logical._44 = world.m[3][3];
+	Vector3 activeEntityPos = activeEntity->fetchData<Data::Transform>()->position;
+	world_viewPlaneTranslationControl_logical._41 = activeEntityPos.x; //world.m[3][0];
+	world_viewPlaneTranslationControl_logical._42 = activeEntityPos.y; //world.m[3][1];
+	world_viewPlaneTranslationControl_logical._43 = activeEntityPos.z; //world.m[3][2];
+	world_viewPlaneTranslationControl_logical._44 = 1.0f; //world.m[3][3];
 
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[0], camRightVector);
+	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[0], loadedCamRightVector);
 	world_viewPlaneTranslationControl_visual.m[0][3] = 0.0f;
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[1], loadedCamUpVector);
 	world_viewPlaneTranslationControl_visual.m[1][3] = 0.0f;
 	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[2], loadedCamViewVector);
 	world_viewPlaneTranslationControl_visual.m[2][3] = 0.0f;
 
-	
-	Vector3 activeEntityPos = activeEntity->fetchData<Data::Transform>()->position;
 	world_viewPlaneTranslationControl_visual._41 = activeEntityPos.x;
 	world_viewPlaneTranslationControl_visual._42 = activeEntityPos.y;
 	world_viewPlaneTranslationControl_visual._43 = activeEntityPos.z;
@@ -997,7 +1016,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Indices.size();
+	ibd.ByteWidth = sizeof(UINT) * meshVertices.Indices.size();
     ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
@@ -1198,6 +1217,73 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 		listOfTrianglesAsPoints.clear();
 
 		meshVertices.Vertices.clear();
+		meshVertices.Indices.clear();
+
+	// Init guiding lines...
+
+	float lengthOfLine = 3000.0f;
+	XMMATRIX localSpaceTrans;
+	XMVECTOR endPointA;
+	XMVECTOR endPointB;
+	XMVECTOR colorA;
+	XMVECTOR colorB;
+
+	// X guiding line.
+
+	localSpaceTrans = XMMatrixIdentity();
+	endPointA = XMVectorSet(-lengthOfLine, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(lengthOfLine, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+	colorB = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_xAxisLine_VB));
+
+	meshVertices.Vertices.clear();
+
+	// Y guiding line.
+
+	localSpaceTrans = XMMatrixRotationZ(-Math::Pi / 2);
+	endPointA = XMVectorSet(-lengthOfLine, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(+lengthOfLine, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
+	colorB = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_yAxisLine_VB));
+
+	meshVertices.Vertices.clear();
+
+	// Z guiding line.
+
+	localSpaceTrans = XMMatrixRotationY(Math::Pi / 2);
+	endPointA = XMVectorSet(-lengthOfLine, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(+lengthOfLine, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
+	colorB = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshTransTool_zAxisLine_VB));
+
+	meshVertices.Vertices.clear();
 }
 
 void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
@@ -1258,71 +1344,178 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			//
 			//	md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	
 	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
+	if(!isSelected || currentlySelectedPlane == yzTranslationPlane || currentlySelectedPlane == yzTranslationPlane2)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yzPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
+		if(isSelected)
+		{
+			// Draw guiding lines.
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+		}
+	}
+
+
+	if(!isSelected || currentlySelectedPlane == zxTranslationPlane || currentlySelectedPlane == zxTranslationPlane2)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
+		if(isSelected)
+		{
+			// Draw guiding lines.
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+		}
+	}
+
+	if(!isSelected || currentlySelectedPlane == xyTranslationPlane || currentlySelectedPlane == xyTranslationPlane2)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyPlane2_VB, &stride, &offset);
 		md3dImmediateContext->Draw(5, 0);
 
+		if(isSelected)
+		{
+			// Draw guiding lines.
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+		}
+	}
+
 	// Draw arrows.
 
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisArrow_VB, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisArrow_IB, DXGI_FORMAT_R32_UINT, offset);
-	md3dImmediateContext->DrawIndexed(660, 0, 0);
+
+	if(!isSelected || currentlySelectedAxis == xTranslationAxisHandle
+				   || currentlySelectedAxis == xTranslationAxisHandle2
+				   || currentlySelectedPlane == xyTranslationPlane
+				   || currentlySelectedPlane == xyTranslationPlane2
+				   || currentlySelectedPlane == zxTranslationPlane
+				   || currentlySelectedPlane == zxTranslationPlane2)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisArrow_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisArrow2_VB, &stride, &offset);
 		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow_VB, &stride, &offset);
-	md3dImmediateContext->DrawIndexed(660, 0, 0);
+		if(isSelected)
+		{
+			// Draw guiding lines.
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+		}
+	}
+
+	if(!isSelected || currentlySelectedAxis == yTranslationAxisHandle
+				   || currentlySelectedAxis == yTranslationAxisHandle2
+				   || currentlySelectedPlane == yzTranslationPlane
+				   || currentlySelectedPlane == yzTranslationPlane2
+				   || currentlySelectedPlane == xyTranslationPlane
+				   || currentlySelectedPlane == xyTranslationPlane2)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisArrow2_VB, &stride, &offset);
 		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow_VB, &stride, &offset);
-	md3dImmediateContext->DrawIndexed(660, 0, 0);
+		if(isSelected)
+		{
+			// Draw guiding lines.
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+		}
+	}
+
+	if(!isSelected || currentlySelectedAxis == zTranslationAxisHandle
+				   || currentlySelectedAxis == zTranslationAxisHandle2
+				   || currentlySelectedPlane == zxTranslationPlane
+				   || currentlySelectedPlane == zxTranslationPlane2
+				   || currentlySelectedPlane == yzTranslationPlane
+				   || currentlySelectedPlane == yzTranslationPlane2)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(660, 0, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisArrow2_VB, &stride, &offset);
 		md3dImmediateContext->DrawIndexed(660, 0, 0);
+
+		if(isSelected)
+		{
+			// Draw guiding lines.
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisLine_VB, &stride, &offset);
+			md3dImmediateContext->Draw(2, 0);
+		}
+	}
 	
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	if(!isSelected || currentlySelectedPlane == camViewTranslationPlane)
+	{
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
+		//md3dImmediateContext->OMSetDepthStencilState(RenderStates::GreaterEqualDSS, 0);
 
-	XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
+		XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewPlaneTranslationControl_visual());
 
-	float scale = getScale();
-	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+		float scale = getScale();
+		XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
-	worldViewProj = viewControlWorld * camView * camProj;
-	worldViewProj = XMMatrixTranspose(worldViewProj);
+		worldViewProj = viewControlWorld * camView * camProj;
+		worldViewProj = XMMatrixTranspose(worldViewProj);
 
-	WVP.WVP = worldViewProj;
-	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+		WVP.WVP = worldViewProj;
+		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+		md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
-	md3dImmediateContext->Draw(5, 0);
-
-	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary:
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);
+		md3dImmediateContext->Draw(5, 0);
+	}
 }
