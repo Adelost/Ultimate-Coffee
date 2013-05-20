@@ -46,11 +46,11 @@ void System::Input::update()
 	if(walk!=0.0f)
 		d_camera->walk(d_transform->position, walk);
 	// Update rotation
-	d_transform->rotation = d_camera->rotation(d_transform->position);
+	d_transform->rotation = d_camera->rotation();
 	d_camera->updateViewMatrix(d_transform->position);
 
 	// Update camera
-	d_transform->rotation = d_camera->rotation(d_transform->position);
+	d_transform->rotation = d_camera->rotation();
 	d_camera->updateViewMatrix(d_transform->position);
 
 

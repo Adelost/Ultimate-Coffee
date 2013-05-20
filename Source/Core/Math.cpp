@@ -41,3 +41,8 @@ DirectX::SimpleMath::Vector3 Math::randomVector()
 
 	return v;
 }
+
+int Math::round( float value )
+{
+	return int(value+0.5f);
+}

@@ -18,6 +18,9 @@ namespace Data
 		float m_fov;
 		float m_nearPlane;
 
+		Vector3 m_position;
+		Quaternion m_rotation;
+
 	public:
 		Camera()
 		{
@@ -28,6 +31,8 @@ namespace Data
 
 		void updateViewMatrix(Vector3& position)
 		{
+			m_position = position;
+
 			// Keep camera's axes orthogonal to each other and of unit length.
 			m_look.Normalize();
 			m_up = m_look.Cross(m_right); m_up.Normalize();
@@ -38,19 +43,12 @@ namespace Data
 
 			// Create LookAt
 			m_mat_view = Matrix::CreateLookAt(position, position + m_look, m_up);
+
+			m_rotation = rotation();
 		}
 
-		void setLens(float p_fov_y, float p_aspectRatio, float p_nearPlane, float p_farPlane)
-		{
-			// Save properties
-			m_fov = p_fov_y;
-			m_aspectRatio = p_aspectRatio;
-			m_nearPlane = p_nearPlane;
-			m_farPlane = p_farPlane;
+		void setLens(float p_fov_y, float p_aspectRatio, float p_nearPlane, float p_farPlane);
 
-			// Set view
-			m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
-		};
 
 		void rotateX(float p_angle)
 		{
@@ -77,6 +75,7 @@ namespace Data
 			// Ray definition in view space.
 			p_rayOrigin = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 			p_rayDir    = Vector3(vx, vy, 1.0f);
+			p_rayDir.Normalize();
 		}
 
 		void getPickingRay(Vector2& p_pickedCordinate, Vector2 p_screenSize, Ray* p_ray)
@@ -112,7 +111,22 @@ namespace Data
 		{
 			p_cameraPos = p_cameraPos + m_up * p_distance;
 		}
-		BoundingFrustum toFrustum(Vector3& cameraPos, Quaternion& cameraRot);
+
+		BoundingFrustum toFrustum( Vector3& cameraPos, Quaternion& cameraRot );
+
+		BoundingFrustum getSubFrustum(FloatRectangle& window, FloatRectangle& sub_window)
+		{
+
+			float sub_w_aspectRatio = sub_window.size.yRatio();
+			float sub_w_sizeYRatio = sub_window.sizeY() / window.sizeY();
+			float sub_w_fov = m_fov * sub_w_sizeYRatio;
+
+			// Compute sub window rotation from the angle of the center of the windows
+			Matrix projection = Matrix::CreatePerspectiveFieldOfView(sub_w_fov, sub_w_aspectRatio, m_nearPlane, m_farPlane);
+			BoundingFrustum out(projection);
+
+			return out;
+		}
 
 
 	public:
@@ -137,7 +151,7 @@ namespace Data
 		{
 			return m_mat_projection;
 		}
-		Quaternion rotation(Vector3& position);
+		Quaternion rotation();
 	};
 }
 

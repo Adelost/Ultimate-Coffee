@@ -388,7 +388,7 @@ void Tool_MultiSelect::onEvent( Event* event )
 	case EVENT_MOUSE_PRESS:
 		{
 			// Stop "using" the tool if user releases LeftMouseButton
-			int limit = 100;
+			int limit = 10;
 			if(used)
 			{
 				Event_MousePress* e = static_cast<Event_MousePress*>(event);
@@ -405,11 +405,18 @@ void Tool_MultiSelect::onEvent( Event* event )
 						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
+						// Compute sub frustum
+						FloatRectangle window(Float2(0, 0), Float2(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y));
+						FloatRectangle sub_window(Float2(rubberBand->x(), rubberBand->y()), Float2(rubberBand->width(), rubberBand->height()));
+						BoundingFrustum subFrustum = d_camera->getSubFrustum(window, sub_window);
+						subFrustum.Origin = d_transform->position;
+						subFrustum.Orientation = d_transform->rotation;
+
 						// Find intersected Entities
 						std::vector<Entity*> entity_list;
 						Matrix a;
-						BoundingFrustum frustum = d_camera->toFrustum(d_transform->position, d_transform->rotation);
-						Data::Bounding::intersect(frustum, &entity_list);
+						
+						Data::Bounding::intersect(subFrustum, &entity_list);
 
 						// Select all entities
 						for(int i=0; i<entity_list.size(); i++)
