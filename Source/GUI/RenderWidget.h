@@ -4,11 +4,16 @@
 #include <Core/IObserver.h>
 #include <QKeyEvent>
 #include <QMouseEvent> // needed to grabb mouse input
+class QRubberBand;
 class Event;
+class Tool_MultiSelect;
 
 class RenderWidget : public QWidget, public IObserver
 {
 	Q_OBJECT
+
+private:
+	Tool_MultiSelect* multiSelect;
 
 public:
 	RenderWidget(QWidget* p_parent);
@@ -34,4 +39,18 @@ protected:
 	void keyReleaseEvent(QKeyEvent* p_event);
 	void setKeyState(QKeyEvent* p_event, bool p_pressed);
 	void setMouseState(QMouseEvent* p_event, bool p_pressed);
+};
+
+class Tool_MultiSelect : public QObject, public IObserver
+{
+	Q_OBJECT
+
+public:
+	QRubberBand* rubberBand;
+	Int2 origin;
+	bool used;
+
+public:
+	Tool_MultiSelect(QWidget* parent);
+	void onEvent(Event* e);
 };

@@ -4,6 +4,7 @@
 #include <Core/Data_Camera.h>
 #include <Core/Command_CreateEntity.h>
 #include <QApplication.h>
+#include <QRubberBand>
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
@@ -16,6 +17,9 @@ RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_WINDOW_HANDLE);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_CURSOR_POSITION);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_CURSOR);
+	
+
+	multiSelect = new Tool_MultiSelect(this);
 }
 
 RenderWidget::~RenderWidget()
@@ -72,6 +76,13 @@ void RenderWidget::onEvent( Event* p_event )
 			}
 		}
 		break;
+	case EVENT_START_MULTISELECT:
+		{
+			Int2 position = static_cast<Event_SetCursorPosition*>(p_event)->position;
+			QPoint globalPosition = QWidget::mapToGlobal(QPoint(position.x, position.y));
+			QCursor::setPos(globalPosition);
+		}
+		break;
 	default:
 		break;
 	}
@@ -104,7 +115,7 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	{
 		Data::Camera* d_camera = map_camera.next();
 		float aspectRatio =  static_cast<float>(width)/height;
-		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 1.0f, 3000.0f);
+		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 0.1f, 3000.0f);
 	}
 
 	// Notify rest of code
@@ -313,16 +324,16 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 
 	// HACK: Place Entities if EntityTool is selected
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry && !SETTINGS()->button.key_ctrl)
 	{
 		// Compute picking ray to place Entities onto
-		Vector2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
+		Float2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
 		Ray r;
 
 		Entity* cam = CAMERA_ENTITY().asEntity();
 		Data::Transform* d_transform = cam->fetchData<Data::Transform>();
 		Data::Camera* d_camera = cam->fetchData<Data::Camera>();
-		d_camera->getPickingRay(Vector2(pos.x(), pos.y()), windowSize, &r);
+		d_camera->getPickingRay(Float2(pos.x(), pos.y()), windowSize, &r);
 
 		// Translate ray to world space
 		Matrix mat_world = d_transform->toRotPosMatrix();
@@ -339,5 +350,86 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			// Add to history
 			SEND_EVENT(&Event_StoreCommandInCommandHistory(new Command_CreateEntity(entity), false));
 		}
+	}
+}
+
+Tool_MultiSelect::Tool_MultiSelect( QWidget* parent ) : QObject(parent)
+{
+	used = false;
+	rubberBand = new QRubberBand(QRubberBand::Rectangle, parent);
+	SUBSCRIBE_TO_EVENT(this, EVENT_START_MULTISELECT);
+	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_MOVE);
+	SUBSCRIBE_TO_EVENT(this, EVENT_MOUSE_PRESS);
+}
+
+void Tool_MultiSelect::onEvent( Event* event )
+{
+	EventType type = event->type();
+	switch (type)
+	{
+	case EVENT_START_MULTISELECT:
+		{
+			origin = SETTINGS()->lastMousePosition;
+			rubberBand->setGeometry(QRect(QPoint(origin.x, origin.y), QSize()));
+			rubberBand->show();
+			used = true;
+		}
+		break;
+	case EVENT_MOUSE_MOVE:
+		{
+			if(used)
+			{
+				Int2 pos = SETTINGS()->lastMousePosition;
+				QRect size = QRect(QPoint(pos.x, pos.y), QPoint(origin.x, origin.y)).normalized();
+				rubberBand->setGeometry(size);
+			}
+		}
+		break;
+	case EVENT_MOUSE_PRESS:
+		{
+			// Stop "using" the tool if user releases LeftMouseButton
+			int limit = 10;
+			if(used)
+			{
+				Event_MousePress* e = static_cast<Event_MousePress*>(event);
+				if(e->keyEnum == Enum::QtKeyPress_MouseLeft && !e->isPressed)
+				{
+					used = false;
+					rubberBand->hide();
+
+					// Perform selection
+					if(rubberBand->width() > limit || rubberBand->height() > limit)
+					{
+						// Fetch camera
+						Entity* entity_camera = CAMERA_ENTITY().asEntity();
+						Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+						Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+						// Compute sub frustum
+						FloatRectangle window(Float2(0, 0), Float2(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y));
+						FloatRectangle sub_window(Float2(rubberBand->x(), rubberBand->y()), Float2(rubberBand->width(), rubberBand->height()));
+						// Height/Width needs to be larger than 0 to construct frustum
+						if(sub_window.size.x < 1)
+							sub_window.size.x = 1;
+						if(sub_window.size.y < 1)
+							sub_window.size.y = 1;
+						BoundingFrustum subFrustum = d_camera->getSubFrustum(window, sub_window);
+
+						// Find intersected Entities
+						std::vector<Entity*> entity_list;
+						Data::Bounding::intersect(subFrustum, &entity_list);
+
+						// Select all entities
+						for(int i=0; i<entity_list.size(); i++)
+						{
+							Data::Selected::select(entity_list[i]);
+						}
+					}
+				}
+			}
+		}
+		break;
+	default:
+		break;
 	}
 }

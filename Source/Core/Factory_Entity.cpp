@@ -39,6 +39,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
+		d_transform->scale = Vector3(3.0f, 1.0f, 1.0f);
 		d_transform->position.x = Math::randomFloat(-0.0f, 1.0f);
 		d_transform->position.y = Math::randomFloat(-0.2f, 0.2f);
 		d_transform->position.z = Math::randomFloat(-0.0f, 1.0f);

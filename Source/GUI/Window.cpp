@@ -20,6 +20,7 @@ void Window::init()
 	m_ui = new Ui::MainWindow();
 	m_ui->setupUi(this);
 	setDockOptions(AllowNestedDocks | AllowTabbedDocks);
+	setContextMenuPolicy(Qt::PreventContextMenu);
 	setIconSize(QSize(20, 20));
 	setWindowTitle("Ultimate Coffee");
 
@@ -165,7 +166,7 @@ SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate 
 	parent->addDockWidget(Qt::RightDockWidgetArea, this);
 	setFloating(true);
 	setAllowedAreas(Qt::NoDockWidgetArea);
-	setFixedSize(180, 100);
+	setFixedSize(180, 130);
 	move(parent->x() + parent->width()/2 - width()/2, parent->y() +  + parent->height()/2 - height()/2);
 
 	// Create buttons
@@ -183,6 +184,20 @@ SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate 
 	b = new QPushButton("Recent");
 	connect(b, SIGNAL(clicked()), this, SLOT(recentFile()));
 	l->addWidget(b);
+	{
+		//QHBoxLayout* hl = new QHBoxLayout();
+		//QLayout* hl = new QHBoxLayout();
+		//l->addWidget(new QLabel("     "));
+		//hl->addWidget(new QCheckBox("Show at Startup2"));
+		//hl->addItem(new QSpacerItem(2000, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		QCheckBox* cb = new QCheckBox("Show at Startup");
+		cb->setChecked(true);
+
+		//hl->addWidget(w);
+		l->addWidget(cb);
+		//l->addItem(hl);
+	}
+
 	
 
 	/*

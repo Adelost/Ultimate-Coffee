@@ -18,6 +18,11 @@ public:
 	static float randomFloat(float p_min, float p_max);
 	static Vector3 randomDirection();
 	static Vector3 randomVector();
+	static int round(float value);
+	static float atann()
+	{
+		atan(Pi);
+	}
 	static void getPickingRay(int sx, int sy, XMVECTOR &rayOrigin, XMVECTOR &rayDir);
 	static const float Pi;
 };
@@ -46,6 +51,61 @@ class Float2
 public:
 	float x;
 	float y;
+
+public:
+	Float2()
+	{
+		x = 0;
+		y = 0;
+	}
+	Float2(float p_x, float p_y)
+	{
+		x = p_x;
+		y = p_y;
+	}
+	const float yRatio()
+	{
+		return x/y;
+	}
+};
+
+class FloatRectangle
+{
+public:
+	Float2 position;
+	Float2 size;
+
+public:
+	FloatRectangle(){}
+	FloatRectangle(Float2 position, Float2 size)
+	{
+		this->position = position;
+		this->size = size;
+	}
+
+public:
+	float x()
+	{
+		return position.x;
+	}
+	float y()
+	{
+		return position.y;
+	}
+	float sizeX()
+	{
+		return size.x;
+	}
+	float sizeY()
+	{
+		return size.y;
+	}
+	Float2 center()
+	{
+		Float2 out(x() + sizeX()/2, y() + sizeY()/2);
+
+		return out;
+	}
 };
 
 struct MyRectangle

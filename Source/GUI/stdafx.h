@@ -36,3 +36,4 @@
 #include <QDir>
 #include <QSplitter>
 #include <QPushButton>
+#include <QCheckBox>

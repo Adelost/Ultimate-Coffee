@@ -17,3 +17,9 @@ Source/GUI/GeneratedFiles/
 #==================
 *.uc
 *.789
+
+#TEMP FILES
+#==================
+*.BASE.cpp
+*.LOCAL.cpp
+*.REMOTE.cpp
