@@ -347,7 +347,14 @@ QSplitter::handle
 QDockWidget
 {
 	background-color: #282828;
+}
+QCheckBox
+{
+ 	color: #f5f5f5;
 }</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
@@ -409,8 +416,28 @@ QDockWidget
      </property>
     </column>
    </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>100</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="text">
+     <string>CheckBox</string>
+    </property>
+   </widget>
    <zorder>treeWidget</zorder>
    <zorder>tabWidget</zorder>
+   <zorder>checkBox</zorder>
   </widget>
   <widget class="QToolBar" name="contextBar">
    <attribute name="toolBarArea">

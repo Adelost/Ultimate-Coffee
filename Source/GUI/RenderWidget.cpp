@@ -408,12 +408,15 @@ void Tool_MultiSelect::onEvent( Event* event )
 						// Compute sub frustum
 						FloatRectangle window(Float2(0, 0), Float2(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y));
 						FloatRectangle sub_window(Float2(rubberBand->x(), rubberBand->y()), Float2(rubberBand->width(), rubberBand->height()));
+						// Height/Width needs to be larger than 0 to construct frustum
+						if(sub_window.size.x < 1)
+							sub_window.size.x = 1;
+						if(sub_window.size.y < 1)
+							sub_window.size.y = 1;
 						BoundingFrustum subFrustum = d_camera->getSubFrustum(window, sub_window);
 
 						// Find intersected Entities
 						std::vector<Entity*> entity_list;
-						Matrix a;
-						
 						Data::Bounding::intersect(subFrustum, &entity_list);
 
 						// Select all entities

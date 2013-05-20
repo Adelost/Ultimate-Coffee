@@ -65,8 +65,7 @@ DirectX::BoundingFrustum Data::Camera::getSubFrustum( FloatRectangle& window, Fl
 	Vector3 sub_w_dir = sub_w_ray.direction;
 
 	// Create rotation matrix from the two vectors
-	Vector3 asd = sub_w_dir.Cross(m_right);
-	Matrix mat_subRot = Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 0.0f), sub_w_dir, asd);
+	Matrix mat_subRot = Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 0.0f), sub_w_dir, m_up);
 	mat_subRot = mat_subRot.Invert();
 	Quaternion qua_subRot = Quaternion::CreateFromRotationMatrix(mat_subRot);
 
