@@ -67,7 +67,7 @@ public:
 	~SplashScreen();
 
 public slots:
-	void newFile();
-	void openFile();
-	void recentFile();
+	void newProject();
+	void loadProject();
+	void loadRecentProject();
 };

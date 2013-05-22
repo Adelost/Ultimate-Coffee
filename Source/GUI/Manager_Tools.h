@@ -37,5 +37,5 @@ public slots:
 	void coffee();
 	void createAsteroids();
 	void createAsteroid();
-	void newLevel();
+	void newProject();
 };

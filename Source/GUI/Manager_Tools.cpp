@@ -33,7 +33,7 @@ void Manager_Tools::setupToolbar()
 	//path = iconPath + "Menu/new";
 	//a->setIcon(QIcon(path.c_str())); 
 	a->setShortcuts(QKeySequence::New);
-	connect(a, SIGNAL(triggered()), this, SLOT(newLevel()));
+	connect(a, SIGNAL(triggered()), this, SLOT(newProject()));
 
 	// Exit
 	a = m_ui->actionQuit;
@@ -174,9 +174,9 @@ void Manager_Tools::createAsteroids()
 	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
 }
 
-void Manager_Tools::newLevel()
+void Manager_Tools::newProject()
 {
-	SEND_EVENT(&Event(EVENT_NEW_LEVEL));
+	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 }
 
 void Manager_Tools::createAsteroid()

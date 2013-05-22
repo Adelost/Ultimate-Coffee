@@ -13,7 +13,7 @@ class Command;
 // *Store and execute command (tryToAddCommandToHistoryAndExecute)
 // *Save command history to file (tryToSaveCommandHistory)
 // *Load command history from file (tryToLoadCommandHistory)
-// *Print command history information to std::cout (printCommandHistory)
+// *Print command history text information to std::cout or to file (printCommandHistory)
 // *Jump to certain index in command history (tryToJumpInCommandHistory)
 //--------------------------------------------------------------------------------------
 class Commander
@@ -47,6 +47,10 @@ public:
 	// Prints command list to "std::cout"
 	void printCommandHistory();
 
+	// Print command list to file at "path"
+	void printCommandHistory(std::string path);
+
+	void reset();
 	int getCurrentCommandIndex();
 	int getNrOfCommands();
 };

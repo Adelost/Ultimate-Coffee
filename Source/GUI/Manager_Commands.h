@@ -28,8 +28,10 @@ private:
 
 	bool storeCommandInCommandHistory(Command* command, bool execute);
 	void updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd);
-	void jumpInCommandHistory(int commandHistoryIndex);
+	bool jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
+	void loadCommandHistory(std::string path);
+	void saveCommandHistory(std::string path);
 
 public:
 	void init();
@@ -40,9 +42,9 @@ public slots:
 	void redoLatestCommand();
 	void undoLatestCommand();
 
-	void saveCommandHistory();
-	void saveCommandHistoryAs();
-	void loadCommandHistory();
+	void quicksaveCommandHistory();
+	void saveProjectFileDialog();
+	void loadProjectFileDialog();
 	void loadRecentCommandHistory();
 	
 	void createTestButton( QString color, QSignalMapper* mapper );

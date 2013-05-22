@@ -23,7 +23,6 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
-	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_LEVEL);
 	
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
@@ -153,12 +152,17 @@ void Manager_Docks::setupMenu()
 	dock = createDock("History", Qt::LeftDockWidgetArea);
 	m_commandHistoryListWidget = new QListWidget(dock);
 	connectCommandHistoryWidget(true);
+
+	connect(m_commandHistoryListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(commandHistoryItemClicked(QListWidgetItem *)));
+
 	dock->setWidget(m_commandHistoryListWidget);
 
 	// Item Browser
-	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
-	m_itemBrowser = new ItemBrowser(dock);
-	dock->setWidget(m_itemBrowser);
+
+	// Commented out as of 2013-05-22 22.09. Reason: functionality missing
+	//dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
+	//m_itemBrowser = new ItemBrowser(dock);
+	//dock->setWidget(m_itemBrowser);
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
@@ -336,7 +340,7 @@ void Manager_Docks::onEvent(Event* e)
 			{
 			case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
 				{
-					commandText = "Backbuffer color";
+					commandText = "Background color";
 					Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
 				
 					float x = changeBackBufferColorEvent->getDoColorX() * 255;
@@ -351,7 +355,7 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
 				{
-					commandText = "Translating";
+					commandText = "Translation";
 					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
 
 					std::string iconPath = ICON_PATH;
@@ -381,7 +385,7 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			case Enum::CommandType::SKYBOX:
 				{
-					commandText = "Skybox";
+					commandText = "Skybox toggle";
 					
 					std::string iconPath = ICON_PATH;
 					iconPath += "Options/Skybox";
@@ -391,7 +395,7 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			case Enum::CommandType::CREATE_ENTITY:
 				{
-					commandText = "Create entity";
+					commandText = "Entity creation";
 
 					std::string iconPath = ICON_PATH;
 					iconPath += "Tools/Geometry";
@@ -401,7 +405,7 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			case Enum::CommandType::REMOVE_ENTITY:
 				{
-					commandText = "Remove entity";
+					commandText = "Entity removal";
 
 					std::string iconPath = ICON_PATH;
 					iconPath += "Tools/Remove";
@@ -433,15 +437,26 @@ void Manager_Docks::onEvent(Event* e)
 		{
 			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
 			int index = selectionEvent->indexOfCommand;
-
-			if(index == -1) // Special case: jump out of history
+			if(index > -1)
 			{
-				//m_commandHistoryListWidget->item(m_commandHistoryListWidget->count()-1)->setSelected(false);
-				m_commandHistoryListWidget->item(0)->setSelected(false);
+				m_commandHistoryListWidget->setCurrentRow(index);
 			}
 			else
 			{
-				m_commandHistoryListWidget->setCurrentRow(index);
+				// Note: do not call "setCurrentRow" with a negative value. It will deselect all list items as intended, but then it resets itself to zero causing an unwanted SIGNAL that was harder to disconnect than when disconnected under "EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI". Just avoid it.
+
+				int nrOfItems = m_commandHistoryListWidget->count();
+				int itemIndex = 0;
+				QListWidgetItem* item;
+				do
+				{
+					item = m_commandHistoryListWidget->item(itemIndex);
+					itemIndex++;
+				}
+				while(item->isHidden() && itemIndex < nrOfItems);
+
+				// Deselect first visible command in the command history list
+				item->setSelected(false);
 			}
 		}
 		break;
@@ -459,13 +474,6 @@ void Manager_Docks::onEvent(Event* e)
 			connectCommandHistoryWidget(true);
 		}
 		break;
-	case EVENT_NEW_LEVEL:
-		{
-			connectCommandHistoryWidget(false);
-			m_commandHistoryListWidget->clear();
-			connectCommandHistoryWidget(true);
-		}
-		break;
 	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
 		{
 			Event_GetNextOrPreviousVisibleCommandRowInCommandHistory* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistory*>(e);
@@ -474,6 +482,15 @@ void Manager_Docks::onEvent(Event* e)
 
 			int nrOfRows = m_commandHistoryListWidget->count();
 			int currentRow = m_commandHistoryListWidget->currentRow();
+			
+			// Special case: "m_commandHistoryListWidget->currentRow()" returns 0 when the current row is zero AND when the current row is set to a negative value through "setCurrentRow". When setting it to a negative value, an unwanted SIGNAl is also triggered. As a consequence it is never set to a negative value in the application code. Instead, when the "currentRow" is zero is might actually be -1.
+			// Current row might actually be -1. Check this by circumventing the GUI.
+			if(currentRow == 0)
+			{
+				Event_GetCommanderInfo returnValue;
+				SEND_EVENT(&returnValue);
+				currentRow = returnValue.indexOfCurrentCommand;
+			}
 			int addValue;
 			if(next)
 			{
@@ -645,13 +662,39 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 	Event_GetCommanderInfo* commanderInfo = new Event_GetCommanderInfo(); // Retrieve information from commander
 	SEND_EVENT(commanderInfo); //The event is assumed to have correct values below
 
-	//Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
-	int trackToCommandIndex = /*currentRow;*/Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
+	// Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
+	int trackToCommandIndex = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
 	if(commanderInfo->indexOfCurrentCommand != trackToCommandIndex)
 	{
 		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
 	}
 	delete commanderInfo;
+}
+
+void Manager_Docks::commandHistoryItemClicked(QListWidgetItem * item)
+{
+	int rowOfClickedItem = m_commandHistoryListWidget->row(item);
+	if(rowOfClickedItem == 0) // Special case "m_commandHistoryListWidget->setCurrentRow" cannot be set with a negative value, resulting in a missed command history jump when jumping from outside of history (index -1) to index 0, since "currentRow" is already 0, so the row did not change, and hence there was no history jump. Another SIGNAL: "itemClicked" is used to circumvent this problem.
+	{
+		currentCommandHistoryIndexChanged(rowOfClickedItem);
+	}
+	else
+	{
+		int nrOfItems = m_commandHistoryListWidget->count();
+		int itemIndex = rowOfClickedItem-1;
+		QListWidgetItem* item;
+		do
+		{
+			item = m_commandHistoryListWidget->item(itemIndex);
+			itemIndex--;
+		}
+		while(item->isHidden() && itemIndex > -1);
+
+		if(itemIndex == -1)
+		{
+			currentCommandHistoryIndexChanged(rowOfClickedItem);
+		}
+	}
 }
 
 void Manager_Docks::selectEntity( const QModelIndex& index )

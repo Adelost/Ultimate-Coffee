@@ -14,7 +14,7 @@ UpdateLoop::UpdateLoop()
 	m_updateTimer->reset();
 	m_world = WORLD();
 
-	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_LEVEL);
+	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_PROJECT);
 }
 
 UpdateLoop::~UpdateLoop()
@@ -32,7 +32,7 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 
 	// Init game
-	//SEND_EVENT(&Event(EVENT_NEW_LEVEL));
+	//SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 
 	// Create Entities
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
@@ -102,7 +102,7 @@ void UpdateLoop::onEvent( Event* e )
 	EventType type = e->type();
 	switch (type)
 	{
-	case EVENT_NEW_LEVEL:
+	case EVENT_NEW_PROJECT:
 		{
 			// Remove previous
 			//WORLD()->manager_entity()->clear();

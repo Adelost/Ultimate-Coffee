@@ -103,6 +103,26 @@ void Commander::printCommandHistory()
 	delete commandHistoryAsText;
 }
 
+void Commander::printCommandHistory(std::string path)
+{
+	std::stringstream* commandHistoryAsText = m_commandHistory->getCommandHistoryAsText();
+
+	std::ofstream outputFile(path);
+	if(!outputFile.is_open())
+	{
+		return;
+	}
+	outputFile << commandHistoryAsText->str() << std::endl;
+	outputFile.close();
+
+	delete commandHistoryAsText;
+}
+
+void Commander::reset()
+{
+	m_commandHistory->reset();
+}
+
 int Commander::getCurrentCommandIndex()
 {
 	return m_commandHistory->getIndexOfCurrentCommand(); 
@@ -199,7 +219,6 @@ void CommandHistory::forwardJump(int nrOfSteps)
 {
 	for(int i=0;i<nrOfSteps;i++)
 	{
-		//Command* command = getNextCommandAndIncrementCurrent();
 		setCurrentCommand(m_indexOfCurrentCommand+1);
 		Command* command = m_commands.at(m_indexOfCurrentCommand);
 		command->doRedo();
@@ -210,10 +229,9 @@ void CommandHistory::backwardJump(int nrOfSteps)
 {
 	for(int i=0;i<nrOfSteps;i++)
 	{
-		//Command* command = getCurrentCommandAndDecrementCurrent();
 		Command* command = m_commands.at(m_indexOfCurrentCommand);
-		setCurrentCommand(m_indexOfCurrentCommand-1);
 		command->undo();
+		setCurrentCommand(m_indexOfCurrentCommand-1);
 	}
 }
 
@@ -224,8 +242,6 @@ bool CommandHistory::tryToJumpInCommandHistory(int jumpToIndex)
 	{
 		return false; // Jump failed. Possible reasons: *Trying to jump to invalid index. *No commands in command history.
 	}
-
-	//check -1
 
 	int nrOfCommandsInvolvedInJump = 0;
 	if(m_indexOfCurrentCommand > -1) // Normal case: some command is current
@@ -390,24 +406,21 @@ std::stringstream* CommandHistory::getCommandHistoryAsText()
 	*text << "Byte size: " << calculateSerializedByteSize() << "\n";
 	*text << "Number of commands: " << nrOfCommands << "\n";
 	*text << "Index of current command: " << m_indexOfCurrentCommand << "\n";
-//	*text << "Format of command list below: index, type, byte size\n";
-// 	for(int i=0;i<nrOfCommands;i++)
-// 	{
-// 		Command* command = m_commands.at(i);
-// 		int type = command->getType();
-// 		int size = command->getByteSizeOfDataStruct();
-// 		*text << i << ", " << type << ", " << size << "\n";
-// 	}
+	*text << "Format of command list below: index, type, byte size\n";
+ 	for(int i=0;i<nrOfCommands;i++)
+ 	{
+ 		Command* command = m_commands.at(i);
+ 		int type = command->getType();
+ 		int size = command->getByteSizeOfDataStruct();
+ 		*text << i << ", " << type << ", " << size << "\n";
+ 	}
 	*text << "--------------------------------------\n";
 	return text;
 }
 
 void CommandHistory::reset()
 {
-	if(!tryToJumpInCommandHistory(0))
-	{
-		MESSAGEBOX("Failed to reset command history");
-	}
+	tryToJumpInCommandHistory(-1);
 	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
