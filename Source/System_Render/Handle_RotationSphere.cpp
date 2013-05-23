@@ -8,6 +8,9 @@ Handle_RotationSphere::Handle_RotationSphere(XMVECTOR center, float radius /*, H
 	XMStoreFloat3(&sphere.Center, center);
 	sphere.Radius = radius;
 
+
+	rotationShouldBeConstrainedToOneFixedAxis = false;
+	fixedAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	//this->windowHandle = windowHandle;
 }
 
@@ -190,8 +193,24 @@ void Handle_RotationSphere::calcLastRotationQuaternion()
 	XMVECTOR loadedCurrentlyPickedPointOnSphere = XMLoadFloat3(&currentlyPickedPointOnSphere);
 	XMVECTOR loadedFirstPickedPointOnSphere = XMLoadFloat3(&firstPickedPointOnSphere);
 
-	XMVECTOR rotationAxis = calcRotationAxisFromTwoPointsOnSphere(sphere, loadedFirstPickedPointOnSphere, loadedCurrentlyPickedPointOnSphere);
-	float rotationAngle = calcAngleBetweenTwoPointsOnSphere(sphere, loadedFirstPickedPointOnSphere, loadedCurrentlyPickedPointOnSphere); // MathHelper::Pi * 0.8432f is approx. as big as the rotation angle gets.
+	float rotationAngle;
+	XMVECTOR rotationAxis;
+
+	if(rotationShouldBeConstrainedToOneFixedAxis)
+	{
+		XMVECTOR planeNormal = XMLoadFloat3(&fixedAxis); //XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		float distA = XMVector3Dot(loadedCurrentlyPickedPointOnSphere, planeNormal).m128_f32[0];
+		float distB = XMVector3Dot(loadedFirstPickedPointOnSphere, planeNormal).m128_f32[0];
+		XMVECTOR projectedPointA = loadedCurrentlyPickedPointOnSphere - distA * planeNormal;
+		XMVECTOR projectedPointB = loadedFirstPickedPointOnSphere - distB * planeNormal;
+		rotationAngle = XMVector3AngleBetweenVectors(projectedPointA, projectedPointB).m128_f32[0];
+		rotationAxis = calcRotationAxisFromTwoPointsOnSphere(sphere, projectedPointB, projectedPointA); //rotationAxis = XMVectorSet(0.0f, 1.0f, 0.0f, .0f);
+	}
+	else
+	{
+		rotationAxis = calcRotationAxisFromTwoPointsOnSphere(sphere, loadedFirstPickedPointOnSphere, loadedCurrentlyPickedPointOnSphere);
+		rotationAngle = calcAngleBetweenTwoPointsOnSphere(sphere, loadedFirstPickedPointOnSphere, loadedCurrentlyPickedPointOnSphere); // MathHelper::Pi * 0.8432f is approx. as big as the rotation angle gets.
+	}
 
 	BOOL rotationAxisIsAllZeroes = XMVector3Equal(rotationAxis, XMVectorZero());
 	if(rotationAxisIsAllZeroes == TRUE) // This occurs when firstPickedPoint == currentlyPickedPoint (only then?), in which case an arbitrary rotation axis and a 0 radian "angle" is chosen.
@@ -199,7 +218,7 @@ void Handle_RotationSphere::calcLastRotationQuaternion()
 		rotationAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 		rotationAngle = 0.0f;
 	}
-
+	
 	XMStoreFloat4(&lastQuaternionRotationMade, XMQuaternionRotationAxis(rotationAxis, -rotationAngle));
 }
 
@@ -217,4 +236,10 @@ void Handle_RotationSphere::setWorld(XMMATRIX &world)
 void Handle_RotationSphere::unselect()
 {
 	isSelected = false;
+}
+
+void Handle_RotationSphere::constrainRotationToOneFixedAxis(bool rotationShouldBeConstrainedToOneFixedAxis, XMVECTOR fixedAxis)
+{
+	this->rotationShouldBeConstrainedToOneFixedAxis = rotationShouldBeConstrainedToOneFixedAxis;
+	XMStoreFloat3(&this->fixedAxis, fixedAxis);
 }

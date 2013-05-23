@@ -62,7 +62,17 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 		if(aSingleAxisRotationHandleWasSelected)
 		{
-			currentlySelectedHandle = xRotationHandle;
+			currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
+			omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+
+			XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+			XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+			XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+			xAxis = XMVector3Transform(xAxis, rotation);
+			xAxis = XMVector3Normalize(xAxis);
+
+			omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
 			aRotationToolHandleWasSelected = true;
 		}
 		
@@ -71,7 +81,16 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			aSingleAxisRotationHandleWasSelected = yRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = yRotationHandle;
+				currentlySelectedHandle = omniRotateSphereHandle; //yRotationHandle;
+
+				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+				XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+				yAxis = XMVector3Transform(yAxis, rotation);
+				yAxis = XMVector3Normalize(yAxis);
+
+				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, yAxis);
 				aRotationToolHandleWasSelected = true;
 			}
 		}
@@ -81,7 +100,16 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			aSingleAxisRotationHandleWasSelected = zRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = zRotationHandle;
+				currentlySelectedHandle = omniRotateSphereHandle; //zRotationHandle;
+
+				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+				XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+				zAxis = XMVector3Transform(zAxis, rotation);
+				zAxis = XMVector3Normalize(zAxis);
+
+				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, zAxis);
 				aRotationToolHandleWasSelected = true;
 			}
 		}
@@ -92,6 +120,9 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			if(aSingleAxisRotationHandleWasSelected)
 			{
 				currentlySelectedHandle = viewAxisRotationHandle;
+				
+				XMVECTOR viewVectorAxis = XMVectorZero();												// TO-DO:	Get camera's view vector and use it here.
+				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
 				aRotationToolHandleWasSelected = true;
 			}
 		}
@@ -102,6 +133,9 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(sphereSelected)
 			{
+				XMVECTOR dummy = XMVectorZero();
+				omniRotateSphereHandle->constrainRotationToOneFixedAxis(false, dummy);
+
 				currentlySelectedHandle = omniRotateSphereHandle;
 				aRotationToolHandleWasSelected = true;
 			}
@@ -275,6 +309,9 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 			omniRotateSphereHandle->pickSphere(selectionRectangle, rayOrigin, rayDir, camView, camProj, theViewport, mouseCursorPoint);
 
 			rotQuaternion = omniRotateSphereHandle->getTotalRotationQuaternion(); //getLastRotationQuaternion();
+
+			//rotQuaternion.m128_f32[1] = 0.0f;
+			//rotQuaternion.m128_f32[2] = 0.0f;
 			
 			//XMVECTOR newRotQuat = XMQuaternionMultiply(XMLoadFloat4(&originalRotationQuatOfActiveObject), rotQuaternion);
 			//Data::Transform* transform = activeEntity->fetchData<Data::Transform>();
@@ -329,6 +366,11 @@ void Tool_Rotation::unselect()
 	// Set the controls' visual and bounding components to the active object's new position and orientation.
 	//updateWorld();
 
+	xRotationHandle->unselect();
+	yRotationHandle->unselect();
+	zRotationHandle->unselect();
+	omniRotateSphereHandle->unselect();
+	viewAxisRotationHandle->unselect();
 	currentlySelectedHandle = NULL;
 
 	std::vector<Command*> rotationCommands;
@@ -573,6 +615,9 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 			listOfLineSegmentsAsPoints.push_back(linePointB);
 		}
 	}
+
+	viewAxisRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+	listOfLineSegmentsAsPoints.clear();
 	
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataView.Vertices.size();
@@ -581,8 +626,6 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
     vbd.MiscFlags = 0;
 	vinitData.pSysMem = &circleMeshDataView.Vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_circle_VB));
-
-	viewAxisRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
 
 	color = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
 	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);

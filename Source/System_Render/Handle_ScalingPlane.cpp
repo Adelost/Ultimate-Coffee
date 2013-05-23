@@ -212,6 +212,8 @@ void Handle_ScalingPlane::pickPlane(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMAT
 	if(!shouldFlipMouseCursor)
 	{
 		XMStoreFloat3(&currentlyPickedPointOnAxisPlane, planeIntersectionPoint);
+
+
 	}
 	else
 	{
