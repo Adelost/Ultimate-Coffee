@@ -37,11 +37,11 @@ void Handle_CamViewPlane::setFirstPointOnViewPlane(POINT mouseCursorPoint)
 
 void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 {
+	currentlyPickedMousePoint = currentMouseCursorPoint;
 	int xDelta = currentMouseCursorPoint.x - firstPickedMousePoint.x;
 	int yDelta = currentMouseCursorPoint.y - firstPickedMousePoint.y;
 
 	// If flipping around the screen.
-
 	if(shouldFlipCursorAroundSceneView)
 	{
 		POINT flippedMouseCursorPoint;
@@ -49,9 +49,6 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 		flippedMouseCursorPoint.y = 0;
 		if(currentMouseCursorPoint.x <= 5)
 		{
-			mouseXDeltasMadeSoFar += xDelta;
-			mouseYDeltasMadeSoFar += yDelta;
-
 			mouseXYDeltasMadeSoFar.x += xDelta;
 			mouseXYDeltasMadeSoFar.y += yDelta;
 
@@ -71,9 +68,6 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 		}
 		else if(currentMouseCursorPoint.x >= SETTINGS()->windowSize.x - 5)
 		{
-			mouseXDeltasMadeSoFar += xDelta;
-			mouseYDeltasMadeSoFar += yDelta;
-
 			mouseXYDeltasMadeSoFar.x += xDelta;
 			mouseXYDeltasMadeSoFar.y += yDelta;
 
@@ -93,9 +87,6 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 		}
 		else if(currentMouseCursorPoint.y <= 5)
 		{
-			mouseXDeltasMadeSoFar += xDelta;
-			mouseYDeltasMadeSoFar += yDelta;
-
 			mouseXYDeltasMadeSoFar.x += xDelta;
 			mouseXYDeltasMadeSoFar.y += yDelta;
 
@@ -115,9 +106,6 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 		}
 		else if(currentMouseCursorPoint.y >= SETTINGS()->windowSize.y - 5)
 		{
-			mouseXDeltasMadeSoFar += xDelta;
-			mouseYDeltasMadeSoFar += yDelta;
-
 			mouseXYDeltasMadeSoFar.x += xDelta;
 			mouseXYDeltasMadeSoFar.y += yDelta;
 
@@ -137,20 +125,9 @@ void Handle_CamViewPlane::update(POINT currentMouseCursorPoint)
 		}
 		else
 		{
-			currentlyPickedMousePointX = currentMouseCursorPoint.x;
-			currentlyPickedMousePointY = currentMouseCursorPoint.y;
-
 			currentlyPickedMousePoint.x = currentMouseCursorPoint.x;
 			currentlyPickedMousePoint.y = currentMouseCursorPoint.y;
 		}
-	}
-	else
-	{
-		currentlyPickedMousePointX = currentMouseCursorPoint.x;
-		currentlyPickedMousePointY = currentMouseCursorPoint.y;
-
-		currentlyPickedMousePoint.x = currentMouseCursorPoint.x;
-		currentlyPickedMousePoint.y = currentMouseCursorPoint.y;
 	}
 }
 
@@ -158,23 +135,16 @@ POINT Handle_CamViewPlane::getTotalMouseCursorXYDeltas()
 {
 	POINT totalMouseXYDeltas;
 
-	//LONG test = firstPickedMousePoint.x;
+	int X = static_cast<int>(currentlyPickedMousePoint.x - firstPickedMousePoint.x);
+	int Y = static_cast<int>(currentlyPickedMousePoint.y - firstPickedMousePoint.y);
 
-	int X = (int)(firstPickedMousePoint.x - currentlyPickedMousePointX);
-	int Y = (int)(firstPickedMousePoint.y - currentlyPickedMousePointY);
-
-	int totX = mouseXDeltasMadeSoFar + X;
-	int totY = mouseXDeltasMadeSoFar + Y;
-
-	if(mouseXDeltasMadeSoFar > 0)
+	if(mouseXYDeltasMadeSoFar.x != 0)
 	{
 		int test = 4;
 	}
 
-	//mouseXDeltasMadeSoFar = 0;
-
-	totalMouseXYDeltas.x = mouseXDeltasMadeSoFar + X;
-	totalMouseXYDeltas.y = mouseYDeltasMadeSoFar + Y;
+	totalMouseXYDeltas.x = mouseXYDeltasMadeSoFar.x + X;
+	totalMouseXYDeltas.y = mouseXYDeltasMadeSoFar.y + Y;
 
 	return totalMouseXYDeltas;
 }

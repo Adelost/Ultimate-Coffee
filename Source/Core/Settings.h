@@ -2,6 +2,7 @@
 
 #include "Math.h"
 #include "EntityPointer.h"
+#include "Enums.h"
 
 typedef struct HWND__* HWND;
 class Camera;
@@ -46,7 +47,7 @@ public:
 	int DXViewPortMaxDepth;
 	Int2 lastMousePosition;
 
-	bool colorBlindnessColorSchemeIsOn;
+	Enum::ColorScheme m_ColorScheme_3DManipulatorWidgets;
 
 public:
 	Settings();

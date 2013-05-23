@@ -9,8 +9,9 @@ Settings::Settings()
 	deltaTime = 0.0f;
 	windowHandle = nullptr;
 	backBufferColor = Color(0.4f, 0.6f, 0.9f);
+	//showSkybox = true;
+	m_ColorScheme_3DManipulatorWidgets = Enum::ColorScheme::RGB;
 	m_showSkybox = true;
-	colorBlindnessColorSchemeIsOn = false;
 }
 
 Settings::~Settings()

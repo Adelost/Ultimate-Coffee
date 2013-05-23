@@ -82,7 +82,7 @@ public:
 	void initTree();
 	void onEvent(Event* e);
 public slots:
-	void loadGrid(QListWidgetItem * item);
+	void loadGrid(QListWidgetItem* item);
 	void loadGrid(int row);
 	void moveHandle()
 	{
@@ -94,4 +94,5 @@ public slots:
 		m_splitter->setSizes(sizes);
 		m_splitter->refresh();
 	}
+	void selectEntity(QListWidgetItem* item );
 };

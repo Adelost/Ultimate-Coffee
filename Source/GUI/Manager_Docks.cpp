@@ -173,6 +173,7 @@ void Manager_Docks::setupMenu()
 	tree->setModel(m_hierarchy_model);
 	dock->setWidget(tree);
 	connect(tree, SIGNAL(clicked( const QModelIndex &)), this, SLOT(selectEntity(const QModelIndex &)));
+	connect(tree, SIGNAL(entered( const QModelIndex &)), this, SLOT(selectEntity(const QModelIndex &)));
 	connect(tree, SIGNAL(doubleClicked( const QModelIndex &)), this, SLOT(focusOnEntity(const QModelIndex &)));
 
 
@@ -749,7 +750,14 @@ ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 	m_tree = new QListWidget(window);
 	m_tree->setObjectName("Item Tree");
 	m_grid = new QListWidget(window);
-	m_tree->setObjectName("Item Grid");
+	m_grid->setObjectName("Item Grid");
+	m_grid->setIconSize(QSize(65, 65));
+	m_grid->setViewMode(QListView::IconMode);
+	m_grid->setLayoutMode(QListWidget::LayoutMode::Batched);
+	m_grid->setResizeMode(QListWidget::ResizeMode::Adjust);
+	m_grid->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_grid->setMovement(QListView::Static);
+	m_grid->setWordWrap(true);
 
 	QVBoxLayout* l = new QVBoxLayout(this);
 	setLayout(l);
@@ -774,6 +782,7 @@ ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 
 	// Enable mouse click
 	connect(m_tree, SIGNAL(currentRowChanged(int)), this,  SLOT(loadGrid(int)));
+	connect(m_grid, SIGNAL(itemClicked(QListWidgetItem*)), this,  SLOT(selectEntity(QListWidgetItem*)));
 }
 
 void ItemBrowser::initTree()
@@ -801,15 +810,6 @@ void ItemBrowser::initTree()
 
 void ItemBrowser::loadGrid( QListWidgetItem* item )
 {
-	m_grid->setIconSize(QSize(65, 65));
-	m_grid->setViewMode(QListView::IconMode);
-	m_grid->setLayoutMode(QListWidget::LayoutMode::Batched);
-	m_grid->setResizeMode(QListWidget::ResizeMode::Adjust);
-	m_grid->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	m_grid->setMovement(QListView::Static);
-	//setSortingEnabled(true);
-	m_grid->setWordWrap(true);
-
 	// Open 
 	QString path;
 	path = path + THUMBNAIL_PATH + "/" + item->text();
@@ -823,34 +823,11 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 	foreach(QFileInfo i, list)
 	{
 		QString filename = i.baseName();
-		//DEBUGPRINT(filename.toStdString());
 
 		QIcon icon(path + "/" + filename);
 		QListWidgetItem* item = new QListWidgetItem(icon, filename);
 		m_grid->addItem(item);
 	}
-
-	//for(int i=0; i<10; i++)
-	//{
-	//	QIcon icon;
-	//	static int id = 0;
-	//	QString iconText = "Item " + QString::number(id);
-	//	id++;
-
-	//	//setIconSize(QSize(50, 50));
-
-	//	int r = Math::randomInt(0, 255);
-	//	int g = Math::randomInt(0, 255);
-	//	int b = Math::randomInt(0, 255);
-
-	//	QColor color(r, g, b);
-	//	QPixmap pixmap(65, 65);
-	//	pixmap.fill(color);
-	//	icon.addPixmap(pixmap);
-
-	//	QListWidgetItem* item = new QListWidgetItem(icon, iconText);
-	//	m_grid.addItem(item);
-	//}
 }
 
 void ItemBrowser::loadGrid( int row )
@@ -870,4 +847,9 @@ void ItemBrowser::onEvent( Event* e )
 	default:
 		break;
 	}
+}
+
+void ItemBrowser::selectEntity( QListWidgetItem* item )
+{
+	SETTINGS()->setSelectedTool(Enum::Tool_Geometry);
 }
