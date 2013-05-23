@@ -731,32 +731,10 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
-	DataMapper<Data::Selected> map_selected;
+	// Fetch camera Entity
 
-	// Remove previous selection
-	Data::Selected::clearSelection();
-
-	// Add new selection
-	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
-	if(index_list.count() == 0)
-		Data::Selected::lastSelected.invalidate();
-	foreach(QModelIndex index, index_list)
-	{
-		int entityId = index.row();
-		Entity* e = Entity::findEntity(entityId);
-		e->addData(Data::Selected());
-	}
-
-	// If clicked was selected (not deselected with CTRL click)
-	// add as LastClicked
+	// Allow camera to focus on the entity double-clicked on
 	Entity* clickedEntity = Entity::findEntity(index.row());
-	if(clickedEntity->fetchData<Data::Selected>())
-		Data::Selected::select(clickedEntity);
-	else
-		Data::Selected::findLastSelected();
-
-	// Inform about selection
-	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
 }
 
 
