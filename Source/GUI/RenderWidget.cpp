@@ -424,6 +424,9 @@ void Tool_MultiSelect::onEvent( Event* event )
 						{
 							Data::Selected::select(entity_list[i]);
 						}
+
+						// Inform about selection
+						SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
 					}
 				}
 			}

@@ -176,6 +176,7 @@ void Manager_Docks::setupMenu()
 	tree->setModel(m_hierarchy_model);
 	dock->setWidget(tree);
 	connect(tree, SIGNAL(clicked( const QModelIndex &)), this, SLOT(selectEntity(const QModelIndex &)));
+	connect(tree, SIGNAL(doubleClicked( const QModelIndex &)), this, SLOT(focusOnEntity(const QModelIndex &)));
 
 
 	// Coffee
@@ -698,6 +699,36 @@ void Manager_Docks::commandHistoryItemClicked(QListWidgetItem * item)
 }
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
+{
+	DataMapper<Data::Selected> map_selected;
+
+	// Remove previous selection
+	Data::Selected::clearSelection();
+
+	// Add new selection
+	QList<QModelIndex> index_list = m_hierarchy_tree->selectionModel()->selectedRows();
+	if(index_list.count() == 0)
+		Data::Selected::lastSelected.invalidate();
+	foreach(QModelIndex index, index_list)
+	{
+		int entityId = index.row();
+		Entity* e = Entity::findEntity(entityId);
+		e->addData(Data::Selected());
+	}
+
+	// If clicked was selected (not deselected with CTRL click)
+	// add as LastClicked
+	Entity* clickedEntity = Entity::findEntity(index.row());
+	if(clickedEntity->fetchData<Data::Selected>())
+		Data::Selected::select(clickedEntity);
+	else
+		Data::Selected::findLastSelected();
+
+	// Inform about selection
+	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
+}
+
+void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
 	DataMapper<Data::Selected> map_selected;
 
