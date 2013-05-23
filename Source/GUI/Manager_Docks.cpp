@@ -705,10 +705,17 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
-	// Fetch camera Entity
+	// Fetch camera
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+
 
 	// Allow camera to focus on the entity double-clicked on
 	Entity* clickedEntity = Entity::findEntity(index.row());
+	Data::ZoomTo d_zoomTo;
+	d_zoomTo.target = clickedEntity->toPointer();
+	entity_camera->addData(d_zoomTo);
+	
+	DEBUGPRINT("Focus on Entity: " + Converter::IntToStr(clickedEntity->id()));
 }
 
 

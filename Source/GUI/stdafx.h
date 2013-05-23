@@ -37,3 +37,4 @@
 #include <QSplitter>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QComboBox>

@@ -111,5 +111,15 @@ namespace Data
 
 	class Created : public Type<Created>{};
 	class Deleted : public Type<Deleted>{};
+
+	/**
+	Used to quickly move to an other Entity.
+	*/
+	class ZoomTo : public Type<ZoomTo>
+	{
+	public:
+		EntityPointer target;
+		float delay; // Used for linear interpolation perhaps?
+	};
 }
 

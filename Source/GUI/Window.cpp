@@ -167,7 +167,7 @@ SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate 
 	parent->addDockWidget(Qt::RightDockWidgetArea, this);
 	setFloating(true);
 	setAllowedAreas(Qt::NoDockWidgetArea);
-	setFixedSize(180, 130);
+	setFixedSize(180, 150);
 	move(parent->x() + parent->width()/2 - width()/2, parent->y() +  + parent->height()/2 - height()/2);
 
 	// Create buttons
@@ -191,12 +191,13 @@ SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate 
 		//l->addWidget(new QLabel("     "));
 		//hl->addWidget(new QCheckBox("Show at Startup2"));
 		//hl->addItem(new QSpacerItem(2000, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		QComboBox* combo = new QComboBox();
+		combo->addItem("RGB mode");
+		combo->addItem("Colorblind mode");
+		l->addWidget(combo);
 		QCheckBox* cb = new QCheckBox("Show at Startup");
 		cb->setChecked(true);
-
-		//hl->addWidget(w);
 		l->addWidget(cb);
-		//l->addItem(hl);
 	}
 
 	
