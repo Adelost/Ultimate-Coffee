@@ -50,7 +50,6 @@ public slots:
 	void loadLayout();
 	void resetLayout();
 	void currentCommandHistoryIndexChanged(int currentRowChanged);
-	void commandHistoryItemClicked(QListWidgetItem * item);
 	void selectEntity(const QModelIndex& index);
 	void focusOnEntity(const QModelIndex& index);
 };

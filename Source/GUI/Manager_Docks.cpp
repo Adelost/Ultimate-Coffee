@@ -23,6 +23,7 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI);
 	
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
@@ -152,15 +153,11 @@ void Manager_Docks::setupMenu()
 	dock = createDock("History", Qt::LeftDockWidgetArea);
 	m_commandHistoryListWidget = new QListWidget(dock);
 	connectCommandHistoryWidget(true);
-
-	connect(m_commandHistoryListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(commandHistoryItemClicked(QListWidgetItem *)));
-
 	dock->setWidget(m_commandHistoryListWidget);
 
 	// Item Browser
-
 	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
-	dock->setWindowTitle("Item Browser (Not fully implemented)");
+	dock->setWindowTitle("Item Browser (Not fully implemented, as of 2013-05-23)");
 	m_itemBrowser = new ItemBrowser(dock);
 	dock->setWidget(m_itemBrowser);
 
@@ -467,38 +464,32 @@ void Manager_Docks::onEvent(Event* e)
 			int startAt = removeCommandFromGUIEvent->startIndex;
 			int nrOfCommandsToRemove = removeCommandFromGUIEvent->nrOfCommands;
 
+			int nrOfListItems = m_commandHistoryListWidget->count();
+			if(nrOfCommandsToRemove > nrOfListItems)
+			{
+				nrOfCommandsToRemove = nrOfListItems;
+			}
+
 			connectCommandHistoryWidget(false);
 			for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
 			{
-				delete m_commandHistoryListWidget->takeItem(startAt); //takeItem affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+				delete m_commandHistoryListWidget->takeItem(startAt); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
 			}
 			connectCommandHistoryWidget(true);
 		}
 		break;
 	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
 		{
-			Event_GetNextOrPreviousVisibleCommandRowInCommandHistory* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistory*>(e);
+			Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI*>(e);
 			bool next = getEvent->next;
-			int currentCommand = getEvent->currentCommandHistoryIndex;
 
 			int nrOfRows = m_commandHistoryListWidget->count();
 			int currentRow = m_commandHistoryListWidget->currentRow();
 			
-			// Special case: "m_commandHistoryListWidget->currentRow()" returns 0 when the current row is zero AND when the current row is set to a negative value through "setCurrentRow". When setting it to a negative value, an unwanted SIGNAl is also triggered. As a consequence it is never set to a negative value in the application code. Instead, when the "currentRow" is zero is might actually be -1.
-			// Current row might actually be -1. Check this by circumventing the GUI.
-			if(currentRow == 0)
-			{
-				Event_GetCommanderInfo returnValue;
-				SEND_EVENT(&returnValue);
-				currentRow = returnValue.indexOfCurrentCommand;
-			}
 			int addValue;
 			if(next)
 			{
-				if(currentCommand > -1)
-				{
-					currentRow++;
-				}
+				currentRow++;
 				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
 				{
 					currentRow++;
@@ -513,7 +504,16 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			}
 
-			getEvent->row = currentRow; //Return value
+			getEvent->row = currentRow; // Return value
+		}
+		break;
+	case EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI:
+		{
+			QListWidgetItem* rootCommandListItem = new QListWidgetItem("Start");
+			//QColor c = QColor(1,0,0);
+			//rootCommandListItem->setBackgroundColor(c);
+			//rootCommandListItem->setTextAlignment(5);
+			m_commandHistoryListWidget->addItem(rootCommandListItem);
 		}
 		break;
 	default:
@@ -664,38 +664,12 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 	SEND_EVENT(commanderInfo); //The event is assumed to have correct values below
 
 	// Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
-	int trackToCommandIndex = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(currentRow, commanderInfo->nrOfCommands);
+	int trackToCommandIndex = Converter::convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(currentRow);
 	if(commanderInfo->indexOfCurrentCommand != trackToCommandIndex)
 	{
 		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
 	}
 	delete commanderInfo;
-}
-
-void Manager_Docks::commandHistoryItemClicked(QListWidgetItem * item)
-{
-	int rowOfClickedItem = m_commandHistoryListWidget->row(item);
-	if(rowOfClickedItem == 0) // Special case "m_commandHistoryListWidget->setCurrentRow" cannot be set with a negative value, resulting in a missed command history jump when jumping from outside of history (index -1) to index 0, since "currentRow" is already 0, so the row did not change, and hence there was no history jump. Another SIGNAL: "itemClicked" is used to circumvent this problem.
-	{
-		currentCommandHistoryIndexChanged(rowOfClickedItem);
-	}
-	else
-	{
-		int nrOfItems = m_commandHistoryListWidget->count();
-		int itemIndex = rowOfClickedItem-1;
-		QListWidgetItem* item;
-		do
-		{
-			item = m_commandHistoryListWidget->item(itemIndex);
-			itemIndex--;
-		}
-		while(item->isHidden() && itemIndex > -1);
-
-		if(itemIndex == -1)
-		{
-			currentCommandHistoryIndexChanged(rowOfClickedItem);
-		}
-	}
 }
 
 void Manager_Docks::selectEntity( const QModelIndex& index )

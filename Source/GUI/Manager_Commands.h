@@ -24,15 +24,15 @@ private:
 	CommanderSpy* m_commanderSpy;
 	std::string m_lastValidProjectPath;
 	QAction* m_action_skybox;
-	//QTimer soundTimer;
-	//int nrOfSoundsPlayedSinceLastReset;
 
 	bool storeCommandInCommandHistory(Command* command, bool execute);
 	void updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd);
 	bool jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
+	void newProject();
 	void loadCommandHistory(std::string path);
 	void saveCommandHistory(std::string path);
+	void clearCommandHistoryGUI();
 
 public:
 	void init();
