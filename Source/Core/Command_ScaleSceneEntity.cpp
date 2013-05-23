@@ -14,7 +14,7 @@ Command_ScaleSceneEntity::Command_ScaleSceneEntity(int idOfTranslatableSceneEnti
 	m_commandData.undoScaleY=0.0f;
 	m_commandData.undoScaleZ=0.0f;
 
-	setType(Enum::CommandType::TRANSLATE_SCENE_ENTITY);
+	setType(Enum::CommandType::SCALE_SCENE_ENTITY);
 }
 
 Command_ScaleSceneEntity::~Command_ScaleSceneEntity(void)

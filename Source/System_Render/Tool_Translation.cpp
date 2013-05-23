@@ -1317,7 +1317,7 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	//md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
 	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
-	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->colorScheme, 0, 0);
+	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->m_ColorScheme_3DManipulatorWidgets, 0, 0);
 	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
 	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
 

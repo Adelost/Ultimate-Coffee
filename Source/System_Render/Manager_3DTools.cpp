@@ -44,6 +44,9 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 	// HACK: Hard-coded the chosen transform tool here. To be chosen via toolbar and keyboard shortcuts.
 	currentlyChosenTransformTool = NULL;
+
+	// HACK (Mattias): Make Tool know if there is already a selected entity
+	SEND_EVENT(&Event(EVENT_SET_TOOL));
 }
 
 Manager_3DTools::~Manager_3DTools()

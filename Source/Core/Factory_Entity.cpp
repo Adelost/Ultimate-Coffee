@@ -32,7 +32,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		e->addData(Data::Transform());
 	}
 
-
 	if(type == Enum::Entity_Cube)
 	{
 		e->setName("cube", e->uniqueId());

@@ -67,6 +67,11 @@ public:
 	{
 		return x/y;
 	}
+	
+	Float2 operator- () const 
+	{
+		return Float2(-x, -y);
+	}
 };
 
 class FloatRectangle
@@ -105,6 +110,11 @@ public:
 		Float2 out(x() + sizeX()/2, y() + sizeY()/2);
 
 		return out;
+	}
+	void translate(Float2 translation)
+	{
+		position.x += translation.x;
+		position.y += translation.y;
 	}
 };
 

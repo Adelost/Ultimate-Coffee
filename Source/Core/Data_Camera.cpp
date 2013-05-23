@@ -29,48 +29,30 @@ void Data::Camera::setLens( float fov_y, float aspectRatio, float nearPlane, flo
 
 	// Set view
 	m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
-
-	
-
-
-	
-
-
 }
 
 DirectX::BoundingFrustum Data::Camera::getSubFrustum( FloatRectangle& window, FloatRectangle& sub_window )
 {
-	float sub_w_aspectRatio = sub_window.size.yRatio();
-	float sub_w_sizeYRatio = sub_window.sizeY() / window.sizeY();
-	float sub_w_fov = m_fov * sub_w_sizeYRatio;
+	// Construct bounding frustum from camera projection
+	BoundingFrustum f(m_mat_projection);
+	f.Origin = m_position;
+	f.Orientation = m_rotation;
 
-	Matrix projection = Matrix::CreatePerspectiveFieldOfView(sub_w_fov, sub_w_aspectRatio, m_nearPlane, m_farPlane);
-	BoundingFrustum out(projection);
-	out.Origin = m_position; // Same as parent frustum
+	// Translates the rectangle from "0 .. 2x", to "-x .. x"
+	// making center 0,0 in the new coordinate system
+	Float2 center = window.center();
+	window.translate(-center);
+	sub_window.translate(-center);
 
-	// Compute sub window rotation by measuring the angle
-	// of two picked rays on the parent window relative to 
-	// the center of each window
-	Float2 w_center = window.center();
-	Float2 sub_w_center = sub_window.center();
-	//sub_w_center.x *= -1.0f;
-	//sub_w_center.y *= -1.0f;
+	// Adjust bounding slopes to match sub window
+	float left = sub_window.position.x/window.position.x;
+ 	float right = (sub_window.position.x + sub_window.size.x)/(window.position.x + window.size.x);
+ 	float top =  sub_window.position.y/window.position.y;
+ 	float bottom =  (sub_window.position.y + sub_window.size.y)/(window.position.y + window.size.y);
+ 	f.LeftSlope *= left;
+ 	f.RightSlope *= right;
+ 	f.TopSlope *= top;
+	f.BottomSlope *= bottom;
 
-	Ray w_ray;
-	getPickingRay(w_center, window.size, &w_ray);
-	Ray sub_w_ray;
-	getPickingRay(sub_w_center, window.size, &sub_w_ray);
-
-	Vector3 w_dir = w_ray.direction;
-	Vector3 sub_w_dir = sub_w_ray.direction;
-
-	// Create rotation matrix from the two vectors
-	Matrix mat_subRot = Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 0.0f), sub_w_dir, m_up);
-	mat_subRot = mat_subRot.Invert();
-	Quaternion qua_subRot = Quaternion::CreateFromRotationMatrix(mat_subRot);
-
-	out.Orientation = m_rotation * qua_subRot;
-
-	return out;
+	return f;
 }
-

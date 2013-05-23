@@ -16,6 +16,8 @@
 
 void Window::init()
 {
+	SUBSCRIBE_TO_EVENT(this, EVENT_SHOW_MESSAGEBOX);
+
 	// Init window
 	m_ui = new Ui::MainWindow();
 	m_ui->setupUi(this);
@@ -46,7 +48,6 @@ void Window::init()
 
 	// Init architecture
 	Math::init();
-	SUBSCRIBE_TO_EVENT(this, EVENT_SHOW_MESSAGEBOX);
 
 	// Start update loop
 	m_updateLoop = new UpdateLoop();
@@ -176,13 +177,13 @@ SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate 
 	w->setLayout(l);
 	QPushButton* b;
 	b = new QPushButton("New");
-	connect(b, SIGNAL(clicked()), this, SLOT(newFile()));
+	connect(b, SIGNAL(clicked()), this, SLOT(newProject()));
 	l->addWidget(b);
 	b = new QPushButton("Load");
-	connect(b, SIGNAL(clicked()), this, SLOT(openFile()));
+	connect(b, SIGNAL(clicked()), this, SLOT(loadProject()));
 	l->addWidget(b);
 	b = new QPushButton("Recent");
-	connect(b, SIGNAL(clicked()), this, SLOT(recentFile()));
+	connect(b, SIGNAL(clicked()), this, SLOT(loadRecentProject()));
 	l->addWidget(b);
 	{
 		//QHBoxLayout* hl = new QHBoxLayout();
@@ -217,19 +218,19 @@ SplashScreen::~SplashScreen()
 	i = 0;
 }
 
-void SplashScreen::newFile()
+void SplashScreen::newProject()
 {
-	MESSAGEBOX("'newFile' is not implemented yet.");
+	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 	close();
 }
 
-void SplashScreen::openFile()
+void SplashScreen::loadProject()
 {
 	Window::instance()->ui()->actionOpen->trigger();
 	close();
 }
 
-void SplashScreen::recentFile()
+void SplashScreen::loadRecentProject()
 {
 	Window::instance()->ui()->actionRecent->trigger();
 	close();

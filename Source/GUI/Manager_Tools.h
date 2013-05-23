@@ -28,7 +28,7 @@ public:
 	void setupToolbar();
 	void setupActions();
 	QAction* createContextIcon(std::string p_icon);
-	QAction* createToolAction(QSignalMapper* p_mapper, int p_type, std::string p_icon);
+	QAction* createToolAction(QSignalMapper* mapper, int type, std::string icon, std::string toolTip);
 	QIcon createIcon( std::string p_icon );
 
 public slots:
@@ -37,5 +37,5 @@ public slots:
 	void coffee();
 	void createAsteroids();
 	void createAsteroid();
-	void newLevel();
+	void newProject();
 };

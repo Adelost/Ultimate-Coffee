@@ -17,6 +17,8 @@ void Manager_Commands::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRACK_TO_COMMAND_HISTORY_INDEX);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMANDER_INFO);
+	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_PROJECT);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SKYBOX_CHANGED);
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
@@ -60,7 +62,7 @@ void Manager_Commands::setupMenu()
 	a->setIcon(,(path.c_str())); */
 	a->setStatusTip(tr("Open existing project"));
 	a->setShortcuts(QKeySequence::Open);
-	connect(a, SIGNAL(triggered()), this, SLOT(loadCommandHistory()));
+	connect(a, SIGNAL(triggered()), this, SLOT(loadProjectFileDialog()));
 
 	// Recent
 	a = m_ui->actionRecent;
@@ -73,12 +75,12 @@ void Manager_Commands::setupMenu()
 	a->setIcon(QIcon(path.c_str())); */
 	//a->setShortcuts(QKeySequence::Save);
 	a->setStatusTip(tr("Save project"));
-	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistory()));
+	connect(a, SIGNAL(triggered()), this, SLOT(quicksaveCommandHistory()));
 
 	// Save as
 	a = m_ui->actionSave_As;
 	a->setStatusTip(tr("Save project to..."));
-	connect(a, SIGNAL(triggered()), this, SLOT(saveCommandHistoryAs()));
+	connect(a, SIGNAL(triggered()), this, SLOT(saveProjectFileDialog()));
 
 	
 	// Undo
@@ -122,8 +124,10 @@ void Manager_Commands::setupMenu()
 		path = path + ICON_PATH + "Options/" + icon_name;
 
 		QAction* a = new QAction(QIcon(path.c_str()), icon_name.c_str(), m_window);
+		m_action_skybox = a;
 		a->setCheckable(true);
-		a->setChecked(true);
+		a->setChecked(SETTINGS()->showSkybox());
+		a->setToolTip("Toggle skybox");
 		m_toolbar_commands->addAction(a);
 
 		connect(a, SIGNAL(triggered(bool)), this, SLOT(enableSkybox(bool)));
@@ -157,19 +161,66 @@ void Manager_Commands::updateCommandHistoryGUI(Command* command, bool hiddenInGU
 	SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, hiddenInGUIList, GUI_MergeNumber));
 }
 
-void Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
+bool Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 {
 	if(!m_commander->tryToJumpInCommandHistory(commandHistoryIndex))
 	{
-		QSound sound("Windows Ding.wav");
-		sound.play();
+		//QSound sound("Windows Ding.wav");
+		//sound.play();
+
+		static QSound sound("Windows Ding.wav");
+		if(sound.isFinished()) // Still does not work as intended (2013-05-22 22.06) when holding down CTRL+Z or CTRL+Y
+		{
+			sound.play();
+		}
+		return false;
 	}
+	return true;
 }
 
 void Manager_Commands::updateCurrentCommandGUI()
 {
-	int GUI_Index = /*m_commander->getCurrentCommandIndex();*/Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+	int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
 	SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
+}
+
+void Manager_Commands::loadCommandHistory(std::string path)
+{
+	if(m_commander->tryToLoadCommandHistory(path))
+	{
+		m_lastValidProjectPath = path;
+
+		std::vector<Command*>* commands = m_commanderSpy->getCommands();
+		int nrOfCommands = commands->size();
+		for(int i=0;i<nrOfCommands;i++)
+		{
+			Command* command = commands->at(i);
+			SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
+		}
+		updateCurrentCommandGUI();
+
+		// Uncomment to print command history information to debug file
+		//m_commander->printCommandHistory("UltimateCoffe_CommandHistory_DEBUG_file_from_project_load.txt");
+	}
+	else
+	{
+		MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger. Tell him that 'Princess Adelaide has the whooping cough'.");
+	}
+}
+
+void Manager_Commands::saveCommandHistory(std::string path)
+{
+	if(!m_commander->tryToSaveCommandHistory(path))
+	{
+		MESSAGEBOX("Failed to save project.");
+	}
+	else
+	{
+		m_lastValidProjectPath = path;
+
+		// Uncomment to print command history information to debug file
+		//m_commander->printCommandHistory("UltimateCoffe_CommandHistory_DEBUG_file_from_project_save_as.txt");
+	}
 }
 
 void Manager_Commands::setBackBufferColor(QString p_str_color)
@@ -194,48 +245,45 @@ Manager_Commands::~Manager_Commands()
 
 void Manager_Commands::redoLatestCommand()
 {
-	//jumpInCommandHistory(m_commander->getCurrentCommandIndex()+1);
-	//updateCurrentCommandGUI();
-
 	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(true, m_commander->getCurrentCommandIndex());
 	SEND_EVENT(&returnValue);
-	jumpInCommandHistory(returnValue.row);
-	updateCurrentCommandGUI();
+	int rowNr = returnValue.row;
+	
+	// Special case: '-1' mean that the current command is outside of history. Do not jump to -1 (since that is the current command index already).
+	// Refer to the special case regarding "m_commandHistoryListWidget->currentRow()"
+	if(rowNr == -1)
+	{
+		rowNr = 0;
+	}
+	if(jumpInCommandHistory(rowNr))
+	{
+		updateCurrentCommandGUI();
+	}
 }
 
 void Manager_Commands::undoLatestCommand()
 {
-	//jumpInCommandHistory(m_commander->getCurrentCommandIndex()-1);
-	//updateCurrentCommandGUI();
-
 	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(false, m_commander->getCurrentCommandIndex());
 	SEND_EVENT(&returnValue);
-	jumpInCommandHistory(returnValue.row);
-	updateCurrentCommandGUI();
+	if(jumpInCommandHistory(returnValue.row))
+	{
+		updateCurrentCommandGUI();
+	}
 }
 
-void Manager_Commands::saveCommandHistory()
+void Manager_Commands::quicksaveCommandHistory()
 {
-	if(m_lastValidProjectPath == "")
+	if(m_lastValidProjectPath != "")
 	{
-		saveCommandHistoryAs();
+		saveCommandHistory(m_lastValidProjectPath);
 	}
 	else
 	{
-		if(!m_commander->tryToSaveCommandHistory(m_lastValidProjectPath))
-		{
-			MESSAGEBOX("Failed to save project.");
-		}
-		else
-		{
-			// check, remove if the command list gets very long and takes time to print
-			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-			m_commander->printCommandHistory();
-		}
+		saveProjectFileDialog();
 	}
 }
 
-void Manager_Commands::saveCommandHistoryAs()
+void Manager_Commands::saveProjectFileDialog()
 {
 	// Opens standard Windows "save file" dialog
 	QString fileName = QFileDialog::getSaveFileName(m_window, tr("Save Ultimate Coffee Project"), "UltimateCoffeeProject", tr("Ultimate Coffee Project (*.uc)"));
@@ -244,22 +292,11 @@ void Manager_Commands::saveCommandHistoryAs()
 	if(!fileName.isEmpty())
 	{
 		std::string path = fileName.toLocal8Bit();
-		if(!m_commander->tryToSaveCommandHistory(path))
-		{
-			MESSAGEBOX("Failed to save project.");
-		}
-		else
-		{
-			m_lastValidProjectPath = path;
-
-			// check, remove if the command list gets very long and takes time to print
-			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-			m_commander->printCommandHistory();
-		}
+		saveCommandHistory(path);
 	}
 }
 
-void Manager_Commands::loadCommandHistory()
+void Manager_Commands::loadProjectFileDialog()
 {
 	// Opens standard Windows "open file" dialog
 	QString fileName = QFileDialog::getOpenFileName(m_window, tr("Open Ultimate Coffee Project"), "UltimateCoffeeProject.uc", tr("Ultimate Coffee Project (*.uc)"));
@@ -268,30 +305,9 @@ void Manager_Commands::loadCommandHistory()
 	if(!fileName.isEmpty())
 	{
 		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
-		//SEND_EVENT(&Event(EVENT_NEW_LEVEL)); // Clear command history GUI list
 
 		std::string path = fileName.toLocal8Bit();
-		if(m_commander->tryToLoadCommandHistory(path))
-		{
-			m_lastValidProjectPath = path;
-
-			std::vector<Command*>* commands = m_commanderSpy->getCommands();
-			int nrOfCommands = commands->size();
-			for(int i=0;i<nrOfCommands;i++)
-			{
-				Command* command = commands->at(i);
-				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
-			}
-			updateCurrentCommandGUI();
-
-			// check, remove if the command list gets very long and takes time to print
-			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-			m_commander->printCommandHistory();
-		}
-		else
-		{
-			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger. Tell him that 'Princess Adelaide has the whooping cough'");
-		}
+		loadCommandHistory(path);
 	}
 }
 
@@ -308,6 +324,11 @@ void Manager_Commands::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type)
 	{
+	case EVENT_SKYBOX_CHANGED:
+		{
+			m_action_skybox->setChecked(SETTINGS()->showSkybox());
+		}
+		break;
 	case EVENT_STORE_COMMAND: // Add a command, sent in an event, to the commander. It might also be executed.
 		{
 			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
@@ -337,7 +358,6 @@ void Manager_Commands::onEvent(Event* e)
 			for(int i=0;i<nrOfCommands;i++)
 			{
 				int mergeNumber = 0;
-				int nrOfJumps = 0;
 				bool hidden = true;
 				Command* command = commands->at(i);
 				if(i==nrOfCommands-1)
@@ -370,6 +390,12 @@ void Manager_Commands::onEvent(Event* e)
 			commanderInfoEvent->nrOfCommands = m_commander->getNrOfCommands();
 			break;
 		}
+	case EVENT_NEW_PROJECT:
+		{
+			SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
+			m_commander->reset();
+			break;
+		}
 	}
 }
 
@@ -382,36 +408,9 @@ void Manager_Commands::enableSkybox( bool state )
 
 void Manager_Commands::loadRecentCommandHistory()
 {
-	// Opens standard Windows "open file" dialog
-	QString fileName = "./recent.uc";
+	//also refer to "loadProjectFileDialog"
+	SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
 
-	// If the user clicks "Open"
-	if(!fileName.isEmpty())
-	{
-		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
-		//SEND_EVENT(&Event(EVENT_NEW_LEVEL)); // Clear command history GUI list
-
-		std::string path = fileName.toLocal8Bit();
-		if(m_commander->tryToLoadCommandHistory(path))
-		{
-			m_lastValidProjectPath = path;
-
-			std::vector<Command*>* commands = m_commanderSpy->getCommands();
-			int nrOfCommands = commands->size();
-			for(int i=0;i<nrOfCommands;i++)
-			{
-				Command* command = commands->at(i);
-				SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
-			}
-			updateCurrentCommandGUI();
-
-			// check, remove if the command list gets very long and takes time to print
-			// Prints the command history to the console in an effort to spot bugs (weird values in the printout)
-			m_commander->printCommandHistory();
-		}
-		else
-		{
-			MESSAGEBOX("Failed to load project. Please contact Folke Peterson-Berger. Tell him that 'Princess Adelaide has the whooping cough'");
-		}
-	}
+	std::string path = "./recent.uc";
+	loadCommandHistory(path);
 }
