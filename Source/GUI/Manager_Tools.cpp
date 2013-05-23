@@ -64,7 +64,7 @@ void Manager_Tools::setupActions()
 	createToolAction(mapper, Enum::Tool_Translate,	"Translate", "Select and translate")->activate(QAction::Trigger);
 	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate", "Select and rotate");
 	createToolAction(mapper, Enum::Tool_Scale,		"Scale", "Select and scale");
-	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create new entities");
+	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create entity");
 	//createToolAction(mapper, Enum::Tool_Entity,		"Entity");
 
 	// Context bar
@@ -78,13 +78,12 @@ void Manager_Tools::setupActions()
 	a = createContextIcon("Coffee");
 	a->setToolTip("Recreate geometry");
 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+	a = createContextIcon("Tool");
+	a->setToolTip("Create 1 asteroid");
+	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
 	a = createContextIcon("Experiment");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
-	a->setToolTip("Create 1 asteroid");
-	a = createContextIcon("Tool");
-	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
-
 }
 
 void Manager_Tools::action_about()

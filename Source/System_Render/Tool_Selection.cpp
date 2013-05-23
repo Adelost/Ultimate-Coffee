@@ -32,8 +32,8 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 
 	bool aTransformationToolWasSelected = false;
 
-	// Skip if tool if Ctrl is pressed
-	if(!SETTINGS()->button.key_ctrl)
+	// Skip tool if Shift or Ctrl is pressed
+	if(!(SETTINGS()->button.key_shift || SETTINGS()->button.key_ctrl))
 	{
 		// If the currently chosen transformation tool has an active object, then it is to be visible and selectable.
 		if(currentlyChosenTransformationTool->getActiveObject().isValid())
@@ -67,7 +67,8 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		Entity* e = Data::Bounding::intersect(r);
 		if(e)
 		{
-			// If Ctrl is pressed, Entity will be added to selection,
+			// If Ctrl is pressed, Entity will be added/removed from selection,
+			// if Shift is pressed, Entity will always be added to selection,
 			// otherwise previous selection will be cleared
 			ButtonState* buttonState = &SETTINGS()->button;
 			if(SETTINGS()->button.key_ctrl)
@@ -83,6 +84,10 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 					Data::Selected::unselect(e);
 				}
 			}
+			else if(SETTINGS()->button.key_shift)
+			{
+				Data::Selected::select(e);
+			}
 			else
 			{
 				Data::Selected::clearSelection();
@@ -95,7 +100,7 @@ void Tool_Selection::beginSelection( XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMA
 		}
 		else
 		{
-			if(!SETTINGS()->button.key_ctrl)
+			if(!(SETTINGS()->button.key_shift || SETTINGS()->button.key_ctrl))
 			{
 				Data::Selected::clearSelection();
 			}

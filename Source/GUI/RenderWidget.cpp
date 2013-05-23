@@ -324,7 +324,7 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 
 
 	// HACK: Place Entities if EntityTool is selected
-	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry && !SETTINGS()->button.key_ctrl)
+	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
 	{
 		// Compute picking ray to place Entities onto
 		Float2 windowSize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y);
@@ -419,11 +419,23 @@ void Tool_MultiSelect::onEvent( Event* event )
 						std::vector<Entity*> entity_list;
 						Data::Bounding::intersect(subFrustum, &entity_list);
 
-						// Select all entities
-						for(int i=0; i<entity_list.size(); i++)
+						// If Ctrl is pressed Entities are removed
+						// from selection, otherwise they are added
+						if(SETTINGS()->button.key_ctrl)
 						{
-							Data::Selected::select(entity_list[i]);
+							for(int i=0; i<entity_list.size(); i++)
+							{
+								Data::Selected::unselect(entity_list[i]);
+							}
 						}
+						else
+						{
+							for(int i=0; i<entity_list.size(); i++)
+							{
+								Data::Selected::select(entity_list[i]);
+							}
+						}
+						
 
 						// Inform about selection
 						SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
