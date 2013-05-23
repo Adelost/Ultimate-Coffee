@@ -1,6 +1,12 @@
 #pragma once
 namespace Enum
 {
+	enum ColorScheme
+	{
+		RGB,
+		CYM
+	};
+
 	enum CommandType
 	{
 		TRANSLATE_SCENE_ENTITY,
@@ -9,7 +15,7 @@ namespace Enum
 		CHANGEBACKBUFFERCOLOR,
 		SKYBOX,
 		CREATE_ENTITY,
-		REMOVE_ENTITY,
+		REMOVE_ENTITY
 	};
 
 	enum ToolType

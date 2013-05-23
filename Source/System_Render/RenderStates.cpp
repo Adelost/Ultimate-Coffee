@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "RenderStates.h"
 
+ID3D11RasterizerState* RenderStates::DepthBiasedRS = 0;
+
 ID3D11RasterizerState* RenderStates::WireframeRS = 0;
 ID3D11RasterizerState* RenderStates::WireframeNoCullRS = 0;
 ID3D11RasterizerState* RenderStates::NoCullRS    = 0;
@@ -15,6 +17,18 @@ ID3D11DepthStencilState* RenderStates::AlwaysDSS = 0;
 
 void RenderStates::InitAll(ID3D11Device* device)
 {
+	//
+	// DepthBiasedRS
+	//
+	D3D11_RASTERIZER_DESC depthBiasdeDesc;
+	ZeroMemory(&depthBiasdeDesc, sizeof(D3D11_RASTERIZER_DESC));
+	depthBiasdeDesc.CullMode = D3D11_CULL_BACK;
+	depthBiasdeDesc.DepthBias = 2;
+	depthBiasdeDesc.FrontCounterClockwise = false;
+	depthBiasdeDesc.DepthClipEnable = false;
+
+	HR(device->CreateRasterizerState(&depthBiasdeDesc, &DepthBiasedRS));
+
 	//
 	// WireframeRS
 	//
@@ -118,7 +132,7 @@ void RenderStates::InitAll(ID3D11Device* device)
 	greaterEqualDesc.DepthFunc        = D3D11_COMPARISON_ALWAYS; 
 	greaterEqualDesc.StencilEnable    = false;
 
-	HR(device->CreateDepthStencilState(&greaterEqualDesc, &AlwaysDSS));
+	HR(device->CreateDepthStencilState(&alwaysDesc, &AlwaysDSS));
 }
 
 void RenderStates::DestroyAll()

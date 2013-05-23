@@ -11,6 +11,8 @@ public:
 	static void InitAll(ID3D11Device* device);
 	static void DestroyAll();
 
+	static ID3D11RasterizerState* DepthBiasedRS;
+
 	static ID3D11RasterizerState* WireframeRS;
 	static ID3D11RasterizerState* NoCullRS;
 	static ID3D11RasterizerState* WireframeNoCullRS;
