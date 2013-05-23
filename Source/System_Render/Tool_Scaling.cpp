@@ -449,8 +449,14 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		currentlySelectedAxis->update(rayOrigin, rayDir, camView);
 		currentlySelectedAxis->pickAxisPlane(rayOrigin, rayDir, camView, camProj);
 		currentlySelectedAxis->calcLastScalingDelta();
-		XMVECTOR scaleDelta = currentlySelectedAxis->getTotalScalingDelta();
+		scaleDelta = currentlySelectedAxis->getTotalScalingDelta();
+
+		if(currentlySelectedAxis == xScalingAxisHandle2 || currentlySelectedAxis == yScalingAxisHandle2 || currentlySelectedAxis == zScalingAxisHandle2)
+		{
+			scaleDelta = -scaleDelta;
+		}
 		
+		float toolScaleDependantScaleFactor = scale;
 		int i = 0;
 		Entity* e;
 		DataMapper<Data::Selected> map_selected;
@@ -458,7 +464,6 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		{
 			e = map_selected.nextEntity();
 
-			float toolScaleDependantScaleFactor = scale;
 			float scaleDependantScaleFactorX = originalScalesOfSelectedEntities.at(i).x * 0.1f;
 			float scaleDependantScaleFactorY = originalScalesOfSelectedEntities.at(i).y * 0.1f;
 			float scaleDependantScaleFactorZ = originalScalesOfSelectedEntities.at(i).z * 0.1f;
@@ -473,14 +478,15 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
 			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			//XMVECTOR rotQuat = e->fetchData<Data::Transform>()->rotation;
-			//XMMATRIX rot = XMMatrixRotationQuaternion(rotQuat);
-			//XMMATRIX rotAdjust = XMMatrixInverse(&XMMatrixDeterminant(rot), rot);
-			//scaleDelta = XMVector3Transform(scaleDelta, rotAdjust);
-			//// Would need to get the actual dir for this the axis selected.
-			//scaleDelta.m128_f32[1] = 0.0f; scaleDelta.m128_f32[2] = 0.0f;
-
 			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+
+			if(e->fetchData<Data::Transform>()->scale.x < 0.01f)
+				e->fetchData<Data::Transform>()->scale.x = 0.01f;
+			if(e->fetchData<Data::Transform>()->scale.y < 0.01f)
+				e->fetchData<Data::Transform>()->scale.y = 0.01f;
+			if(e->fetchData<Data::Transform>()->scale.z < 0.01f)
+				e->fetchData<Data::Transform>()->scale.z = 0.01f;
+
 			++i;
 		}
 	}
@@ -488,44 +494,14 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 	{
 		currentlySelectedPlane->pickPlane(rayOrigin, rayDir, camView, camProj, theViewport);
 		currentlySelectedPlane->calcLastScalingDelta();
-		XMVECTOR transDelta = currentlySelectedPlane->getTotalScalingDelta();
+		scaleDelta = currentlySelectedPlane->getTotalScalingDelta();
 
-		XMFLOAT4X4 newMatrix;
-		newMatrix = originalWorldOfActiveObject;
+		if(currentlySelectedPlane == xyScalingPlane2 || currentlySelectedPlane == yzScalingPlane2 || currentlySelectedPlane == zxScalingPlane2)
+		{
+			scaleDelta = -scaleDelta;
+		}
 
 		float toolScaleDependantScaleFactor = scale;
-
-		float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-		float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-		float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-		if(scaleDependantScaleFactorX < 0.1f)
-			scaleDependantScaleFactorX = 0.1f;
-		if(scaleDependantScaleFactorY < 0.1f)
-			scaleDependantScaleFactorY = 0.1f;
-		if(scaleDependantScaleFactorZ < 0.1f)
-			scaleDependantScaleFactorZ = 0.1f;
-
-		transDelta.m128_f32[0] = originalWorldOfActiveObject._11 + transDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-		transDelta.m128_f32[1] = originalWorldOfActiveObject._22 + transDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-		transDelta.m128_f32[2] = originalWorldOfActiveObject._33 + transDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
-
-		//if(currentlySelectedPlane != camViewScalingPlane)
-		//{
-		//	newMatrix._11 = originalWorldOfActiveObject._11 + (transDelta.m128_f32[0] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorX);
-		//	newMatrix._22 = originalWorldOfActiveObject._22 + (transDelta.m128_f32[1] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorY);
-		//	newMatrix._33 = originalWorldOfActiveObject._33 + (transDelta.m128_f32[2] * (toolScaleDependantScaleFactor) * scaleDependantScaleFactorZ);
-
-		//	if(newMatrix._11 < 0.01f)
-		//		newMatrix._11 = 0.01f;
-		//	if(newMatrix._22 < 0.01f)
-		//		newMatrix._22 = 0.01f;
-		//	if(newMatrix._33 < 0.01f)
-		//		newMatrix._33 = 0.01f;
-		//}
-
-		activeEntity->fetchData<Data::Transform>()->scale = /*activeEntity->fetchData<Data::Transform>()->scale + */Vector3(transDelta); //newMatrix._11, newMatrix._22, newMatrix._33);
-		XMVECTOR scaleDelta = currentlySelectedPlane->getTotalScalingDelta();
-
 		int i = 0;
 		Entity* e;
 		DataMapper<Data::Selected> map_selected;
@@ -533,7 +509,6 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 		{
 			e = map_selected.nextEntity();
 
-			float toolScaleDependantScaleFactor = scale;
 			float scaleDependantScaleFactorX = originalScalesOfSelectedEntities.at(i).x * 0.1f;
 			float scaleDependantScaleFactorY = originalScalesOfSelectedEntities.at(i).y * 0.1f;
 			float scaleDependantScaleFactorZ = originalScalesOfSelectedEntities.at(i).z * 0.1f;
@@ -548,49 +523,67 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
 			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			//XMVECTOR rotQuat = e->fetchData<Data::Transform>()->rotation;
-			//XMMATRIX rot = XMMatrixRotationQuaternion(rotQuat);
-			//XMMATRIX rotAdjust = XMMatrixInverse(&XMMatrixDeterminant(rot), rot);
-			//scaleDelta = XMVector3Transform(scaleDelta, rotAdjust);
-			//// Would need to get the actual "dir" for this the plane selected.
-			//scaleDelta.m128_f32[1] = 0.0f; scaleDelta.m128_f32[2] = 0.0f;
-
 			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+
+			if(e->fetchData<Data::Transform>()->scale.x < 0.01f)
+				e->fetchData<Data::Transform>()->scale.x = 0.01f;
+			if(e->fetchData<Data::Transform>()->scale.y < 0.01f)
+				e->fetchData<Data::Transform>()->scale.y = 0.01f;
+			if(e->fetchData<Data::Transform>()->scale.z < 0.01f)
+				e->fetchData<Data::Transform>()->scale.z = 0.01f;
+
 			++i;
 		}
 	}
-	//else if(currentlySelectedHandle)
-	//{
-	//	omniScalingAxisHandle->update(mouseCursorPoint);
-	//	//omniScalingAxisHandle->calcLastScalingDelta();
-	//	POINT totalCursorDeltas = omniScalingAxisHandle->getTotalScalingDelta(); //getTotalMouseCursorXYDeltas(mouseCursorPoint);
+	else if(currentlySelectedHandle)
+	{
+		omniScalingAxisHandle->update(mouseCursorPoint);
+		POINT totalCursorDeltas = omniScalingAxisHandle->getTotalScalingDelta();
 
-	//	float xScaleFactor = 0.01f;
-	//	float yScaleFactor = 0.01f;
+		float xScaleFactor = 0.010f;
+		float yScaleFactor = 0.005f;
+		
+		float xScaleContribution = totalCursorDeltas.x * xScaleFactor;
+		float yScaleContribution = totalCursorDeltas.y * yScaleFactor;
 
-	//	float toolScaleDependantScaleFactor = scale;
+		scaleDelta = XMVectorSet(xScaleContribution + yScaleContribution, xScaleContribution + yScaleContribution, xScaleContribution + yScaleContribution, 1.0f);
 
-	//	float scaleDependantScaleFactorX = originalWorldOfActiveObject._11 * 0.1f;
-	//	float scaleDependantScaleFactorY = originalWorldOfActiveObject._22 * 0.1f;
-	//	float scaleDependantScaleFactorZ = originalWorldOfActiveObject._33 * 0.1f;
-	//	float scaleDependantScaleFactorAvg = (scaleDependantScaleFactorX + scaleDependantScaleFactorY + scaleDependantScaleFactorZ) / 3;
-	//	
-	//	float xScaleContribution = totalCursorDeltas.x * xScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
-	//	float yScaleContribution = totalCursorDeltas.y * yScaleFactor * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;;
+		float toolScaleDependantScaleFactor = scale;
+		int i = 0;
+		Entity* e;
+		DataMapper<Data::Selected> map_selected;
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
 
-	//	XMVECTOR newScale = XMVectorSet(	originalWorldOfActiveObject._11 + xScaleContribution + yScaleContribution,
-	//										originalWorldOfActiveObject._22 + xScaleContribution + yScaleContribution,
-	//										originalWorldOfActiveObject._33 + xScaleContribution + yScaleContribution, 1.0f);
+			float scaleDependantScaleFactorX = originalScalesOfSelectedEntities.at(i).x * 0.1f;
+			float scaleDependantScaleFactorY = originalScalesOfSelectedEntities.at(i).y * 0.1f;
+			float scaleDependantScaleFactorZ = originalScalesOfSelectedEntities.at(i).z * 0.1f;
+			if(scaleDependantScaleFactorX < 0.1f)
+				scaleDependantScaleFactorX = 0.1f;
+			if(scaleDependantScaleFactorY < 0.1f)
+				scaleDependantScaleFactorY = 0.1f;
+			if(scaleDependantScaleFactorZ < 0.1f)
+				scaleDependantScaleFactorZ = 0.1f;
 
-	//	if(newScale.m128_f32[0] < 0.01f)
-	//		newScale.m128_f32[0] = 0.01f;
-	//	if(newScale.m128_f32[1] < 0.01f)
-	//		newScale.m128_f32[1] = 0.01f;
-	//	if(newScale.m128_f32[2] < 0.01f)
-	//		newScale.m128_f32[2] = 0.01f;
+			float scaleDependantScaleFactorAvg = (scaleDependantScaleFactorX + scaleDependantScaleFactorY + scaleDependantScaleFactorZ) / 3;
 
-	//	Entity(activeEntityId).fetchData<Data::Transform>()->scale = newScale;
-	//}
+			scaleDelta.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
+			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
+			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
+
+			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+
+			if(e->fetchData<Data::Transform>()->scale.x < 0.01f)
+				e->fetchData<Data::Transform>()->scale.x = 0.01f;
+			if(e->fetchData<Data::Transform>()->scale.y < 0.01f)
+				e->fetchData<Data::Transform>()->scale.y = 0.01f;
+			if(e->fetchData<Data::Transform>()->scale.z < 0.01f)
+				e->fetchData<Data::Transform>()->scale.z = 0.01f;
+
+			++i;
+		}
+	}
 
 
 }
@@ -815,14 +808,17 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 	D3D11_BUFFER_DESC WVP_Desc;
 	ZeroMemory(&WVP_Desc, sizeof(WVP_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-
 	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
 	WVP_Desc.ByteWidth = 64;
 	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	
 	HR(md3dDevice->CreateBuffer(&WVP_Desc, NULL, &m_WVPBuffer));
 
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	D3D11_BUFFER_DESC ColorSchemeId_Desc;
+	ZeroMemory(&ColorSchemeId_Desc, sizeof(ColorSchemeId_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+	ColorSchemeId_Desc.Usage = D3D11_USAGE_DEFAULT;
+	ColorSchemeId_Desc.ByteWidth = 16;
+	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ColorSchemeIdBuffer));
 
 	// Create test mesh for visual translation control.
 	
@@ -1098,7 +1094,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 	GeometryGenerator::MeshData2 meshVertices;
 
-	float widthHeightDepth = 0.06735; // 0.1275f; //0.046875f; //0.1275f;
+	float widthHeightDepth = 0.06735f; // 0.1275f; //0.046875f; //0.1275f;
 
 	char colorMode = 'x';
 	XMMATRIX boxTrans = XMMatrixTranslation(1.0f, 0.0f, 0.0f);
@@ -1371,10 +1367,10 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	XMMATRIX worldViewProj = world * camView * camProj;
 	worldViewProj = XMMatrixTranspose(worldViewProj);
 
-	ConstantBuffer2 WVP;
-	WVP.WVP = worldViewProj;
-	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->colorScheme, 0, 0);
+	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
+	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
 
 	// Draw control frames.
 

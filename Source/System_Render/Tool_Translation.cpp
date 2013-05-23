@@ -713,14 +713,17 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 	D3D11_BUFFER_DESC WVP_Desc;
 	ZeroMemory(&WVP_Desc, sizeof(WVP_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-
 	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
 	WVP_Desc.ByteWidth = 64;
 	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	
 	HR(md3dDevice->CreateBuffer(&WVP_Desc, NULL, &m_WVPBuffer));
 
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	D3D11_BUFFER_DESC ColorSchemeId_Desc;
+	ZeroMemory(&ColorSchemeId_Desc, sizeof(ColorSchemeId_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+	ColorSchemeId_Desc.Usage = D3D11_USAGE_DEFAULT;
+	ColorSchemeId_Desc.ByteWidth = 16;
+	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ColorSchemeIdBuffer));
 
 	// Create test mesh for visual translation control.
 	
@@ -917,24 +920,24 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 		// Triangle A...
 
-		posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
 
-		posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -1308,43 +1311,51 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 	XMMATRIX worldViewProj = world * camView * camProj;
 	worldViewProj = XMMatrixTranspose(worldViewProj);
 
-	ConstantBuffer2 WVP;
-	WVP.WVP = worldViewProj;
-	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	//ConstantBuffer2 WVP;
+	//WVP.WVP = worldViewProj;
+	//md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+	//md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->colorScheme, 0, 0);
+	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
+	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
 
 	// Draw control frames.
 
-			//	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			//
-			//	D3D11_BLEND_DESC blendDesc;
-			//	blendDesc.AlphaToCoverageEnable = false;
-			//	blendDesc.IndependentBlendEnable = false;
-			//	blendDesc.RenderTarget[0].BlendEnable = true;
-			//	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-			//	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-			//	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-			//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-			//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-			//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			//	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-			//
-			//	ID3D11BlendState *blendState;
-			//	md3dDevice->CreateBlendState(&blendDesc, &blendState);
-			//
-			//	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-			//UINT sampleMask   = 0xffffffff;
-			//
-			//	md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
-			//
-			//	ReleaseCOM(blendState);
-			//
-			//	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyTriangleListRectangle_VB, &stride, &offset);
-			//	md3dImmediateContext->Draw(6, 0);
-			//
-			//	md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
+				//md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			
+				//D3D11_BLEND_DESC blendDesc;
+				//blendDesc.AlphaToCoverageEnable = false;
+				//blendDesc.IndependentBlendEnable = false;
+				//blendDesc.RenderTarget[0].BlendEnable = true;
+				//blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+				//blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+				//blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+				//blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+				//blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+				//blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				//blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			
+				//ID3D11BlendState *blendState;
+				//md3dDevice->CreateBlendState(&blendDesc, &blendState);
+			
+				//float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+				//UINT sampleMask   = 0xffffffff;
+			
+				//md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+				//md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
+			
+				//ReleaseCOM(blendState);
+			
+				//md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xyTriangleListRectangle_VB, &stride, &offset);
+				//md3dImmediateContext->Draw(6, 0);
+			
+				//md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
 	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+
+
 
 	if(!isSelected || currentlySelectedPlane == yzTranslationPlane || currentlySelectedPlane == yzTranslationPlane2)
 	{
@@ -1511,8 +1522,7 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 		worldViewProj = viewControlWorld * camView * camProj;
 		worldViewProj = XMMatrixTranspose(worldViewProj);
 
-		WVP.WVP = worldViewProj;
-		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
+		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
 		md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_viewPlane_VB, &stride, &offset);

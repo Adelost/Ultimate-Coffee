@@ -516,14 +516,17 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 
 	D3D11_BUFFER_DESC WVP_Desc;
 	ZeroMemory(&WVP_Desc, sizeof(WVP_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
-
 	WVP_Desc.Usage = D3D11_USAGE_DEFAULT;
 	WVP_Desc.ByteWidth = 64;
 	WVP_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	
 	HR(md3dDevice->CreateBuffer(&WVP_Desc, NULL, &m_WVPBuffer));
 
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	D3D11_BUFFER_DESC ColorSchemeId_Desc;
+	ZeroMemory(&ColorSchemeId_Desc, sizeof(ColorSchemeId_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+	ColorSchemeId_Desc.Usage = D3D11_USAGE_DEFAULT;
+	ColorSchemeId_Desc.ByteWidth = 16;
+	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ColorSchemeIdBuffer));
 
 	// Create mesh for visual rotation control.
 
@@ -719,13 +722,13 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 	XMFLOAT4X4 toolWorld = getWorld_visual();
 	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
 	
-	XMMATRIX worldViewProj = world * camView * camProj; // Semi-HACK w/ the rotation, or rather here it is hardcoded that it will rotate about with the objects rotation.
+	XMMATRIX worldViewProj = world * camView * camProj;
 	worldViewProj = XMMatrixTranspose(worldViewProj);
 
-	ConstantBuffer2 WVP;
-	WVP.WVP = worldViewProj;
-	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &WVP, 0, 0);
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_WVPBuffer);
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->colorScheme, 0, 0);
+	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
+	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
 
 	// Draw control circles.
 

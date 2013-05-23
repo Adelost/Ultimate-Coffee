@@ -10,7 +10,7 @@ Settings::Settings()
 	windowHandle = nullptr;
 	backBufferColor = Color(0.4f, 0.6f, 0.9f);
 	showSkybox = true;
-	colorBlindnessColorSchemeIsOn = false;
+	colorScheme = Enum::ColorScheme::RGB;
 }
 
 Settings::~Settings()
