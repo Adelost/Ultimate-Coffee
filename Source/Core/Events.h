@@ -35,6 +35,7 @@ enum EventType
 	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
 	EVENT_GET_COMMANDER_INFO,
 	EVENT_GET_NEXT_VISIBLE_COMMAND_ROW,
+	EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -306,7 +307,7 @@ class Event_RemoveCommandsFromCommandHistoryGUI : public Event
 {
 public:
 	int startIndex; // Index of first command to be removed
-	int nrOfCommands; // Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex".
+	int nrOfCommands; // Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex". If higher or equal than the number of commands in the command history GUI, this variable will become the number of commands in the command history GUI.
 
 public:
 	Event_RemoveCommandsFromCommandHistoryGUI(int startIndex, int nrOfCommands = 1) : Event(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
@@ -353,17 +354,15 @@ public:
 	}
 };
 
-class Event_GetNextOrPreviousVisibleCommandRowInCommandHistory : public Event
+class Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI : public Event
 {
 public:
 	int row; // Return value
 	bool next; // Next if true, previous if false.
-	int currentCommandHistoryIndex; // Needed for special case when jumping in and out of history (refer to Event_GetNextOrPreviousVisibleCommandRowInCommandHistory)
 
 public:
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory(bool next, int currentCommandHistoryIndex) : Event(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI(bool next) : Event(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
 	{
 		this->next = next;
-		this->currentCommandHistoryIndex = currentCommandHistoryIndex;
 	}
 };

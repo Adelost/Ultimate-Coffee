@@ -20,5 +20,6 @@ public:
 
 	static wchar_t* StrlToWstr(std::string string);
 
-	static int convertBetweenCommandHistoryIndexAndGUIListIndex(int commandHistoryIndex, int nrOfCommands);
+	static int convertFromCommandHistoryIndexToCommandHistoryGUIListIndex(int commandHistoryIndex);
+	static int convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(int commandHistoryGUIListIndex);
 };

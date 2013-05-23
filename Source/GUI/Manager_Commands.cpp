@@ -22,8 +22,6 @@ void Manager_Commands::init()
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
-	//nrOfSoundsPlayedSinceLastReset = 0;
-
 	// Init undo/redo system
 	m_commander = new Commander();
 	if(!m_commander->init())
@@ -151,10 +149,9 @@ bool Manager_Commands::storeCommandInCommandHistory(Command* command, bool execu
 void Manager_Commands::updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd)
 {
 	int nrOfCommandsAfterAdd = m_commander->getNrOfCommands();
-	int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), nrOfCommandsAfterAdd);
-
 	if(nrOfCommandsAfterAdd <= nrOfCommandsBeforeAdd) // If history overwrite took place: remove command representations from GUI.
 	{
+		int GUI_Index = Converter::convertFromCommandHistoryIndexToCommandHistoryGUIListIndex(m_commander->getCurrentCommandIndex());
 		int nrOfCommandToBeRemovedFromGUI = nrOfCommandsBeforeAdd - nrOfCommandsAfterAdd;
 		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(GUI_Index, nrOfCommandToBeRemovedFromGUI+1));
 	}
@@ -165,9 +162,6 @@ bool Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 {
 	if(!m_commander->tryToJumpInCommandHistory(commandHistoryIndex))
 	{
-		//QSound sound("Windows Ding.wav");
-		//sound.play();
-
 		static QSound sound("Windows Ding.wav");
 		if(sound.isFinished()) // Still does not work as intended (2013-05-22 22.06) when holding down CTRL+Z or CTRL+Y
 		{
@@ -180,16 +174,28 @@ bool Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 
 void Manager_Commands::updateCurrentCommandGUI()
 {
-	int GUI_Index = Converter::convertBetweenCommandHistoryIndexAndGUIListIndex(m_commander->getCurrentCommandIndex(), m_commander->getNrOfCommands());
+	int GUI_Index = Converter::convertFromCommandHistoryIndexToCommandHistoryGUIListIndex(m_commander->getCurrentCommandIndex());
 	SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
+}
+
+void Manager_Commands::newProject()
+{
+	int nrOfCommands = m_commander->getNrOfCommands();
+	clearCommandHistoryGUI();
+	m_commander->reset();
+	SEND_EVENT(&Event(EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI));
+	updateCurrentCommandGUI();
 }
 
 void Manager_Commands::loadCommandHistory(std::string path)
 {
+	newProject();
+
 	if(m_commander->tryToLoadCommandHistory(path))
 	{
 		m_lastValidProjectPath = path;
 
+		// Add to GUI
 		std::vector<Command*>* commands = m_commanderSpy->getCommands();
 		int nrOfCommands = commands->size();
 		for(int i=0;i<nrOfCommands;i++)
@@ -223,6 +229,12 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	}
 }
 
+void Manager_Commands::clearCommandHistoryGUI()
+{
+	int nrOfCommands = m_commander->getNrOfCommands();
+	SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, nrOfCommands+1)); // +1 removes ROOT_COMMAND
+}
+
 void Manager_Commands::setBackBufferColor(QString p_str_color)
 {
 	QColor color = (p_str_color);
@@ -245,17 +257,10 @@ Manager_Commands::~Manager_Commands()
 
 void Manager_Commands::redoLatestCommand()
 {
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(true, m_commander->getCurrentCommandIndex());
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI returnValue(true);
 	SEND_EVENT(&returnValue);
-	int rowNr = returnValue.row;
-	
-	// Special case: '-1' mean that the current command is outside of history. Do not jump to -1 (since that is the current command index already).
-	// Refer to the special case regarding "m_commandHistoryListWidget->currentRow()"
-	if(rowNr == -1)
-	{
-		rowNr = 0;
-	}
-	if(jumpInCommandHistory(rowNr))
+	int commandHistoryIndex = Converter::convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(returnValue.row); 
+	if(jumpInCommandHistory(commandHistoryIndex))
 	{
 		updateCurrentCommandGUI();
 	}
@@ -263,9 +268,10 @@ void Manager_Commands::redoLatestCommand()
 
 void Manager_Commands::undoLatestCommand()
 {
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistory returnValue(false, m_commander->getCurrentCommandIndex());
+	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI returnValue(false);
 	SEND_EVENT(&returnValue);
-	if(jumpInCommandHistory(returnValue.row))
+	int commandHistoryIndex = Converter::convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(returnValue.row);
+	if(jumpInCommandHistory(commandHistoryIndex))
 	{
 		updateCurrentCommandGUI();
 	}
@@ -304,8 +310,6 @@ void Manager_Commands::loadProjectFileDialog()
 	// If the user clicks "Open"
 	if(!fileName.isEmpty())
 	{
-		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
-
 		std::string path = fileName.toLocal8Bit();
 		loadCommandHistory(path);
 	}
@@ -392,8 +396,7 @@ void Manager_Commands::onEvent(Event* e)
 		}
 	case EVENT_NEW_PROJECT:
 		{
-			SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
-			m_commander->reset();
+			newProject();
 			break;
 		}
 	}
@@ -408,9 +411,6 @@ void Manager_Commands::enableSkybox( bool state )
 
 void Manager_Commands::loadRecentCommandHistory()
 {
-	//also refer to "loadProjectFileDialog"
-	SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, m_commander->getNrOfCommands())); // Clear command history GUI list
-
 	std::string path = "./recent.uc";
 	loadCommandHistory(path);
 }

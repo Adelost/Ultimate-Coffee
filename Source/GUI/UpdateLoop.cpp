@@ -32,7 +32,7 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 
 	// Init game
-	//SEND_EVENT(&Event(EVENT_NEW_PROJECT));
+	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 
 	// Create Entities
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
@@ -63,8 +63,8 @@ void UpdateLoop::update()
 
 void UpdateLoop::computeFPS()
 {
-	// NOTE: Needs to clean up this code later on,
-	// but it works for now.
+	// NOTE: Need to clean up this code later on (vagt),
+	// but it works for now (nowadays?).
 
 	static int num_frames = 0;
 	static float timeElapsed = 0.0f;
@@ -102,7 +102,7 @@ void UpdateLoop::onEvent( Event* e )
 	EventType type = e->type();
 	switch (type)
 	{
-	case EVENT_NEW_PROJECT:
+	case EVENT_NEW_PROJECT: // Also refer to Manager_Commands::onEvent
 		{
 			// Remove previous
 			//WORLD()->manager_entity()->clear();
