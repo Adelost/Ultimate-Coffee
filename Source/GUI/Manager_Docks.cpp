@@ -160,6 +160,7 @@ void Manager_Docks::setupMenu()
 	// Item Browser
 
 	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
+	dock->setWindowTitle("Item Browser (Not fully implemented)");
 	m_itemBrowser = new ItemBrowser(dock);
 	dock->setWidget(m_itemBrowser);
 
