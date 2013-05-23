@@ -9,7 +9,7 @@ Settings::Settings()
 	deltaTime = 0.0f;
 	windowHandle = nullptr;
 	backBufferColor = Color(0.4f, 0.6f, 0.9f);
-	showSkybox = false; //check
+	m_showSkybox = true;
 	colorBlindnessColorSchemeIsOn = false;
 }
 
@@ -31,9 +31,10 @@ void Settings::setSelectedTool( int toolType )
 	}		
 }
 
-int Settings::selectedTool()
+void Settings::setShowSkybox( bool state )
 {
-	return m_selectedTool;
+	m_showSkybox = state;
+	SEND_EVENT(&Event(EVENT_SKYBOX_CHANGED));
 }
 
 ButtonState::ButtonState()

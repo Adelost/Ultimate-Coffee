@@ -61,10 +61,10 @@ void Manager_Tools::setupActions()
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
 	//createToolAction(mapper, Enum::Tool_Selection, "Selection");
-	createToolAction(mapper, Enum::Tool_Translate,	"Translate")->activate(QAction::Trigger);
-	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate");
-	createToolAction(mapper, Enum::Tool_Scale,		"Scale");
-	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry");
+	createToolAction(mapper, Enum::Tool_Translate,	"Translate", "Select and translate")->activate(QAction::Trigger);
+	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate", "Select and rotate");
+	createToolAction(mapper, Enum::Tool_Scale,		"Scale", "Select and scale");
+	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create new entities");
 	//createToolAction(mapper, Enum::Tool_Entity,		"Entity");
 
 	// Context bar
@@ -76,9 +76,12 @@ void Manager_Tools::setupActions()
 
 	//m_ui->contextBar->addSeparator();
 	a = createContextIcon("Coffee");
+	a->setToolTip("Recreate geometry");
 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
 	a = createContextIcon("Experiment");
+	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
+	a->setToolTip("Create 1 asteroid");
 	a = createContextIcon("Tool");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
 
@@ -109,18 +112,19 @@ QIcon Manager_Tools::createIcon( std::string p_icon )
 	return QIcon(path.c_str());
 }
 
-QAction* Manager_Tools::createToolAction( QSignalMapper* p_mapper, int p_type, std::string p_icon )
+QAction* Manager_Tools::createToolAction( QSignalMapper* mapper, int type, std::string icon, std::string toolTip )
 {
 	std::string path = "";
-	path = path + ICON_PATH + "Tools/" + p_icon;
+	path = path + ICON_PATH + "Tools/" + icon;
 
-	QAction* a = new QAction(QIcon(path.c_str()), p_icon.c_str(), m_window);
+	QAction* a = new QAction(QIcon(path.c_str()), icon.c_str(), m_window);
+	a->setToolTip(toolTip.c_str());
 	a->setCheckable(true);
 	m_toolGroup->addAction(a);
 	m_ui->toolBar->addAction(a);
 
-	connect(a, SIGNAL(triggered()), p_mapper, SLOT(map()));
-	p_mapper->setMapping(a, p_type);
+	connect(a, SIGNAL(triggered()), mapper, SLOT(map()));
+	mapper->setMapping(a, type);
 
 	return a;
 }

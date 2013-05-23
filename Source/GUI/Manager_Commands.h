@@ -23,6 +23,7 @@ private:
 	Commander* m_commander;
 	CommanderSpy* m_commanderSpy;
 	std::string m_lastValidProjectPath;
+	QAction* m_action_skybox;
 	//QTimer soundTimer;
 	//int nrOfSoundsPlayedSinceLastReset;
 

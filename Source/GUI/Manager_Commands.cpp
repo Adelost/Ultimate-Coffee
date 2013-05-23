@@ -18,6 +18,7 @@ void Manager_Commands::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRACK_TO_COMMAND_HISTORY_INDEX);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMANDER_INFO);
 	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_PROJECT);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SKYBOX_CHANGED);
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
@@ -123,8 +124,9 @@ void Manager_Commands::setupMenu()
 		path = path + ICON_PATH + "Options/" + icon_name;
 
 		QAction* a = new QAction(QIcon(path.c_str()), icon_name.c_str(), m_window);
+		m_action_skybox = a;
 		a->setCheckable(true);
-		a->setChecked(true);
+		a->setChecked(SETTINGS()->showSkybox());
 		a->setToolTip("Toggle skybox");
 		m_toolbar_commands->addAction(a);
 
@@ -322,6 +324,11 @@ void Manager_Commands::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type)
 	{
+	case EVENT_SKYBOX_CHANGED:
+		{
+			m_action_skybox->setChecked(SETTINGS()->showSkybox());
+		}
+		break;
 	case EVENT_STORE_COMMAND: // Add a command, sent in an event, to the commander. It might also be executed.
 		{
 			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);

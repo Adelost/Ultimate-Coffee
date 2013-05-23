@@ -159,10 +159,9 @@ void Manager_Docks::setupMenu()
 
 	// Item Browser
 
-	// Commented out as of 2013-05-22 22.09. Reason: functionality missing
-	//dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
-	//m_itemBrowser = new ItemBrowser(dock);
-	//dock->setWidget(m_itemBrowser);
+	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
+	m_itemBrowser = new ItemBrowser(dock);
+	dock->setWidget(m_itemBrowser);
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);

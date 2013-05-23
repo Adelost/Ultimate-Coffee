@@ -29,6 +29,7 @@ class Settings
 {
 private:
 	int m_selectedTool;
+	bool m_showSkybox;
 
 public:
 	ButtonState button;
@@ -43,7 +44,6 @@ public:
 	int DXViewPortTopLeftY;
 	int DXViewPortMinDepth;
 	int DXViewPortMaxDepth;
-	bool showSkybox;
 	Int2 lastMousePosition;
 
 	bool colorBlindnessColorSchemeIsOn;
@@ -54,5 +54,7 @@ public:
 
 public:
 	void setSelectedTool(int toolType);
-	int selectedTool();
+	int selectedTool(){return m_selectedTool;}
+	void setShowSkybox(bool state);
+	bool showSkybox(){return m_showSkybox;}
 };

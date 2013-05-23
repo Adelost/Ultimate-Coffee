@@ -2,6 +2,7 @@
 #include "Command_SkyBox.h"
 
 #include "World.h"
+#include "Events.h"
 
 Command_SkyBox::Command_SkyBox()
 {
@@ -20,12 +21,13 @@ void Command_SkyBox::setShowSkyBox(bool showSkyBox)
 
 void Command_SkyBox::doRedo()
 {
-	SETTINGS()->showSkybox = dataStruct_.showSkyBox;
+
+	SETTINGS()->setShowSkybox(dataStruct_.showSkyBox);
 }
 
 void Command_SkyBox::undo()
 {
-	SETTINGS()->showSkybox = !dataStruct_.showSkyBox;
+	SETTINGS()->setShowSkybox(!dataStruct_.showSkyBox);
 }
 
 void* Command_SkyBox::accessDerivedClassDataStruct()
