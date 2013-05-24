@@ -124,6 +124,9 @@
     <ClInclude Include="xnacollision.h">
       <Filter>Source\Tools\Helpers %28temporarily put here%29</Filter>
     </ClInclude>
+    <ClInclude Include="Handle_CamViewRotation.h">
+      <Filter>Source\Tools\Handles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -206,6 +209,9 @@
     </ClCompile>
     <ClCompile Include="xnacollision.cpp">
       <Filter>Source\Tools\Helpers %28temporarily put here%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle_CamViewRotation.cpp">
+      <Filter>Source\Tools\Handles</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

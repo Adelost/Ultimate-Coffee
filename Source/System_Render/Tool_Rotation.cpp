@@ -124,6 +124,8 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 				XMVECTOR viewVectorAxis = XMVectorZero();												// TO-DO:	Get camera's view vector and use it here.
 				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
 				aRotationToolHandleWasSelected = true;
+
+
 			}
 		}
 
@@ -472,54 +474,55 @@ bool Tool_Rotation::getIsVisible()
 	return isVisible;
 }
 
-void Tool_Rotation::updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector)
+
+void Tool_Rotation::updateViewRectangleWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector, XMFLOAT3 &camRightVector)
 {
 	XMVECTOR loadedCamViewVector = XMLoadFloat3(&camViewVector);
 	XMVECTOR loadedCamUpVector = XMLoadFloat3(&camUpVector);
-	XMVECTOR camRightVector = XMVector3Cross(loadedCamUpVector, loadedCamViewVector);
+	XMVECTOR loadedCamRightVector = XMLoadFloat3(&camRightVector); //XMVector3Cross(loadedCamUpVector, loadedCamViewVector);
 
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[0], camRightVector);
-	world_viewPlaneTranslationControl_logical.m[0][3] = 0.0f;
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[1], loadedCamUpVector);
-	world_viewPlaneTranslationControl_logical.m[1][3] = 0.0f;
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_logical.m[2], loadedCamViewVector);
-	world_viewPlaneTranslationControl_logical.m[2][3] = 0.0f;
-
-	world_viewPlaneTranslationControl_logical._41 = world.m[3][0];
-	world_viewPlaneTranslationControl_logical._42 = world.m[3][1];
-	world_viewPlaneTranslationControl_logical._43 = world.m[3][2];
-	world_viewPlaneTranslationControl_logical._44 = world.m[3][3];
-
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[0], camRightVector);
-	world_viewPlaneTranslationControl_visual.m[0][3] = 0.0f;
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[1], loadedCamUpVector);
-	world_viewPlaneTranslationControl_visual.m[1][3] = 0.0f;
-	XMStoreFloat3((XMFLOAT3*)world_viewPlaneTranslationControl_visual.m[2], loadedCamViewVector);
-	world_viewPlaneTranslationControl_visual.m[2][3] = 0.0f;
+	XMStoreFloat3((XMFLOAT3*)world_viewRectangle_logical.m[0], loadedCamRightVector);
+	world_viewRectangle_logical.m[0][3] = 0.0f;
+	XMStoreFloat3((XMFLOAT3*)world_viewRectangle_logical.m[1], loadedCamUpVector);
+	world_viewRectangle_logical.m[1][3] = 0.0f;
+	XMStoreFloat3((XMFLOAT3*)world_viewRectangle_logical.m[2], loadedCamViewVector);
+	world_viewRectangle_logical.m[2][3] = 0.0f;
 
 	Vector3 activeEntityPos = activeEntity->fetchData<Data::Transform>()->position;
-	world_viewPlaneTranslationControl_visual._41 = activeEntityPos.x;
-	world_viewPlaneTranslationControl_visual._42 = activeEntityPos.y;
-	world_viewPlaneTranslationControl_visual._43 = activeEntityPos.z;
-	world_viewPlaneTranslationControl_visual._44 = 1.0f;
+	world_viewRectangle_logical._41 = activeEntityPos.x; //world.m[3][0];
+	world_viewRectangle_logical._42 = activeEntityPos.y; //world.m[3][1];
+	world_viewRectangle_logical._43 = activeEntityPos.z; //world.m[3][2];
+	world_viewRectangle_logical._44 = 1.0f; //world.m[3][3];
+
+	XMStoreFloat3((XMFLOAT3*)world_viewRectangle_visual.m[0], loadedCamRightVector);
+	world_viewRectangle_visual.m[0][3] = 0.0f;
+	XMStoreFloat3((XMFLOAT3*)world_viewRectangle_visual.m[1], loadedCamUpVector);
+	world_viewRectangle_visual.m[1][3] = 0.0f;
+	XMStoreFloat3((XMFLOAT3*)world_viewRectangle_visual.m[2], loadedCamViewVector);
+	world_viewRectangle_visual.m[2][3] = 0.0f;
+
+	world_viewRectangle_visual._41 = activeEntityPos.x;
+	world_viewRectangle_visual._42 = activeEntityPos.y;
+	world_viewRectangle_visual._43 = activeEntityPos.z;
+	world_viewRectangle_visual._44 = 1.0f;
 }
 
-XMFLOAT4X4 Tool_Rotation::getWorld_viewPlaneTranslationControl_logical()
+XMFLOAT4X4 Tool_Rotation::getWorld_viewRectangle_logical()
 {
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
-	XMMATRIX loadedWorld = XMLoadFloat4x4(&world_viewPlaneTranslationControl_logical);
+	XMMATRIX loadedWorld = XMLoadFloat4x4(&world_viewRectangle_logical);
 	XMFLOAT4X4 logicalWorld;
 	XMStoreFloat4x4(&logicalWorld, scaling * loadedWorld);
 
 	return logicalWorld;
 }
 
-XMFLOAT4X4 Tool_Rotation::getWorld_viewPlaneTranslationControl_visual()
+XMFLOAT4X4 Tool_Rotation::getWorld_viewRectangle_visual()
 {
 	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
 
-	XMMATRIX loadedWorld = XMLoadFloat4x4(&world_viewPlaneTranslationControl_visual);
+	XMMATRIX loadedWorld = XMLoadFloat4x4(&world_viewRectangle_visual);
 	XMFLOAT4X4 visualWorld;
 	XMStoreFloat4x4(&visualWorld, scaling * loadedWorld);
 
@@ -743,6 +746,149 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	vbd.MiscFlags = 0;
 	vinitData.pSysMem = &circleMeshDataZ.Vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_Zcircle_VB));
+
+	// View circle.
+	circleMeshDataZ.Vertices.clear();
+	color = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	radius = 1.15f;
+	nrOfPoints = 64;
+	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataZ, 'z');
+
+	// Convert line strip to line list.
+	for(unsigned int i = 0; i < circleMeshDataZ.Vertices.size(); i = i + 1)
+	{
+		if(i != circleMeshDataZ.Vertices.size() - 1)
+		{
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataZ.Vertices.at(i).Position.x, circleMeshDataZ.Vertices.at(i).Position.y, circleMeshDataZ.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataZ.Vertices.at(i + 1).Position.x, circleMeshDataZ.Vertices.at(i + 1).Position.y, circleMeshDataZ.Vertices.at(i + 1).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+		else
+		{
+
+			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataZ.Vertices.at(i).Position.x, circleMeshDataZ.Vertices.at(i).Position.y, circleMeshDataZ.Vertices.at(i).Position.z, 1.0f);
+			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataZ.Vertices.at(0).Position.x, circleMeshDataZ.Vertices.at(0).Position.y, circleMeshDataZ.Vertices.at(0).Position.z, 1.0f);
+
+			listOfLineSegmentsAsPoints.push_back(linePointA);
+			listOfLineSegmentsAsPoints.push_back(linePointB);
+		}
+	}
+
+	//zRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+	listOfLineSegmentsAsPoints.clear();
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataZ.Vertices.size();
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	vinitData.pSysMem = &circleMeshDataZ.Vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_viewCircle_VB));
+
+	// Init guiding lines...
+
+	GeometryGenerator::MeshData2 meshVertices;	float lengthOfLine = 3000.0f;
+	XMMATRIX localSpaceTrans;
+	XMVECTOR endPointA;
+	XMVECTOR endPointB;
+	XMVECTOR colorA;
+	XMVECTOR colorB;
+
+	// X guiding line.
+
+	localSpaceTrans = XMMatrixIdentity();
+	endPointA = XMVectorSet(-lengthOfLine, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(lengthOfLine, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+	colorB = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 79998, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_xAxisLine_VB));
+
+	meshVertices.Vertices.clear();
+
+	// Y guiding line.
+
+	localSpaceTrans = XMMatrixRotationZ(-Math::Pi / 2);
+	endPointA = XMVectorSet(-lengthOfLine, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(+lengthOfLine, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
+	colorB = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 79998, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_yAxisLine_VB));
+
+	meshVertices.Vertices.clear();
+
+	// Z guiding line.
+
+	localSpaceTrans = XMMatrixRotationY(Math::Pi / 2);
+	endPointA = XMVectorSet(-lengthOfLine, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(+lengthOfLine, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
+	colorB = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 79998, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_zAxisLine_VB));
+
+	meshVertices.Vertices.clear();
+
+	std::vector<Vertex::PosCol> vertices;
+	Vertex::PosCol posCol;
+
+	// XY triangle-list rectangle.
+	posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f; // Transparent.
+
+	// Triangle A...
+
+	posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = -1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	// Triangle B...
+
+	posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = 1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+	vertices.push_back(posCol);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 6;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	vinitData.pSysMem = &vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_viewRectangle_VB));
 }
 
 void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
@@ -759,21 +905,76 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
 
-	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+	XMMATRIX worldViewProj;
+
+		// Draw obscuring rectangle.
+		XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewRectangle_visual());
+
+		float scale = getScale();
+		XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+
+		worldViewProj = viewControlWorld * camView * camProj;
+		worldViewProj = XMMatrixTranspose(worldViewProj);
+
+		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+		ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
+		md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
+
+
+		//viewControlWorld = XMLoadFloat4x4(&getWorld_viewRectangle_visual());
+		//scaling = XMMatrixScaling(scale, scale, scale);
+		//worldViewProj = viewControlWorld * camView * camProj;
+		//worldViewProj = XMMatrixTranspose(worldViewProj);
+		//md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+		md3dImmediateContext->OMSetDepthStencilState(RenderStates::AlwaysDSS, 0);
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewCircle_VB, &stride, &offset);
+		md3dImmediateContext->Draw(65, 0);
+
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					
+		D3D11_BLEND_DESC blendDesc;
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			
+		ID3D11BlendState *blendState;
+		md3dDevice->CreateBlendState(&blendDesc, &blendState);
+			
+		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		UINT sampleMask   = 0xffffffff;
+			
+		md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+		md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
+			
+		ReleaseCOM(blendState);
+			
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
+		md3dImmediateContext->Draw(6, 0);
+			
+		md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
+
+		
+
+	// Draw control circles.
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
 	XMMATRIX world = XMLoadFloat4x4(&toolWorld);
 	
-	XMMATRIX worldViewProj = world * camView * camProj;
+	worldViewProj = world * camView * camProj;
 	worldViewProj = XMMatrixTranspose(worldViewProj);
 
 	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
 	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->m_ColorScheme_3DManipulatorWidgets, 0, 0);
-	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
 	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
-
-	// Draw control circles.
 
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
@@ -785,6 +986,37 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Zcircle_VB, &stride, &offset);
 	md3dImmediateContext->Draw(65, 0);
+
+
+	
+
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	toolWorld = getWorld_visual();
+	world = XMLoadFloat4x4(&toolWorld);
+	worldViewProj = world * camView * camProj;
+	worldViewProj = XMMatrixTranspose(worldViewProj);
+	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+
+	if(yRotationHandle->getIsSelected())
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_yAxisLine_VB, &stride, &offset);
+		md3dImmediateContext->Draw(80000, 0);
+	}
+	
+	if(xRotationHandle->getIsSelected())
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_xAxisLine_VB, &stride, &offset);
+		md3dImmediateContext->Draw(80000, 0);
+	}
+	if(zRotationHandle->getIsSelected())
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_zAxisLine_VB, &stride, &offset);
+		md3dImmediateContext->Draw(80000, 0);
+	}
+
+
+
 	
 	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary.
 }

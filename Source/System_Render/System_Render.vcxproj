@@ -162,6 +162,10 @@
     <ClInclude Include="Factory_Geometry.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="Handle_CamViewPlane.h" />
+    <ClInclude Include="Handle_CamViewRotation.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Handle_CamViewTranslation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -206,6 +210,10 @@
     <ClCompile Include="Factory_Geometry.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Handle_CamViewPlane.cpp" />
+    <ClCompile Include="Handle_CamViewRotation.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Handle_CamViewTranslation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
