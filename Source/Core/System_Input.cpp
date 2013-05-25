@@ -19,7 +19,7 @@ void System::Input::update()
 	float speed = 15.0f;
 	if(SETTINGS()->button.key_shift)
 		speed *= 5.0f;
-	float delta = SETTINGS()->deltaTime * speed;
+	float delta = SETTINGS()->trueDeltaTime * speed;
 	float strafe = 0.0f;
 	float walk = 0.0f;
 
@@ -55,14 +55,14 @@ void System::Input::update()
 
 
 	// Do some random stuff
-	DataMapper<Data::Update> map_update;
+	DataMapper<Data::Movement_Floating> map_update;
 	while(map_update.hasNext())
 	{
 		Entity* e = map_update.nextEntity();
 		if(!e->fetchData<Data::Selected>())
 		{
 			Data::Transform* d_transform = e->fetchData<Data::Transform>();
-			Data::Update* d_update = e->fetchData<Data::Update>();
+			Data::Movement_Floating* d_update = e->fetchData<Data::Movement_Floating>();
 			d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime;
 
 			// Apply rotation
@@ -81,7 +81,7 @@ void System::Input::update()
 	{
 		static float cooldown = 0.0f;
 		if(cooldown > 0.0f)
-			cooldown -= SETTINGS()->deltaTime;
+			cooldown -= SETTINGS()->trueDeltaTime;
 		else
 		{
 			// Compute picking ray to place Entities onto

@@ -84,6 +84,11 @@ void Manager_Tools::setupActions()
 	a = createContextIcon("Experiment");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
+	a = createContextIcon("Simulate");
+	a->setToolTip("Run simulation");
+	a->setCheckable(true);
+	a->setChecked(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
 }
 
 void Manager_Tools::action_about()
@@ -199,4 +204,9 @@ void Manager_Tools::createAsteroid()
 	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 	//command_list.back()->setName("New asteroid");
 	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+}
+
+void Manager_Tools::runSimulation( bool state )
+{
+	SETTINGS()->setRunSimulation(state);
 }

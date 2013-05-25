@@ -144,7 +144,7 @@ Matrix Data::Transform::toRotMatrix()
 	return m;
 }
 
-Data::Update::Update()
+Data::Movement_Floating::Movement_Floating()
 {
 	direction = Math::randomDirection();
 	speed = Math::randomFloat(0.0f, 0.3f);
@@ -154,4 +154,12 @@ Data::Update::Update()
 	v = v*Math::Pi*2*speed;
 
 	rotation = v;
+}
+
+Data::Render::Manager Data::Render::manager;
+
+Data::Render::Render( Entity* entity, int meshId )
+{
+	this->owner = entity->toPointer();
+	setMesh(meshId);
 }

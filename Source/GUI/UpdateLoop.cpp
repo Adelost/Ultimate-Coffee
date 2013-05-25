@@ -54,7 +54,11 @@ void UpdateLoop::update()
 	// Update game
 	computeFPS();
 	m_updateTimer->tick();
-	SETTINGS()->deltaTime = m_updateTimer->deltaTime();
+	SETTINGS()->trueDeltaTime = m_updateTimer->deltaTime();
+	if(SETTINGS()->runSimulation())
+		SETTINGS()->deltaTime = SETTINGS()->trueDeltaTime;
+	else
+		SETTINGS()->deltaTime = 0.0f;
 	m_world->update();
 
 	// Update EventManager to enable queued messages

@@ -511,6 +511,12 @@ void Manager_Docks::onEvent(Event* e)
 	case EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI:
 		{
 			QListWidgetItem* rootCommandListItem = new QListWidgetItem("Start");
+
+			// Add icon
+			std::string iconPath = ICON_PATH;
+			iconPath += "Tools/New";
+			rootCommandListItem->setIcon(QIcon(iconPath.c_str()));
+
 			//QColor c = QColor(1,0,0);
 			//rootCommandListItem->setBackgroundColor(c);
 			//rootCommandListItem->setTextAlignment(5);
@@ -810,7 +816,7 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 		QString filename = i.baseName();
 
 		QIcon icon(path + "/" + filename);
-		QListWidgetItem* item = new QListWidgetItem(icon, filename);
+		Item_Prefab* item = new Item_Prefab(icon, filename);
 		m_grid->addItem(item);
 	}
 }
@@ -836,5 +842,11 @@ void ItemBrowser::onEvent( Event* e )
 
 void ItemBrowser::selectEntity( QListWidgetItem* item )
 {
-	SETTINGS()->setSelectedTool(Enum::Tool_Geometry);
+	// Switch to Geometry Tool
+	if(SETTINGS()->selectedTool() != Enum::Tool_Geometry)
+		SETTINGS()->setSelectedTool(Enum::Tool_Geometry);
+
+	// Select corresponding Entity
+	Item_Prefab* i = static_cast<Item_Prefab*>(item);
+	DEBUGPRINT("Selected " + Converter::IntToStr(i->modelId));
 }

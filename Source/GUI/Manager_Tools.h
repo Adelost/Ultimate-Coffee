@@ -38,4 +38,6 @@ public slots:
 	void createAsteroids();
 	void createAsteroid();
 	void newProject();
+	void runSimulation(bool state);
+	
 };

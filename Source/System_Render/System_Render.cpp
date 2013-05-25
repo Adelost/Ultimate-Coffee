@@ -4,6 +4,8 @@
 
 System::Render::Render()
 {
+	Data::Render::initClass();
+
 	setupDirectX();
 }
 

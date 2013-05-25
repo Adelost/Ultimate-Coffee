@@ -5,6 +5,8 @@
 #include "Math.h"
 #include "Data_Camera.h"
 #include "EntityPointer.h"
+#include "Batch.h"
+#include "Enums.h"
 
 class Entity;
 
@@ -71,18 +73,78 @@ namespace Data
 	};
 
 	
+
+	
 	/**
 	Should contain everything render needs.
 	Position should be fetched from Translation.
 	*/
 	class Render : public Type<Render>
 	{
+	private:
+		/**
+		Helps rendering do some optimization.
+		*/
+		class Manager
+		{
+		public:
+			std::vector<Batch<EntityPointer>> entityIdFromMeshId;
+		};
+
+		class MeshInfo
+		{
+		public:
+			int id;
+			int index;
+			Color color;
+
+		public:
+			MeshInfo()
+			{
+				id = -1;
+				index = -1;
+			}
+		};
+
 	public:
-		int meshId;
+		static Manager manager;
+
+	public:
+		MeshInfo mesh;
+		EntityPointer owner;
+		
+	public:
+		Render(Entity* entity, int meshId);
+		static void initClass()
+		{
+			// Build render batches
+			for(int i=0; i<Enum::Mesh_End; i++)
+				manager.entityIdFromMeshId.push_back(Batch<EntityPointer>());
+		}
+		void clean()
+		{
+			clearMesh();
+		}
+
+	public:
+		void setMesh(int meshId)
+		{
+			clearMesh();
+
+			int index = manager.entityIdFromMeshId[meshId].addItem(owner);
+			mesh.index = index;
+		}
+		void clearMesh()
+		{
+			if(mesh.index != -1)
+			{
+				manager.entityIdFromMeshId[mesh.id].removeItemAt(mesh.index);
+			}
+		}
 	};
 
 
-	class Update : public Type<Update>
+	class Movement_Floating : public Type<Movement_Floating>
 	{
 	public:
 		Vector3 direction;
@@ -90,11 +152,11 @@ namespace Data
 		float speed;
 
 	public:
-		Update();
+		Movement_Floating();
 	};
 
 	/**
-	Should containt point light information.
+	Should contain point light information.
 	Position should be fetched from Translation.
 	*/
 	class PointLight : public Type<PointLight>

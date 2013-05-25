@@ -47,7 +47,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 		
 		e->addData(Data::Bounding());
-		e->addData(Data::Render());
+		e->addData(Data::Render(e, Enum::Mesh_Cube));
 	}
 
 	if(type == Enum::Entity_Asteroid)
@@ -64,8 +64,8 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 
 		e->addData(Data::Bounding());
-		e->addData(Data::Render());
-		e->addData(Data::Update());
+		e->addData(Data::Render(e, Enum::Mesh_Sphere));
+		e->addData(Data::Movement_Floating());
 	}
 
 	if(type == Enum::Entity_Camera)

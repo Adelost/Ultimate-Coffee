@@ -90,6 +90,11 @@ public:
 
 		if(dataIndex != -1)
 		{
+			// Clean attribute (e.g. remove dependencies
+			// and such, if attribute have any)
+// 			Data::Type<T>* data = static_cast<Data::Type<T>*>(m_batch.itemAt(dataIndex));
+// 			data->vClean();
+
 			m_batch.removeItemAt(dataIndex);
 			m_owner_list[dataIndex] = -1;
 			m_dataIndexFromEntityId_list[p_entityId] = -1;

@@ -5,6 +5,7 @@
 #include <Core/IObserver.h>
 #include <QDockWidget.h>
 #include <QListWidget.h>
+
 class Window;
 class QDockWidget;
 class QMenu;
@@ -67,6 +68,17 @@ public:
 	void update();
 };
 
+class Item_Prefab : public QListWidgetItem
+{
+public:
+	Item_Prefab(QIcon icon, QString filname) : QListWidgetItem(icon, filname)
+	{
+		static int i;
+		modelId = i;
+		i++;
+	}
+	int modelId;
+};
 
 class ItemBrowser : public QWidget, public IObserver
 {

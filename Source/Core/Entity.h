@@ -5,7 +5,7 @@
 #include "Enums.h"
 #include "Manager_Data.h"
 
-class World;
+class Manager_Entity;
 
 /**
 Standard representation of a game object.
@@ -13,14 +13,23 @@ Standard representation of a game object.
 class Entity
 {
 private:
+	static Manager_Data* s_manager_data;
+	static Manager_Entity* s_manager_entity;
+
+private:
 	int m_id;
 	int m_uniqueId;
-	Manager_Data* m_data;
 	std::string m_name;
 	Enum::EntityType m_type;
 
 public:
 	Entity(int p_id, int p_uniqueId = 0);
+
+	/**
+	Setup class with with architecture. Must be
+	called before use.
+	*/
+	static void initClass();
 
 	/**
 	Called when deleting an Entity. 
@@ -39,7 +48,7 @@ public:
 	template<typename T>
 	T* addData(Data::Type<T>& p_data)
 	{
-		return m_data->addData(id(), p_data);
+		return s_manager_data->addData(id(), p_data);
 	}
 
 	/**
@@ -49,7 +58,7 @@ public:
 	void removeData()
 	{
 		int p_batchIndex = Data::Type<T>::classId();
-		m_data->removeData<T>(id(), p_batchIndex);
+		s_manager_data->removeData<T>(id(), p_batchIndex);
 	}
 
 	
@@ -67,7 +76,7 @@ public:
 		int p_batchIndex = Data::Type<T>::classId();
 
 		// Fetch data from Data Manager
-		return m_data->fetchData<T>(id(), p_batchIndex);
+		return s_manager_data->fetchData<T>(id(), p_batchIndex);
 	}
 
 	static Entity* findEntity(int p_id);

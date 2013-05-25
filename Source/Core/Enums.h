@@ -47,4 +47,14 @@ namespace Enum
 
 		Entity_End
 	};
+
+	enum Mesh
+	{
+		Mesh_Cube,
+		Mesh_Sphere,
+		Mesh_Pyramid,
+		Mesh_Test,
+
+		Mesh_End
+	};
 }
