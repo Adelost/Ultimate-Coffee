@@ -80,6 +80,9 @@ void Manager_3DTools::update()
 
 		if(currentlyChosenTransformTool == m_theTranslationTool)
 			m_theTranslationTool->updateViewPlaneTranslationControlWorld(d_camera->look(), d_camera->up(), d_camera->getRightVector());
+
+		if(currentlyChosenTransformTool == m_theRotationTool)
+			m_theRotationTool->updateViewRectangleWorld(d_camera->look(), d_camera->up(), d_camera->getRightVector());
 	}
 }
 

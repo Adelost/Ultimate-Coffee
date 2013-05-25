@@ -37,10 +37,17 @@ private:
 	ID3D11Device *md3dDevice;
 	ID3D11DeviceContext *md3dImmediateContext;
 
+	ID3D11Buffer* mMeshRotTool_xAxisLine_VB;
+	ID3D11Buffer* mMeshRotTool_yAxisLine_VB;
+	ID3D11Buffer* mMeshRotTool_zAxisLine_VB;
+
 	ID3D11Buffer* mMeshRotTool_circle_VB;
 	ID3D11Buffer* mMeshRotTool_Xcircle_VB;
 	ID3D11Buffer* mMeshRotTool_Ycircle_VB;
 	ID3D11Buffer* mMeshRotTool_Zcircle_VB;
+	ID3D11Buffer* mMeshRotTool_viewCircle_VB;
+
+	ID3D11Buffer* mMeshRotTool_viewRectangle_VB;
 
 	///////////////////////////////
 
@@ -70,6 +77,11 @@ private:
 	Handle_RotationCircle *viewAxisRotationHandle;
 
 	std::vector<XMFLOAT4> originalRotationQuatsOfActiveObject;
+
+	XMFLOAT4X4 world_viewRectangle_logical;
+	XMFLOAT4X4 world_viewRectangle_visual;
+
+	
 
 public:
 	Tool_Rotation(/*HWND windowHandle*/);
@@ -121,13 +133,15 @@ public:
 
 	XMFLOAT4X4 getWorld_visual();
 
+	
+
 	//
 
-	void updateViewPlaneTranslationControlWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector);
+	void updateViewRectangleWorld(XMFLOAT3 &camViewVector, XMFLOAT3 &camUpVector, XMFLOAT3 &camRightVector);
 
-	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_logical();
+	XMFLOAT4X4 getWorld_viewRectangle_logical();
 
-	XMFLOAT4X4 getWorld_viewPlaneTranslationControl_visual();
+	XMFLOAT4X4 getWorld_viewRectangle_visual();
 
 	EntityPointer getActiveObject();
 	
