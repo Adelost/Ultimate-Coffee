@@ -25,8 +25,8 @@ private:
 	std::string m_lastValidProjectPath;
 	QAction* m_action_skybox;
 
-	bool storeCommandInCommandHistory(Command* command, bool execute);
-	void updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd);
+	bool storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute);
+	void updateCommandHistoryGUI(std::vector<Command*>* commands, int nrOfCommandsBeforeAdd, bool displayAsSingleCommandHistoryEntry);
 	bool jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
 	void newProject();

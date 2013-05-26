@@ -114,13 +114,13 @@ void System::Input::update()
 			cooldown = 0.03f;
 		}
 	}
-	// If user is not creating more "Random Stuff (tm)" we
+	// If user is not creating more "Random Stuff (tm)"
 	// we add the stuff to history
 	else
 	{
 		if(command_list.size()>0)
 		{
-			SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list));
+			SEND_EVENT(&Event_AddToCommandHistory(&command_list))
 			command_list.clear();
 		}
 	}

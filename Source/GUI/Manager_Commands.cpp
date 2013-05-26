@@ -13,8 +13,7 @@
 
 void Manager_Commands::init()
 {
-	SUBSCRIBE_TO_EVENT(this, EVENT_STORE_COMMAND);
-	SUBSCRIBE_TO_EVENT(this, EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_TO_COMMAND_HISTORY);
 	SUBSCRIBE_TO_EVENT(this, EVENT_TRACK_TO_COMMAND_HISTORY_INDEX);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMANDER_INFO);
 	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_PROJECT);
@@ -132,21 +131,39 @@ void Manager_Commands::setupMenu()
 	}
 }
 
-bool Manager_Commands::storeCommandInCommandHistory(Command* command, bool execute)
+bool Manager_Commands::storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute)
 {
-	bool addCommandSucceeded = true;
+	int nrOfCommands = commands->size();
+	bool addCommandSucceeded = false;
+	Command* command;
 	if(execute)
 	{
-		addCommandSucceeded = m_commander->tryToAddCommandToHistoryAndExecute(command);
+		for(int i=0;i<nrOfCommands;i++)
+		{
+			command = commands->at(i);
+			addCommandSucceeded = m_commander->tryToAddCommandToHistoryAndExecute(command);
+			if(!addCommandSucceeded)
+			{
+				break;
+			}
+		}
 	}
 	else
 	{
-		addCommandSucceeded = m_commander->tryToAddCommandToHistory(command);
+		for(int i=0;i<nrOfCommands;i++)
+		{
+			command = commands->at(i);
+			addCommandSucceeded = m_commander->tryToAddCommandToHistory(command);
+			if(!addCommandSucceeded)
+			{
+				break;
+			}
+		}
 	}
 	return addCommandSucceeded;
 }
 
-void Manager_Commands::updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd)
+void Manager_Commands::updateCommandHistoryGUI(std::vector<Command*>* commands, int nrOfCommandsBeforeAdd, bool displayAsSingleCommandHistoryEntry)
 {
 	int nrOfCommandsAfterAdd = m_commander->getNrOfCommands();
 	if(nrOfCommandsAfterAdd <= nrOfCommandsBeforeAdd) // If history overwrite took place: remove command representations from GUI.
@@ -155,7 +172,8 @@ void Manager_Commands::updateCommandHistoryGUI(Command* command, bool hiddenInGU
 		int nrOfCommandToBeRemovedFromGUI = nrOfCommandsBeforeAdd - nrOfCommandsAfterAdd;
 		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(GUI_Index, nrOfCommandToBeRemovedFromGUI+1));
 	}
-	SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, hiddenInGUIList, GUI_MergeNumber));
+	SEND_EVENT(&Event_AddToCommandHistoryGUI(commands, displayAsSingleCommandHistoryEntry));
+	updateCurrentCommandGUI();
 }
 
 bool Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
@@ -197,13 +215,7 @@ void Manager_Commands::loadCommandHistory(std::string path)
 
 		// Add to GUI
 		std::vector<Command*>* commands = m_commanderSpy->getCommands();
-		int nrOfCommands = commands->size();
-		for(int i=0;i<nrOfCommands;i++)
-		{
-			Command* command = commands->at(i);
-			SEND_EVENT(&Event_AddCommandToCommandHistoryGUI(command, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
-		}
-		updateCurrentCommandGUI();
+		SEND_EVENT(&Event_AddToCommandHistoryGUI(commands, false)); // Add all commands to GUI //check false, enable hidden commands to be hidden, 2013-05-14 19.56
 
 		// Uncomment to print command history information to debug file
 		//m_commander->printCommandHistory("UltimateCoffe_CommandHistory_DEBUG_file_from_project_load.txt");
@@ -240,10 +252,10 @@ void Manager_Commands::clearCommandHistoryGUI()
 void Manager_Commands::setBackBufferColor(QString p_str_color)
 {
 	QColor color = (p_str_color);
-	Command_ChangeBackBufferColor* command0 = new Command_ChangeBackBufferColor();
-	command0->setDoColor(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f);
-	command0->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
-	SEND_EVENT(&Event_StoreCommandInCommandHistory(command0, true));
+	Command_ChangeBackBufferColor* command = new Command_ChangeBackBufferColor();
+	command->setDoColor(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f);
+	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
+	SEND_EVENT(&Event_AddToCommandHistory(command, true));
 }
 
 void Manager_Commands::translateSceneEntity()
@@ -335,50 +347,28 @@ void Manager_Commands::onEvent(Event* e)
 			m_action_skybox->setChecked(SETTINGS()->showSkybox());
 		}
 		break;
-	case EVENT_STORE_COMMAND: // Add a command, sent in an event, to the commander. It might also be executed.
+	case EVENT_ADD_TO_COMMAND_HISTORY: // Add a list of commands, sent in an event, to the commander.
 		{
-			Event_StoreCommandInCommandHistory* commandEvent = static_cast<Event_StoreCommandInCommandHistory*>(e);
+			Event_AddToCommandHistory* commandEvent = static_cast<Event_AddToCommandHistory*>(e);
+			std::vector<Command*>* commands = commandEvent->commands;
 			Command* command = commandEvent->command;
 			bool execute = commandEvent->execute;
-			bool setAsCurrentInGUI = commandEvent->setAsCurrentInGUI;
+			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
+
+			// Special case for backward compatibility: if the "command" variable of the event is not NULL, the "commands" is assumed to be unused.
+			// Create "commands" and add "command" to it.
+			if(command != NULL)
+			{
+				commands = new std::vector<Command*>;
+				commands->push_back(command);
+			}
 
 			int nrOfCommandsBeforeAdd = m_commander->getNrOfCommands();
-			if(!storeCommandInCommandHistory(command, execute))
+			if(!storeCommandsInCommandHistory(commands, execute))
 			{
 				MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add command to command history.");
 			}
-			updateCommandHistoryGUI(command, false, 0, nrOfCommandsBeforeAdd);
-			if(setAsCurrentInGUI)
-			{
-				updateCurrentCommandGUI();
-			}
-			break;
-		}
-	case EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY:
-		{
-			Event_StoreCommandsAsSingleEntryInCommandHistoryGUI* multipleCommandsEvent = static_cast<Event_StoreCommandsAsSingleEntryInCommandHistoryGUI*>(e);
-			std::vector<Command*>* commands = multipleCommandsEvent->commands;
-			bool execute = multipleCommandsEvent->execute;
-			
-			int nrOfCommands = commands->size();
-			for(int i=0;i<nrOfCommands;i++)
-			{
-				int mergeNumber = 0;
-				bool hidden = true;
-				Command* command = commands->at(i);
-				if(i==nrOfCommands-1)
-				{
-					hidden = false;
-					mergeNumber = nrOfCommands;
-				}
-				int nrOfCommandsBeforeAdd = m_commander->getNrOfCommands();
-				if(!storeCommandInCommandHistory(command, execute))
-				{
-					MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add command to command history.");
-				}
-				updateCommandHistoryGUI(command, hidden, mergeNumber, nrOfCommandsBeforeAdd);
-			}
-			updateCurrentCommandGUI();
+			updateCommandHistoryGUI(commands, nrOfCommandsBeforeAdd, displayAsSingleCommandHistoryEntry);
 			break;
 		}
 	case EVENT_TRACK_TO_COMMAND_HISTORY_INDEX:
@@ -408,7 +398,7 @@ void Manager_Commands::enableSkybox( bool state )
 {
 	Command_SkyBox* command_SkyBox = new Command_SkyBox();
 	command_SkyBox->setShowSkyBox(state);
-	SEND_EVENT(&Event_StoreCommandInCommandHistory(command_SkyBox, true));
+	SEND_EVENT(&Event_AddToCommandHistory(command_SkyBox, true));
 }
 
 void Manager_Commands::loadRecentCommandHistory()

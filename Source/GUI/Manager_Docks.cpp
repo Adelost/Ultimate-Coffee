@@ -19,7 +19,7 @@ Manager_Docks::~Manager_Docks()
 
 void Manager_Docks::init()
 {
-	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
@@ -325,111 +325,119 @@ void Manager_Docks::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type) 
 	{
-	case EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI: //Add command to the command history list in the GUI
+	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command to the command history list in the GUI
 		{
-			Event_AddCommandToCommandHistoryGUI* commandEvent = static_cast<Event_AddCommandToCommandHistoryGUI*>(e);
-			Command* command = commandEvent->command;
-			bool hidden = commandEvent->hidden;
-			int mergeNumber = commandEvent->mergeNumber;
+			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
+			std::vector<Command*>* commands = commandEvent->commands;
+			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
 			
-			QIcon commandIcon;
-			std::string commandText = "UNKNOWN COMMAND";
-			Enum::CommandType type = command->getType();
-			switch(type)
+			int nrOfCommandToBeAddedToCommandHistoryGUI = commands->size();
+			for(int i=0;i<nrOfCommandToBeAddedToCommandHistoryGUI;i++)
 			{
-			case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+				std::string commandText = "UNKNOWN COMMAND";
+				std::string appendToCommandText = "";
+				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAddedToCommandHistoryGUI > 1)
 				{
-					commandText = "Background color";
-					Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
+					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAddedToCommandHistoryGUI) +")";
+				}
+
+				QIcon commandIcon;
+				Command* command = commands->at(i);
+				Enum::CommandType type = command->getType();
+				switch(type)
+				{
+				case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+					{
+						commandText = "Background color";
+						Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
 				
-					float x = changeBackBufferColorEvent->getDoColorX() * 255;
-					float y = changeBackBufferColorEvent->getDoColorY() * 255;
-					float z = changeBackBufferColorEvent->getDoColorZ() * 255;
+						float x = changeBackBufferColorEvent->getDoColorX() * 255;
+						float y = changeBackBufferColorEvent->getDoColorY() * 255;
+						float z = changeBackBufferColorEvent->getDoColorZ() * 255;
 
-					QColor color(x,y,z);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
-					break;
-				}
-			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
-				{
-					commandText = "Translation";
-					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
+						QColor color(x,y,z);
+						QPixmap pixmap(16, 16);
+						pixmap.fill(color);
+						commandIcon.addPixmap(pixmap);
+						break;
+					}
+				case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
+					{
+						commandText = "Translation";
+						Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
 
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/translate";
-					commandIcon.addFile(iconPath.c_str());
-					break;
-				}
-			case Enum::CommandType::ROTATE_SCENE_ENTITY:
-				{
-					commandText = "Rotation";
-					Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/translate";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
+				case Enum::CommandType::ROTATE_SCENE_ENTITY:
+					{
+						commandText = "Rotation";
+						Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
 
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/rotate";
-					commandIcon.addFile(iconPath.c_str());
-					break;
-				}
-			case Enum::CommandType::SCALE_SCENE_ENTITY:
-				{
-					commandText = "Scaling";
-					Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/rotate";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
+				case Enum::CommandType::SCALE_SCENE_ENTITY:
+					{
+						commandText = "Scaling";
+						Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
 					
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/scale";
-					commandIcon.addFile(iconPath.c_str());
-					break;
-				}
-			case Enum::CommandType::SKYBOX:
-				{
-					commandText = "Skybox toggle";
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/scale";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
+				case Enum::CommandType::SKYBOX:
+					{
+						commandText = "Skybox toggle";
 					
-					std::string iconPath = ICON_PATH;
-					iconPath += "Options/Skybox";
-					commandIcon.addFile(iconPath.c_str());
+						std::string iconPath = ICON_PATH;
+						iconPath += "Options/Skybox";
+						commandIcon.addFile(iconPath.c_str());
 
-					break;
+						break;
+					}
+				case Enum::CommandType::CREATE_ENTITY:
+					{
+						commandText = "Entity creation";
+
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/Geometry";
+						commandIcon.addFile(iconPath.c_str());
+
+						break;
+					}
+				case Enum::CommandType::REMOVE_ENTITY:
+					{
+						commandText = "Entity removal";
+
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/Remove";
+						commandIcon.addFile(iconPath.c_str());
+
+						break;
+					}
+				default:
+					{
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/Coffee";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
 				}
-			case Enum::CommandType::CREATE_ENTITY:
+				commandText += appendToCommandText;
+				QString commandtextAsQString = commandText.c_str();
+				QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
+				m_commandHistoryListWidget->addItem(item);
+				if(displayAsSingleCommandHistoryEntry && i != nrOfCommandToBeAddedToCommandHistoryGUI-1) // When "displayAsSingleCommandHistoryEntry" is set, make last command visible in the command history list
 				{
-					commandText = "Entity creation";
-
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/Geometry";
-					commandIcon.addFile(iconPath.c_str());
-
-					break;
-				}
-			case Enum::CommandType::REMOVE_ENTITY:
-				{
-					commandText = "Entity removal";
-
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/Remove";
-					commandIcon.addFile(iconPath.c_str());
-
-					break;
-				}
-			default:
-				{
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/Coffee";
-					commandIcon.addFile(iconPath.c_str());
-					break;
+					item->setHidden(true);
 				}
 			}
-
-			if(mergeNumber > 1)
-			{
-				commandText += " (" + Converter::IntToStr(mergeNumber) +")";
-			}
-			QString commandtextAsQString = commandText.c_str();
-			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
-			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
-			m_commandHistoryListWidget->addItem(item);
-			item->setHidden(hidden);
 		}
 		break;
 	case EVENT_SET_SELECTED_COMMAND_GUI:

@@ -578,12 +578,12 @@ void Tool_Translation::unselect()
 		command->setUndoTranslation(originalWorldsOfSelectedEntities.at(i)._41, originalWorldsOfSelectedEntities.at(i)._42, originalWorldsOfSelectedEntities.at(i)._43);
 		translationCommands.push_back(command);
 		
-		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		//SEND_EVENT(&Event_AddToCommandHistory(command, false));
 		
 		++i;
 	}
 
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&translationCommands, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 
 	setActiveObject(1);
 	//activeEntityId = -1;
