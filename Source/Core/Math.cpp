@@ -3,6 +3,7 @@
 #include <time.h>
 
 const float Math::Pi = 3.1415926535f;
+const float Math::Pi2 = Math::Pi*2;
 
 int Math::randomInt( int p_value )
 {

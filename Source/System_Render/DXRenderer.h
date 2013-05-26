@@ -3,6 +3,7 @@
 #include <Core/IObserver.h>
 #include <Core/Math.h>
 #include "CBuffers.h"
+#include "Factory_Geometry.h"
 
 typedef struct HWND__* HWND;
 typedef unsigned int UINT;
@@ -65,6 +66,9 @@ public:
 	void renderFrame();
 
 	bool initDX();
+
+	void createMeshBuffer( int meshId, Factory_Geometry::MeshData &mesh );
+
 	void resizeDX(); 
 
 	// With better hypothetical future structure, might not need these, but currently used for tools to draw themselves:

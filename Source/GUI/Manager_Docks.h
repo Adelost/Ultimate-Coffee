@@ -93,6 +93,7 @@ public:
 	ItemBrowser(QWidget* parent);
 	void initTree();
 	void onEvent(Event* e);
+
 public slots:
 	void loadGrid(QListWidgetItem* item);
 	void loadGrid(int row);
@@ -107,4 +108,20 @@ public slots:
 		m_splitter->refresh();
 	}
 	void selectEntity(QListWidgetItem* item );
+};
+
+class Hierarchy : public QTreeView
+{
+	Q_OBJECT
+
+private:
+
+public:
+	Hierarchy(QWidget* parent) : QTreeView(parent)
+	{
+	}
+
+protected:
+	void keyPressEvent(QKeyEvent *e);
+	void keyReleaseEvent(QKeyEvent *e);
 };

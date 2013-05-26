@@ -7,6 +7,7 @@ struct CBPerObject
 {
 	Matrix WVP;
 	Matrix world;
+	Color color;
 };
 
 

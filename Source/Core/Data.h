@@ -9,6 +9,7 @@
 #include "Enums.h"
 
 class Entity;
+class Buffer;
 
 namespace Data
 {
@@ -72,23 +73,35 @@ namespace Data
 		bool intersect(Entity* entity, const Ray& ray, float* distance);
 	};
 
-	
-
-	
 	/**
 	Should contain everything render needs.
 	Position should be fetched from Translation.
 	*/
 	class Render : public Type<Render>
 	{
-	private:
+	public:
+		class BufferStore
+		{
+		public:
+			Buffer* vertex;
+			Buffer* index;
+
+		public:
+			BufferStore()
+			{
+				vertex = nullptr;
+				index = nullptr;
+			}
+		};
+
 		/**
 		Helps rendering do some optimization.
 		*/
 		class Manager
 		{
 		public:
-			std::vector<Batch<EntityPointer>> entityIdFromMeshId;
+			std::vector<Batch<EntityPointer>> renderBatch_list;
+			std::vector<BufferStore> buffer_list;
 		};
 
 		class MeshInfo
@@ -103,6 +116,7 @@ namespace Data
 			{
 				id = -1;
 				index = -1;
+				color = Color(0.0f, 1.0f, 1.0f, 1.0f);
 			}
 		};
 
@@ -119,7 +133,10 @@ namespace Data
 		{
 			// Build render batches
 			for(int i=0; i<Enum::Mesh_End; i++)
-				manager.entityIdFromMeshId.push_back(Batch<EntityPointer>());
+			{
+				manager.renderBatch_list.push_back(Batch<EntityPointer>());
+				manager.buffer_list.push_back(BufferStore());
+			}
 		}
 		void clean()
 		{
@@ -131,14 +148,15 @@ namespace Data
 		{
 			clearMesh();
 
-			int index = manager.entityIdFromMeshId[meshId].addItem(owner);
+			int index = manager.renderBatch_list[meshId].addItem(owner);
+			mesh.id = meshId;
 			mesh.index = index;
 		}
 		void clearMesh()
 		{
 			if(mesh.index != -1)
 			{
-				manager.entityIdFromMeshId[mesh.id].removeItemAt(mesh.index);
+				manager.renderBatch_list[mesh.id].removeItemAt(mesh.index);
 			}
 		}
 	};
@@ -164,6 +182,20 @@ namespace Data
 	public:
 		Vector3 color;
 		float range;
+	};
+
+	class DirLight : public Type<DirLight>
+	{
+	public:
+		Vector3 color;
+		float ambient;
+
+	public:
+		DirLight()
+		{
+			color = Vector3(1.0f);
+			ambient = 0.2f;
+		}
 	};
 
 	class Sky : public Type<Sky>

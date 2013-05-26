@@ -29,6 +29,8 @@ public:
 		m_itemCount = 0;
 		m_index_firstGap = 0;
 		m_index_lastGap = 0;
+
+		resetIndex();
 	}
 	// Index of the last gap in the vector
 	int* lastGapPtr()
@@ -138,13 +140,13 @@ public:
 	bool hasNext()
 	{
 		// Step to next Item or until end is reached
-		while(m_index_next < *m_index_lastGap && (*m_gap_list)[m_index_next] == -1)
+		while(m_index_next < m_index_lastGap && m_gap_list[m_index_next] == true)
 		{
 			m_index_next++;
 		}
 
 		// Returns TRUE if next Item is valid, otherwise end has been reached
-		if(m_index_next < *m_index_lastGap)
+		if(m_index_next < m_index_lastGap)
 		{
 			return true;
 		}
@@ -162,7 +164,13 @@ public:
 	T* next()
 	{
 		m_index_next++;
-		return &(*m_item_list)[currentIndex()];
+		return &m_item_list[currentIndex()];
+	}
+
+	int currentIndex()
+	{
+		int indexCurrent = m_index_next-1;
+		return indexCurrent;
 	}
 
 	void resetIndex()

@@ -101,7 +101,7 @@ void System::Input::update()
 
 			// Calculate entity position
 			{
-				Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Cube);
+				Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
 				Data::Transform* d_transform = entity->fetchData<Data::Transform>();
 				Vector3 pos = r.position + r.direction * 15.0f;
 				d_transform->position = pos;
