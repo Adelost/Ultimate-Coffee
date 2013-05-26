@@ -39,11 +39,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		
 		d_transform->position.x += count*1.5f;
-// 		float d = 10.0f + 0.3f * e->id();
-// 		d_transform->position *= d;
-// 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 		
 		e->addData(Data::Bounding());
 		e->addData(Data::Render(e, Enum::Mesh_Box));
@@ -65,7 +61,8 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 
 		e->addData(Data::Bounding());
-		e->addData(Data::Render(e, Enum::Mesh_Asteroid));
+		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Asteroid));
+		d_render->mesh.color = Math::randomColor();
 		e->addData(Data::Movement_Floating());
 	}
 
@@ -85,7 +82,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		e->setName("direction_light", e->uniqueId());
 
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, Math::Pi*0.1f, Math::Pi*0.1f);
+		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, Math::Pi2*0.05f, Math::Pi2*0.03f);
 
 		e->addData(Data::DirLight());
 	}

@@ -114,16 +114,6 @@ void DXRenderer::onEvent(Event* p_event)
 		break;
 	case EVENT_COFFEE:
 		{
-			// Recreate geometry
-			Factory_Geometry::MeshData box;
-			Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
-			std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
-
-			// Create vertex buffer
-			SafeDelete(m_vertexBuffer);
-			m_vertexBuffer = new Buffer();
-			HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), vertex_list.size(), &vertex_list[0], m_dxDevice));
-			m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 		}
 		break;
 	default:
@@ -403,7 +393,7 @@ bool DXRenderer::initDX()
 		createMeshBuffer(Enum::Mesh_Pyramid, mesh);
 
 		// Asteroid
-		Factory_Geometry::instance()->createSphere(0.5f, 4, 4, mesh);
+		Factory_Geometry::instance()->createSphere(0.5f, 3, 3, mesh);
 		createMeshBuffer(Enum::Mesh_Asteroid, mesh);
 	}
 

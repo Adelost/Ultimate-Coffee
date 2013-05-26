@@ -114,8 +114,6 @@ class Hierarchy : public QTreeView
 {
 	Q_OBJECT
 
-private:
-
 public:
 	Hierarchy(QWidget* parent) : QTreeView(parent)
 	{
@@ -124,4 +122,19 @@ public:
 protected:
 	void keyPressEvent(QKeyEvent *e);
 	void keyReleaseEvent(QKeyEvent *e);
+};
+
+class ToolPanel : public QWidget
+{
+	Q_OBJECT
+
+private:
+	Window* m_window;
+	QWidget* m_colorDialog;
+
+public:
+	ToolPanel(QWidget* parent);
+
+public slots:
+	void pickColor();
 };

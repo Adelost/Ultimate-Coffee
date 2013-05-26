@@ -47,3 +47,10 @@ int Math::round( float value )
 {
 	return int(value+0.5f);
 }
+
+DirectX::SimpleMath::Color Math::randomColor()
+{
+	Color v(Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f), 1.0f);
+
+	return v;
+}

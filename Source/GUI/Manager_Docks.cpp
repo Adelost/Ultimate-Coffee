@@ -194,74 +194,8 @@ void Manager_Docks::setupMenu()
 	// Tool
 	{
 		dock = createDock("Tool", Qt::RightDockWidgetArea);
-		QWidget* w = new QWidget(dock);
+		QWidget* w = new ToolPanel(dock);
 		dock->setWidget(w);
-		QLayout* l = new QVBoxLayout(w);
-		w->setLayout(l);
-		l->setMargin(0);
-		QScrollArea* scroll = new QScrollArea(w);
-		scroll->setFrameShape(QFrame::NoFrame);
-		l->addWidget(scroll);
-		scroll->setWidgetResizable(true);
-		w = new QWidget(scroll);
-		scroll->setWidget(w);
-		QLayout* vl = new QVBoxLayout(w);
-		w->setLayout(vl);
-		{
-			QLabel* l;
-			vl->addWidget(new QLabel("Position"));
-			QLayout* hl = new QHBoxLayout(w);
-			vl->addItem(hl);
-			l = new QLabel("  X  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Y  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Z  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-		}
-		{
-			QLabel* l;
-			vl->addWidget(new QLabel("Rotation"));
-			QLayout* hl = new QHBoxLayout(w);
-			vl->addItem(hl);
-			l = new QLabel("  X  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Y  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Z  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-		}
-		{
-			QLabel* l;
-			vl->addWidget(new QLabel("Scale"));
-			QLayout* hl = new QHBoxLayout(w);
-			vl->addItem(hl);
-			l = new QLabel("  X  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Y  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Z  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-		}
-		vl->addItem(m_window->createSpacer(Qt::Vertical));
 	}
 	
 	
@@ -850,4 +784,101 @@ void Hierarchy::keyPressEvent( QKeyEvent *e )
 void Hierarchy::keyReleaseEvent( QKeyEvent *e )
 {
 	QCoreApplication::sendEvent(parentWidget(), e);
+}
+
+ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
+{
+	m_window = Window::instance();
+	m_colorDialog = new QColorDialog(this);
+
+	QLayout* l = new QVBoxLayout(this);
+	setLayout(l);
+	l->setMargin(0);
+	QScrollArea* scroll = new QScrollArea(this);
+	scroll->setFrameShape(QFrame::NoFrame);
+	l->addWidget(scroll);
+	scroll->setWidgetResizable(true);
+
+	QWidget* w;
+	w = new QWidget(scroll);
+	scroll->setWidget(w);
+	QLayout* vl = new QVBoxLayout(w);
+	w->setLayout(vl);
+	{
+		QLabel* l;
+		vl->addWidget(new QLabel("Position"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+		l = new QLabel("  X  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Y  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Z  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+	}
+	{
+		QLabel* l;
+		vl->addWidget(new QLabel("Rotation"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+		l = new QLabel("  X  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Y  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Z  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+	}
+	{
+		QLabel* l;
+		vl->addWidget(new QLabel("Scale"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+		l = new QLabel("  X  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Y  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Z  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+	}
+	{
+		QPushButton* button;
+		vl->addWidget(new QLabel("Color"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+
+// 		QPixmap pixmap(100,100);
+// 		pixmap.fill(QColor("red"));
+// 		QIcon* icon = QIcon(pixmap);
+// 		hl->addItem(icon);
+
+		button = new QPushButton("...", w);
+		button->setMinimumSize(QSize(0,0));
+		button->setMaximumSize(button->sizeHint());
+		connect(button, SIGNAL(clicked()), this, SLOT(pickColor()));
+		hl->addWidget(button);
+	}
+	vl->addItem(m_window->createSpacer(Qt::Vertical));
+}
+
+void ToolPanel::pickColor()
+{
+	m_colorDialog->show();
 }

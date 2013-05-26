@@ -38,3 +38,4 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QColorDialog>
