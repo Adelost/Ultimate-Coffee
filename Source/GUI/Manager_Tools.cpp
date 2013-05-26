@@ -179,7 +179,7 @@ void Manager_Tools::createAsteroids()
 
 	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 	//command_list.back()->setName("New asteroid");
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
 }
 
 void Manager_Tools::newProject()
@@ -203,7 +203,7 @@ void Manager_Tools::createAsteroid()
 
 	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 	//command_list.back()->setName("New asteroid");
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
 }
 
 void Manager_Tools::runSimulation( bool state )

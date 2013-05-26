@@ -20,6 +20,9 @@ public:
 
 	static wchar_t* StrlToWstr(std::string string);
 
-	static int convertFromCommandHistoryIndexToCommandHistoryGUIListIndex(int commandHistoryIndex);
-	static int convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(int commandHistoryGUIListIndex);
+	static int ConvertFromCommandHistoryIndexToCommandHistoryGUIListIndex(int commandHistoryIndex);
+	static int ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(int commandHistoryGUIListIndex);
+
+	static bool BytesToFile(const char* bytes, int sizeOfBytes, std::string path);
+	static bool FileToBytes(std::string path, char* bytes, int bufferSize);
 };

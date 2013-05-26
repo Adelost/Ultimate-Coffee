@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sys/stat.h> // struct stat
+
 #include <Core/Converter.h>
 #include <Core/Data.h>
 #include <Core/Entity.h>

@@ -240,7 +240,7 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 				//else
 				//	command_list.back()->setName("Removed Entity");
 
-				SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+				SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
 			}
 			
 			
@@ -348,7 +348,7 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			d_transform->position = pos;
 
 			// Add to history
-			SEND_EVENT(&Event_StoreCommandInCommandHistory(new Command_CreateEntity(entity), false));
+			SEND_EVENT(&Event_AddToCommandHistory(new Command_CreateEntity(entity), false));
 		}
 	}
 }

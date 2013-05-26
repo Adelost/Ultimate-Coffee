@@ -6,8 +6,8 @@
 class Window;
 namespace Ui{class MainWindow;}
 class QToolBar;
-class Commander;
-class CommanderSpy;
+class CommandHistory;
+class CommandHistorySpy;
 class QAction;
 class QSignalMapper;
 
@@ -20,19 +20,22 @@ private:
 	Window* m_window;
 	Ui::MainWindow* m_ui;
 	QToolBar* m_toolbar_commands;
-	Commander* m_commander;
-	CommanderSpy* m_commanderSpy;
+	CommandHistory* m_commandHistory;
+	CommandHistorySpy* m_commandHistorySpy;
 	std::string m_lastValidProjectPath;
 	QAction* m_action_skybox;
 
-	bool storeCommandInCommandHistory(Command* command, bool execute);
-	void updateCommandHistoryGUI(Command* command, bool hiddenInGUIList, int GUI_MergeNumber, int nrOfCommandsBeforeAdd);
+	bool storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute);
+	void updateCommandHistoryGUI(std::vector<Command*>* commands, int nrOfCommandsBeforeAdd, bool displayAsSingleCommandHistoryEntry);
 	bool jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
 	void newProject();
 	void loadCommandHistory(std::string path);
 	void saveCommandHistory(std::string path);
+	void saveCommandHistoryGUIFilter(std::string path);
+	void loadCommandHistoryGUIFilter(std::string path);
 	void clearCommandHistoryGUI();
+	int tryToGetFileSize(std::string path);
 
 public:
 	void init();

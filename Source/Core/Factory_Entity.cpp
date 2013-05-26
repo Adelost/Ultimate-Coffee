@@ -118,7 +118,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	// Add to history
 	if(addToHistory)
-		SEND_EVENT(&Event_StoreCommandInCommandHistory(new Command_CreateEntity(e), false));
+		SEND_EVENT(&Event_AddToCommandHistory(new Command_CreateEntity(e), false));
 
 	return e;
 }
