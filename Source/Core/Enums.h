@@ -44,6 +44,7 @@ namespace Enum
 		Entity_Asteroid,
 		Entity_Camera,
 		Entity_Pointlight,
+		Entity_DirLight,
 
 		Entity_End
 	};
@@ -55,6 +56,7 @@ namespace Enum
 		Mesh_Cylinder,
 		Mesh_Cone,
 		Mesh_Pyramid,
+		Mesh_Asteroid,
 
 		Mesh_End
 	};

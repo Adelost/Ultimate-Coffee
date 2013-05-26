@@ -184,6 +184,20 @@ namespace Data
 		float range;
 	};
 
+	class DirLight : public Type<DirLight>
+	{
+	public:
+		Vector3 color;
+		float ambient;
+
+	public:
+		DirLight()
+		{
+			color = Vector3(1.0f);
+			ambient = 0.2f;
+		}
+	};
+
 	class Sky : public Type<Sky>
 	{
 		public:

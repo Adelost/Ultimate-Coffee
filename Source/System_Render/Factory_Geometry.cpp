@@ -10,6 +10,7 @@ std::vector<VertexPosColNorm> Factory_Geometry::MeshData::createVertexList_posCo
 	{
 		list[i].pos = vertices[i].position;
 		list[i].color =  Color(0.4f, 0.6f, 0.9f);
+		list[i].color =  Color(1.0f, 1.0f, 1.0f);
 		list[i].normal = vertices[i].normal;
 	}
 

@@ -53,6 +53,10 @@ public:
 				vertices[i2].normal = normal;
 			}
 		}
+		void randomizeColor()
+		{
+			
+		}
 		std::vector<Vector3> positionList()
 		{
 			std::vector<Vector3> list(vertices.size());

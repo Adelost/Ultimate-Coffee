@@ -38,6 +38,7 @@ void UpdateLoop::init()
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
 	FACTORY_ENTITY()->createEntity(Enum::Entity_Sky);
 
+	FACTORY_ENTITY()->createEntity(Enum::Entity_DirLight);
 	for(int i=0; i<1; i++)
 	{
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight, true);

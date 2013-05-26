@@ -28,10 +28,6 @@ DXRenderer::DXRenderer()
 	m_CBPerObject.WVP.Identity();
 	m_CBPerObject.WVP.CreateTranslation(0.0f, 0.0f, 1.0f);
 
-	float ambient = 0.2f;
-	m_CBPerFrame.dlColor = Vector4(1.0f, 1.0f, 1.0f, ambient);
-	m_CBPerFrame.dlDirectionAndAmbient = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
-
 	for(unsigned int i = 0; i < MAX_POINTLIGHTS; i++)
 	{
 		float range = 0.0f;
@@ -156,10 +152,24 @@ void DXRenderer::renderFrame()
 	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
 	// Start rendering
-
 	updatePointLights();
-	m_CBPerFrame.drawDebug = 0;
 
+	// Update direction light
+	DataMapper<Data::DirLight> map_dirLight;
+	if(map_dirLight.hasNext())
+	{
+		Entity* e = map_dirLight.nextEntity();
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		Data::DirLight* d_dirLight = e->fetchData<Data::DirLight>();
+
+		m_CBPerFrame.dlColor = Vector4(d_dirLight->color.x, d_dirLight->color.y, d_dirLight->color.z, d_dirLight->ambient);
+		Vector3 dir = Math::directionFromQuaterion(d_transform->rotation);
+		Vector4 dirAmb = Vector4(dir);
+		dirAmb.w = 0.0f;
+		m_CBPerFrame.dlDirectionAndAmbient = dirAmb;
+	}
+	
+	m_CBPerFrame.drawDebug = 0;
 	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 
 	Matrix viewProjection;
@@ -391,6 +401,10 @@ bool DXRenderer::initDX()
 		// Pyramid
 		Factory_Geometry::instance()->createPyramid(1.0f, 1.0f, 1.0f, mesh);
 		createMeshBuffer(Enum::Mesh_Pyramid, mesh);
+
+		// Asteroid
+		Factory_Geometry::instance()->createSphere(0.5f, 4, 4, mesh);
+		createMeshBuffer(Enum::Mesh_Asteroid, mesh);
 	}
 
 	// Create per object constant buffer

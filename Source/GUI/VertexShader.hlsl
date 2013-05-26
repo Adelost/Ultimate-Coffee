@@ -54,7 +54,7 @@ float4 pixelMain( PixelIn pIn ) : SV_TARGET
 {
 	if(drawDebug)
 	{
-		return float4(0.0, 0.5, 0.0, 1.0);
+		return float4(0.0, 0.7, 0.0, 1.0);
 	}
 
 	float3 lightDir = normalize(dlDirectionAndAmbient.xyz);

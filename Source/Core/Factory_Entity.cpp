@@ -65,7 +65,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 
 		e->addData(Data::Bounding());
-		e->addData(Data::Render(e, Enum::Mesh_Sphere));
+		e->addData(Data::Render(e, Enum::Mesh_Asteroid));
 		e->addData(Data::Movement_Floating());
 	}
 
@@ -78,6 +78,14 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 		Data::Camera* d_camera = e->addData(Data::Camera());
 		d_camera->updateViewMatrix(d_transform->position);
+	}
+
+	if(type == Enum::Entity_DirLight)
+	{
+		e->setName("direction_light", e->uniqueId());
+
+		e->addData(Data::Transform());
+		e->addData(Data::DirLight());
 	}
 
 	if(type == Enum::Entity_Pointlight)
@@ -107,7 +115,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 			break;
 		}
 		pointLight->range = 50.0f;
-
 	}
 
 	// Add to history

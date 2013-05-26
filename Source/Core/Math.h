@@ -25,6 +25,14 @@ public:
 	}
 	static void getPickingRay(int sx, int sy, XMVECTOR &rayOrigin, XMVECTOR &rayDir);
 	static const float Pi;
+	static Vector3 directionFromQuaterion(const Quaternion& q)
+	{
+		Vector3 dir(0.0f, 1.0f, 0.0f);
+		Matrix m = Matrix::CreateFromQuaternion(q);
+		dir = Vector3::TransformNormal(dir, m);
+
+		return dir;
+	}
 };
 
 class Int2
