@@ -36,6 +36,23 @@ public:
 		std::vector<unsigned int> indices;
 
 	public:
+		void computeNormals()
+		{
+			for(int i=0; i<(int)indices.size(); i+=3)
+			{
+				int i0 = indices[i];
+				int i1 = indices[i+1];
+				int i2 = indices[i+2];
+				Vector3 v1 = vertices[i1].position - vertices[i0].position;
+				Vector3 v2 = vertices[i2].position - vertices[i0].position;
+				Vector3 normal = v1.Cross(v2);
+				normal.Normalize();
+
+				vertices[i0].normal = normal;
+				vertices[i1].normal = normal;
+				vertices[i2].normal = normal;
+			}
+		}
 		std::vector<Vector3> positionList()
 		{
 			std::vector<Vector3> list(vertices.size());
@@ -238,6 +255,8 @@ public:
 		i[33] = 20; i[34] = 22; i[35] = 23;
 
 		meshData.indices.assign(&i[0], &i[36]);
+
+		meshData.computeNormals();
 	};
 
 	/**

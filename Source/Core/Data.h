@@ -116,6 +116,7 @@ namespace Data
 			{
 				id = -1;
 				index = -1;
+				color = Color(0.0f, 1.0f, 1.0f, 1.0f);
 			}
 		};
 

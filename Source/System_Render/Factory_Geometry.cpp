@@ -3,6 +3,8 @@
 
 std::vector<VertexPosColNorm> Factory_Geometry::MeshData::createVertexList_posColNorm()
 {
+	//
+	int number = 5;
 	std::vector<VertexPosColNorm> list(vertices.size());
 	for(int i=0; i<(int)vertices.size(); i++)
 	{

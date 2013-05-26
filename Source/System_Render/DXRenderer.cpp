@@ -198,6 +198,7 @@ void DXRenderer::renderFrame()
 					m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
 					m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
 					m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+					m_CBPerObject.color = d_render->mesh.color;
 					m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 					m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
 				}
@@ -237,6 +238,7 @@ void DXRenderer::renderFrame()
 						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
 						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
 						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+						m_CBPerObject.color = d_render->mesh.color;
 						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
 						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
 					}
