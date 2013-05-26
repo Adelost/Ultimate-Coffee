@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Commander.h"
+#include "CommandHistory.h"
 #include "Command.h"
 #include "Command_ChangeBackBufferColor.h"
 #include "Command_TranslateSceneEntity.h"
@@ -7,133 +7,6 @@
 #include "Command_ScaleSceneEntity.h"
 #include "Command_SkyBox.h"
 #include "Command_CreateEntity.h"
-#include <sys/stat.h> // struct stat
-#include "Events.h" // MESSAGEBOX
-
-Commander::Commander(void)
-{
-	m_commandHistory = NULL;
-}
-
-Commander::~Commander(void)
-{
-	delete m_commandHistory;
-}
-
-bool Commander::init()
-{
-	m_commandHistory = new CommandHistory();
-	return true;
-}
-
-bool Commander::tryToAddCommandToHistoryAndExecute(Command* command)
-{
-	bool successfullyAdded = m_commandHistory->tryToAddCommand(command);
-	if(successfullyAdded) // If the command was successfully added to the command history
-	{
-		command->doRedo(); // Execute command
-	}
-	return successfullyAdded;
-}
-
-bool Commander::tryToAddCommandToHistory(Command* command)
-{
-	return m_commandHistory->tryToAddCommand(command);
-}
-
-bool Commander::tryToSaveCommandHistory(std::string path)
-{
-	std::ofstream outputFile(path, std::ios::binary);
-	if(!outputFile.is_open())
-	{
-		return false;
-	}
-	int byteSize;
-	char* byteData = m_commandHistory->receiveSerializedByteFormat(byteSize);
-
-	outputFile.write(reinterpret_cast<const char*>(byteData), byteSize);
-	outputFile.close();
-
-	delete[] byteData;
-
-	return true;
-}
-
-bool Commander::tryToLoadCommandHistory(std::string path)
-{
-	std::ifstream inputFile(path, std::ios::binary);
-	if(!inputFile.is_open())
-	{
-		return false;
-	}
-
-	int bufferSize = 10000; // Standard size
-	struct stat results;
-	if(stat(path.c_str(), &results) == 0)
-	{
-		bufferSize = results.st_size; // size of file, if "struct stat" succeeded
-	}
-	else
-	{
-		MESSAGEBOX("Struct stat did not work. Inform Henrik: spidermine1@hotmail.com")
-	}
-
-	char* readData = new char[bufferSize];
-	inputFile.read(readData, bufferSize);
-	inputFile.close();
-
-	// Reset command history, before loading new command history data into it
-	m_commandHistory->reset();
-
-	bool result = m_commandHistory->tryToLoadFromSerializationByteFormat(readData, bufferSize);
-	delete[] readData;
-
-	return result;
-}
-
-bool Commander::tryToJumpInCommandHistory(int jumpToIndex)
-{
-	return m_commandHistory->tryToJumpInCommandHistory(jumpToIndex);
-}
-
-void Commander::printCommandHistory()
-{
-	std::stringstream* commandHistoryAsText = m_commandHistory->getCommandHistoryAsText();
-	std::cout << commandHistoryAsText->str() << std::endl;
-	delete commandHistoryAsText;
-}
-
-void Commander::printCommandHistory(std::string path)
-{
-	std::stringstream* commandHistoryAsText = m_commandHistory->getCommandHistoryAsText();
-
-	std::ofstream outputFile(path);
-	if(!outputFile.is_open())
-	{
-		return;
-	}
-	outputFile << commandHistoryAsText->str() << std::endl;
-	outputFile.close();
-
-	delete commandHistoryAsText;
-}
-
-void Commander::reset()
-{
-	m_commandHistory->reset();
-}
-
-int Commander::getCurrentCommandIndex()
-{
-	return m_commandHistory->getIndexOfCurrentCommand(); 
-}
-
-int Commander::getNrOfCommands()
-{
-	return m_commandHistory->getNrOfCommands();
-}
-
-
 
 CommandHistory::CommandHistory(void)
 {
@@ -173,7 +46,7 @@ void CommandHistory::setCurrentCommand(int index)
 	}
 }
 
-bool CommandHistory::tryToAddCommand(Command* command)
+bool CommandHistory::tryToAddCommand(Command* command, bool execute)
 {
 	//--------------------------------------------------------------------------------------
 	// Prevents uninitialized commands from being added by verifying the "command" pointer
@@ -186,6 +59,14 @@ bool CommandHistory::tryToAddCommand(Command* command)
 	// Extra safeguard:
 	command->getType(); //If the program crashes here, it means that "command" is uninitialized, which it should not be below this line.
 	
+	//--------------------------------------------------------------------------------------
+	// Possible execution of command
+	//--------------------------------------------------------------------------------------
+	if(execute)
+	{
+		command->doRedo();
+	}
+
 	//--------------------------------------------------------------------------------------
 	// Add command
 	//--------------------------------------------------------------------------------------
@@ -375,7 +256,7 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 		if(command!=NULL) // Load command data, as interpreted from the byte array, and add the command to the command history
 		{
 			command->loadDataStructFromBytes(commandDataStructBytes);
-			if(!tryToAddCommand(command))
+			if(!tryToAddCommand(command, false))
 			{
 				return false;
 			}

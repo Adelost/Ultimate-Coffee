@@ -14,7 +14,6 @@
 #include "Math.h"
 #include "Settings.h"
 
-
 #include "IData.h"
 #include "ISystem.h"
 #include "Manager_Data.h"

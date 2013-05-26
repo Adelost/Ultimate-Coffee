@@ -32,9 +32,10 @@ enum EventType
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
 	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
 	EVENT_SET_SELECTED_COMMAND_GUI,
-	EVENT_GET_COMMANDER_INFO,
+	EVENT_GET_COMMAND_HISTORY_INFO,
 	EVENT_GET_NEXT_VISIBLE_COMMAND_ROW,
 	EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI,
+	EVENT_GET_COMMAND_HISTORY_GUI_FILTER,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -336,14 +337,14 @@ public:
 	}
 };
 
-class Event_GetCommanderInfo : public Event
+class Event_GetCommandHistoryInfo : public Event
 {
 public:
 	int indexOfCurrentCommand;
 	int nrOfCommands;
 
 public:
-	Event_GetCommanderInfo() : Event(EVENT_GET_COMMANDER_INFO)
+	Event_GetCommandHistoryInfo() : Event(EVENT_GET_COMMAND_HISTORY_INFO)
 	{
 	}
 };
@@ -358,5 +359,16 @@ public:
 	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI(bool next) : Event(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
 	{
 		this->next = next;
+	}
+};
+
+class Event_GetCommandHistoryGUIFilter : public Event
+{
+public:
+	std::vector<bool>* GUIFilter; // Return value
+
+public:
+	Event_GetCommandHistoryGUIFilter() : Event(EVENT_GET_COMMAND_HISTORY_GUI_FILTER)
+	{
 	}
 };

@@ -58,9 +58,6 @@
     <ClCompile Include="Command_ChangeBackBufferColor.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
-    <ClCompile Include="Commander.cpp">
-      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
-    </ClCompile>
     <ClCompile Include="Serializable.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
@@ -100,9 +97,6 @@
     <ClCompile Include="Data_Camera.cpp">
       <Filter>Source\Data</Filter>
     </ClCompile>
-    <ClCompile Include="CommanderSpy.cpp">
-      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
-    </ClCompile>
     <ClCompile Include="Command_RotateSceneEntity.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
@@ -113,6 +107,12 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
     <ClCompile Include="Command_CreateEntity.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandHistorySpy.cpp">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandHistory.cpp">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClCompile>
   </ItemGroup>
@@ -171,9 +171,6 @@
     <ClInclude Include="Command_ChangeBackBufferColor.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
-    <ClInclude Include="Commander.h">
-      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
-    </ClInclude>
     <ClInclude Include="Serializable.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
@@ -213,9 +210,6 @@
     <ClInclude Include="Enums.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="CommanderSpy.h">
-      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
-    </ClInclude>
     <ClInclude Include="Util.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -229,6 +223,12 @@
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
     <ClInclude Include="Command_CreateEntity.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandHistorySpy.h">
+      <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandHistory.h">
       <Filter>Source\Commander %28redo/undo, save/load%29</Filter>
     </ClInclude>
   </ItemGroup>
