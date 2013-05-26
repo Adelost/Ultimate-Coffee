@@ -45,9 +45,15 @@ bool Data::Bounding::intersect( Entity* entity, const Ray& ray, float* distance)
 	r.direction = Vector3::TransformNormal(ray.direction, m);
 	r.direction.Normalize();
 
+
 	// Perform intersection test
+	bool out = false;
 	BoundingSphere sphere(Vector3(0.0f), 1.0f);
-	bool out = r.Intersects(sphere, *distance);
+	if(r.Intersects(sphere, *distance))
+	{
+		BoundingBox b(Vector3(0.0f), Vector3(0.5f));
+		out = r.Intersects(b, *distance);
+	}
 
 	return out;
 }
@@ -64,9 +70,7 @@ void Data::Bounding::intersect( const BoundingFrustum& frustum, std::vector<Enti
 		// Check intersection
 		BoundingSphere sphere(d_transform->position, 1.0f);
 		if(sphere.Intersects(frustum))
-		{
 			entity_list->push_back(entity);
-		}
 	}
 }
 

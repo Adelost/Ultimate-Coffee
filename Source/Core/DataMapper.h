@@ -37,7 +37,7 @@ private:
 public:
 	DataMapper()
 	{
-		m_index_next = 0;
+		resetIndex();
 
 		// Map to corresponding Data
 		Init_DataMapper init;

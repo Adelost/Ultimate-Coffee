@@ -92,8 +92,8 @@ public:
 		{
 			// Clean attribute (e.g. remove dependencies
 			// and such, if attribute have any)
-// 			Data::Type<T>* data = static_cast<Data::Type<T>*>(m_batch.itemAt(dataIndex));
-// 			data->vClean();
+ 			Data::Type<T>* data = static_cast<Data::Type<T>*>(m_batch.itemAt(dataIndex));
+ 			data->clean();
 
 			m_batch.removeItemAt(dataIndex);
 			m_owner_list[dataIndex] = -1;

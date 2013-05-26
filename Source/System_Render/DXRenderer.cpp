@@ -42,8 +42,14 @@ DXRenderer::DXRenderer()
 
 DXRenderer::~DXRenderer()
 {
-	SafeDelete(m_vertexBuffer);
-	SafeDelete(m_indexBuffer);
+	// Delete buffers
+	std::vector<Data::Render::BufferStore>* b = &Data::Render::manager.buffer_list;
+	for(int i=0; i<(int)b->size(); i++)
+	{
+		delete b->at(i).vertex;
+		delete b->at(i).index;
+	}
+
 	SafeDelete(m_objectConstantBuffer);
 	SafeDelete(m_frameConstantBuffer);
 	ReleaseCOM(m_inputLayout);
@@ -146,8 +152,6 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->PSSetShader(m_pixelShader, 0, 0);
 	m_dxDeviceContext->VSSetShader(m_vertexShader, 0, 0);
 
-	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
-	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_objectConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 	m_frameConstantBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
@@ -167,26 +171,38 @@ void DXRenderer::renderFrame()
 
 		viewProjection = d_camera->viewProjection();
 	}
-
-	// Render all meshes
-	DataMapper<Data::Render> map_render;
-	while(map_render.hasNext())
+	
+	
 	{
-		Entity* e = map_render.nextEntity();
-		Data::Transform* d_transform = e->fetchData<Data::Transform>();
-		Data::Render* d_render= e->fetchData<Data::Render>();
+		Data::Render::Manager* manager = &Data::Render::manager;
+		
+		// Loop through each render batch
+		for(int i=0; i<(int)manager->renderBatch_list.size(); i++)
+		{
+			// Bind correct buffers
+			Buffer* vertexBuffer = manager->buffer_list[i].vertex;
+			Buffer* indexBuffer = manager->buffer_list[i].index;
+			if(vertexBuffer && indexBuffer)
+			{
+				vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+				indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
 
-	/*	if(e->fetchData<Data::Selected>())
-			mat_scale = Matrix::CreateScale(d_transform->scale * 1.3f);
-		else*/
-			//mat_scale = Matrix::CreateScale(d_transform->scale);
+				Batch<EntityPointer>* b = &manager->renderBatch_list[i];
+				while(b->hasNext())
+				{
+					Entity* e = b->next()->asEntity();
+					Data::Transform* d_transform = e->fetchData<Data::Transform>();
+					Data::Render* d_render = e->fetchData<Data::Render>();
 
-		m_CBPerObject.world = d_transform->toWorldMatrix(); //mat_scale * d_transform->toRotPosMatrix();
-		m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
-		m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
-		m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
-		m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
-		m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
+					m_CBPerObject.world = d_transform->toWorldMatrix();
+					m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+					m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+					m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+					m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+					m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+				}
+			}
+		}
 	}
 
 	// Render all selected meshes
@@ -194,20 +210,38 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
 	m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
-	DataMapper<Data::Selected> map_selected;
-	while(map_selected.hasNext())
 	{
-		Entity* e = map_selected.nextEntity();
-		if(e->fetchData<Data::Render>())
-		{
-			Data::Transform* d_transform = e->fetchData<Data::Transform>();
-			Data::Render* d_render= e->fetchData<Data::Render>();
+		Data::Render::Manager* manager = &Data::Render::manager;
 
-			m_CBPerObject.world = d_transform->toWorldMatrix();
-			m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
-			m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
-			m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
-			m_dxDeviceContext->DrawIndexed(m_indexBuffer->count(), 0, 0);
+		// Loop through each render batch
+		for(int i=0; i<(int)manager->renderBatch_list.size(); i++)
+		{
+			// Bind correct buffers
+			Buffer* vertexBuffer = manager->buffer_list[i].vertex;
+			Buffer* indexBuffer = manager->buffer_list[i].index;
+			if(vertexBuffer && indexBuffer)
+			{
+				vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+				indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
+				Batch<EntityPointer>* b = &manager->renderBatch_list[i];
+				while(b->hasNext())
+				{
+					Entity* e = b->next()->asEntity();
+					if(e->fetchData<Data::Selected>())
+					{
+						Data::Transform* d_transform = e->fetchData<Data::Transform>();
+						Data::Render* d_render = e->fetchData<Data::Render>();
+
+						m_CBPerObject.world = d_transform->toWorldMatrix();
+						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					}
+				}
+			}
 		}
 	}
 	m_dxDeviceContext->RSSetState(0);
@@ -333,24 +367,29 @@ bool DXRenderer::initDX()
 	ReleaseCOM(VS_Buffer);
 	ReleaseCOM(PS_Buffer);
 
-	// Create box
-	Factory_Geometry::MeshData box;
-	Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, box);
-	//Factory_Geometry::instance()->createSphere(1.0f, 10, 10, box);
-	std::vector<VertexPosColNorm> vertex_list = box.createVertexList_posColNorm();
-	std::vector<unsigned int> index_list = box.indexList();
+	// Create meshes
+	Factory_Geometry::MeshData mesh;
+	{
+		// Box
+		Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, mesh);
+		createMeshBuffer(Enum::Mesh_Box, mesh);
 
-	// Create vertex buffer
+		// Sphere
+		Factory_Geometry::instance()->createSphere(0.5f, 20, 20, mesh);
+		createMeshBuffer(Enum::Mesh_Sphere, mesh);
 
-	m_vertexBuffer = new Buffer();
-	HR(m_vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), vertex_list.size(), &vertex_list[0], m_dxDevice));
-	m_vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+		// Cylinder
+		Factory_Geometry::instance()->createCylinder(0.5f, 0.5f, 1.0f, 20, 20, mesh);
+		createMeshBuffer(Enum::Mesh_Cylinder, mesh);
 
-	// Create index buffer
+		// Cone
+		Factory_Geometry::instance()->createCylinder(0.5f, 0.0f, 1.0f, 20, 20, mesh);
+		createMeshBuffer(Enum::Mesh_Cone, mesh);
 
-	m_indexBuffer = new Buffer();
-	HR(m_indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_dxDevice));
-	m_indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+		// Pyramid
+		Factory_Geometry::instance()->createPyramid(1.0f, 1.0f, 1.0f, mesh);
+		createMeshBuffer(Enum::Mesh_Pyramid, mesh);
+	}
 
 	// Create per object constant buffer
 
@@ -500,4 +539,24 @@ void DXRenderer::updatePointLights()
 			m_CBPerFrame.plColorAndRange[i] = Vector4(0.0f, 0.0f, 0.0f, range);
 		}
 	}
+}
+
+void DXRenderer::createMeshBuffer( int meshId, Factory_Geometry::MeshData &mesh )
+{
+	std::vector<VertexPosColNorm> vertex_list = mesh.createVertexList_posColNorm();
+	std::vector<unsigned int> index_list = mesh.indexList();
+
+	// Create vertex buffer
+	Buffer* vertexBuffer = new Buffer();
+	HR(vertexBuffer->init(Buffer::VERTEX_BUFFER, sizeof(VertexPosColNorm), vertex_list.size(), &vertex_list[0], m_dxDevice));
+	vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
+	// Create index buffer
+	Buffer* indexBuffer = new Buffer();
+	HR(indexBuffer->init(Buffer::INDEX_BUFFER, sizeof(unsigned int), index_list.size(), &index_list[0], m_dxDevice));
+	indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
+	// Store
+	Data::Render::manager.buffer_list[meshId].vertex = vertexBuffer;
+	Data::Render::manager.buffer_list[meshId].index = indexBuffer;
 }

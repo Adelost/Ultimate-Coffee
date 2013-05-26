@@ -43,10 +43,11 @@ void UpdateLoop::init()
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight, true);
 	}
 
-	for(int i=0; i<3; i++)
-	{
-		FACTORY_ENTITY()->createEntity(Enum::Entity_Cube, true);
-	}
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Box);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Sphere);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Cylinder);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Cone);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Pyramid);
 }
 
 void UpdateLoop::update()

@@ -32,22 +32,23 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		e->addData(Data::Transform());
 	}
 
-	if(type == Enum::Entity_Cube)
+	if(type == Enum::Entity_Mesh)
 	{
+		static int count = 0;
 		e->setName("cube", e->uniqueId());
 
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->scale = Vector3(3.0f, 1.0f, 1.0f);
-		d_transform->position.x = Math::randomFloat(-0.0f, 1.0f);
-		d_transform->position.y = Math::randomFloat(-0.2f, 0.2f);
-		d_transform->position.z = Math::randomFloat(-0.0f, 1.0f);
-		float d = 10.0f + 0.3f * e->id();
-		d_transform->position *= d;
-		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
+		
+		d_transform->position.x += count*1.5f;
+// 		float d = 10.0f + 0.3f * e->id();
+// 		d_transform->position *= d;
+// 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 		
 		e->addData(Data::Bounding());
-		e->addData(Data::Render(e, Enum::Mesh_Cube));
+		e->addData(Data::Render(e, Enum::Mesh_Box));
+
+		count++;
 	}
 
 	if(type == Enum::Entity_Asteroid)
