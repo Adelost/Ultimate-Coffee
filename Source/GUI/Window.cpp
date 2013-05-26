@@ -160,6 +160,16 @@ Window* Window::instance()
 	return s_instance;
 }
 
+void Window::keyPressEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(m_renderWidget, e);
+}
+
+void Window::keyReleaseEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(m_renderWidget, e);
+}
+
 Window* Window::s_instance = nullptr;
 
 SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate Coffee", parent)

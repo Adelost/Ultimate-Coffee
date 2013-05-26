@@ -163,7 +163,7 @@ void Manager_Docks::setupMenu()
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
-	QTreeView* tree = new QTreeView(m_window);
+	QTreeView* tree = new Hierarchy(m_window);
 	m_hierarchy_tree = tree;
 	tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	tree->setAlternatingRowColors(true);
@@ -840,4 +840,14 @@ void ItemBrowser::selectEntity( QListWidgetItem* item )
 	// Select corresponding Entity
 	Item_Prefab* i = static_cast<Item_Prefab*>(item);
 	DEBUGPRINT("Selected " + Converter::IntToStr(i->modelId));
+}
+
+void Hierarchy::keyPressEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(parentWidget(), e);
+}
+
+void Hierarchy::keyReleaseEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(parentWidget(), e);
 }

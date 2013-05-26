@@ -19,12 +19,9 @@ public:
 	static Vector3 randomDirection();
 	static Vector3 randomVector();
 	static int round(float value);
-	static float atann()
-	{
-		atan(Pi);
-	}
 	static void getPickingRay(int sx, int sy, XMVECTOR &rayOrigin, XMVECTOR &rayDir);
 	static const float Pi;
+	static const float Pi2;
 	static Vector3 directionFromQuaterion(const Quaternion& q)
 	{
 		Vector3 dir(0.0f, 1.0f, 0.0f);

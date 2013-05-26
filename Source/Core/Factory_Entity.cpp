@@ -84,7 +84,9 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 	{
 		e->setName("direction_light", e->uniqueId());
 
-		e->addData(Data::Transform());
+		Data::Transform* d_transform = e->addData(Data::Transform());
+		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, Math::Pi*0.1f, Math::Pi*0.1f);
+
 		e->addData(Data::DirLight());
 	}
 
