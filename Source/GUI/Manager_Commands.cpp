@@ -224,6 +224,8 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	{
 		m_lastValidProjectPath = path;
 
+
+
 		// Uncomment to print command history information to debug file
 		//m_commander->printCommandHistory("UltimateCoffe_CommandHistory_DEBUG_file_from_project_save_as.txt");
 	}

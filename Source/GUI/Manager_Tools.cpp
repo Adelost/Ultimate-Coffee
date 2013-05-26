@@ -94,7 +94,7 @@ void Manager_Tools::setupActions()
 void Manager_Tools::action_about()
 {
 	QMessageBox::about(m_window, "About Ultimate Coffee",
-		"Coffee... is a feeling.\n\nMattias Andersson\nNicolas Dubray\nNils Forsman\nHenrik Nell\nViktor Sidén");
+		"Coffee... is a feeling.\n\nMattias Andersson\nNicolas Dubray\nHenrik Nell\nViktor Sidén");
 }
 
 QAction* Manager_Tools::createContextIcon( std::string p_icon )

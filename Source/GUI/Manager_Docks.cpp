@@ -511,15 +511,6 @@ void Manager_Docks::onEvent(Event* e)
 	case EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI:
 		{
 			QListWidgetItem* rootCommandListItem = new QListWidgetItem("Start");
-
-			// Add icon
-			std::string iconPath = ICON_PATH;
-			iconPath += "Tools/New";
-			rootCommandListItem->setIcon(QIcon(iconPath.c_str()));
-
-			//QColor c = QColor(1,0,0);
-			//rootCommandListItem->setBackgroundColor(c);
-			//rootCommandListItem->setTextAlignment(5);
 			m_commandHistoryListWidget->addItem(rootCommandListItem);
 		}
 		break;
