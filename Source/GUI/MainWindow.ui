@@ -48,7 +48,7 @@ QAbstractScrollArea, QAbstractItemView
 	border: none;
 	outline: 0;
 	background-color: #282828;
-	alternate-background-color: #303030;
+	alternate-background-color: #313131;
 
 }
 

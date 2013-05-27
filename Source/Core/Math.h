@@ -31,6 +31,7 @@ public:
 
 		return dir;
 	}
+	static float powerOf(float base, float exponent);
 };
 
 class Int2

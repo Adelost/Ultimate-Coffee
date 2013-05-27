@@ -19,7 +19,6 @@ private:
 private:
 	int m_id;
 	int m_uniqueId;
-	std::string m_name;
 	Enum::EntityType m_type;
 
 public:
@@ -89,7 +88,7 @@ public:
 	int id();
 	int uniqueId();
 	std::string name();
-	void setName(std::string p_name, int p_number);
+	//void setName(std::string p_name, int p_number);
 	Enum::EntityType type();
 	void setType(Enum::EntityType type);
 };

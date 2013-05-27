@@ -5,6 +5,8 @@
 #include <Core/Command_CreateEntity.h>
 #include <QApplication.h>
 #include <QRubberBand>
+#include "Window.h"
+#include "ui_MainWindow.h"
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
@@ -124,7 +126,7 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 
 void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 {
-	// Save mouse positoin
+	// Save mouse position
 	SETTINGS()->lastMousePosition.x = e->pos().x();
 	SETTINGS()->lastMousePosition.y = e->pos().y();
 
@@ -143,7 +145,24 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-	if(SETTINGS()->button.mouse_right)
+	// Adjust camera speed
+	if(SETTINGS()->button.key_alt && SETTINGS()->button.mouse_right)
+	{
+		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+		mousePrev = mouseAnchor;
+
+		// HACK: This is a hack, and you know it
+		static float value = 0.0005; // Makes speed 1
+		value += (dx + dy) * 0.001f;
+
+		float speed = Math::powerOf(2.0f, value);
+
+		// Convert dx to camera speed modification
+		Window::instance()->ui()->statusBar->showMessage("Camera Scale: " + QString::number(speed)+":1", 1500);
+		d_camera->setScale(speed);
+	}
+	// ELESE: Adjust camera rotation
+	else if(SETTINGS()->button.mouse_right)
 	{
 		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
 		mousePrev = mouseAnchor;

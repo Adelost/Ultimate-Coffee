@@ -21,13 +21,10 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	if(type == Enum::Entity_Empty)
 	{
-		e->setName("empty", e->uniqueId());
 	}
 
 	if(type == Enum::Entity_Sky)
 	{
-		e->setName("skybox", e->uniqueId());
-
 		e->addData(Data::Sky());
 		e->addData(Data::Transform());
 	}
@@ -35,7 +32,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 	if(type == Enum::Entity_Mesh)
 	{
 		static int count = 0;
-		e->setName("cube", e->uniqueId());
 
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
@@ -49,8 +45,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	if(type == Enum::Entity_Asteroid)
 	{
-		e->setName("asteroid", e->uniqueId());
-
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		d_transform->position.x = Math::randomFloat(-0.0f, 1.0f);
@@ -68,8 +62,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	if(type == Enum::Entity_Camera)
 	{
-		e->setName("camera", e->uniqueId());
-
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		d_transform->position = Vector3(0.0f, 0.0f, -15.0f);
 
@@ -79,8 +71,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	if(type == Enum::Entity_DirLight)
 	{
-		e->setName("direction_light", e->uniqueId());
-
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, Math::Pi2*0.05f, Math::Pi2*0.03f);
 
@@ -90,7 +80,6 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 	if(type == Enum::Entity_Pointlight)
 	{
 		static int id = 0;
-		e->setName("point_light", e->uniqueId());
 		id++;
 
 		Data::Transform* transform = e->addData(Data::Transform());

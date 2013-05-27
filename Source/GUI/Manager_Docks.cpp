@@ -198,8 +198,6 @@ void Manager_Docks::setupMenu()
 		QWidget* w = new ToolPanel(dock);
 		dock->setWidget(w);
 	}
-	
-	
 
 	// Console
 	dock = createDock("Console", Qt::LeftDockWidgetArea);
