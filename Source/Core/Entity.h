@@ -83,6 +83,8 @@ public:
 
 	void removeEntity();
 
+	Entity* clone();
+
 public:
 	int id();
 	int uniqueId();

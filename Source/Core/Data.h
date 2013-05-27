@@ -53,6 +53,12 @@ namespace Data
 		static void findLastSelected();
 	};
 
+	class AddedToClipboard : public Type<AddedToClipboard>
+	{
+	public:
+		static void clearClipboard();
+	};
+
 	/**
 	Should contain some bounding shape information to be
 	used in intersection/collision tests.
@@ -157,8 +163,15 @@ namespace Data
 			if(mesh.index != -1)
 			{
 				manager.renderBatch_list[mesh.id].removeItemAt(mesh.index);
+				mesh.index = -1;
 			}
 		}
+
+		/** 
+		HACK: Needs to be called after cloning,
+		should be refactored into a general solution
+		*/
+		void recoverFromCloning(Entity* owner);
 	};
 
 

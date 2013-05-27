@@ -8,7 +8,8 @@ class IDataBatch
 {
 public:
 	virtual ~IDataBatch(){}
-	virtual void vRemoveData(int p_entityId) = 0;
+	virtual void vRemoveData(int entityId) = 0;
+	virtual void vCloneData(int entityId, int cloneId) = 0;
 };
 
 template<typename T>
@@ -104,6 +105,19 @@ public:
 	void vRemoveData(int p_entityId)
 	{
 		removeData(p_entityId);
+	}
+
+	void vCloneData(int entityId, int cloneId)
+	{
+		removeData(cloneId);
+		T* dataCopy = fetchData(entityId);
+
+		// Only clone if "Entity" has data
+		if(dataCopy)
+		{
+			// Copy data
+			addData(cloneId, *dataCopy);
+		}
 	}
 
 	void mapToData(Init_DataMapper* p_init)

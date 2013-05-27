@@ -592,6 +592,7 @@ void Manager_Docks::update()
 		item->setText(e->name().c_str());
 		item->setEnabled(true);
 		item->setSelectable(true);
+		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
 
 		// HACK: Make camera undeletable
 		if(e->fetchData<Data::Camera>())
@@ -614,8 +615,11 @@ void Manager_Docks::update()
 		{
 			item->setEnabled(false);
 			item->setSelectable(false);
+			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
 		}
 	}
+
+	
 }
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)

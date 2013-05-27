@@ -33,6 +33,15 @@ public:
 		return dataBatch->addData(p_entityId, p_data);
 	}
 
+	void cloneData(int entityId, int cloneId)
+	{
+		for(int i=0; i<(int)m_dataBatch_list.size(); i++)
+		{
+			IDataBatch* dataBatch = m_dataBatch_list[i];
+			dataBatch->vCloneData(entityId, cloneId);
+		}
+	}
+
 	template<typename T>
 	T* fetchData(int p_entityId, int p_batchIndex)
 	{

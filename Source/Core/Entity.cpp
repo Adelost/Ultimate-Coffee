@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "World.h"
 #include "Manager_Entity.h"
+#include "Data.h"
 
 Entity::Entity( int p_id, int p_uniqueId )
 {
@@ -71,6 +72,23 @@ void Entity::initClass()
 {
 	s_manager_data = WORLD()->manager_data();
 	s_manager_entity = WORLD()->manager_entity();
+}
+
+Entity* Entity::clone()
+{
+	EntityPointer e = this->toPointer();
+	Entity* clone = s_manager_entity->create();
+
+	// Copy Entity
+	// HACK: Is this a shallow copy?
+	// Be careful now.
+	//*clone = *e.asEntity();
+
+	// Copy Data
+	s_manager_data->cloneData(e->id(), clone->id());
+	clone->addData(Data::Created());
+
+	return clone;
 }
 
 

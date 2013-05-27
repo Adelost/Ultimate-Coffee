@@ -104,6 +104,19 @@ void Data::Selected::unselect( Entity* e )
 	}
 }
 
+void Data::AddedToClipboard::clearClipboard()
+{
+	DataMapper<Data::AddedToClipboard> map_clipboard;
+	while(map_clipboard.hasNext())
+	{
+		Entity* e = map_clipboard.nextEntity();
+		e->removeData<Data::AddedToClipboard>();
+	}
+
+	// All selection was cleared, no entity is selected
+}
+
+
 void Data::Selected::findLastSelected()
 {
 	Data::Selected::lastSelected.invalidate();
@@ -167,3 +180,11 @@ Data::Render::Render( Entity* entity, int meshId )
 	this->owner = entity->toPointer();
 	setMesh(meshId);
 }
+
+void Data::Render::recoverFromCloning( Entity* owner )
+{
+	this->owner = owner->toPointer();
+	mesh.index = -1;
+	setMesh(mesh.id);
+}
+
