@@ -19,11 +19,12 @@ Manager_Docks::~Manager_Docks()
 
 void Manager_Docks::init()
 {
-	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMAND_HISTORY_GUI_FILTER);
 	
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
@@ -151,7 +152,7 @@ void Manager_Docks::setupMenu()
 
 	// Command History
 	dock = createDock("History", Qt::LeftDockWidgetArea);
-	m_commandHistoryListWidget = new QListWidget(dock);
+	m_commandHistoryListWidget = new ListWidgetWithoutKeyboardInput(dock);
 	connectCommandHistoryWidget(true);
 	dock->setWidget(m_commandHistoryListWidget);
 
@@ -163,7 +164,7 @@ void Manager_Docks::setupMenu()
 
 	// Hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
-	QTreeView* tree = new QTreeView(m_window);
+	QTreeView* tree = new Hierarchy(m_window);
 	m_hierarchy_tree = tree;
 	tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	tree->setAlternatingRowColors(true);
@@ -194,74 +195,8 @@ void Manager_Docks::setupMenu()
 	// Tool
 	{
 		dock = createDock("Tool", Qt::RightDockWidgetArea);
-		QWidget* w = new QWidget(dock);
+		QWidget* w = new ToolPanel(dock);
 		dock->setWidget(w);
-		QLayout* l = new QVBoxLayout(w);
-		w->setLayout(l);
-		l->setMargin(0);
-		QScrollArea* scroll = new QScrollArea(w);
-		scroll->setFrameShape(QFrame::NoFrame);
-		l->addWidget(scroll);
-		scroll->setWidgetResizable(true);
-		w = new QWidget(scroll);
-		scroll->setWidget(w);
-		QLayout* vl = new QVBoxLayout(w);
-		w->setLayout(vl);
-		{
-			QLabel* l;
-			vl->addWidget(new QLabel("Position"));
-			QLayout* hl = new QHBoxLayout(w);
-			vl->addItem(hl);
-			l = new QLabel("  X  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Y  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Z  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-		}
-		{
-			QLabel* l;
-			vl->addWidget(new QLabel("Rotation"));
-			QLayout* hl = new QHBoxLayout(w);
-			vl->addItem(hl);
-			l = new QLabel("  X  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Y  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Z  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-		}
-		{
-			QLabel* l;
-			vl->addWidget(new QLabel("Scale"));
-			QLayout* hl = new QHBoxLayout(w);
-			vl->addItem(hl);
-			l = new QLabel("  X  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Y  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-			l = new QLabel("  Z  ", w);
-			l->setMaximumSize(l->sizeHint());
-			hl->addWidget(l);
-			hl->addWidget(new QDoubleSpinBox(w));
-		}
-		vl->addItem(m_window->createSpacer(Qt::Vertical));
 	}
 	
 	
@@ -325,125 +260,131 @@ void Manager_Docks::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type) 
 	{
-	case EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI: //Add command to the command history list in the GUI
+	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command to the command history list in the GUI
 		{
-			Event_AddCommandToCommandHistoryGUI* commandEvent = static_cast<Event_AddCommandToCommandHistoryGUI*>(e);
-			Command* command = commandEvent->command;
-			bool hidden = commandEvent->hidden;
-			int mergeNumber = commandEvent->mergeNumber;
+			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
+			std::vector<Command*>* commands = commandEvent->commands;
+			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
 			
-			QIcon commandIcon;
-			std::string commandText = "UNKNOWN COMMAND";
-			Enum::CommandType type = command->getType();
-			switch(type)
+			int nrOfCommandToBeAddedToCommandHistoryGUI = commands->size();
+			for(int i=0;i<nrOfCommandToBeAddedToCommandHistoryGUI;i++)
 			{
-			case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+				std::string commandText = "UNKNOWN COMMAND";
+				std::string appendToCommandText = "";
+				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAddedToCommandHistoryGUI > 1)
 				{
-					commandText = "Background color";
-					Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
+					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAddedToCommandHistoryGUI) +")";
+				}
+
+				QIcon commandIcon;
+				Command* command = commands->at(i);
+				Enum::CommandType type = command->getType();
+				switch(type)
+				{
+				case Enum::CommandType::CHANGEBACKBUFFERCOLOR:
+					{
+						commandText = "Background color";
+						Command_ChangeBackBufferColor* changeBackBufferColorEvent = static_cast<Command_ChangeBackBufferColor*>(command);
 				
-					float x = changeBackBufferColorEvent->getDoColorX() * 255;
-					float y = changeBackBufferColorEvent->getDoColorY() * 255;
-					float z = changeBackBufferColorEvent->getDoColorZ() * 255;
+						float x = changeBackBufferColorEvent->getDoColorX() * 255;
+						float y = changeBackBufferColorEvent->getDoColorY() * 255;
+						float z = changeBackBufferColorEvent->getDoColorZ() * 255;
 
-					QColor color(x,y,z);
-					QPixmap pixmap(16, 16);
-					pixmap.fill(color);
-					commandIcon.addPixmap(pixmap);
-					break;
-				}
-			case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
-				{
-					commandText = "Translation";
-					Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
+						QColor color(x,y,z);
+						QPixmap pixmap(16, 16);
+						pixmap.fill(color);
+						commandIcon.addPixmap(pixmap);
+						break;
+					}
+				case Enum::CommandType::TRANSLATE_SCENE_ENTITY:
+					{
+						commandText = "Translation";
+						Command_TranslateSceneEntity* translateSceneEntityEvent = static_cast<Command_TranslateSceneEntity*>(command);
 
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/translate";
-					commandIcon.addFile(iconPath.c_str());
-					break;
-				}
-			case Enum::CommandType::ROTATE_SCENE_ENTITY:
-				{
-					commandText = "Rotation";
-					Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/translate";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
+				case Enum::CommandType::ROTATE_SCENE_ENTITY:
+					{
+						commandText = "Rotation";
+						Command_RotateSceneEntity* translateSceneEntityEvent = static_cast<Command_RotateSceneEntity*>(command);
 
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/rotate";
-					commandIcon.addFile(iconPath.c_str());
-					break;
-				}
-			case Enum::CommandType::SCALE_SCENE_ENTITY:
-				{
-					commandText = "Scaling";
-					Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/rotate";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
+				case Enum::CommandType::SCALE_SCENE_ENTITY:
+					{
+						commandText = "Scaling";
+						Command_ScaleSceneEntity* translateSceneEntityEvent = static_cast<Command_ScaleSceneEntity*>(command);
 					
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/scale";
-					commandIcon.addFile(iconPath.c_str());
-					break;
-				}
-			case Enum::CommandType::SKYBOX:
-				{
-					commandText = "Skybox toggle";
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/scale";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
+				case Enum::CommandType::SKYBOX:
+					{
+						commandText = "Skybox toggle";
 					
-					std::string iconPath = ICON_PATH;
-					iconPath += "Options/Skybox";
-					commandIcon.addFile(iconPath.c_str());
+						std::string iconPath = ICON_PATH;
+						iconPath += "Options/Skybox";
+						commandIcon.addFile(iconPath.c_str());
 
-					break;
+						break;
+					}
+				case Enum::CommandType::CREATE_ENTITY:
+					{
+						commandText = "Entity creation";
+
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/Geometry";
+						commandIcon.addFile(iconPath.c_str());
+
+						break;
+					}
+				case Enum::CommandType::REMOVE_ENTITY:
+					{
+						commandText = "Entity removal";
+
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/Remove";
+						commandIcon.addFile(iconPath.c_str());
+
+						break;
+					}
+				default:
+					{
+						std::string iconPath = ICON_PATH;
+						iconPath += "Tools/Coffee";
+						commandIcon.addFile(iconPath.c_str());
+						break;
+					}
 				}
-			case Enum::CommandType::CREATE_ENTITY:
+				commandText += appendToCommandText;
+				QString commandtextAsQString = commandText.c_str();
+				QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
+				m_commandHistoryListWidget->addItem(item);
+				if(displayAsSingleCommandHistoryEntry && i != nrOfCommandToBeAddedToCommandHistoryGUI-1) // When "displayAsSingleCommandHistoryEntry" is set, make last the command in "commands" visible in the command history list
 				{
-					commandText = "Entity creation";
-
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/Geometry";
-					commandIcon.addFile(iconPath.c_str());
-
-					break;
-				}
-			case Enum::CommandType::REMOVE_ENTITY:
-				{
-					commandText = "Entity removal";
-
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/Remove";
-					commandIcon.addFile(iconPath.c_str());
-
-					break;
-				}
-			default:
-				{
-					std::string iconPath = ICON_PATH;
-					iconPath += "Tools/Coffee";
-					commandIcon.addFile(iconPath.c_str());
-					break;
+					item->setHidden(true);
 				}
 			}
-
-			if(mergeNumber > 1)
-			{
-				commandText += " (" + Converter::IntToStr(mergeNumber) +")";
-			}
-			QString commandtextAsQString = commandText.c_str();
-			QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
-			//m_commandHistoryListWidget->insertItem(0, item); //Inserts item first (at index 0) in the list widget, automatically pushing every other item one step down
-			m_commandHistoryListWidget->addItem(item);
-			item->setHidden(hidden);
 		}
 		break;
 	case EVENT_SET_SELECTED_COMMAND_GUI:
 		{
 			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
 			int index = selectionEvent->indexOfCommand;
-			if(index > -1)
+			if(index > -1) // Note: do not call "setCurrentRow" with a negative value. It will deselect all list items as intended, but then it resets itself to zero causing an unwanted SIGNAL that was harder to disconnect than when disconnected under "EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI". Just avoid it.
 			{
 				m_commandHistoryListWidget->setCurrentRow(index);
 			}
 			else
 			{
-				// Note: do not call "setCurrentRow" with a negative value. It will deselect all list items as intended, but then it resets itself to zero causing an unwanted SIGNAL that was harder to disconnect than when disconnected under "EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI". Just avoid it.
-
 				int nrOfItems = m_commandHistoryListWidget->count();
 				int itemIndex = 0;
 				QListWidgetItem* item;
@@ -511,10 +452,28 @@ void Manager_Docks::onEvent(Event* e)
 	case EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI:
 		{
 			QListWidgetItem* rootCommandListItem = new QListWidgetItem("Start");
-			//QColor c = QColor(1,0,0);
-			//rootCommandListItem->setBackgroundColor(c);
-			//rootCommandListItem->setTextAlignment(5);
 			m_commandHistoryListWidget->addItem(rootCommandListItem);
+		}
+		break;
+	case EVENT_GET_COMMAND_HISTORY_GUI_FILTER:
+		{
+			Event_GetCommandHistoryGUIFilter* getGUIFilterEvent = static_cast<Event_GetCommandHistoryGUIFilter*>(e);
+			
+			std::vector<bool>* GUIFilter = new std::vector<bool>;
+			int nrOfCommands = m_commandHistoryListWidget->count();
+			for(int i=1;i<nrOfCommands;i++) // i = 1, ignores ROOT_COMMAND
+			{
+				QListWidgetItem* item = m_commandHistoryListWidget->item(i);
+				if(item->isHidden())
+				{
+					GUIFilter->push_back(true);
+				}
+				else
+				{
+					GUIFilter->push_back(false);
+				}
+			}
+			getGUIFilterEvent->GUIFilter = GUIFilter;
 		}
 		break;
 	default:
@@ -633,6 +592,7 @@ void Manager_Docks::update()
 		item->setText(e->name().c_str());
 		item->setEnabled(true);
 		item->setSelectable(true);
+		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
 
 		// HACK: Make camera undeletable
 		if(e->fetchData<Data::Camera>())
@@ -655,22 +615,25 @@ void Manager_Docks::update()
 		{
 			item->setEnabled(false);
 			item->setSelectable(false);
+			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
 		}
 	}
+
+	
 }
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
-	Event_GetCommanderInfo* commanderInfo = new Event_GetCommanderInfo(); // Retrieve information from commander
-	SEND_EVENT(commanderInfo); //The event is assumed to have correct values below
+	Event_GetCommandHistoryInfo* commandHistoryInfo = new Event_GetCommandHistoryInfo(); // Retrieve information from command history
+	SEND_EVENT(commandHistoryInfo); //The event is assumed to have correct values below
 
-	// Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in Commander::tryToJumpInCommandHistory)
-	int trackToCommandIndex = Converter::convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(currentRow);
-	if(commanderInfo->indexOfCurrentCommand != trackToCommandIndex)
+	// Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in CommandHistory::tryToJumpInCommandHistory)
+	int trackToCommandIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(currentRow);
+	if(commandHistoryInfo->indexOfCurrentCommand != trackToCommandIndex)
 	{
 		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
 	}
-	delete commanderInfo;
+	delete commandHistoryInfo;
 }
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
@@ -810,7 +773,7 @@ void ItemBrowser::loadGrid( QListWidgetItem* item )
 		QString filename = i.baseName();
 
 		QIcon icon(path + "/" + filename);
-		QListWidgetItem* item = new QListWidgetItem(icon, filename);
+		Item_Prefab* item = new Item_Prefab(icon, filename);
 		m_grid->addItem(item);
 	}
 }
@@ -836,5 +799,118 @@ void ItemBrowser::onEvent( Event* e )
 
 void ItemBrowser::selectEntity( QListWidgetItem* item )
 {
-	SETTINGS()->setSelectedTool(Enum::Tool_Geometry);
+	// Switch to Geometry Tool
+	if(SETTINGS()->selectedTool() != Enum::Tool_Geometry)
+		SETTINGS()->setSelectedTool(Enum::Tool_Geometry);
+
+	// Select corresponding Entity
+	Item_Prefab* i = static_cast<Item_Prefab*>(item);
+	DEBUGPRINT("Selected " + Converter::IntToStr(i->modelId));
+}
+
+void Hierarchy::keyPressEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(parentWidget(), e);
+}
+
+void Hierarchy::keyReleaseEvent( QKeyEvent *e )
+{
+	QCoreApplication::sendEvent(parentWidget(), e);
+}
+
+ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
+{
+	m_window = Window::instance();
+	m_colorDialog = new QColorDialog(this);
+
+	QLayout* l = new QVBoxLayout(this);
+	setLayout(l);
+	l->setMargin(0);
+	QScrollArea* scroll = new QScrollArea(this);
+	scroll->setFrameShape(QFrame::NoFrame);
+	l->addWidget(scroll);
+	scroll->setWidgetResizable(true);
+
+	QWidget* w;
+	w = new QWidget(scroll);
+	scroll->setWidget(w);
+	QLayout* vl = new QVBoxLayout(w);
+	w->setLayout(vl);
+	{
+		QLabel* l;
+		vl->addWidget(new QLabel("Position"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+		l = new QLabel("  X  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Y  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Z  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+	}
+	{
+		QLabel* l;
+		vl->addWidget(new QLabel("Rotation"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+		l = new QLabel("  X  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Y  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Z  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+	}
+	{
+		QLabel* l;
+		vl->addWidget(new QLabel("Scale"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+		l = new QLabel("  X  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Y  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+		l = new QLabel("  Z  ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+		hl->addWidget(new QDoubleSpinBox(w));
+	}
+	{
+		QPushButton* button;
+		vl->addWidget(new QLabel("Color"));
+		QLayout* hl = new QHBoxLayout(w);
+		vl->addItem(hl);
+
+// 		QPixmap pixmap(100,100);
+// 		pixmap.fill(QColor("red"));
+// 		QIcon* icon = QIcon(pixmap);
+// 		hl->addItem(icon);
+
+		button = new QPushButton("...", w);
+		button->setMinimumSize(QSize(0,0));
+		button->setMaximumSize(button->sizeHint());
+		connect(button, SIGNAL(clicked()), this, SLOT(pickColor()));
+		hl->addWidget(button);
+	}
+	vl->addItem(m_window->createSpacer(Qt::Vertical));
+}
+
+void ToolPanel::pickColor()
+{
+	m_colorDialog->show();
 }

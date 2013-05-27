@@ -7,7 +7,6 @@ Manager_Entity::Manager_Entity()
 {
 	m_nextUniqueId = 0;
 	m_reservedId = -1;
-	EntityPointer::initClass(m_entity_list.itemList());
 }
 
 Entity* Manager_Entity::entityAt( int p_index )
@@ -56,4 +55,10 @@ void Manager_Entity::clear()
 			e->removeEntity();
 		}
 	}
+}
+
+void Manager_Entity::init()
+{
+	Entity::initClass();
+	EntityPointer::initClass(m_entity_list.itemList());
 }

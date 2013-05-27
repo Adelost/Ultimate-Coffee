@@ -32,22 +32,19 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		e->addData(Data::Transform());
 	}
 
-	if(type == Enum::Entity_Cube)
+	if(type == Enum::Entity_Mesh)
 	{
+		static int count = 0;
 		e->setName("cube", e->uniqueId());
 
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->scale = Vector3(3.0f, 1.0f, 1.0f);
-		d_transform->position.x = Math::randomFloat(-0.0f, 1.0f);
-		d_transform->position.y = Math::randomFloat(-0.2f, 0.2f);
-		d_transform->position.z = Math::randomFloat(-0.0f, 1.0f);
-		float d = 10.0f + 0.3f * e->id();
-		d_transform->position *= d;
-		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
+		d_transform->position.x += count*1.5f;
 		
 		e->addData(Data::Bounding());
-		e->addData(Data::Render());
+		e->addData(Data::Render(e, Enum::Mesh_Box));
+
+		count++;
 	}
 
 	if(type == Enum::Entity_Asteroid)
@@ -64,8 +61,9 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2), Math::randomFloat(0.0f, Math::Pi*2));
 
 		e->addData(Data::Bounding());
-		e->addData(Data::Render());
-		e->addData(Data::Update());
+		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Asteroid));
+		d_render->mesh.color = Math::randomColor();
+		e->addData(Data::Movement_Floating());
 	}
 
 	if(type == Enum::Entity_Camera)
@@ -77,6 +75,16 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 		Data::Camera* d_camera = e->addData(Data::Camera());
 		d_camera->updateViewMatrix(d_transform->position);
+	}
+
+	if(type == Enum::Entity_DirLight)
+	{
+		e->setName("direction_light", e->uniqueId());
+
+		Data::Transform* d_transform = e->addData(Data::Transform());
+		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, Math::Pi2*0.05f, Math::Pi2*0.03f);
+
+		e->addData(Data::DirLight());
 	}
 
 	if(type == Enum::Entity_Pointlight)
@@ -106,12 +114,11 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 			break;
 		}
 		pointLight->range = 50.0f;
-
 	}
 
 	// Add to history
 	if(addToHistory)
-		SEND_EVENT(&Event_StoreCommandInCommandHistory(new Command_CreateEntity(e), false));
+		SEND_EVENT(&Event_AddToCommandHistory(new Command_CreateEntity(e), false));
 
 	return e;
 }

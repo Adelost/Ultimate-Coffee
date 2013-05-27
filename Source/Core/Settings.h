@@ -31,6 +31,7 @@ class Settings
 private:
 	int m_selectedTool;
 	bool m_showSkybox;
+	bool m_runSimulation;
 
 public:
 	ButtonState button;
@@ -41,12 +42,18 @@ public:
 	Int2 windowSize;
 	float deltaTime;
 
+	/**
+	Always shows elapsed time, even 
+	if game is paused.
+	*/
+	float trueDeltaTime;
+
 	int DXViewPortTopLeftX;
 	int DXViewPortTopLeftY;
 	int DXViewPortMinDepth;
 	int DXViewPortMaxDepth;
 	Int2 lastMousePosition;
-
+	
 	Enum::ColorScheme m_ColorScheme_3DManipulatorWidgets;
 
 public:
@@ -58,4 +65,6 @@ public:
 	int selectedTool(){return m_selectedTool;}
 	void setShowSkybox(bool state);
 	bool showSkybox(){return m_showSkybox;}
+	void setRunSimulation(bool state){m_runSimulation = state;}
+	bool runSimulation(){return m_runSimulation;}
 };

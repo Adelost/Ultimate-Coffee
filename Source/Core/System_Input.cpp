@@ -19,7 +19,7 @@ void System::Input::update()
 	float speed = 15.0f;
 	if(SETTINGS()->button.key_shift)
 		speed *= 5.0f;
-	float delta = SETTINGS()->deltaTime * speed;
+	float delta = SETTINGS()->trueDeltaTime * speed;
 	float strafe = 0.0f;
 	float walk = 0.0f;
 
@@ -55,18 +55,35 @@ void System::Input::update()
 
 
 	// Do some random stuff
-	DataMapper<Data::Update> map_update;
+	DataMapper<Data::Movement_Floating> map_update;
+	Data::Transform* d_transform_camera = d_transform;
 	while(map_update.hasNext())
 	{
 		Entity* e = map_update.nextEntity();
 		if(!e->fetchData<Data::Selected>())
 		{
 			Data::Transform* d_transform = e->fetchData<Data::Transform>();
-			Data::Update* d_update = e->fetchData<Data::Update>();
-			d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime;
+			Data::Movement_Floating* d_update = e->fetchData<Data::Movement_Floating>();
+
+			// Hunt camera by applying force
+			if(Data::Movement_Floating::targetCamera)
+			{
+				Vector3 direction = d_transform_camera->position - d_transform->position;
+				direction.Normalize();
+				d_update->force = direction * 100.0f;
+			}
+
+			// Update position
+			Vector3 acceleration = d_update->force/ d_update->mass;
+			d_update->force = Vector3(0.0f); // Reset force
+			d_update->velocity = d_update->velocity + acceleration * SETTINGS()->deltaTime;
+			d_transform->position = d_transform->position + d_update->velocity * SETTINGS()->deltaTime;
+			
+
+			//d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime * 100.0f;
 
 			// Apply rotation
-			Vector3 v = d_update->rotation * SETTINGS()->deltaTime;
+			Vector3 v = d_update->velocity * SETTINGS()->deltaTime;
 			Matrix m1 = Matrix::CreateFromQuaternion(d_transform->rotation);
 			Matrix m2 = Matrix::CreateFromYawPitchRoll(v.x, v.y, v.z);
 			m1 = m1 * m2;
@@ -81,7 +98,7 @@ void System::Input::update()
 	{
 		static float cooldown = 0.0f;
 		if(cooldown > 0.0f)
-			cooldown -= SETTINGS()->deltaTime;
+			cooldown -= SETTINGS()->trueDeltaTime;
 		else
 		{
 			// Compute picking ray to place Entities onto
@@ -101,7 +118,7 @@ void System::Input::update()
 
 			// Calculate entity position
 			{
-				Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Cube);
+				Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
 				Data::Transform* d_transform = entity->fetchData<Data::Transform>();
 				Vector3 pos = r.position + r.direction * 15.0f;
 				d_transform->position = pos;
@@ -114,13 +131,13 @@ void System::Input::update()
 			cooldown = 0.03f;
 		}
 	}
-	// If user is not creating more "Random Stuff (tm)" we
+	// If user is not creating more "Random Stuff (tm)"
 	// we add the stuff to history
 	else
 	{
 		if(command_list.size()>0)
 		{
-			SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list));
+			SEND_EVENT(&Event_AddToCommandHistory(&command_list))
 			command_list.clear();
 		}
 	}

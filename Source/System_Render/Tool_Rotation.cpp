@@ -405,12 +405,12 @@ void Tool_Rotation::unselect()
 		command->setUndoRotQuat(originalRotationQuatsOfActiveObject.at(i).x, originalRotationQuatsOfActiveObject.at(i).y, originalRotationQuatsOfActiveObject.at(i).z, originalRotationQuatsOfActiveObject.at(i).w);
 		rotationCommands.push_back(command);
 		
-		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		//SEND_EVENT(&Event_AddToCommandHistory(command, false));
 		
 		++i;
 	}
 
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&rotationCommands, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&rotationCommands, false));
 
 	setActiveObject(1);
 

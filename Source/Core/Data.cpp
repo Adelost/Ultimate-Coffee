@@ -45,9 +45,15 @@ bool Data::Bounding::intersect( Entity* entity, const Ray& ray, float* distance)
 	r.direction = Vector3::TransformNormal(ray.direction, m);
 	r.direction.Normalize();
 
+
 	// Perform intersection test
+	bool out = false;
 	BoundingSphere sphere(Vector3(0.0f), 1.0f);
-	bool out = r.Intersects(sphere, *distance);
+	if(r.Intersects(sphere, *distance))
+	{
+		BoundingBox b(Vector3(0.0f), Vector3(0.5f));
+		out = r.Intersects(b, *distance);
+	}
 
 	return out;
 }
@@ -64,9 +70,7 @@ void Data::Bounding::intersect( const BoundingFrustum& frustum, std::vector<Enti
 		// Check intersection
 		BoundingSphere sphere(d_transform->position, 1.0f);
 		if(sphere.Intersects(frustum))
-		{
 			entity_list->push_back(entity);
-		}
 	}
 }
 
@@ -99,6 +103,19 @@ void Data::Selected::unselect( Entity* e )
 		findLastSelected();
 	}
 }
+
+void Data::AddedToClipboard::clearClipboard()
+{
+	DataMapper<Data::AddedToClipboard> map_clipboard;
+	while(map_clipboard.hasNext())
+	{
+		Entity* e = map_clipboard.nextEntity();
+		e->removeData<Data::AddedToClipboard>();
+	}
+
+	// All selection was cleared, no entity is selected
+}
+
 
 void Data::Selected::findLastSelected()
 {
@@ -144,14 +161,31 @@ Matrix Data::Transform::toRotMatrix()
 	return m;
 }
 
-Data::Update::Update()
+Data::Movement_Floating::Movement_Floating()
 {
-	direction = Math::randomDirection();
-	speed = Math::randomFloat(0.0f, 0.3f);
-	Vector3 v = Math::randomVector();
-	v = v*2.0f - Vector3(1.0f);
-	float speed = 0.02f;
-	v = v*Math::Pi*2*speed;
+	mass = 50.0f;
+	velocity = Math::randomVector(-0.1f, 0.1f);
 
-	rotation = v;
+// 	Vector3 v = velocity;
+// 	v = v*2.0f - Vector3(1.0f);
+// 	float speed = 0.02f;
+// 	v = v*Math::Pi*2*speed;
+// 	rotation = v;
 }
+bool Data::Movement_Floating::targetCamera = false;
+
+Data::Render::Manager Data::Render::manager;
+
+Data::Render::Render( Entity* entity, int meshId )
+{
+	this->owner = entity->toPointer();
+	setMesh(meshId);
+}
+
+void Data::Render::recoverFromCloning( Entity* owner )
+{
+	this->owner = owner->toPointer();
+	mesh.index = -1;
+	setMesh(mesh.id);
+}
+

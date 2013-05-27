@@ -56,6 +56,10 @@ public:
 public slots:
 	void update();
 	void setFullscreen(bool p_checked);
+
+protected:
+	void keyPressEvent(QKeyEvent *e);
+	void keyReleaseEvent(QKeyEvent *e);
 };
 
 class SplashScreen : public QDockWidget
@@ -70,4 +74,5 @@ public slots:
 	void newProject();
 	void loadProject();
 	void loadRecentProject();
+	void changeColorScheme(int enum_scheme);
 };

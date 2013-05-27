@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sys/stat.h> // struct stat
+
 #include <Core/Converter.h>
 #include <Core/Data.h>
 #include <Core/Entity.h>
@@ -38,3 +40,4 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QColorDialog>

@@ -3,6 +3,7 @@
 #include <Core/IObserver.h>
 #include <Core/Math.h>
 #include "CBuffers.h"
+#include "Factory_Geometry.h"
 
 typedef struct HWND__* HWND;
 typedef unsigned int UINT;
@@ -37,8 +38,6 @@ private:
 	ID3D11Texture2D*			m_tex_depthStencil;
 	ID3D11VertexShader*			m_vertexShader;
 	IDXGISwapChain*				m_dxSwapChain;
-	Buffer*						m_vertexBuffer;
-	Buffer*						m_indexBuffer;
 	Buffer*						m_objectConstantBuffer;
 	Buffer*						m_frameConstantBuffer;
 	Sky*						m_sky;
@@ -65,6 +64,9 @@ public:
 	void renderFrame();
 
 	bool initDX();
+
+	void createMeshBuffer( int meshId, Factory_Geometry::MeshData &mesh );
+
 	void resizeDX(); 
 
 	// With better hypothetical future structure, might not need these, but currently used for tools to draw themselves:

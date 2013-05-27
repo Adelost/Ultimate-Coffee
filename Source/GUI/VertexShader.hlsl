@@ -5,6 +5,7 @@ cbuffer cbPerObject
 {
 	float4x4 worldViewProj;
 	float4x4 world;
+	float4 g_color;
 };
 
 // Set directional light each frame since the user might want to change direction or color
@@ -42,7 +43,7 @@ PixelIn vertexMain( VertexIn vIn )
 	PixelIn pIn;
 
 	pIn.position	= mul(float4(vIn.position, 1), worldViewProj);
-	pIn.color		= vIn.color;
+	pIn.color		= vIn.color * g_color;
 	pIn.worldPos	= mul(float4(vIn.position, 1), world);
 	pIn.normal		= mul(vIn.normal, (float3x3)world);
 
@@ -54,7 +55,6 @@ float4 pixelMain( PixelIn pIn ) : SV_TARGET
 	if(drawDebug)
 	{
 		return float4(1.0f, 1.0f, 1.0f, 1.0f);
-		//return float4(0.4, 0.6, 0.9, 1.0);
 	}
 
 	float3 lightDir = normalize(dlDirectionAndAmbient.xyz);

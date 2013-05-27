@@ -14,6 +14,7 @@ private:
 
 public:
 	Manager_Entity();
+	void init();
 	Entity* entityAt(int p_index);
 	Entity* create();
 	void remove(Entity* p_entity);

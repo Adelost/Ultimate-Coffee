@@ -2,12 +2,12 @@
 #include "Entity.h"
 #include "World.h"
 #include "Manager_Entity.h"
+#include "Data.h"
 
 Entity::Entity( int p_id, int p_uniqueId )
 {
 	m_id = p_id;
 	m_uniqueId = p_uniqueId;
-	m_data = WORLD()->manager_data();
 
 	setName("Nameless", m_uniqueId);
 	m_type = Enum::Entity_Empty;
@@ -15,7 +15,8 @@ Entity::Entity( int p_id, int p_uniqueId )
 
 void Entity::removeEntity()
 {
-	WORLD()->removeEntity(this);
+	s_manager_data->removeEntity(id());
+	s_manager_entity->remove(this);
 }
 
 void Entity::clean()
@@ -43,7 +44,8 @@ EntityPointer Entity::toPointer()
 
 Entity* Entity::findEntity( int p_id )
 {
-	return WORLD()->manager_entity()->entityAt(p_id);
+	Manager_Entity* s_manager_entity = WORLD()->manager_entity();
+	return s_manager_entity->entityAt(p_id);
 }
 
 std::string Entity::name()
@@ -65,3 +67,31 @@ void Entity::setType( Enum::EntityType type )
 {
 	m_type = type;
 }
+
+void Entity::initClass()
+{
+	s_manager_data = WORLD()->manager_data();
+	s_manager_entity = WORLD()->manager_entity();
+}
+
+Entity* Entity::clone()
+{
+	EntityPointer e = this->toPointer();
+	Entity* clone = s_manager_entity->create();
+
+	// Copy Entity
+	// HACK: Is this a shallow copy?
+	// Be careful now.
+	//*clone = *e.asEntity();
+
+	// Copy Data
+	s_manager_data->cloneData(e->id(), clone->id());
+	clone->addData(Data::Created());
+
+	return clone;
+}
+
+
+Manager_Entity* Entity::s_manager_entity;
+
+Manager_Data* Entity::s_manager_data;

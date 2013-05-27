@@ -8,7 +8,8 @@ class IDataBatch
 {
 public:
 	virtual ~IDataBatch(){}
-	virtual void vRemoveData(int p_entityId) = 0;
+	virtual void vRemoveData(int entityId) = 0;
+	virtual void vCloneData(int entityId, int cloneId) = 0;
 };
 
 template<typename T>
@@ -90,6 +91,11 @@ public:
 
 		if(dataIndex != -1)
 		{
+			// Clean attribute (e.g. remove dependencies
+			// and such, if attribute have any)
+ 			Data::Type<T>* data = static_cast<Data::Type<T>*>(m_batch.itemAt(dataIndex));
+ 			data->clean();
+
 			m_batch.removeItemAt(dataIndex);
 			m_owner_list[dataIndex] = -1;
 			m_dataIndexFromEntityId_list[p_entityId] = -1;
@@ -99,6 +105,19 @@ public:
 	void vRemoveData(int p_entityId)
 	{
 		removeData(p_entityId);
+	}
+
+	void vCloneData(int entityId, int cloneId)
+	{
+		removeData(cloneId);
+		T* dataCopy = fetchData(entityId);
+
+		// Only clone if "Entity" has data
+		if(dataCopy)
+		{
+			// Copy data
+			addData(cloneId, *dataCopy);
+		}
 	}
 
 	void mapToData(Init_DataMapper* p_init)

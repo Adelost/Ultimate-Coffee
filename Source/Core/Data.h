@@ -5,8 +5,11 @@
 #include "Math.h"
 #include "Data_Camera.h"
 #include "EntityPointer.h"
+#include "Batch.h"
+#include "Enums.h"
 
 class Entity;
+class Buffer;
 
 namespace Data
 {
@@ -50,6 +53,12 @@ namespace Data
 		static void findLastSelected();
 	};
 
+	class AddedToClipboard : public Type<AddedToClipboard>
+	{
+	public:
+		static void clearClipboard();
+	};
+
 	/**
 	Should contain some bounding shape information to be
 	used in intersection/collision tests.
@@ -70,7 +79,6 @@ namespace Data
 		bool intersect(Entity* entity, const Ray& ray, float* distance);
 	};
 
-	
 	/**
 	Should contain everything render needs.
 	Position should be fetched from Translation.
@@ -78,23 +86,115 @@ namespace Data
 	class Render : public Type<Render>
 	{
 	public:
-		int meshId;
+		class BufferStore
+		{
+		public:
+			Buffer* vertex;
+			Buffer* index;
+
+		public:
+			BufferStore()
+			{
+				vertex = nullptr;
+				index = nullptr;
+			}
+		};
+
+		/**
+		Helps rendering do some optimization.
+		*/
+		class Manager
+		{
+		public:
+			std::vector<Batch<EntityPointer>> renderBatch_list;
+			std::vector<BufferStore> buffer_list;
+		};
+
+		class MeshInfo
+		{
+		public:
+			int id;
+			int index;
+			Color color;
+
+		public:
+			MeshInfo()
+			{
+				id = -1;
+				index = -1;
+				color = Color(0.0f, 1.0f, 1.0f, 1.0f);
+			}
+		};
+
+	public:
+		static Manager manager;
+
+	public:
+		MeshInfo mesh;
+		EntityPointer owner;
+		
+	public:
+		Render(Entity* entity, int meshId);
+		static void initClass()
+		{
+			// Build render batches
+			for(int i=0; i<Enum::Mesh_End; i++)
+			{
+				manager.renderBatch_list.push_back(Batch<EntityPointer>());
+				manager.buffer_list.push_back(BufferStore());
+			}
+		}
+		void clean()
+		{
+			clearMesh();
+		}
+
+	public:
+		void setMesh(int meshId)
+		{
+			clearMesh();
+
+			int index = manager.renderBatch_list[meshId].addItem(owner);
+			mesh.id = meshId;
+			mesh.index = index;
+		}
+		void clearMesh()
+		{
+			if(mesh.index != -1)
+			{
+				manager.renderBatch_list[mesh.id].removeItemAt(mesh.index);
+				mesh.index = -1;
+			}
+		}
+
+		/** 
+		HACK: Needs to be called after cloning,
+		should be refactored into a general solution
+		*/
+		void recoverFromCloning(Entity* owner);
 	};
 
 
-	class Update : public Type<Update>
+	class Movement_Floating : public Type<Movement_Floating>
 	{
+	public:
+		static bool targetCamera;
+
 	public:
 		Vector3 direction;
 		Vector3 rotation;
 		float speed;
 
+		Vector3 force;
+		Vector3 velocity;
+		float mass;
+
 	public:
-		Update();
+		Movement_Floating();
 	};
 
 	/**
-	Should containt point light information.
+	Should contain point light information.
 	Position should be fetched from Translation.
 	*/
 	class PointLight : public Type<PointLight>
@@ -102,6 +202,20 @@ namespace Data
 	public:
 		Vector3 color;
 		float range;
+	};
+
+	class DirLight : public Type<DirLight>
+	{
+	public:
+		Vector3 color;
+		float ambient;
+
+	public:
+		DirLight()
+		{
+			color = Vector3(1.0f);
+			ambient = 0.2f;
+		}
 	};
 
 	class Sky : public Type<Sky>

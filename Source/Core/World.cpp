@@ -32,6 +32,7 @@ World::World()
 	m_manager_systems = new Manager_Systems();
 	m_manager_data = new Manager_Data();
 	m_manager_entity = new Manager_Entity();
+	m_manager_entity->init();
 	m_factory_entity = new Factory_Entity();
 	settings = new Settings();
 }
@@ -64,10 +65,3 @@ Manager_Entity* World::manager_entity()
 {
 	return m_manager_entity;
 }
-
-void World::removeEntity( Entity* p_entity )
-{
-	m_manager_data->removeEntity(p_entity->id());
-	m_manager_entity->remove(p_entity);
-}
-

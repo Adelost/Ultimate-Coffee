@@ -628,12 +628,12 @@ void Tool_Scaling::unselect()
 		command->setUndoScale(originalScalesOfSelectedEntities.at(i).x, originalScalesOfSelectedEntities.at(i).y, originalScalesOfSelectedEntities.at(i).z);
 		translationCommands.push_back(command);
 		
-		//SEND_EVENT(&Event_StoreCommandInCommandHistory(command, false));
+		//SEND_EVENT(&Event_AddToCommandHistory(command, false));
 		
 		++i;
 	}
 
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&translationCommands, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 
 	setActiveObject(1);
 

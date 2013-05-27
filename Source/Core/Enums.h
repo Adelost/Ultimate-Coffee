@@ -40,11 +40,24 @@ namespace Enum
 	{
 		Entity_Empty,
 		Entity_Sky,
-		Entity_Cube,
+		Entity_Mesh,
 		Entity_Asteroid,
 		Entity_Camera,
 		Entity_Pointlight,
+		Entity_DirLight,
 
 		Entity_End
+	};
+
+	enum Mesh
+	{
+		Mesh_Box,
+		Mesh_Sphere,
+		Mesh_Cylinder,
+		Mesh_Cone,
+		Mesh_Pyramid,
+		Mesh_Asteroid,
+
+		Mesh_End
 	};
 }

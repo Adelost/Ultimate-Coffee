@@ -64,12 +64,36 @@ wchar_t* Converter::StrlToWstr(std::string string)
 	return wstr;
 }
 
-int Converter::convertFromCommandHistoryIndexToCommandHistoryGUIListIndex(int commandHistoryIndex)
+int Converter::ConvertFromCommandHistoryIndexToCommandHistoryGUIListIndex(int commandHistoryIndex)
 {
 	return commandHistoryIndex+1;
 }
 
-int Converter::convertFromCommandHistoryGUIListIndexToCommandHistoryIndex(int commandHistoryGUIListIndex)
+int Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(int commandHistoryGUIListIndex)
 {
 	return commandHistoryGUIListIndex-1;
+}
+
+bool Converter::BytesToFile(const char* bytes, int sizeOfBytes, std::string path)
+{
+	std::ofstream outputFile(path, std::ios::binary);
+	if(!outputFile.is_open())
+	{
+		return false;
+	}
+	outputFile.write(reinterpret_cast<const char*>(bytes), sizeOfBytes);
+	outputFile.close();
+	return true;
+}
+
+bool Converter::FileToBytes(std::string path, char* bytes, int bufferSize)
+{
+	std::ifstream inputFile(path, std::ios::binary);
+	if(!inputFile.is_open())
+	{
+		return false;
+	}
+	inputFile.read(bytes, bufferSize);
+	inputFile.close();
+	return true;
 }

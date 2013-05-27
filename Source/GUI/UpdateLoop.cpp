@@ -38,15 +38,17 @@ void UpdateLoop::init()
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
 	FACTORY_ENTITY()->createEntity(Enum::Entity_Sky);
 
+	FACTORY_ENTITY()->createEntity(Enum::Entity_DirLight);
 	for(int i=0; i<1; i++)
 	{
 		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight, true);
 	}
 
-	for(int i=0; i<3; i++)
-	{
-		FACTORY_ENTITY()->createEntity(Enum::Entity_Cube, true);
-	}
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Box);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Sphere);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Cylinder);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Cone);
+	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Pyramid);
 }
 
 void UpdateLoop::update()
@@ -54,7 +56,11 @@ void UpdateLoop::update()
 	// Update game
 	computeFPS();
 	m_updateTimer->tick();
-	SETTINGS()->deltaTime = m_updateTimer->deltaTime();
+	SETTINGS()->trueDeltaTime = m_updateTimer->deltaTime();
+	if(SETTINGS()->runSimulation())
+		SETTINGS()->deltaTime = SETTINGS()->trueDeltaTime;
+	else
+		SETTINGS()->deltaTime = 0.0f;
 	m_world->update();
 
 	// Update EventManager to enable queued messages

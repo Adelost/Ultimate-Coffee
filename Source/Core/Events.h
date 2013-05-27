@@ -27,15 +27,15 @@ enum EventType
 	EVENT_COFFEE,
 
 	// Commands
-	EVENT_STORE_COMMAND,
-	EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY,
-	EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI,
-	EVENT_SET_SELECTED_COMMAND_GUI,
+	EVENT_ADD_TO_COMMAND_HISTORY,
+	EVENT_ADD_TO_COMMAND_HISTORY_GUI,
 	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
 	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
-	EVENT_GET_COMMANDER_INFO,
+	EVENT_SET_SELECTED_COMMAND_GUI,
+	EVENT_GET_COMMAND_HISTORY_INFO,
 	EVENT_GET_NEXT_VISIBLE_COMMAND_ROW,
 	EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI,
+	EVENT_GET_COMMAND_HISTORY_GUI_FILTER,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -257,49 +257,44 @@ public:
 };
 
 class Command;
-class Event_StoreCommandInCommandHistory : public Event
+// Adds a single command or a list of commands to the command history
+class Event_AddToCommandHistory : public Event
 {
 public:
-	Command* command;
-	bool execute; // Call "doRedo" on the command before storing it in the command history. Standard is false. Specify true if the doings of the command is not done when sending this event.
-	bool setAsCurrentInGUI; // Performance critical when sending lots of "Event_StoreCommandInCommandHistory" events in a row. Set to false if this event is not the last "Event_StoreCommandInCommandHistory" sent in a row. Standard is true, which is fitting for single commands.
+	std::vector<Command*>* commands; // List of commands that should be added to the command history.
+	Command* command; // Special case needed for backward compatibility with single-command additions. If this is NULL, "commands" is used instead.
+	bool execute; // Call "doRedo" on the commands before storing them in the command history. Standard is false. Specify true if the doings of the command is not done when sending the event.
+	bool displayAsSingleCommandHistoryEntry; // Refer to "Event_AddToCommandHistoryGUI". Standard is true.
 
 public:
-	Event_StoreCommandInCommandHistory(Command* command, bool execute = false, bool setAsCurrentInGUI = true) : Event(EVENT_STORE_COMMAND)
+	Event_AddToCommandHistory(std::vector<Command*>* commands, bool execute = false, bool displayAsSingleCommandHistoryEntry = true) : Event(EVENT_ADD_TO_COMMAND_HISTORY)
 	{
+		this->commands = commands;
+		this->command = NULL;
+		this->execute = execute;
+		this->displayAsSingleCommandHistoryEntry = displayAsSingleCommandHistoryEntry;
+	}
+
+	Event_AddToCommandHistory(Command* command, bool execute = false) : Event(EVENT_ADD_TO_COMMAND_HISTORY)
+	{
+		this->commands = NULL;
 		this->command = command;
 		this->execute = execute;
-		this->setAsCurrentInGUI = setAsCurrentInGUI;
+		this->displayAsSingleCommandHistoryEntry = true;
 	}
 };
 
-class Event_StoreCommandsAsSingleEntryInCommandHistoryGUI : public Event
+class Event_AddToCommandHistoryGUI : public Event
 {
 public:
 	std::vector<Command*>* commands;
-	bool execute; // Whether or not to execute the commands when adding them to the command history. Standard is false.
-	
+	bool displayAsSingleCommandHistoryEntry; // Example display of true: "Entity creation (43)". Example display of false: "Entity creation".
+
 public:
-	Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(std::vector<Command*>* commands, bool execute = false) : Event(EVENT_STORE_COMMANDS_AS_SINGLE_COMMAND_HISTORY_GUI_ENTRY)
+	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
 	{
 		this->commands = commands;
-		this->execute = execute;
-	}
-};
-
-class Event_AddCommandToCommandHistoryGUI : public Event
-{
-public:
-	Command* command;
-	bool hidden;
-	int mergeNumber;
-
-public:
-	Event_AddCommandToCommandHistoryGUI(Command* command, bool hidden, int mergeNumber = 0) : Event(EVENT_ADD_COMMAND_TO_COMMAND_HISTORY_GUI)
-	{
-		this->command = command;
-		this->hidden = hidden;
-		this->mergeNumber = mergeNumber;
+		this->displayAsSingleCommandHistoryEntry = displayAsSingleCommandHistoryEntry;
 	}
 };
 
@@ -342,14 +337,14 @@ public:
 	}
 };
 
-class Event_GetCommanderInfo : public Event
+class Event_GetCommandHistoryInfo : public Event
 {
 public:
 	int indexOfCurrentCommand;
 	int nrOfCommands;
 
 public:
-	Event_GetCommanderInfo() : Event(EVENT_GET_COMMANDER_INFO)
+	Event_GetCommandHistoryInfo() : Event(EVENT_GET_COMMAND_HISTORY_INFO)
 	{
 	}
 };
@@ -364,5 +359,16 @@ public:
 	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI(bool next) : Event(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
 	{
 		this->next = next;
+	}
+};
+
+class Event_GetCommandHistoryGUIFilter : public Event
+{
+public:
+	std::vector<bool>* GUIFilter; // Return value
+
+public:
+	Event_GetCommandHistoryGUIFilter() : Event(EVENT_GET_COMMAND_HISTORY_GUI_FILTER)
+	{
 	}
 };

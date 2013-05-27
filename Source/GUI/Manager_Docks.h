@@ -5,6 +5,7 @@
 #include <Core/IObserver.h>
 #include <QDockWidget.h>
 #include <QListWidget.h>
+
 class Window;
 class QDockWidget;
 class QMenu;
@@ -67,6 +68,17 @@ public:
 	void update();
 };
 
+class Item_Prefab : public QListWidgetItem
+{
+public:
+	Item_Prefab(QIcon icon, QString filname) : QListWidgetItem(icon, filname)
+	{
+		static int i;
+		modelId = i;
+		i++;
+	}
+	int modelId;
+};
 
 class ItemBrowser : public QWidget, public IObserver
 {
@@ -81,6 +93,7 @@ public:
 	ItemBrowser(QWidget* parent);
 	void initTree();
 	void onEvent(Event* e);
+
 public slots:
 	void loadGrid(QListWidgetItem* item);
 	void loadGrid(int row);
@@ -95,4 +108,51 @@ public slots:
 		m_splitter->refresh();
 	}
 	void selectEntity(QListWidgetItem* item );
+};
+
+class Hierarchy : public QTreeView
+{
+	Q_OBJECT
+
+public:
+	Hierarchy(QWidget* parent) : QTreeView(parent)
+	{
+	}
+
+protected:
+	void keyPressEvent(QKeyEvent *e);
+	void keyReleaseEvent(QKeyEvent *e);
+};
+
+class ToolPanel : public QWidget
+{
+	Q_OBJECT
+
+private:
+	Window* m_window;
+	QWidget* m_colorDialog;
+
+public:
+	ToolPanel(QWidget* parent);
+
+public slots:
+	void pickColor();
+};
+
+class ListWidgetWithoutKeyboardInput : public QListWidget
+{
+	Q_OBJECT
+
+public:
+	ListWidgetWithoutKeyboardInput(QWidget* parent) : QListWidget(parent){}
+
+protected:
+	void keyPressEvent(QKeyEvent *e)
+	{
+
+	}
+	void keyReleaseEvent(QKeyEvent *e)
+	{
+
+	}
 };

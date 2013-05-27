@@ -145,8 +145,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
-    <ClCompile Include="Commander.cpp" />
-    <ClCompile Include="CommanderSpy.cpp" />
+    <ClCompile Include="CommandHistory.cpp" />
+    <ClCompile Include="CommandHistorySpy.cpp" />
     <ClCompile Include="Command_CreateEntity.cpp" />
     <ClCompile Include="Command_SkyBox.cpp" />
     <ClCompile Include="Command_ChangeBackBufferColor.cpp" />
@@ -177,8 +177,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
-    <ClInclude Include="Commander.h" />
-    <ClInclude Include="CommanderSpy.h" />
+    <ClInclude Include="CommandHistory.h" />
+    <ClInclude Include="CommandHistorySpy.h" />
     <ClInclude Include="Command_CreateEntity.h" />
     <ClInclude Include="Command_SkyBox.h" />
     <ClInclude Include="Command_ChangeBackBufferColor.h" />

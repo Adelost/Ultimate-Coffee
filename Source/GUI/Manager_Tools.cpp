@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Manager_Tools.h"
-#include <Core/Enums.h>
 
+#include <Core/Enums.h>
 #include <Core/World.h>
 #include <Core/Enums.h>
 #include <Core/Factory_Entity.h>
 #include <Core/Events.h>
+#include <Core/DataMapper.h>
 #include "Window.h"
 #include "ui_MainWindow.h"
 #include <Core/Command_CreateEntity.h>
@@ -42,13 +43,21 @@ void Manager_Tools::setupToolbar()
 
 	// HELP					
 	// About
-	a = new QAction("&About", this);
+	a = new QAction("About", this);
 	connect(a, SIGNAL(triggered()), this, SLOT(action_about()));
 	m_ui->menuHelp->addAction(a);
 	// About Qt
 	a = new QAction(tr("About &Qt"), this);
 	connect(a, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 	m_ui->menuHelp->addAction(a);
+
+	// EDIT					
+	a = m_ui->actionCopy;
+	connect(a, SIGNAL(triggered()), this, SLOT(action_copy()));
+	a->setShortcut(QKeySequence("Ctrl+C"));
+	a = m_ui->actionPaste;
+	connect(a, SIGNAL(triggered()), this, SLOT(action_paste()));
+	a->setShortcut(QKeySequence("Ctrl+V"));
 }
 
 void Manager_Tools::setupActions()
@@ -61,10 +70,10 @@ void Manager_Tools::setupActions()
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
 	//createToolAction(mapper, Enum::Tool_Selection, "Selection");
-	createToolAction(mapper, Enum::Tool_Translate,	"Translate", "Select and translate")->activate(QAction::Trigger);
-	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate", "Select and rotate");
-	createToolAction(mapper, Enum::Tool_Scale,		"Scale", "Select and scale");
-	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create entity");
+	createToolAction(mapper, Enum::Tool_Translate,	"Translate", "Select and translate (1)")->activate(QAction::Trigger);
+	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate", "Select and rotate (2)");
+	createToolAction(mapper, Enum::Tool_Scale,		"Scale", "Select and scale (3)");
+	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create entity (4)");
 	//createToolAction(mapper, Enum::Tool_Entity,		"Entity");
 
 	// Context bar
@@ -75,21 +84,30 @@ void Manager_Tools::setupActions()
 // 	m_ui->contextBar->addAction(menu->menuAction());
 
 	//m_ui->contextBar->addSeparator();
-	a = createContextIcon("Coffee");
-	a->setToolTip("Recreate geometry");
-	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
-	a = createContextIcon("Tool");
+// 	a = createContextIcon("Coffee");
+// 	a->setToolTip("Recreate geometry");
+// 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+	a = createContextIcon("Asteroid");
 	a->setToolTip("Create 1 asteroid");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
-	a = createContextIcon("Experiment");
+	a = createContextIcon("Asteroids");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
+	a = createContextIcon("Simulate");
+	a->setToolTip("Run simulation");
+	a->setCheckable(true);
+	a->setChecked(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
+	a = createContextIcon("Hunt");
+	a->setToolTip("Homing asteroids");
+	a->setCheckable(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
 }
 
 void Manager_Tools::action_about()
 {
 	QMessageBox::about(m_window, "About Ultimate Coffee",
-		"Coffee... is a feeling.\n\nMattias Andersson\nNicolas Dubray\nNils Forsman\nHenrik Nell\nViktor Sidén");
+		"Coffee... is a feeling.\n\nMattias Andersson\nNicolas Dubray\nHenrik Nell\nViktor Sidén");
 }
 
 QAction* Manager_Tools::createContextIcon( std::string p_icon )
@@ -174,7 +192,7 @@ void Manager_Tools::createAsteroids()
 
 	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 	//command_list.back()->setName("New asteroid");
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
 }
 
 void Manager_Tools::newProject()
@@ -198,5 +216,70 @@ void Manager_Tools::createAsteroid()
 
 	//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 	//command_list.back()->setName("New asteroid");
-	SEND_EVENT(&Event_StoreCommandsAsSingleEntryInCommandHistoryGUI(&command_list, false));
+	SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+}
+
+void Manager_Tools::runSimulation( bool state )
+{
+	SETTINGS()->setRunSimulation(state);
+}
+
+void Manager_Tools::action_copy()
+{
+	// Clear previous clipboard
+	Data::AddedToClipboard::clearClipboard();
+
+	// Add selected Entities to clipboard
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		e->addData(Data::AddedToClipboard());
+	}
+}
+
+void Manager_Tools::action_paste()
+{
+	std::vector<Command*> command_list;
+
+	// Clear previous selection
+	Data::Selected::clearSelection();
+
+	// Clone entities
+	DataMapper<Data::AddedToClipboard> map_clipboard;
+	while(map_clipboard.hasNext())
+	{
+		Entity* e = map_clipboard.nextEntity();
+		
+		// Make sure clone is not added to clipboard as well
+		Entity* clone = e->clone();
+		clone->removeData<Data::AddedToClipboard>();
+
+		// HACK: Recover data from cloning
+		Data::Render* d_render = clone->fetchData<Data::Render>();
+		if(d_render)
+		{
+			d_render->recoverFromCloning(clone);
+		}
+
+		// Select new entity
+		Data::Selected::select(clone);
+
+		// Save command
+		command_list.push_back(new Command_CreateEntity(clone, false));
+	}
+
+	// Inform about selection
+	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
+
+// 	// Add to history
+// 	if(command_list.size()>0)
+// 	{
+// 		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+// 	}
+}
+
+void Manager_Tools::homingAsteroids( bool state )
+{
+	Data::Movement_Floating::targetCamera = state;
 }

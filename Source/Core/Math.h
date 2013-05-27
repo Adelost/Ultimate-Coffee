@@ -17,14 +17,20 @@ public:
 	static int randomInt(int p_min, int p_max);
 	static float randomFloat(float p_min, float p_max);
 	static Vector3 randomDirection();
-	static Vector3 randomVector();
+	static Vector3 randomVector(float min, float max);
+	static Color randomColor();
 	static int round(float value);
-	static float atann()
-	{
-		atan(Pi);
-	}
 	static void getPickingRay(int sx, int sy, XMVECTOR &rayOrigin, XMVECTOR &rayDir);
 	static const float Pi;
+	static const float Pi2;
+	static Vector3 directionFromQuaterion(const Quaternion& q)
+	{
+		Vector3 dir(0.0f, 1.0f, 0.0f);
+		Matrix m = Matrix::CreateFromQuaternion(q);
+		dir = Vector3::TransformNormal(dir, m);
+
+		return dir;
+	}
 };
 
 class Int2
