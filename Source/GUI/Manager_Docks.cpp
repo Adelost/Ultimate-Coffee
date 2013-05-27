@@ -868,11 +868,11 @@ void ToolPanel::setYTranslationOfSelectedEntities(double p_y)
 
 		Data::Transform* trans = e->fetchData<Data::Transform>();
 		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
-		command->setDoTranslation(p_y, trans->position.y, trans->position.z);
+		command->setDoTranslation(trans->position.x, p_y, trans->position.z);
 		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
 		translationCommands.push_back(command);
 		
-		trans->position.x = p_y;
+		trans->position.y = p_y;
 
 		++i;
 	}
@@ -897,17 +897,104 @@ void ToolPanel::setZTranslationOfSelectedEntities(double p_z)
 
 		Data::Transform* trans = e->fetchData<Data::Transform>();
 		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
-		command->setDoTranslation(p_z, trans->position.y, trans->position.z);
+		command->setDoTranslation(trans->position.x, trans->position.y, p_z);
 		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
 		translationCommands.push_back(command);
 		
-		trans->position.x = p_z;
+		trans->position.z = p_z;
 
 		++i;
 	}
 
 	if(atLeastOneObjectWasSelected)
 		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
+}
+
+void ToolPanel::setXScalingOfSelectedEntities(double p_xScale)
+{
+	std::vector<Command*> scalingCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+
+	bool atLeastOneObjectWasSelected = false;
+	while(map_selected.hasNext())
+	{
+		atLeastOneObjectWasSelected = true;
+
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+		command->setDoScale(p_xScale, trans->scale.y, trans->scale.z);
+		command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+		scalingCommands.push_back(command);
+		
+		trans->scale.x = p_xScale;
+
+		++i;
+	}
+
+	if(atLeastOneObjectWasSelected)
+		SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
+}
+
+void ToolPanel::setYScalingOfSelectedEntities(double p_yScale)
+{
+	std::vector<Command*> scalingCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+
+	bool atLeastOneObjectWasSelected = false;
+	while(map_selected.hasNext())
+	{
+		atLeastOneObjectWasSelected = true;
+
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+		command->setDoScale(trans->scale.x, p_yScale, trans->scale.z);
+		command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+		scalingCommands.push_back(command);
+		
+		trans->scale.y = p_yScale;
+
+		++i;
+	}
+
+	if(atLeastOneObjectWasSelected)
+		SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
+}
+
+void ToolPanel::setZScalingOfSelectedEntities(double p_zScale)
+{
+	std::vector<Command*> scalingCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+
+	bool atLeastOneObjectWasSelected = false;
+	while(map_selected.hasNext())
+	{
+		atLeastOneObjectWasSelected = true;
+
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+		command->setDoScale(trans->scale.x, trans->scale.y, p_zScale);
+		command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+		scalingCommands.push_back(command);
+		
+		trans->scale.z = p_zScale;
+
+		++i;
+	}
+
+	if(atLeastOneObjectWasSelected)
+		SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
 }
 
 ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
@@ -938,33 +1025,35 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 
 		l = new QLabel("  X  ", w);
 		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(-1000.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
-
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setXTranslationOfSelectedEntities(double)));
-
-		//valueChanged(10);
-		//dsb->setValue(10);
-		//double value;
-		//emit dsb->valueChanged(value);
-
-    //doubleSpin->setMinimum(0.0);
-    //doubleSpin->setMaximum(100.0);
-    //doubleSpin->setWrapping(1);
-    //doubleSpin->setSingleStep(0.1);
 
 		l = new QLabel("  Y  ", w);
 		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(-1000.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
 
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setYTranslationOfSelectedEntities(double)));
+
 		l = new QLabel("  Z  ", w);
 		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(-1000.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
+
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZTranslationOfSelectedEntities(double)));
 
 		//QLabel* l;
 		//vl->addWidget(new QLabel("Position"));
@@ -1005,22 +1094,61 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
-		QLabel* l;
+QLabel* l;
+		QDoubleSpinBox *dsb;
+
 		vl->addWidget(new QLabel("Scale"));
 		QLayout* hl = new QHBoxLayout(w);
 		vl->addItem(hl);
+
 		l = new QLabel("  X  ", w);
+		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(0.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setXScalingOfSelectedEntities(double)));
+
 		l = new QLabel("  Y  ", w);
+		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(0.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setYScalingOfSelectedEntities(double)));
+
 		l = new QLabel("  Z  ", w);
+		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(0.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZScalingOfSelectedEntities(double)));
+
+		//QLabel* l;
+		//vl->addWidget(new QLabel("Scale"));
+		//QLayout* hl = new QHBoxLayout(w);
+		//vl->addItem(hl);
+		//l = new QLabel("  X  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
+		//l = new QLabel("  Y  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
+		//l = new QLabel("  Z  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
 		QPushButton* button;
