@@ -178,9 +178,16 @@ namespace Data
 	class Movement_Floating : public Type<Movement_Floating>
 	{
 	public:
+		static bool targetCamera;
+
+	public:
 		Vector3 direction;
 		Vector3 rotation;
 		float speed;
+
+		Vector3 force;
+		Vector3 velocity;
+		float mass;
 
 	public:
 		Movement_Floating();

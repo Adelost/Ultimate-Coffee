@@ -98,6 +98,10 @@ void Manager_Tools::setupActions()
 	a->setCheckable(true);
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
+	a = createContextIcon("Hunt");
+	a->setToolTip("Homing asteroids");
+	a->setCheckable(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
 }
 
 void Manager_Tools::action_about()
@@ -273,4 +277,9 @@ void Manager_Tools::action_paste()
 // 	{
 // 		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
 // 	}
+}
+
+void Manager_Tools::homingAsteroids( bool state )
+{
+	Data::Movement_Floating::targetCamera = state;
 }

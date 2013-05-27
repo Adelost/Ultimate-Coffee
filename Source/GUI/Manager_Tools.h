@@ -41,5 +41,5 @@ public slots:
 	void createAsteroid();
 	void newProject();
 	void runSimulation(bool state);
-	
+	void homingAsteroids(bool state);
 };

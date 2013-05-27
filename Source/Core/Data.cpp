@@ -163,15 +163,16 @@ Matrix Data::Transform::toRotMatrix()
 
 Data::Movement_Floating::Movement_Floating()
 {
-	direction = Math::randomDirection();
-	speed = Math::randomFloat(0.0f, 0.3f);
-	Vector3 v = Math::randomVector();
-	v = v*2.0f - Vector3(1.0f);
-	float speed = 0.02f;
-	v = v*Math::Pi*2*speed;
+	mass = 50.0f;
+	velocity = Math::randomVector(-0.1f, 0.1f);
 
-	rotation = v;
+// 	Vector3 v = velocity;
+// 	v = v*2.0f - Vector3(1.0f);
+// 	float speed = 0.02f;
+// 	v = v*Math::Pi*2*speed;
+// 	rotation = v;
 }
+bool Data::Movement_Floating::targetCamera = false;
 
 Data::Render::Manager Data::Render::manager;
 
