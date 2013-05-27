@@ -124,7 +124,7 @@ protected:
 	void keyReleaseEvent(QKeyEvent *e);
 };
 
-class ToolPanel : public QWidget
+class ToolPanel : public QWidget, IObserver
 {
 	Q_OBJECT
 
@@ -132,8 +132,15 @@ private:
 	Window* m_window;
 	QWidget* m_colorDialog;
 
+	QDoubleSpinBox	*translationXSpinBox,	*translationYSpinBox,	*translationZSpinBox,
+					*rotationXSpinBox,		*rotationYSpinBox,		*rotationZSpinBox,
+					*scalingXSpinBox,		*scalingYSpinBox,		*scalingZSpinBox;
+
+	bool spinboxValueSetBecauseOfSelectionOrTransformation; //SoDoNotSetValueForAllObjects;
+
 public:
 	ToolPanel(QWidget* parent);
+	void onEvent(Event* p_event);
 
 public slots:
 	void pickColor();
@@ -145,6 +152,8 @@ public slots:
 	void setXScalingOfSelectedEntities(double X);
 	void setYScalingOfSelectedEntities(double Y);
 	void setZScalingOfSelectedEntities(double Z);
+
+
 
 	//void setXRotationOfSelectedEntities(double X);
 	//void setYRotationOfSelectedEntities(double Y);
