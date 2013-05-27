@@ -152,7 +152,7 @@ void Manager_Docks::setupMenu()
 
 	// Command History
 	dock = createDock("History", Qt::LeftDockWidgetArea);
-	m_commandHistoryListWidget = new QListWidget(dock);
+	m_commandHistoryListWidget = new ListWidgetWithoutKeyboardInput(dock);
 	connectCommandHistoryWidget(true);
 	dock->setWidget(m_commandHistoryListWidget);
 

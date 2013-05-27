@@ -138,3 +138,21 @@ public:
 public slots:
 	void pickColor();
 };
+
+class ListWidgetWithoutKeyboardInput : public QListWidget
+{
+	Q_OBJECT
+
+public:
+	ListWidgetWithoutKeyboardInput(QWidget* parent) : QListWidget(parent){}
+
+protected:
+	void keyPressEvent(QKeyEvent *e)
+	{
+
+	}
+	void keyReleaseEvent(QKeyEvent *e)
+	{
+
+	}
+};
