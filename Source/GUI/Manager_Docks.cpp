@@ -821,182 +821,336 @@ void Hierarchy::keyReleaseEvent( QKeyEvent *e )
 //	int test = 3;
 //}
 
-void ToolPanel::setXTranslationOfSelectedEntities(double p_x)
+void ToolPanel::setXTranslationOfSelectedEntities(double p_transX)
 {
-	std::vector<Command*> translationCommands;
-	DataMapper<Data::Selected> map_selected;
-	Entity* e;
-	unsigned int i = 0;
-
-	bool atLeastOneObjectWasSelected = false;
-	while(map_selected.hasNext())
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
 	{
-		atLeastOneObjectWasSelected = true;
+		std::vector<Command*> translationCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
 
-		e = map_selected.nextEntity();
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
 
-		Data::Transform* trans = e->fetchData<Data::Transform>();
-		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
-		command->setDoTranslation(p_x, trans->position.y, trans->position.z);
-		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
-		translationCommands.push_back(command);
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+			command->setDoTranslation(p_transX, trans->position.y, trans->position.z);
+			command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
+			translationCommands.push_back(command);
 		
-		trans->position.x = p_x;
+			trans->position.x = p_transX;
 
-		++i;
+			++i;
+		}
+
+		if(translationCommands.size() > 0)
+			SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 	}
-
-	if(atLeastOneObjectWasSelected)
-		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 }
 
-void ToolPanel::setYTranslationOfSelectedEntities(double p_y)
+void ToolPanel::setYTranslationOfSelectedEntities(double p_transY)
 {
-	std::vector<Command*> translationCommands;
-	DataMapper<Data::Selected> map_selected;
-	Entity* e;
-	unsigned int i = 0;
-
-	bool atLeastOneObjectWasSelected = false;
-	while(map_selected.hasNext())
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
 	{
-		atLeastOneObjectWasSelected = true;
+		std::vector<Command*> translationCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
 
-		e = map_selected.nextEntity();
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
 
-		Data::Transform* trans = e->fetchData<Data::Transform>();
-		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
-		command->setDoTranslation(trans->position.x, p_y, trans->position.z);
-		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
-		translationCommands.push_back(command);
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+			command->setDoTranslation(trans->position.x, p_transY, trans->position.z);
+			command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
+			translationCommands.push_back(command);
 		
-		trans->position.y = p_y;
+			trans->position.y = p_transY;
 
-		++i;
+			++i;
+		}
+
+		if(translationCommands.size() > 0)
+			SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 	}
-
-	if(atLeastOneObjectWasSelected)
-		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 }
 
-void ToolPanel::setZTranslationOfSelectedEntities(double p_z)
+void ToolPanel::setZTranslationOfSelectedEntities(double p_transZ)
 {
-	std::vector<Command*> translationCommands;
-	DataMapper<Data::Selected> map_selected;
-	Entity* e;
-	unsigned int i = 0;
-
-	bool atLeastOneObjectWasSelected = false;
-	while(map_selected.hasNext())
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
 	{
-		atLeastOneObjectWasSelected = true;
+		std::vector<Command*> translationCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
 
-		e = map_selected.nextEntity();
+		while(map_selected.hasNext())
+		{
+			e = map_selected.nextEntity();
 
-		Data::Transform* trans = e->fetchData<Data::Transform>();
-		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
-		command->setDoTranslation(trans->position.x, trans->position.y, p_z);
-		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
-		translationCommands.push_back(command);
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+			command->setDoTranslation(trans->position.x, trans->position.y, p_transZ);
+			command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
+			translationCommands.push_back(command);
 		
-		trans->position.z = p_z;
+			trans->position.z = p_transZ;
 
-		++i;
+			++i;
+		}
+
+		if(translationCommands.size() > 0)
+			SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 	}
-
-	if(atLeastOneObjectWasSelected)
-		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
 }
 
 void ToolPanel::setXScalingOfSelectedEntities(double p_xScale)
 {
-	std::vector<Command*> scalingCommands;
-	DataMapper<Data::Selected> map_selected;
-	Entity* e;
-	unsigned int i = 0;
-
-	bool atLeastOneObjectWasSelected = false;
-	while(map_selected.hasNext())
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
 	{
-		atLeastOneObjectWasSelected = true;
+		std::vector<Command*> scalingCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
 
-		e = map_selected.nextEntity();
+		bool atLeastOneObjectWasSelected = false;
+		while(map_selected.hasNext())
+		{
+			atLeastOneObjectWasSelected = true;
 
-		Data::Transform* trans = e->fetchData<Data::Transform>();
-		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
-		command->setDoScale(p_xScale, trans->scale.y, trans->scale.z);
-		command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
-		scalingCommands.push_back(command);
+			e = map_selected.nextEntity();
+
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+			command->setDoScale(p_xScale, trans->scale.y, trans->scale.z);
+			command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+			scalingCommands.push_back(command);
 		
-		trans->scale.x = p_xScale;
+			trans->scale.x = p_xScale;
 
-		++i;
+			++i;
+		}
+
+		if(scalingCommands.size() > 0)
+			SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
 	}
-
-	if(atLeastOneObjectWasSelected)
-		SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
 }
 
 void ToolPanel::setYScalingOfSelectedEntities(double p_yScale)
 {
-	std::vector<Command*> scalingCommands;
-	DataMapper<Data::Selected> map_selected;
-	Entity* e;
-	unsigned int i = 0;
-
-	bool atLeastOneObjectWasSelected = false;
-	while(map_selected.hasNext())
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
 	{
-		atLeastOneObjectWasSelected = true;
+		std::vector<Command*> scalingCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
 
-		e = map_selected.nextEntity();
+		bool atLeastOneObjectWasSelected = false;
+		while(map_selected.hasNext())
+		{
+			atLeastOneObjectWasSelected = true;
 
-		Data::Transform* trans = e->fetchData<Data::Transform>();
-		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
-		command->setDoScale(trans->scale.x, p_yScale, trans->scale.z);
-		command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
-		scalingCommands.push_back(command);
+			e = map_selected.nextEntity();
+
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+			command->setDoScale(trans->scale.x, p_yScale, trans->scale.z);
+			command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+			scalingCommands.push_back(command);
 		
-		trans->scale.y = p_yScale;
+			trans->scale.y = p_yScale;
 
-		++i;
+			++i;
+		}
+
+		if(atLeastOneObjectWasSelected)
+			SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
 	}
-
-	if(atLeastOneObjectWasSelected)
-		SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
 }
 
 void ToolPanel::setZScalingOfSelectedEntities(double p_zScale)
 {
-	std::vector<Command*> scalingCommands;
-	DataMapper<Data::Selected> map_selected;
-	Entity* e;
-	unsigned int i = 0;
-
-	bool atLeastOneObjectWasSelected = false;
-	while(map_selected.hasNext())
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
 	{
-		atLeastOneObjectWasSelected = true;
+		std::vector<Command*> scalingCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
 
-		e = map_selected.nextEntity();
+		bool atLeastOneObjectWasSelected = false;
+		while(map_selected.hasNext())
+		{
+			atLeastOneObjectWasSelected = true;
 
-		Data::Transform* trans = e->fetchData<Data::Transform>();
-		Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
-		command->setDoScale(trans->scale.x, trans->scale.y, p_zScale);
-		command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
-		scalingCommands.push_back(command);
+			e = map_selected.nextEntity();
+
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_ScaleSceneEntity *command = new Command_ScaleSceneEntity(e->id());
+			command->setDoScale(trans->scale.x, trans->scale.y, p_zScale);
+			command->setUndoScale(trans->scale.x, trans->scale.y, trans->scale.z);
+			scalingCommands.push_back(command);
 		
-		trans->scale.z = p_zScale;
+			trans->scale.z = p_zScale;
 
-		++i;
+			++i;
+		}
+
+		if(atLeastOneObjectWasSelected)
+			SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
 	}
+}
 
-	if(atLeastOneObjectWasSelected)
-		SEND_EVENT(&Event_AddToCommandHistory(&scalingCommands, false));
+void ToolPanel::setXRotationOfSelectedEntities(double p_rotX)
+{
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
+	{
+		std::vector<Command*> rotationCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
+
+		bool atLeastOneObjectWasSelected = false;
+		while(map_selected.hasNext())
+		{
+			atLeastOneObjectWasSelected = true;
+
+			e = map_selected.nextEntity();
+
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_RotateSceneEntity *command = new Command_RotateSceneEntity(e->id());
+
+			XMVECTOR quat = trans->rotation;
+
+			float xAngle = rotationXSpinBox->value(); // atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
+									//,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
+
+			float yAngle = rotationYSpinBox->value(); //(asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
+
+			float zAngle = rotationZSpinBox->value(); //atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
+									//,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
+
+
+			XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw(p_rotX * (Math::Pi / 180), yAngle * (Math::Pi / 180), zAngle * (Math::Pi / 180));
+
+			command->setDoRotQuat(rotQuat.m128_f32[0], rotQuat.m128_f32[1], rotQuat.m128_f32[2], rotQuat.m128_f32[3]);
+			command->setUndoRotQuat(quat.m128_f32[0], quat.m128_f32[1], quat.m128_f32[2], quat.m128_f32[3]);
+			rotationCommands.push_back(command);
+		
+			trans->rotation = rotQuat;
+
+			++i;
+		}
+
+		if(atLeastOneObjectWasSelected)
+			SEND_EVENT(&Event_AddToCommandHistory(&rotationCommands, false));
+	}
+}
+
+void ToolPanel::setYRotationOfSelectedEntities(double p_rotY)
+{
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
+	{
+		std::vector<Command*> rotationCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
+
+		bool atLeastOneObjectWasSelected = false;
+		while(map_selected.hasNext())
+		{
+			atLeastOneObjectWasSelected = true;
+
+			e = map_selected.nextEntity();
+
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_RotateSceneEntity *command = new Command_RotateSceneEntity(e->id());
+
+			XMVECTOR quat = trans->rotation;
+
+			float xAngle = rotationXSpinBox->value(); // atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
+									//,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
+
+			float yAngle = rotationYSpinBox->value(); //(asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
+
+			float zAngle = rotationZSpinBox->value(); //atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
+									//,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
+
+
+			XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw(xAngle * (Math::Pi / 180), p_rotY * (Math::Pi / 180), zAngle * (Math::Pi / 180));
+
+			command->setDoRotQuat(rotQuat.m128_f32[0], rotQuat.m128_f32[1], rotQuat.m128_f32[2], rotQuat.m128_f32[3]);
+			command->setUndoRotQuat(quat.m128_f32[0], quat.m128_f32[1], quat.m128_f32[2], quat.m128_f32[3]);
+			rotationCommands.push_back(command);
+		
+			trans->rotation = rotQuat;
+
+			++i;
+		}
+
+		if(atLeastOneObjectWasSelected)
+			SEND_EVENT(&Event_AddToCommandHistory(&rotationCommands, false));
+	}
+}
+
+void ToolPanel::setZRotationOfSelectedEntities(double p_rotZ)
+{
+	if(spinboxValueSetBecauseOfSelectionOrTransformation == false)
+	{
+		std::vector<Command*> rotationCommands;
+		DataMapper<Data::Selected> map_selected;
+		Entity* e;
+		unsigned int i = 0;
+
+		bool atLeastOneObjectWasSelected = false;
+		while(map_selected.hasNext())
+		{
+			atLeastOneObjectWasSelected = true;
+
+			e = map_selected.nextEntity();
+
+			Data::Transform* trans = e->fetchData<Data::Transform>();
+			Command_RotateSceneEntity *command = new Command_RotateSceneEntity(e->id());
+
+			XMVECTOR quat = trans->rotation;
+
+			float xAngle = rotationXSpinBox->value(); // atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
+									//,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
+
+			float yAngle = rotationYSpinBox->value(); //(asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
+
+			float zAngle = rotationZSpinBox->value(); //atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
+									//,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
+
+
+			XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw(xAngle * (Math::Pi / 180), yAngle * (Math::Pi / 180), p_rotZ * (Math::Pi / 180));
+
+			command->setDoRotQuat(rotQuat.m128_f32[0], rotQuat.m128_f32[1], rotQuat.m128_f32[2], rotQuat.m128_f32[3]);
+			command->setUndoRotQuat(quat.m128_f32[0], quat.m128_f32[1], quat.m128_f32[2], quat.m128_f32[3]);
+			rotationCommands.push_back(command);
+		
+			trans->rotation = rotQuat;
+
+			++i;
+		}
+
+		if(atLeastOneObjectWasSelected)
+			SEND_EVENT(&Event_AddToCommandHistory(&rotationCommands, false));
+	}
 }
 
 ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 {
+	SUBSCRIBE_TO_EVENT(this, EVENT_TRANSLATE_SCENE_ENTITY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ROTATE_SCENE_ENTITY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SCALE_SCENE_ENTITY);
+	SUBSCRIBE_TO_EVENT(this, EVENT_ENTITY_SELECTION);
+
+	spinboxValueSetBecauseOfSelectionOrTransformation = false;
+
 	m_window = Window::instance();
 	m_colorDialog = new QColorDialog(this);
 
@@ -1026,32 +1180,36 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setXTranslationOfSelectedEntities(double)));
+		translationXSpinBox = dsb;
 
 		l = new QLabel("  Y  ", w);
 		dsb = new QDoubleSpinBox(w);
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
-
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setYTranslationOfSelectedEntities(double)));
+		translationYSpinBox = dsb;
 
 		l = new QLabel("  Z  ", w);
 		dsb = new QDoubleSpinBox(w);
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
-
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZTranslationOfSelectedEntities(double)));
+		translationZSpinBox = dsb;
 
 		//QLabel* l;
 		//vl->addWidget(new QLabel("Position"));
@@ -1075,24 +1233,65 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 	}
 	{
 		QLabel* l;
+		QDoubleSpinBox *dsb;
+
 		vl->addWidget(new QLabel("Rotation"));
 		QLayout* hl = new QHBoxLayout(w);
 		vl->addItem(hl);
+
 		l = new QLabel("  X  ", w);
+		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(-1000.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setXRotationOfSelectedEntities(double)));
+		rotationXSpinBox = dsb;
+
 		l = new QLabel("  Y  ", w);
+		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(-1000.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setYRotationOfSelectedEntities(double)));
+		rotationYSpinBox = dsb;
+
 		l = new QLabel("  Z  ", w);
+		dsb = new QDoubleSpinBox(w);
+		dsb->setRange(-1000.0f, 1000.0f);
+		dsb->setWrapping(1);
+		dsb->setSingleStep(1);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZRotationOfSelectedEntities(double)));
+		rotationZSpinBox = dsb;
+
+		//QLabel* l;
+		//vl->addWidget(new QLabel("Rotation"));
+		//QLayout* hl = new QHBoxLayout(w);
+		//vl->addItem(hl);
+		//l = new QLabel("  X  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
+		//l = new QLabel("  Y  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
+		//l = new QLabel("  Z  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
-QLabel* l;
+		QLabel* l;
 		QDoubleSpinBox *dsb;
 
 		vl->addWidget(new QLabel("Scale"));
@@ -1104,32 +1303,36 @@ QLabel* l;
 		dsb->setRange(0.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setXScalingOfSelectedEntities(double)));
+		scalingXSpinBox = dsb;
 
 		l = new QLabel("  Y  ", w);
 		dsb = new QDoubleSpinBox(w);
 		dsb->setRange(0.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
-
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setYScalingOfSelectedEntities(double)));
+		scalingYSpinBox = dsb;
 
 		l = new QLabel("  Z  ", w);
 		dsb = new QDoubleSpinBox(w);
 		dsb->setRange(0.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
-
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZScalingOfSelectedEntities(double)));
+		scalingZSpinBox = dsb;
 
 		//QLabel* l;
 		//vl->addWidget(new QLabel("Scale"));
@@ -1166,6 +1369,98 @@ QLabel* l;
 		hl->addWidget(button);
 	}
 	vl->addItem(m_window->createSpacer(Qt::Vertical));
+}
+
+void ToolPanel::onEvent(Event *p_event)
+{
+	EventType type = p_event->type();
+
+	static Vector2 currentScreenCoords;
+
+	DataMapper<Data::Selected> map_selected;
+	bool thereIsAtLeastOneSelectedEntity = map_selected.hasNext();
+
+	switch(type) 
+	{
+	case EVENT_TRANSLATE_SCENE_ENTITY:
+		{
+			//if(Data::Selected::lastSelected.isValid())
+			//{
+			//	spinboxValueSetBecauseOfSelectionOrTransformation = true;
+
+			//	translationXSpinBox->setValue(Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>()->position.x);
+			//	translationYSpinBox->setValue(Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>()->position.y);
+			//	translationZSpinBox->setValue(Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>()->position.z);
+
+			//	spinboxValueSetBecauseOfSelectionOrTransformation = false;
+			//}
+			break;
+		}
+	case EVENT_ROTATE_SCENE_ENTITY:
+		{
+			//if(Data::Selected::lastSelected.isValid())
+			//{
+			//	spinboxValueSetBecauseOfSelectionOrTransformation = true;
+
+			//	spinboxValueSetBecauseOfSelectionOrTransformation = false;
+			//}
+			break;
+		}
+	case EVENT_SCALE_SCENE_ENTITY:
+		{
+			//if(Data::Selected::lastSelected.isValid())
+			//{
+			//	spinboxValueSetBecauseOfSelectionOrTransformation = true;
+
+			//	scalingXSpinBox->setValue(Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>()->scale.x);
+			//	scalingYSpinBox->setValue(Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>()->scale.y);
+			//	scalingZSpinBox->setValue(Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>()->scale.z);
+
+			//	spinboxValueSetBecauseOfSelectionOrTransformation = false;
+			//}
+			break;
+		}
+	case EVENT_ENTITY_SELECTION:
+		{
+			if(Data::Selected::lastSelected.isValid())
+			{
+				spinboxValueSetBecauseOfSelectionOrTransformation = true;
+
+				Data::Transform *trans = Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>();
+
+				translationXSpinBox->setValue(trans->position.x);
+				translationYSpinBox->setValue(trans->position.y);
+				translationZSpinBox->setValue(trans->position.z);
+
+				XMVECTOR quat = trans->rotation;
+
+				float xAngle = atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
+										,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
+
+				float yAngle = asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
+
+				float zAngle = atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
+										,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
+
+				rotationXSpinBox->setValue(xAngle * (Math::Pi / 180));
+				rotationYSpinBox->setValue(yAngle * (Math::Pi / 180));
+				rotationZSpinBox->setValue(zAngle * (Math::Pi / 180));
+
+				scalingXSpinBox->setValue(trans->scale.x);
+				scalingYSpinBox->setValue(trans->scale.y);
+				scalingZSpinBox->setValue(trans->scale.z);
+
+				spinboxValueSetBecauseOfSelectionOrTransformation = false;
+			}
+			break;
+		}
+	case EVENT_SET_TOOL:
+		{
+			break;
+		}
+	default:
+		break;
+	}
 }
 
 void ToolPanel::pickColor()
