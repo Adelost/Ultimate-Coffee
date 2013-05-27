@@ -6,6 +6,8 @@
 #include <QDockWidget.h>
 #include <QListWidget.h>
 
+//#include <math.h>
+
 class Window;
 class QDockWidget;
 class QMenu;
@@ -153,11 +155,9 @@ public slots:
 	void setYScalingOfSelectedEntities(double Y);
 	void setZScalingOfSelectedEntities(double Z);
 
-
-
-	//void setXRotationOfSelectedEntities(double X);
-	//void setYRotationOfSelectedEntities(double Y);
-	//void setZRotationOfSelectedEntities(double Z);
+	void setXRotationOfSelectedEntities(double X);
+	void setYRotationOfSelectedEntities(double Y);
+	void setZRotationOfSelectedEntities(double Z);
 };
 
 class ListWidgetWithoutKeyboardInput : public QListWidget
