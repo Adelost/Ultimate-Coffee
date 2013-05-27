@@ -29,6 +29,9 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 	// Initialize the transformation tools...
 	currentlyChosenTransformTool = NULL;
+	m_theScalingTool = NULL;
+	m_theRotationTool = NULL;
+	m_theTranslationTool = NULL;
 
 	m_theSelectionTool = NULL;
 
@@ -464,20 +467,29 @@ void Manager_3DTools::onEvent( Event* p_event )
 			{
 			case Enum::Tool_Translate:
 				{
-					currentlyChosenTransformTool = m_theTranslationTool;
-					currentlyChosenTransformTool->setActiveObject(1);
+					if(m_theTranslationTool != NULL)
+					{
+						currentlyChosenTransformTool = m_theTranslationTool;
+						currentlyChosenTransformTool->setActiveObject(1);
+					}
 				}
 				break;
 			case Enum::Tool_Rotate:
 				{
-					currentlyChosenTransformTool = m_theRotationTool;
-					currentlyChosenTransformTool->setActiveObject(1);
+					if(m_theRotationTool != NULL)
+					{
+						currentlyChosenTransformTool = m_theRotationTool;
+						currentlyChosenTransformTool->setActiveObject(1);
+					}
 				}
 				break;
 			case Enum::Tool_Scale:
 				{
-					currentlyChosenTransformTool = m_theScalingTool;
-					currentlyChosenTransformTool->setActiveObject(1);
+					if(m_theScalingTool != NULL)
+					{
+						currentlyChosenTransformTool = m_theScalingTool;
+						currentlyChosenTransformTool->setActiveObject(1);
+					}
 				}
 				break; 
 			default:

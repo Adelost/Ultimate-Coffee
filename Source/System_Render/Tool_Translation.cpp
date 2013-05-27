@@ -1238,7 +1238,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	endPointB = XMVectorSet(lengthOfLine, 0.0f, 0.0f, 1.0f);
 	colorA = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
 	colorB = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
-	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+	geoGen.createLine(endPointA, endPointB, 79998, colorA, colorB, localSpaceTrans, meshVertices);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -1257,7 +1257,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	endPointB = XMVectorSet(+lengthOfLine, 0.0f, 0.0f, 1.0f);
 	colorA = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
 	colorB = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
-	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+	geoGen.createLine(endPointA, endPointB, 79998, colorA, colorB, localSpaceTrans, meshVertices);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -1276,7 +1276,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	endPointB = XMVectorSet(+lengthOfLine, 0.0f, 0.0f, 1.0f);
 	colorA = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
 	colorB = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
-	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+	geoGen.createLine(endPointA, endPointB, 79998, colorA, colorB, localSpaceTrans, meshVertices);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
@@ -1373,10 +1373,10 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 		}
 	}
 
@@ -1386,10 +1386,10 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
-		md3dImmediateContext->Draw(5, 0);
+		md3dImmediateContext->Draw(80000, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane2_VB, &stride, &offset);
-		md3dImmediateContext->Draw(5, 0);
+		md3dImmediateContext->Draw(80000, 0);
 
 		if(isSelected)
 		{
@@ -1397,10 +1397,10 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 		}
 	}
 
@@ -1420,10 +1420,10 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 		}
 	}
 
@@ -1452,7 +1452,7 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_xAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 		}
 	}
 
@@ -1477,7 +1477,7 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_yAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 		}
 	}
 
@@ -1502,7 +1502,7 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zAxisLine_VB, &stride, &offset);
-			md3dImmediateContext->Draw(2, 0);
+			md3dImmediateContext->Draw(80000, 0);
 		}
 	}
 	

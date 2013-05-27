@@ -132,58 +132,80 @@ bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMV
 	transRayDir = XMVector3Normalize(transRayDir);
 
 	bool theLineIntersectsTheSelectionRectangle = false;
+
+	int viewPortHeight = SETTINGS()->windowSize.y;
+	int viewPortWidth = SETTINGS()->windowSize.x;
+
+	int DXViewPortTopLeftX = SETTINGS()->DXViewPortTopLeftX;
+	int DXViewPortTopLeftY = SETTINGS()->DXViewPortTopLeftY;
+	int DXViewPortMinDepth = SETTINGS()->DXViewPortMinDepth;
+	int DXViewPortMaxDepth = SETTINGS()->DXViewPortMaxDepth;
+
 	for(unsigned int i = 0; i < boundingLines.size(); i = i + 2)
 	{
-		int viewPortHeight = SETTINGS()->windowSize.y;
-		int viewPortWidth = SETTINGS()->windowSize.x;
+		XMVECTOR linePointA = XMLoadFloat4(&boundingLines.at(   i   ));
+		XMVECTOR linePointB = XMLoadFloat4(&boundingLines.at( i + 1 ));
+		XMVECTOR avgLinePointPos = (linePointA + linePointB) / 2.0f;
 
-		int DXViewPortTopLeftX = SETTINGS()->DXViewPortTopLeftX;
-		int DXViewPortTopLeftY = SETTINGS()->DXViewPortTopLeftY;
-		int DXViewPortMinDepth = SETTINGS()->DXViewPortMinDepth;
-		int DXViewPortMaxDepth = SETTINGS()->DXViewPortMaxDepth;
+		avgLinePointPos = XMVector3Transform(linePointA, XMLoadFloat4x4(&world));
 
-		// Project the 3D re-entry point to 2D, so that the screen coordinates can be calculated.
-		XMVECTOR lineSegmentPointAScreenPos = XMVector3Project(	XMLoadFloat4(&boundingLines.at(   i   )),
-			DXViewPortTopLeftX,	DXViewPortTopLeftY,
-			viewPortWidth,		viewPortHeight,
-			DXViewPortMinDepth,	DXViewPortMaxDepth,
-			camProj, camView, XMLoadFloat4x4(&world)	);
+//* first normalize your plane normal (like show above), put it into N
+//* compute D, using a arbitrary point P, that lies on the plane: D = - (Nx*Px + Ny*Py + Nz*Pz); Don't forget the inversion !
+//* Now you have the normalized plane equation factors: (N,D)
 
-		XMVECTOR lineSegmentPointBScreenPos = XMVector3Project(	XMLoadFloat4(&boundingLines.at( i + 1 )),
-			DXViewPortTopLeftX,	DXViewPortTopLeftY,
-			viewPortWidth,		viewPortHeight,
-			DXViewPortMinDepth,	DXViewPortMaxDepth,
-			camProj, camView, XMLoadFloat4x4(&world)	);
+		// Check if the "average line point" is currently behind the selection blocking plane.
+		float D = -(selectionBlockingPlaneNormal.x * world._41 + selectionBlockingPlaneNormal.y * world._42 + selectionBlockingPlaneNormal.z * world._43);
+		float res =	  selectionBlockingPlaneNormal.x * avgLinePointPos.m128_f32[0]
+					+ selectionBlockingPlaneNormal.y * avgLinePointPos.m128_f32[1]
+					+ selectionBlockingPlaneNormal.z * avgLinePointPos.m128_f32[2] + D; //0.0f; //0.0f;
 
-		MyRectangle testRect;
+					float test = XMVector3Dot(avgLinePointPos, XMLoadFloat3(&selectionBlockingPlaneNormal)).m128_f32[0];
 
-		testRect.P1 = XMFLOAT3(458.0f,	177.0f,	0.0f);
-		testRect.P2 = XMFLOAT3(458.0f,	178.0f, 0.0f);
-		testRect.P3 = XMFLOAT3(459.0f,	178.0f, 0.0f);
-		testRect.P4 = XMFLOAT3(459.0f,	177.0f,	0.0f);
-
-		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P1), XMLoadFloat3(&selectionRectangle.P2)); //theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointAScreenPos, selectionRectangle);
-		if(theLineIntersectsTheSelectionRectangle)
+		if(res >= 0.0f)
 		{
-			break;
-		}
+			// Project the 3D re-entry point to 2D, so that the screen coordinates can be calculated.
+			XMVECTOR lineSegmentPointAScreenPos = XMVector3Project(linePointA,
+				DXViewPortTopLeftX,	DXViewPortTopLeftY,
+				viewPortWidth,		viewPortHeight,
+				DXViewPortMinDepth,	DXViewPortMaxDepth,
+				camProj, camView, XMLoadFloat4x4(&world)	);
 
-		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P2), XMLoadFloat3(&selectionRectangle.P3)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
-		if(theLineIntersectsTheSelectionRectangle)
-		{
-			break;
-		}
+			XMVECTOR lineSegmentPointBScreenPos = XMVector3Project(linePointB,
+				DXViewPortTopLeftX,	DXViewPortTopLeftY,
+				viewPortWidth,		viewPortHeight,
+				DXViewPortMinDepth,	DXViewPortMaxDepth,
+				camProj, camView, XMLoadFloat4x4(&world)	);
 
-		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P3), XMLoadFloat3(&selectionRectangle.P4)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
-		if(theLineIntersectsTheSelectionRectangle)
-		{
-			break;
-		}
+			MyRectangle testRect;
 
-		theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P4), XMLoadFloat3(&selectionRectangle.P1)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
-		if(theLineIntersectsTheSelectionRectangle)
-		{
-			break;
+			//testRect.P1 = XMFLOAT3(458.0f,	177.0f,	0.0f);
+			//testRect.P2 = XMFLOAT3(458.0f,	178.0f, 0.0f);
+			//testRect.P3 = XMFLOAT3(459.0f,	178.0f, 0.0f);
+			//testRect.P4 = XMFLOAT3(459.0f,	177.0f,	0.0f);
+
+			theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P1), XMLoadFloat3(&selectionRectangle.P2)); //theLineIntersectsTheSelectionRectangle = pointVsRectangle(lineSegmentPointAScreenPos, selectionRectangle);
+			if(theLineIntersectsTheSelectionRectangle)
+			{
+				break;
+			}
+
+			theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P2), XMLoadFloat3(&selectionRectangle.P3)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+			if(theLineIntersectsTheSelectionRectangle)
+			{
+				break;
+			}
+
+			theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P3), XMLoadFloat3(&selectionRectangle.P4)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+			if(theLineIntersectsTheSelectionRectangle)
+			{
+				break;
+			}
+
+			theLineIntersectsTheSelectionRectangle = lineVsLine(lineSegmentPointAScreenPos, lineSegmentPointBScreenPos, XMLoadFloat3(&selectionRectangle.P4), XMLoadFloat3(&selectionRectangle.P1)); //pointVsRectangle(lineSegmentPointBScreenPos, selectionRectangle);
+			if(theLineIntersectsTheSelectionRectangle)
+			{
+				break;
+			}
 		}
 	}
 
@@ -310,3 +332,9 @@ void Handle_RotationCircle::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATR
 {
 }
 
+void Handle_RotationCircle::setSelectionBlockingPlaneNormal(XMVECTOR &normal)
+{
+	//XMVECTOR transformedNormal = XMVector3Transform(normal, XMLoadFloat4x4(world));
+	//XMStoreFloat3(&selectionBlockingPlaneNormal, transformedNormal);
+	XMStoreFloat3(&selectionBlockingPlaneNormal, normal);
+}

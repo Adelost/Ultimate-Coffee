@@ -67,7 +67,9 @@ public:
 	/* Called to calculate the angle between two points on a sphere, so as to be able to rotate A, around the relevant axis, so it ends up where B is. */
 	float calcAngleBetweenTwoPointsOnSphere(Sphere &sphere, XMVECTOR &pointA, XMVECTOR &pointB);
 
-	void constrainRotationToOneFixedAxis(bool rotationShouldBeConstrainedToOneFixedAxis, XMVECTOR fixedAxis);
+	void constrainRotationToOneFixedAxis(bool rotationShouldBeConstrainedToOneFixedAxis, XMVECTOR &fixedAxis);
+
+	void getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(XMVECTOR &quatRotToPointA, XMVECTOR &quatRotToPointB);
 };
 
 #endif
