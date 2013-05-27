@@ -1182,6 +1182,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1193,6 +1194,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1204,6 +1206,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1243,6 +1246,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1301,6 +1305,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(0.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1312,6 +1317,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(0.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1323,6 +1329,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(0.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
