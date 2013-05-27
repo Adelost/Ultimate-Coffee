@@ -236,6 +236,8 @@ void Manager_Tools::action_copy()
 
 void Manager_Tools::action_paste()
 {
+	std::vector<Command*> command_list;
+
 	// Clear previous selection
 	Data::Selected::clearSelection();
 
@@ -255,9 +257,20 @@ void Manager_Tools::action_paste()
 		{
 			d_render->recoverFromCloning(clone);
 		}
-		
 
 		// Select new entity
 		Data::Selected::select(clone);
+
+		// Save command
+		command_list.push_back(new Command_CreateEntity(clone, false));
 	}
+
+	// Inform about selection
+	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
+
+// 	// Add to history
+// 	if(command_list.size()>0)
+// 	{
+// 		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+// 	}
 }
