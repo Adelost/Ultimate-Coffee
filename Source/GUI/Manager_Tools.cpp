@@ -84,13 +84,13 @@ void Manager_Tools::setupActions()
 // 	m_ui->contextBar->addAction(menu->menuAction());
 
 	//m_ui->contextBar->addSeparator();
-	a = createContextIcon("Coffee");
-	a->setToolTip("Recreate geometry");
-	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
-	a = createContextIcon("Tool");
+// 	a = createContextIcon("Coffee");
+// 	a->setToolTip("Recreate geometry");
+// 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+	a = createContextIcon("Asteroid");
 	a->setToolTip("Create 1 asteroid");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
-	a = createContextIcon("Experiment");
+	a = createContextIcon("Asteroids");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
 	a = createContextIcon("Simulate");
