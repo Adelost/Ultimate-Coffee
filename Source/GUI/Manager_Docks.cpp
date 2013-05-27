@@ -818,6 +818,98 @@ void Hierarchy::keyReleaseEvent( QKeyEvent *e )
 	QCoreApplication::sendEvent(parentWidget(), e);
 }
 
+//void ToolPanel::valueChanged(double d)
+//{
+//	int test = 3;
+//}
+
+void ToolPanel::setXTranslationOfSelectedEntities(double p_x)
+{
+	std::vector<Command*> translationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+
+	bool atLeastOneObjectWasSelected = false;
+	while(map_selected.hasNext())
+	{
+		atLeastOneObjectWasSelected = true;
+
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+		command->setDoTranslation(p_x, trans->position.y, trans->position.z);
+		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
+		translationCommands.push_back(command);
+		
+		trans->position.x = p_x;
+
+		++i;
+	}
+
+	if(atLeastOneObjectWasSelected)
+		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
+}
+
+void ToolPanel::setYTranslationOfSelectedEntities(double p_y)
+{
+	std::vector<Command*> translationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+
+	bool atLeastOneObjectWasSelected = false;
+	while(map_selected.hasNext())
+	{
+		atLeastOneObjectWasSelected = true;
+
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+		command->setDoTranslation(p_y, trans->position.y, trans->position.z);
+		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
+		translationCommands.push_back(command);
+		
+		trans->position.x = p_y;
+
+		++i;
+	}
+
+	if(atLeastOneObjectWasSelected)
+		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
+}
+
+void ToolPanel::setZTranslationOfSelectedEntities(double p_z)
+{
+	std::vector<Command*> translationCommands;
+	DataMapper<Data::Selected> map_selected;
+	Entity* e;
+	unsigned int i = 0;
+
+	bool atLeastOneObjectWasSelected = false;
+	while(map_selected.hasNext())
+	{
+		atLeastOneObjectWasSelected = true;
+
+		e = map_selected.nextEntity();
+
+		Data::Transform* trans = e->fetchData<Data::Transform>();
+		Command_TranslateSceneEntity *command = new Command_TranslateSceneEntity(e->id());
+		command->setDoTranslation(p_z, trans->position.y, trans->position.z);
+		command->setUndoTranslation(trans->position.x, trans->position.y, trans->position.z);
+		translationCommands.push_back(command);
+		
+		trans->position.x = p_z;
+
+		++i;
+	}
+
+	if(atLeastOneObjectWasSelected)
+		SEND_EVENT(&Event_AddToCommandHistory(&translationCommands, false));
+}
+
 ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 {
 	m_window = Window::instance();
@@ -838,21 +930,61 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 	w->setLayout(vl);
 	{
 		QLabel* l;
+		QDoubleSpinBox *dsb;
+
 		vl->addWidget(new QLabel("Position"));
 		QLayout* hl = new QHBoxLayout(w);
 		vl->addItem(hl);
+
 		l = new QLabel("  X  ", w);
+		dsb = new QDoubleSpinBox(w);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+
+		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setXTranslationOfSelectedEntities(double)));
+
+		//valueChanged(10);
+		//dsb->setValue(10);
+		//double value;
+		//emit dsb->valueChanged(value);
+
+    //doubleSpin->setMinimum(0.0);
+    //doubleSpin->setMaximum(100.0);
+    //doubleSpin->setWrapping(1);
+    //doubleSpin->setSingleStep(0.1);
+
 		l = new QLabel("  Y  ", w);
+		dsb = new QDoubleSpinBox(w);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+
 		l = new QLabel("  Z  ", w);
+		dsb = new QDoubleSpinBox(w);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-		hl->addWidget(new QDoubleSpinBox(w));
+		hl->addWidget(dsb);
+
+		//QLabel* l;
+		//vl->addWidget(new QLabel("Position"));
+		//QLayout* hl = new QHBoxLayout(w);
+		//vl->addItem(hl);
+
+		//l = new QLabel("  X  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
+
+		//l = new QLabel("  Y  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
+
+		//l = new QLabel("  Z  ", w);
+		//l->setMaximumSize(l->sizeHint());
+		//hl->addWidget(l);
+		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
 		QLabel* l;

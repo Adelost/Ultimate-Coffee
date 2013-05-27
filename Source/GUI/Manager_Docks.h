@@ -137,6 +137,9 @@ public:
 
 public slots:
 	void pickColor();
+	void setXTranslationOfSelectedEntities(double X);
+	void setYTranslationOfSelectedEntities(double Y);
+	void setZTranslationOfSelectedEntities(double Z);
 };
 
 class ListWidgetWithoutKeyboardInput : public QListWidget

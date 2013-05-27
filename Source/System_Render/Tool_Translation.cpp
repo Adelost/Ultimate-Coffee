@@ -531,6 +531,7 @@ void Tool_Translation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrig
 		while(map_selected.hasNext())
 		{
 			e = map_selected.nextEntity();
+
 			Data::Selected* d_selected = e->fetchData<Data::Selected>();
 
 			e->fetchData<Data::Transform>()->position = XMVectorSet(originalWorldsOfSelectedEntities.at(i)._41,
