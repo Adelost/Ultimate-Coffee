@@ -115,26 +115,26 @@ void Manager_Commands::setupMenu()
 	// Create skybox
 	{
 		std::string path = "";
-		std::string icon_name = "Skybox";
+		std::string icon_name = "Skybox1";
 		path = path + ICON_PATH + "Options/" + icon_name;
 
 		QAction* a = createTestButton("#000", mapper);
 		a->setChecked(true);
 		a->setIcon(QIcon(path.c_str()));
 		a->setObjectName(icon_name.c_str());
-		a->setToolTip("Toggle skybox");
+		a->setToolTip("Select skybox 1");
 
 		m_action_skybox = a;
 	}
 	{
 		std::string path = "";
-		std::string icon_name = "Skybox";
+		std::string icon_name = "Skybox2";
 		path = path + ICON_PATH + "Options/" + icon_name;
 
 		QAction* a = createTestButton("#000", mapper);
 		a->setIcon(QIcon(path.c_str()));
 		a->setObjectName(icon_name.c_str());
-		a->setToolTip("Toggle skybox #2");
+		a->setToolTip("Select skybox 2");
 
 		m_action_skybox2 = a;
 	}

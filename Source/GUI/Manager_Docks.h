@@ -180,3 +180,11 @@ protected:
 
 	}
 };
+
+class ListItemWithId : public QListWidgetItem
+{
+	//Q_OBJECT
+
+public:
+	ListItemWithId();
+};
