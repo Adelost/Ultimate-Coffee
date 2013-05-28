@@ -166,11 +166,8 @@ Data::Movement_Floating::Movement_Floating()
 	mass = 50.0f;
 	velocity = Math::randomVector(-0.1f, 0.1f);
 
-// 	Vector3 v = velocity;
-// 	v = v*2.0f - Vector3(1.0f);
-// 	float speed = 0.02f;
-// 	v = v*Math::Pi*2*speed;
-// 	rotation = v;
+	// Rotation
+	rotation = velocity = Math::randomVector(-0.1f, 0.1f);;
 }
 bool Data::Movement_Floating::targetCamera = false;
 

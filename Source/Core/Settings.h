@@ -24,6 +24,7 @@ public:
 	bool key_shift;
 	bool key_ctrl;
 	bool key_alt;
+	bool key_space;
 };
 
 class Settings
