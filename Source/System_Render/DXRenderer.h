@@ -41,6 +41,7 @@ private:
 	Buffer*						m_objectConstantBuffer;
 	Buffer*						m_frameConstantBuffer;
 	Sky*						m_sky;
+	Sky*						m_sky2;
 
 	CBPerObject					m_CBPerObject;
 	CBPerFrame					m_CBPerFrame;

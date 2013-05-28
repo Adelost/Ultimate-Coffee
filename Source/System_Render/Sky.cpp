@@ -20,6 +20,12 @@ ID3D11ShaderResourceView* Sky::CubeMapSRV()
 
 void Sky::draw()
 {
+	if(!m_hasInit)
+	{
+		init();
+		m_hasInit = true;
+	}
+
 	m_context->IASetInputLayout(m_inputLayout);
 	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_context->VSSetShader(m_vertexShader, 0, 0);
@@ -57,9 +63,20 @@ void Sky::draw()
 
 Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string& cubemapFilename, float sphereRadius )
 {
+	m_hasInit = false;
+	m_vertexBuffer = nullptr;
+	m_indexBuffer = nullptr;
+	m_WVPBuffer = nullptr;
+	m_inputLayout = nullptr;
+
 	m_device = device;
 	m_context = context;
+	m_cubemapFilename = cubemapFilename;
+	m_sphereRadius = sphereRadius;
+}
 
+void Sky::init()
+{
 	// Create box
 	Factory_Geometry::MeshData sphere;
 	Factory_Geometry::instance()->createSphere(100.0f, 30, 30, sphere);
@@ -79,9 +96,9 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 
 	// Load texture
 	std::string texPath = TEXTURES_PATH;
-	std::string texFileName = "plain.dds";
+	std::string texFileName = m_cubemapFilename;
 	std::string fullPath = texPath + texFileName;
-	createTextureFromFile(device, fullPath, &m_rv_cubeMap);
+	createTextureFromFile(m_device, fullPath, &m_rv_cubeMap);
 
 	// Create Shaders
 	ID3DBlob *PS_Buffer, *VS_Buffer;

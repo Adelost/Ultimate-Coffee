@@ -27,6 +27,25 @@ Tool_Rotation::~Tool_Rotation()
 	delete yRotationHandle;
 	delete zRotationHandle;
 	delete viewAxisRotationHandle;
+
+	ReleaseCOM(m_pixelShader);
+	ReleaseCOM(m_vertexShader);		
+	ReleaseCOM(m_ColorSchemeIdBuffer);
+	ReleaseCOM(m_WVPBuffer);
+	ReleaseCOM(m_inputLayout);
+						
+	ReleaseCOM(mMeshRotTool_xAxisLine_VB);
+	ReleaseCOM(mMeshRotTool_yAxisLine_VB);
+	ReleaseCOM(mMeshRotTool_zAxisLine_VB);
+							 
+	ReleaseCOM(mMeshRotTool_angleLine_VB);
+						
+	ReleaseCOM(mMeshRotTool_Xcircle_VB);
+	ReleaseCOM(mMeshRotTool_Ycircle_VB);
+	ReleaseCOM(mMeshRotTool_Zcircle_VB);
+	ReleaseCOM(mMeshRotTool_viewCircle_VB);
+
+	ReleaseCOM(mMeshRotTool_viewRectangle_VB);
 }
 
 void Tool_Rotation::setIsVisible(bool &isVisible)
@@ -969,38 +988,36 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		//md3dImmediateContext->OMSetDepthStencilState(RenderStates::AlwaysDSS, 0);
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewCircle_VB, &stride, &offset);
 		md3dImmediateContext->Draw(65, 0);
-
-
-
+		
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 					
-		D3D11_BLEND_DESC blendDesc;
-		blendDesc.AlphaToCoverageEnable = false;
-		blendDesc.IndependentBlendEnable = false;
-		blendDesc.RenderTarget[0].BlendEnable = true;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			D3D11_BLEND_DESC blendDesc;
+			blendDesc.AlphaToCoverageEnable = false;
+			blendDesc.IndependentBlendEnable = false;
+			blendDesc.RenderTarget[0].BlendEnable = true;
+			blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+			blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+			blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+			blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+			blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 			
-		ID3D11BlendState *blendState;
-		md3dDevice->CreateBlendState(&blendDesc, &blendState);
+			ID3D11BlendState *blendState;
+			md3dDevice->CreateBlendState(&blendDesc, &blendState);
 			
-		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		UINT sampleMask   = 0xffffffff;
+			float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			UINT sampleMask   = 0xffffffff;
 			
-		md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
-		md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
+			md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+			md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
 			
-		ReleaseCOM(blendState);
+			ReleaseCOM(blendState);
 			
-		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
-		md3dImmediateContext->Draw(6, 0);
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
+			md3dImmediateContext->Draw(6, 0);
 			
-		md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
+			md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
 		// Angle lines.
 		if(xRotationHandle->getIsSelected() || yRotationHandle->getIsSelected() || zRotationHandle->getIsSelected())

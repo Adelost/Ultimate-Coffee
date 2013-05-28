@@ -77,16 +77,38 @@ Tool_Translation::~Tool_Translation()
 	delete xyTranslationPlane; delete xyTranslationPlane2;
 	delete camViewTranslationPlane;
 	
+	ReleaseCOM(m_pixelShader);
+	ReleaseCOM(m_vertexShader);
+	ReleaseCOM(m_ColorSchemeIdBuffer);
+	ReleaseCOM(m_WVPBuffer);
+	ReleaseCOM(m_inputLayout);
+
+	ReleaseCOM(mMeshTransTool_xAxisLine_VB);
+	ReleaseCOM(mMeshTransTool_yAxisLine_VB);
+	ReleaseCOM(mMeshTransTool_zAxisLine_VB);
+
+	ReleaseCOM(mMeshTransTool_axisArrow_IB);
 	ReleaseCOM(mMeshTransTool_xAxisArrow_VB);
 	ReleaseCOM(mMeshTransTool_yAxisArrow_VB);
 	ReleaseCOM(mMeshTransTool_zAxisArrow_VB);
+	ReleaseCOM(mMeshTransTool_xAxisArrow2_VB);
+	ReleaseCOM(mMeshTransTool_yAxisArrow2_VB);
+	ReleaseCOM(mMeshTransTool_zAxisArrow2_VB);
+
 	ReleaseCOM(mMeshTransTool_yzPlane_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane_VB);
 	ReleaseCOM(mMeshTransTool_yzPlane2_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane2_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane2_VB);
+
 	ReleaseCOM(mMeshTransTool_viewPlane_VB);
+
+	//ReleaseCOM(mMeshTransTool_yzTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransTool_zxTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransTool_xyTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransTool_viewPlaneTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransToolVB);
 }
 
 void Tool_Translation::setIsVisible(bool &isVisible)
@@ -1356,8 +1378,6 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 
 	//md3dImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 
-
-
 	if(!isSelected || currentlySelectedPlane == yzTranslationPlane || currentlySelectedPlane == yzTranslationPlane2)
 	{
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
@@ -1387,10 +1407,10 @@ void Tool_Translation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthSte
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane_VB, &stride, &offset);
-		md3dImmediateContext->Draw(80000, 0);
+		md3dImmediateContext->Draw(5, 0);
 
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_zxPlane2_VB, &stride, &offset);
-		md3dImmediateContext->Draw(80000, 0);
+		md3dImmediateContext->Draw(5, 0);
 
 		if(isSelected)
 		{
