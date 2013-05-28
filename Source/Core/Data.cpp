@@ -104,6 +104,19 @@ void Data::Selected::unselect( Entity* e )
 	}
 }
 
+void Data::AddedToClipboard::clearClipboard()
+{
+	DataMapper<Data::AddedToClipboard> map_clipboard;
+	while(map_clipboard.hasNext())
+	{
+		Entity* e = map_clipboard.nextEntity();
+		e->removeData<Data::AddedToClipboard>();
+	}
+
+	// All selection was cleared, no entity is selected
+}
+
+
 void Data::Selected::findLastSelected()
 {
 	Data::Selected::lastSelected.invalidate();
@@ -150,15 +163,13 @@ Matrix Data::Transform::toRotMatrix()
 
 Data::Movement_Floating::Movement_Floating()
 {
-	direction = Math::randomDirection();
-	speed = Math::randomFloat(0.0f, 0.3f);
-	Vector3 v = Math::randomVector();
-	v = v*2.0f - Vector3(1.0f);
-	float speed = 0.02f;
-	v = v*Math::Pi*2*speed;
+	mass = 50.0f;
+	velocity = Math::randomVector(-0.1f, 0.1f);
 
-	rotation = v;
+	// Rotation
+	rotation = velocity = Math::randomVector(-0.1f, 0.1f);;
 }
+bool Data::Movement_Floating::targetCamera = false;
 
 Data::Render::Manager Data::Render::manager;
 
@@ -167,3 +178,11 @@ Data::Render::Render( Entity* entity, int meshId )
 	this->owner = entity->toPointer();
 	setMesh(meshId);
 }
+
+void Data::Render::recoverFromCloning( Entity* owner )
+{
+	this->owner = owner->toPointer();
+	mesh.index = -1;
+	setMesh(mesh.id);
+}
+

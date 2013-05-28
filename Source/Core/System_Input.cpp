@@ -16,9 +16,9 @@ void System::Input::update()
 	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-	float speed = 15.0f;
+	float speed = 15.0f * d_camera->scale();
 	if(SETTINGS()->button.key_shift)
-		speed *= 5.0f;
+		speed *= 4.0f;
 	float delta = SETTINGS()->trueDeltaTime * speed;
 	float strafe = 0.0f;
 	float walk = 0.0f;
@@ -56,6 +56,7 @@ void System::Input::update()
 
 	// Do some random stuff
 	DataMapper<Data::Movement_Floating> map_update;
+	Data::Transform* d_transform_camera = d_transform;
 	while(map_update.hasNext())
 	{
 		Entity* e = map_update.nextEntity();
@@ -63,7 +64,23 @@ void System::Input::update()
 		{
 			Data::Transform* d_transform = e->fetchData<Data::Transform>();
 			Data::Movement_Floating* d_update = e->fetchData<Data::Movement_Floating>();
-			d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime;
+
+			// Hunt camera by applying force
+			if(Data::Movement_Floating::targetCamera)
+			{
+				Vector3 direction = d_transform_camera->position - d_transform->position;
+				direction.Normalize();
+				d_update->force = direction * 100.0f;
+			}
+
+			// Update position
+			Vector3 acceleration = d_update->force/ d_update->mass;
+			d_update->force = Vector3(0.0f); // Reset force
+			d_update->velocity = d_update->velocity + acceleration * SETTINGS()->deltaTime;
+			d_transform->position = d_transform->position + d_update->velocity * SETTINGS()->deltaTime;
+			
+
+			//d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime * 100.0f;
 
 			// Apply rotation
 			Vector3 v = d_update->rotation * SETTINGS()->deltaTime;

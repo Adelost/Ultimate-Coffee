@@ -27,8 +27,16 @@ void Data::Camera::setLens( float fov_y, float aspectRatio, float nearPlane, flo
 	m_nearPlane = nearPlane;
 	m_farPlane = farPlane;
 
+	// Compensate for scale
+	nearPlane = m_nearPlane * m_scale;
+	farPlane =  m_farPlane * m_scale;
+
+	// Don't shrink far plane
+	if(farPlane < m_farPlane)
+		farPlane = m_farPlane;
+
 	// Set view
-	m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
+	m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, nearPlane, farPlane);
 }
 
 DirectX::BoundingFrustum Data::Camera::getSubFrustum( FloatRectangle& window, FloatRectangle& sub_window )
@@ -55,4 +63,12 @@ DirectX::BoundingFrustum Data::Camera::getSubFrustum( FloatRectangle& window, Fl
 	f.BottomSlope *= bottom;
 
 	return f;
+}
+
+void Data::Camera::setScale( float value )
+{
+	m_scale = value;
+
+	// Recalculate lens
+	setLens(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
 }

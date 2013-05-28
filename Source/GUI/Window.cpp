@@ -125,7 +125,9 @@ QWidget* Window::renderWidget()
 
 QSpacerItem* Window::createSpacer( Qt::Orientation p_orientation )
 {
-	return new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	QSpacerItem* spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+	return spacer;
 }
 
 ISystem* Window::system_editor()
@@ -202,8 +204,9 @@ SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate 
 		//hl->addWidget(new QCheckBox("Show at Startup2"));
 		//hl->addItem(new QSpacerItem(2000, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		QComboBox* combo = new QComboBox();
+		connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(changeColorScheme(int)));
 		combo->addItem("RGB mode");
-		combo->addItem("Colorblind mode");
+		combo->addItem("CMY mode");
 		l->addWidget(combo);
 		QCheckBox* cb = new QCheckBox("Show at Startup");
 		cb->setChecked(true);
@@ -245,4 +248,11 @@ void SplashScreen::loadRecentProject()
 {
 	Window::instance()->ui()->actionRecent->trigger();
 	close();
+}
+
+void SplashScreen::changeColorScheme( int enum_scheme )
+{
+	Enum::ColorScheme scheme = static_cast<Enum::ColorScheme>(enum_scheme);
+
+	SETTINGS()->m_ColorScheme_3DManipulatorWidgets = scheme;
 }

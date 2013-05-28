@@ -1,14 +1,17 @@
 #pragma once
 
 #include "Command.h"
-
-
+#include "Math.h"
 
 class Command_SkyBox : public Command
 {
+public:
 	struct dataStruct
 	{
-		bool showSkyBox;
+		int skyBoxIndex;
+		int undoSkyBoxIndex;
+		Vector3 doColor;
+		Vector3 undoColor;
 	};
 
 	dataStruct dataStruct_;
@@ -16,8 +19,6 @@ class Command_SkyBox : public Command
 public:
 	Command_SkyBox();
 	~Command_SkyBox();
-
-	void setShowSkyBox(bool showSkyBox);
 
 	virtual void doRedo();
 	virtual void undo();

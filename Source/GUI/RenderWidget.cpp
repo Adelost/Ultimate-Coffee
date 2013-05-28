@@ -5,6 +5,8 @@
 #include <Core/Command_CreateEntity.h>
 #include <QApplication.h>
 #include <QRubberBand>
+#include "Window.h"
+#include "ui_MainWindow.h"
 
 RenderWidget::RenderWidget( QWidget* parent ) : QWidget(parent)
 {
@@ -124,7 +126,7 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 
 void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 {
-	// Save mouse positoin
+	// Save mouse position
 	SETTINGS()->lastMousePosition.x = e->pos().x();
 	SETTINGS()->lastMousePosition.y = e->pos().y();
 
@@ -143,7 +145,28 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-	if(SETTINGS()->button.mouse_right)
+	// Adjust camera speed
+	if(SETTINGS()->button.key_alt && SETTINGS()->button.mouse_right)
+	{
+		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
+		mousePrev = mouseAnchor;
+
+		// HACK: This is a hack, and you know it
+		static float value = 0.0005; // Magic number makes speed 1
+		value += (dx + dy) * 0.001f;
+
+		// Restore to normal if key is pressed
+		if(SETTINGS()->button.key_left)
+			value = 0.0005;
+
+		float speed = Math::powerOf(2.0f, value);
+
+		// Set scale
+		Window::instance()->ui()->statusBar->showMessage("Camera scale: " + QString::number(1/speed)+":1", 1500);
+		d_camera->setScale(speed);
+	}
+	// ELESE: Adjust camera rotation
+	else if(SETTINGS()->button.mouse_right)
 	{
 		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
 		mousePrev = mouseAnchor;
@@ -163,8 +186,8 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 		float strafe = 0.0f;
 		float ascend = 0.0f;
 
-		strafe = -0.02f*dx;
-		ascend = 0.02f*dy;
+		strafe = -0.02f*dx*d_camera->scale();
+		ascend = 0.02f*dy*d_camera->scale();
 
 		// Rotate camera
 		d_camera->strafe(d_transform->position, strafe);
@@ -211,6 +234,9 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		break;
 	case Qt::Key_Alt:
 		SETTINGS()->button.key_alt = state;
+		break;
+	case Qt::Key_Space:
+		SETTINGS()->button.key_space = state;
 		break;
 	case Qt::Key_Delete:
 		if(state)

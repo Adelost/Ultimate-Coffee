@@ -97,6 +97,8 @@ void Manager_Commands::setupMenu()
 	// Add buttons
 	//
 
+	m_skyboxGroup = new QActionGroup(this);
+
 	// A signal Mapper makes it easier call a slot with
 	// different parameters
 	QSignalMapper* mapper = new QSignalMapper(this);
@@ -110,20 +112,31 @@ void Manager_Commands::setupMenu()
 	createTestButton("#fff", mapper);
 	createTestButton("#000", mapper);
 
-	// Toggle button
+	// Create skybox
 	{
 		std::string path = "";
 		std::string icon_name = "Skybox";
 		path = path + ICON_PATH + "Options/" + icon_name;
 
-		QAction* a = new QAction(QIcon(path.c_str()), icon_name.c_str(), m_window);
-		m_action_skybox = a;
-		a->setCheckable(true);
-		a->setChecked(SETTINGS()->showSkybox());
+		QAction* a = createTestButton("#000", mapper);
+		a->setChecked(true);
+		a->setIcon(QIcon(path.c_str()));
+		a->setObjectName(icon_name.c_str());
 		a->setToolTip("Toggle skybox");
-		m_toolbar_commands->addAction(a);
 
-		connect(a, SIGNAL(triggered(bool)), this, SLOT(enableSkybox(bool)));
+		m_action_skybox = a;
+	}
+	{
+		std::string path = "";
+		std::string icon_name = "Skybox";
+		path = path + ICON_PATH + "Options/" + icon_name;
+
+		QAction* a = createTestButton("#000", mapper);
+		a->setIcon(QIcon(path.c_str()));
+		a->setObjectName(icon_name.c_str());
+		a->setToolTip("Toggle skybox #2");
+
+		m_action_skybox2 = a;
 	}
 }
 
@@ -344,10 +357,19 @@ int Manager_Commands::tryToGetFileSize(std::string path)
 void Manager_Commands::setBackBufferColor(QString p_str_color)
 {
 	QColor color = (p_str_color);
-	Command_ChangeBackBufferColor* command = new Command_ChangeBackBufferColor();
-	command->setDoColor(color.red()/255.0f, color.green()/255.0f, color.blue()/255.0f);
-	command->setUndoColor(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z);
-	SEND_EVENT(&Event_AddToCommandHistory(command, true));
+
+
+	Command_SkyBox* c = new Command_SkyBox();
+
+	if(m_action_skybox->isChecked())
+		c->dataStruct_.skyBoxIndex = 1;
+	if(m_action_skybox2->isChecked())
+		c->dataStruct_.skyBoxIndex = 2;
+
+	c->dataStruct_.doColor = Vector3(color.redF(), color.greenF(), color.blueF());
+	c->dataStruct_.undoColor = Vector3(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z); 
+
+	SEND_EVENT(&Event_AddToCommandHistory(c, true));
 }
 
 void Manager_Commands::translateSceneEntity()
@@ -421,12 +443,17 @@ void Manager_Commands::loadProjectFileDialog()
 	}
 }
 
-void Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
+QAction* Manager_Commands::createTestButton( QString color, QSignalMapper* mapper )
 {
 	QAction* a = new QAction(m_window->createIcon(&QColor(color)), color, m_window);
 	m_toolbar_commands->addAction(a);
 	connect(a, SIGNAL(triggered()), mapper, SLOT(map()));
 	mapper->setMapping(a, color);
+
+	a->setCheckable(true);
+	m_skyboxGroup->addAction(a);
+
+	return a;
 }
 
 void Manager_Commands::onEvent(Event* e)
@@ -436,7 +463,7 @@ void Manager_Commands::onEvent(Event* e)
 	{
 	case EVENT_SKYBOX_CHANGED:
 		{
-			m_action_skybox->setChecked(SETTINGS()->showSkybox());
+			//m_action_skybox->setChecked(SETTINGS()->showSkybox());
 		}
 		break;
 	case EVENT_ADD_TO_COMMAND_HISTORY: // Add a list of commands, sent in an event, to the command history.
@@ -494,9 +521,6 @@ void Manager_Commands::onEvent(Event* e)
 
 void Manager_Commands::enableSkybox( bool state )
 {
-	Command_SkyBox* command_SkyBox = new Command_SkyBox();
-	command_SkyBox->setShowSkyBox(state);
-	SEND_EVENT(&Event_AddToCommandHistory(command_SkyBox, true));
 }
 
 void Manager_Commands::loadRecentCommandHistory()

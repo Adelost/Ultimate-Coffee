@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Math.h"
 #include <time.h>
+#include <math.h>  
 
 const float Math::Pi = 3.1415926535f;
 const float Math::Pi2 = Math::Pi*2;
@@ -36,9 +37,9 @@ DirectX::SimpleMath::Vector3 Math::randomDirection()
 	return v;
 }
 
-DirectX::SimpleMath::Vector3 Math::randomVector()
+DirectX::SimpleMath::Vector3 Math::randomVector(float min, float max)
 {
-	Vector3 v(Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f));
+	Vector3 v(Math::randomFloat(min, max), Math::randomFloat(min, max), Math::randomFloat(min, max));
 
 	return v;
 }
@@ -53,4 +54,9 @@ DirectX::SimpleMath::Color Math::randomColor()
 	Color v(Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f), Math::randomFloat(0.0f, 1.0f), 1.0f);
 
 	return v;
+}
+
+float Math::powerOf( float base, float exponent )
+{
+	return pow(base, exponent);
 }

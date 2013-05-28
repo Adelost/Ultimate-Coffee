@@ -33,11 +33,14 @@ public:
 
 public slots:
 	void action_about();
+	void action_copy();
+	void action_paste();
 	void setTool(int p_toolType);
 	void coffee();
 	void createAsteroids();
 	void createAsteroid();
 	void newProject();
 	void runSimulation(bool state);
-	
+	void homingAsteroids(bool state);
+	void loadImage();
 };

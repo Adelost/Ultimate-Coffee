@@ -6,6 +6,8 @@
 #include <QDockWidget.h>
 #include <QListWidget.h>
 
+//#include <math.h>
+
 class Window;
 class QDockWidget;
 class QMenu;
@@ -14,6 +16,7 @@ class QStandardItemModel;
 class QListWidget;
 class Manager_Docks;
 class ItemBrowser;
+class QColorDialog;
 
 class Manager_Docks : public QObject, public IObserver
 {
@@ -124,17 +127,56 @@ protected:
 	void keyReleaseEvent(QKeyEvent *e);
 };
 
-class ToolPanel : public QWidget
+class ToolPanel : public QWidget, IObserver
 {
 	Q_OBJECT
 
 private:
 	Window* m_window;
-	QWidget* m_colorDialog;
+	QColorDialog* m_colorDialog;
+	QLabel* m_colorIcon;
+
+	QDoubleSpinBox	*translationXSpinBox,	*translationYSpinBox,	*translationZSpinBox,
+					*rotationXSpinBox,		*rotationYSpinBox,		*rotationZSpinBox,
+					*scalingXSpinBox,		*scalingYSpinBox,		*scalingZSpinBox;
+
+	bool spinboxValueSetBecauseOfSelectionOrTransformation; //SoDoNotSetValueForAllObjects;
 
 public:
 	ToolPanel(QWidget* parent);
+	void onEvent(Event* p_event);
 
 public slots:
 	void pickColor();
+	void setColor(const QColor& color);
+
+	void setXTranslationOfSelectedEntities(double X);
+	void setYTranslationOfSelectedEntities(double Y);
+	void setZTranslationOfSelectedEntities(double Z);
+
+	void setXScalingOfSelectedEntities(double X);
+	void setYScalingOfSelectedEntities(double Y);
+	void setZScalingOfSelectedEntities(double Z);
+
+	void setXRotationOfSelectedEntities(double X);
+	void setYRotationOfSelectedEntities(double Y);
+	void setZRotationOfSelectedEntities(double Z);
+};
+
+class ListWidgetWithoutKeyboardInput : public QListWidget
+{
+	Q_OBJECT
+
+public:
+	ListWidgetWithoutKeyboardInput(QWidget* parent) : QListWidget(parent){}
+
+protected:
+	void keyPressEvent(QKeyEvent *e)
+	{
+
+	}
+	void keyReleaseEvent(QKeyEvent *e)
+	{
+
+	}
 };

@@ -74,4 +74,5 @@ public slots:
 	void newProject();
 	void loadProject();
 	void loadRecentProject();
+	void changeColorScheme(int enum_scheme);
 };

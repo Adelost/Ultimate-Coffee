@@ -5,6 +5,16 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#define SAFE_ASSIGNEMENT(sourceArray, targetVariable, defaultValue, sourceVariable)	\
+if(sourceArray != nullptr)															\
+{																					\
+	targetVariable = sourceVariable;												\
+}																					\
+else																				\
+{																					\
+	targetVariable = defaultValue;													\
+}	
+
 MeshLoader::MeshLoader()
 {
 
@@ -37,8 +47,8 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 		totalNrOfFaces		+= scene->mMeshes[i]->mNumFaces;
 	}
 
-	VertexPosNormTanTex* vertices = new VertexPosNormTanTex[totalNrOfVertices];
-	unsigned int* indices = new unsigned int[totalNrOfFaces * 3];
+	VertexPosNormTanTex*	vertices	= new VertexPosNormTanTex[totalNrOfVertices];
+	unsigned int*			indices		= new unsigned int[totalNrOfFaces * 3];
 
 	unsigned int runningVertIndex	= 0;
 	unsigned int runningIndIndex	= 0;
@@ -81,41 +91,10 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 
 		for(unsigned int j = 0; j < nrOfMeshVertices; j++)
 		{
-			if(positions != nullptr)
-			{
-				vertices[runningVertIndex].position = positions[j];
-			}
-			else
-			{
-				vertices[runningVertIndex].position = Vector3(0.0f, 0.0f, 0.0f);
-			}
-
-			if(normals != nullptr)
-			{
-				vertices[runningVertIndex].normal = normals[j];
-			}
-			else
-			{
-				vertices[runningVertIndex].normal = Vector3(0.0f, 0.0f, 0.0f);
-			}
-
-			if(tangents != nullptr)
-			{
-				vertices[runningVertIndex].tangentU = tangents[j];
-			}
-			else
-			{
-				vertices[runningVertIndex].tangentU = Vector3(0.0f, 0.0f, 0.0f);
-			}
-
-			if(textureUV != nullptr)
-			{
-				vertices[runningVertIndex].texureCordinate = Vector2(textureUV[j].x, textureUV[j].y);
-			}
-			else
-			{
-				vertices[runningVertIndex].texureCordinate = Vector2(0.0f, 0.0f);
-			}
+			SAFE_ASSIGNEMENT(positions, vertices[runningVertIndex].position,		Vector3(0.0f, 0.0f, 0.0f),	positions[j]);
+			SAFE_ASSIGNEMENT(normals,	vertices[runningVertIndex].normal,			Vector3(0.0f, 0.0f, 0.0f),	normals[j]);
+			SAFE_ASSIGNEMENT(tangents,	vertices[runningVertIndex].tangentU,		Vector3(0.0f, 0.0f, 0.0f),	tangents[j]);
+			SAFE_ASSIGNEMENT(textureUV, vertices[runningVertIndex].texureCordinate, Vector2(0.0f, 0.0f),		Vector2(textureUV[j].x, textureUV[j].y));
 
 			runningVertIndex++;
 		}
@@ -133,10 +112,19 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 		}
 
 		indOffset += nrOfMeshVertices;
+
+		delete positions;	
+		delete normals;
+		delete tangents;
+		delete textureUV;
+		delete inds;
 	}
 
 	meshData.vertices.assign(&vertices[0], &vertices[totalNrOfVertices]);
 	meshData.indices.assign(&indices[0], &indices[totalNrOfFaces * 3]);
+
+	delete vertices;
+	delete indices;
 
 	return true;
 }
@@ -175,13 +163,4 @@ unsigned int* MeshLoader::facesToIndices(void* aiArray, unsigned int nrOfFaces)
 
 	return indices;
 }
-
-#define SAFE_ASSIGNEMENT(sourceArray, targetVariable, sourceVariable, defaultValue)	\
-if(sourceArray != nullptr)															\
-{																					\
-	targetVariable = sourceVariable;												\
-}																					\
-else																				\
-{																					\
-	targetVariable = defaultValue;													\
-}																								
+																							

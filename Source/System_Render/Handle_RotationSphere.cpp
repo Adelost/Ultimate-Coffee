@@ -8,7 +8,6 @@ Handle_RotationSphere::Handle_RotationSphere(XMVECTOR center, float radius /*, H
 	XMStoreFloat3(&sphere.Center, center);
 	sphere.Radius = radius;
 
-
 	rotationShouldBeConstrainedToOneFixedAxis = false;
 	fixedAxis = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	//this->windowHandle = windowHandle;
@@ -238,8 +237,29 @@ void Handle_RotationSphere::unselect()
 	isSelected = false;
 }
 
-void Handle_RotationSphere::constrainRotationToOneFixedAxis(bool rotationShouldBeConstrainedToOneFixedAxis, XMVECTOR fixedAxis)
+void Handle_RotationSphere::constrainRotationToOneFixedAxis(bool rotationShouldBeConstrainedToOneFixedAxis, XMVECTOR &fixedAxis)
 {
 	this->rotationShouldBeConstrainedToOneFixedAxis = rotationShouldBeConstrainedToOneFixedAxis;
 	XMStoreFloat3(&this->fixedAxis, fixedAxis);
+}
+
+void Handle_RotationSphere::getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(XMVECTOR &quatRotToPointA, XMVECTOR &quatRotToPointB)
+{
+	XMVECTOR loadedCurrentlyPickedPointOnSphere = XMLoadFloat3(&currentlyPickedPointOnSphere);
+	XMVECTOR loadedFirstPickedPointOnSphere = XMLoadFloat3(&firstPickedPointOnSphere);
+
+	XMVECTOR planeNormal = XMLoadFloat3(&fixedAxis);
+
+	float distA = XMVector3Dot(loadedCurrentlyPickedPointOnSphere, planeNormal).m128_f32[0];
+	float distB = XMVector3Dot(loadedFirstPickedPointOnSphere, planeNormal).m128_f32[0];
+
+	XMVECTOR positiveXUnitAxis = XMVector3Transform(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), XMLoadFloat4x4(&world));
+	XMVECTOR projectedPointA = loadedCurrentlyPickedPointOnSphere - distA * planeNormal;
+	XMVECTOR projectedPointB = loadedFirstPickedPointOnSphere - distB * planeNormal;
+
+	float angleToPointA = XMVector3AngleBetweenVectors(positiveXUnitAxis, projectedPointA).m128_f32[0];
+	float angleToPointB = XMVector3AngleBetweenVectors(positiveXUnitAxis, projectedPointB).m128_f32[0];
+
+	XMQuaternionRotationAxis(planeNormal, angleToPointA);
+	XMQuaternionRotationAxis(planeNormal, angleToPointB);
 }

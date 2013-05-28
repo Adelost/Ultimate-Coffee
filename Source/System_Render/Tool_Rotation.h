@@ -41,6 +41,8 @@ private:
 	ID3D11Buffer* mMeshRotTool_yAxisLine_VB;
 	ID3D11Buffer* mMeshRotTool_zAxisLine_VB;
 
+	ID3D11Buffer* mMeshRotTool_angleLine_VB;
+
 	ID3D11Buffer* mMeshRotTool_circle_VB;
 	ID3D11Buffer* mMeshRotTool_Xcircle_VB;
 	ID3D11Buffer* mMeshRotTool_Ycircle_VB;

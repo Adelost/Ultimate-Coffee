@@ -12,7 +12,7 @@ Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 	isSelected = false;
 	currentlySelectedHandle = NULL;
 
-	scale = 1.0f;
+	scale = 1.1f;
 	XMVECTOR center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	omniRotateSphereHandle = new Handle_RotationSphere(center, scale /*, windowHandle*/);
 
@@ -27,6 +27,25 @@ Tool_Rotation::~Tool_Rotation()
 	delete yRotationHandle;
 	delete zRotationHandle;
 	delete viewAxisRotationHandle;
+
+	ReleaseCOM(m_pixelShader);
+	ReleaseCOM(m_vertexShader);		
+	ReleaseCOM(m_ColorSchemeIdBuffer);
+	ReleaseCOM(m_WVPBuffer);
+	ReleaseCOM(m_inputLayout);
+						
+	ReleaseCOM(mMeshRotTool_xAxisLine_VB);
+	ReleaseCOM(mMeshRotTool_yAxisLine_VB);
+	ReleaseCOM(mMeshRotTool_zAxisLine_VB);
+							 
+	ReleaseCOM(mMeshRotTool_angleLine_VB);
+						
+	ReleaseCOM(mMeshRotTool_Xcircle_VB);
+	ReleaseCOM(mMeshRotTool_Ycircle_VB);
+	ReleaseCOM(mMeshRotTool_Zcircle_VB);
+	ReleaseCOM(mMeshRotTool_viewCircle_VB);
+
+	ReleaseCOM(mMeshRotTool_viewRectangle_VB);
 }
 
 void Tool_Rotation::setIsVisible(bool &isVisible)
@@ -59,25 +78,33 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		bool sphereSelected = false;
 
 		// Check if any of the control circles are selected.
-		aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
-		if(aSingleAxisRotationHandleWasSelected)
+
+		XMVECTOR camLookAtVector = -XMVector3Normalize(SETTINGS()->entity_camera->fetchData<Data::Camera>()->getLookVector());
+		
+		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
-			omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			xRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			if(aSingleAxisRotationHandleWasSelected)
+			{
+				currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
+				omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-			XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-			XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-			XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-			xAxis = XMVector3Transform(xAxis, rotation);
-			xAxis = XMVector3Normalize(xAxis);
+				XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+				xAxis = XMVector3Transform(xAxis, rotation);
+				xAxis = XMVector3Normalize(xAxis);
 
-			omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
-			aRotationToolHandleWasSelected = true;
+				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
+				aRotationToolHandleWasSelected = true;
+			}
 		}
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
+			yRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
 			aSingleAxisRotationHandleWasSelected = yRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
@@ -97,6 +124,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
+			zRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
 			aSingleAxisRotationHandleWasSelected = zRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
@@ -116,16 +144,21 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
+			viewAxisRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
 			aSingleAxisRotationHandleWasSelected = viewAxisRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = viewAxisRotationHandle;
+				currentlySelectedHandle = omniRotateSphereHandle;
 				
-				XMVECTOR viewVectorAxis = XMVectorZero();												// TO-DO:	Get camera's view vector and use it here.
+				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+				XMVECTOR viewVectorAxis = -SETTINGS()->entity_camera->fetchData<Data::Camera>()->getLookVector();	// TO-DO:	Get camera's view vector and use it here.
+				//viewVectorAxis = XMVector3Transform(viewVectorAxis, rotation);
+				viewVectorAxis = XMVector3Normalize(viewVectorAxis);
+
 				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
 				aRotationToolHandleWasSelected = true;
-
-
 			}
 		}
 
@@ -278,6 +311,7 @@ void Tool_Rotation::updateWorld()
 		xRotationHandle->setWorld(logicalWorld);
 		yRotationHandle->setWorld(logicalWorld);
 		zRotationHandle->setWorld(logicalWorld);
+		viewAxisRotationHandle->setWorld(XMLoadFloat4x4(&getWorld_viewRectangle_logical()));
 	}
 	else
 	{
@@ -371,8 +405,9 @@ void Tool_Rotation::unselect()
 	xRotationHandle->unselect();
 	yRotationHandle->unselect();
 	zRotationHandle->unselect();
-	omniRotateSphereHandle->unselect();
 	viewAxisRotationHandle->unselect();
+	omniRotateSphereHandle->unselect();
+
 	currentlySelectedHandle = NULL;
 
 	std::vector<Command*> rotationCommands;
@@ -596,39 +631,39 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	XMVECTOR center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	float radius = 1.1f;
 	int nrOfPoints = 64;
-	geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataView, 'z');
+	//geoGen.createLineListCircle(center, radius, nrOfPoints, color, circleMeshDataView, 'z');
 
-	// Convert line strip to line list.
-	for(unsigned int i = 0; i < circleMeshDataView.Vertices.size(); i = i + 1)
-	{
-		if(i != circleMeshDataView.Vertices.size() - 1)
-		{
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataView.Vertices.at(i).Position.x, circleMeshDataView.Vertices.at(i).Position.y, circleMeshDataView.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataView.Vertices.at(i + 1).Position.x, circleMeshDataView.Vertices.at(i + 1).Position.y, circleMeshDataView.Vertices.at(i + 1).Position.z, 1.0f);
+	//// Convert line strip to line list.
+	//for(unsigned int i = 0; i < circleMeshDataView.Vertices.size(); i = i + 1)
+	//{
+	//	if(i != circleMeshDataView.Vertices.size() - 1)
+	//	{
+	//		XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataView.Vertices.at(i).Position.x, circleMeshDataView.Vertices.at(i).Position.y, circleMeshDataView.Vertices.at(i).Position.z, 1.0f);
+	//		XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataView.Vertices.at(i + 1).Position.x, circleMeshDataView.Vertices.at(i + 1).Position.y, circleMeshDataView.Vertices.at(i + 1).Position.z, 1.0f);
 
-			listOfLineSegmentsAsPoints.push_back(linePointA);
-			listOfLineSegmentsAsPoints.push_back(linePointB);
-		}
-		else
-		{
-			XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataView.Vertices.at(i).Position.x, circleMeshDataView.Vertices.at(i).Position.y, circleMeshDataView.Vertices.at(i).Position.z, 1.0f);
-			XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataView.Vertices.at(0).Position.x, circleMeshDataView.Vertices.at(0).Position.y, circleMeshDataView.Vertices.at(0).Position.z, 1.0f);
+	//		listOfLineSegmentsAsPoints.push_back(linePointA);
+	//		listOfLineSegmentsAsPoints.push_back(linePointB);
+	//	}
+	//	else
+	//	{
+	//		XMFLOAT4 linePointA = XMFLOAT4(circleMeshDataView.Vertices.at(i).Position.x, circleMeshDataView.Vertices.at(i).Position.y, circleMeshDataView.Vertices.at(i).Position.z, 1.0f);
+	//		XMFLOAT4 linePointB = XMFLOAT4(circleMeshDataView.Vertices.at(0).Position.x, circleMeshDataView.Vertices.at(0).Position.y, circleMeshDataView.Vertices.at(0).Position.z, 1.0f);
 
-			listOfLineSegmentsAsPoints.push_back(linePointA);
-			listOfLineSegmentsAsPoints.push_back(linePointB);
-		}
-	}
+	//		listOfLineSegmentsAsPoints.push_back(linePointA);
+	//		listOfLineSegmentsAsPoints.push_back(linePointB);
+	//	}
+	//}
 
-	viewAxisRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
-	listOfLineSegmentsAsPoints.clear();
-	
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataView.Vertices.size();
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags = 0;
-    vbd.MiscFlags = 0;
-	vinitData.pSysMem = &circleMeshDataView.Vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_circle_VB));
+	//viewAxisRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+	//listOfLineSegmentsAsPoints.clear();
+	//
+	//vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	//vbd.ByteWidth = sizeof(Vertex::PosCol) * circleMeshDataView.Vertices.size();
+ //   vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+ //   vbd.CPUAccessFlags = 0;
+ //   vbd.MiscFlags = 0;
+	//vinitData.pSysMem = &circleMeshDataView.Vertices[0];
+	//HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_circle_VB));
 
 	color = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
 	center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
@@ -777,7 +812,7 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 		}
 	}
 
-	//zRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
+	viewAxisRotationHandle = new Handle_RotationCircle(zAxis, listOfLineSegmentsAsPoints, 'z');
 	listOfLineSegmentsAsPoints.clear();
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -854,32 +889,52 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 
 	meshVertices.Vertices.clear();
 
-	std::vector<Vertex::PosCol> vertices;
-	Vertex::PosCol posCol;
+	// Angle line.
+
+	localSpaceTrans = XMMatrixIdentity();
+	endPointA = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	endPointB = XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f);
+	colorA = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+	colorB = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+	geoGen.createLine(endPointA, endPointB, 0, colorA, colorB, localSpaceTrans, meshVertices);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * meshVertices.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+    vinitData.pSysMem = &meshVertices.Vertices[0];
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_angleLine_VB));
+
+	meshVertices.Vertices.clear();
 
 	// XY triangle-list rectangle.
+
+	std::vector<Vertex::PosCol> vertices;
+	Vertex::PosCol posCol;
+		
 	posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f; // Transparent.
 
 	// Triangle A...
 
-	posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+	posCol.Pos.x = -1.25f; posCol.Pos.y = -1.25f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Pos.x = -1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+	posCol.Pos.x = -1.25f; posCol.Pos.y = 1.25f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+	posCol.Pos.x = 1.25f; posCol.Pos.y = 1.25f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
 	// Triangle B...
 
-	posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+	posCol.Pos.x = 1.25f; posCol.Pos.y = 1.25f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Pos.x = 1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+	posCol.Pos.x = 1.25f; posCol.Pos.y = -1.25f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+	posCol.Pos.x = -1.25f; posCol.Pos.y = -1.25f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -907,6 +962,9 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 
 	XMMATRIX worldViewProj;
 
+		ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
+		md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
+
 		// Draw obscuring rectangle.
 		XMMATRIX viewControlWorld = XMLoadFloat4x4(&getWorld_viewRectangle_visual());
 
@@ -917,9 +975,6 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		worldViewProj = XMMatrixTranspose(worldViewProj);
 
 		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
-		ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
-		md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
-
 
 		//viewControlWorld = XMLoadFloat4x4(&getWorld_viewRectangle_visual());
 		//scaling = XMMatrixScaling(scale, scale, scale);
@@ -927,42 +982,69 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		//worldViewProj = XMMatrixTranspose(worldViewProj);
 		//md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
 
+		// Billboarded view circle.
+
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-		md3dImmediateContext->OMSetDepthStencilState(RenderStates::AlwaysDSS, 0);
+		//md3dImmediateContext->OMSetDepthStencilState(RenderStates::AlwaysDSS, 0);
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewCircle_VB, &stride, &offset);
 		md3dImmediateContext->Draw(65, 0);
-
+		
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 					
-		D3D11_BLEND_DESC blendDesc;
-		blendDesc.AlphaToCoverageEnable = false;
-		blendDesc.IndependentBlendEnable = false;
-		blendDesc.RenderTarget[0].BlendEnable = true;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			D3D11_BLEND_DESC blendDesc;
+			blendDesc.AlphaToCoverageEnable = false;
+			blendDesc.IndependentBlendEnable = false;
+			blendDesc.RenderTarget[0].BlendEnable = true;
+			blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+			blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+			blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+			blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+			blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 			
-		ID3D11BlendState *blendState;
-		md3dDevice->CreateBlendState(&blendDesc, &blendState);
+			ID3D11BlendState *blendState;
+			md3dDevice->CreateBlendState(&blendDesc, &blendState);
 			
-		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		UINT sampleMask   = 0xffffffff;
+			float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			UINT sampleMask   = 0xffffffff;
 			
-		md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
-		md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
+			md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+			md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
 			
-		ReleaseCOM(blendState);
+			ReleaseCOM(blendState);
 			
-		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
-		md3dImmediateContext->Draw(6, 0);
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
+			md3dImmediateContext->Draw(6, 0);
 			
-		md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
+			md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
-		
+		// Angle lines.
+		if(xRotationHandle->getIsSelected() || yRotationHandle->getIsSelected() || zRotationHandle->getIsSelected())
+		{
+			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_angleLine_VB, &stride, &offset);
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+			XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
+			XMMATRIX translation = XMMatrixTranslationFromVector(trans);
+			XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+			XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+
+			XMVECTOR rotQuatToAnglePointA, rotQuatToAnglePointB;
+			omniRotateSphereHandle->getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(rotQuatToAnglePointA, rotQuatToAnglePointB);
+
+			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointA, rotQuat));
+			XMMATRIX world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual());
+			world_angleLine = XMMatrixTranspose(world_angleLine);
+			md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
+			md3dImmediateContext->Draw(2, 0);
+
+			rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointB, rotQuat));
+			world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual()); //world_angleLine =  translation; XMLoadFloat4x4(&getWorld_visual());
+			world_angleLine = XMMatrixTranspose(world_angleLine);
+			md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
+			md3dImmediateContext->Draw(2, 0);
+		}
 
 	// Draw control circles.
 

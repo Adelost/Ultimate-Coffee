@@ -29,6 +29,9 @@ Manager_3DTools::Manager_3DTools( ID3D11Device* p_device, ID3D11DeviceContext* p
 
 	// Initialize the transformation tools...
 	currentlyChosenTransformTool = NULL;
+	m_theScalingTool = NULL;
+	m_theRotationTool = NULL;
+	m_theTranslationTool = NULL;
 
 	m_theSelectionTool = NULL;
 
@@ -406,15 +409,18 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Event_RotateSceneEntity* e = static_cast<Event_RotateSceneEntity*>(p_event);
 
 			Data::Transform* d_transform = Entity(e->m_idOfRotatableSceneEntity).fetchData<Data::Transform>();
-
-			d_transform->rotation.x = e->m_quatX;
-			d_transform->rotation.y = e->m_quatY;
-			d_transform->rotation.z = e->m_quatZ;
-			d_transform->rotation.w = e->m_quatW;
-
-			if(currentlyChosenTransformTool)
+			
+			if(d_transform)
 			{
-				currentlyChosenTransformTool->setActiveObject(1);
+				d_transform->rotation.x = e->m_quatX;
+				d_transform->rotation.y = e->m_quatY;
+				d_transform->rotation.z = e->m_quatZ;
+				d_transform->rotation.w = e->m_quatW;
+
+				if(currentlyChosenTransformTool)
+				{
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
 			}
 		}
 		break;
@@ -423,15 +429,18 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Event_ScaleSceneEntity* e = static_cast<Event_ScaleSceneEntity*>(p_event);
 
 			Data::Transform* d_transform = Entity(e->m_idOfScalableSceneEntity).fetchData<Data::Transform>();
+			
+			//if(d_transform)
+			//{
+				d_transform->scale.x = e->m_scaleX;
+				d_transform->scale.y = e->m_scaleY;
+				d_transform->scale.z = e->m_scaleZ;
 
-			d_transform->scale.x = e->m_scaleX;
-			d_transform->scale.y = e->m_scaleY;
-			d_transform->scale.z = e->m_scaleZ;
-
-			if(currentlyChosenTransformTool)
-			{
-				currentlyChosenTransformTool->setActiveObject(1);
-			}
+				if(currentlyChosenTransformTool)
+				{
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
+			//}
 		}
 		break;
 	case EVENT_ENTITY_SELECTION:
@@ -464,20 +473,29 @@ void Manager_3DTools::onEvent( Event* p_event )
 			{
 			case Enum::Tool_Translate:
 				{
-					currentlyChosenTransformTool = m_theTranslationTool;
-					currentlyChosenTransformTool->setActiveObject(1);
+					if(m_theTranslationTool != NULL)
+					{
+						currentlyChosenTransformTool = m_theTranslationTool;
+						currentlyChosenTransformTool->setActiveObject(1);
+					}
 				}
 				break;
 			case Enum::Tool_Rotate:
 				{
-					currentlyChosenTransformTool = m_theRotationTool;
-					currentlyChosenTransformTool->setActiveObject(1);
+					if(m_theRotationTool != NULL)
+					{
+						currentlyChosenTransformTool = m_theRotationTool;
+						currentlyChosenTransformTool->setActiveObject(1);
+					}
 				}
 				break;
 			case Enum::Tool_Scale:
 				{
-					currentlyChosenTransformTool = m_theScalingTool;
-					currentlyChosenTransformTool->setActiveObject(1);
+					if(m_theScalingTool != NULL)
+					{
+						currentlyChosenTransformTool = m_theScalingTool;
+						currentlyChosenTransformTool->setActiveObject(1);
+					}
 				}
 				break; 
 			default:

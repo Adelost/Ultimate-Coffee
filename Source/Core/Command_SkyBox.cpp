@@ -7,6 +7,8 @@
 Command_SkyBox::Command_SkyBox()
 {
 	setType(Enum::CommandType::SKYBOX);
+	dataStruct_.skyBoxIndex = 0;
+	dataStruct_.undoSkyBoxIndex = 0;
 }
 
 Command_SkyBox::~Command_SkyBox()
@@ -14,20 +16,18 @@ Command_SkyBox::~Command_SkyBox()
 
 }
 
-void Command_SkyBox::setShowSkyBox(bool showSkyBox)
-{
-	dataStruct_.showSkyBox = showSkyBox;
-}
 
 void Command_SkyBox::doRedo()
 {
-
-	SETTINGS()->setShowSkybox(dataStruct_.showSkyBox);
+	dataStruct_.undoSkyBoxIndex = SETTINGS()->skyboxIndex();
+	SETTINGS()->setSkyboxIndex(dataStruct_.skyBoxIndex);
+	SEND_EVENT(&Event_SetBackBufferColor(dataStruct_.doColor.x, dataStruct_.doColor.y, dataStruct_.doColor.z));
 }
 
 void Command_SkyBox::undo()
 {
-	SETTINGS()->setShowSkybox(!dataStruct_.showSkyBox);
+	SETTINGS()->setSkyboxIndex(dataStruct_.undoSkyBoxIndex);
+	SEND_EVENT(&Event_SetBackBufferColor(dataStruct_.undoColor.x, dataStruct_.undoColor.y, dataStruct_.undoColor.z));
 }
 
 void* Command_SkyBox::accessDerivedClassDataStruct()

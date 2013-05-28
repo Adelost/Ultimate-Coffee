@@ -93,24 +93,33 @@ Tool_Scaling::~Tool_Scaling()
 	delete yScalingAxisHandle2;
 	delete zScalingAxisHandle2;
 
+	ReleaseCOM(m_pixelShader);
+	ReleaseCOM(m_vertexShader);
+	ReleaseCOM(m_ColorSchemeIdBuffer);
+	ReleaseCOM(m_WVPBuffer);
+	ReleaseCOM(m_inputLayout);
+
 	ReleaseCOM(mMeshTransTool_xAxisBox_VB);
 	ReleaseCOM(mMeshTransTool_yAxisBox_VB);
 	ReleaseCOM(mMeshTransTool_zAxisBox_VB);
 	ReleaseCOM(mMeshTransTool_xAxisBox2_VB);
 	ReleaseCOM(mMeshTransTool_yAxisBox2_VB);
 	ReleaseCOM(mMeshTransTool_zAxisBox2_VB);
+	ReleaseCOM(mMeshTransTool_omniAxisBox_VB);
+	ReleaseCOM(mMeshTransTool_axisBox_IB);
 
-	ReleaseCOM(mMeshTransTool_zxPlane_VB);
-	ReleaseCOM(mMeshTransTool_xyPlane_VB);
 	ReleaseCOM(mMeshTransTool_yzPlane_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane_VB);
-
 	ReleaseCOM(mMeshTransTool_yzPlane2_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane2_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane2_VB);
-
 	ReleaseCOM(mMeshTransTool_viewPlane_VB);
+
+	//ReleaseCOM(mMeshTransTool_yzTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransTool_zxTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransTool_xyTriangleListRectangle_VB);
+	//ReleaseCOM(mMeshTransTool_viewPlaneTriangleListRectangle_VB);
 }
 
 void Tool_Scaling::setIsVisible(bool &isVisible)
@@ -474,11 +483,12 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 			if(scaleDependantScaleFactorZ < 0.1f)
 				scaleDependantScaleFactorZ = 0.1f;
 
-			scaleDelta.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+			XMVECTOR scaleValues;
+			scaleValues.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+			scaleValues.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+			scaleValues.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleValues);
 
 			if(e->fetchData<Data::Transform>()->scale.x < 0.01f)
 				e->fetchData<Data::Transform>()->scale.x = 0.01f;
@@ -519,11 +529,12 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 			if(scaleDependantScaleFactorZ < 0.1f)
 				scaleDependantScaleFactorZ = 0.1f;
 
-			scaleDelta.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
-			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
-			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
+			XMVECTOR scaleValues;
+			scaleValues.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorX;
+			scaleValues.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorY;
+			scaleValues.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorZ;
 
-			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleValues);
 
 			if(e->fetchData<Data::Transform>()->scale.x < 0.01f)
 				e->fetchData<Data::Transform>()->scale.x = 0.01f;
@@ -548,6 +559,8 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 
 		scaleDelta = XMVectorSet(xScaleContribution + yScaleContribution, xScaleContribution + yScaleContribution, xScaleContribution + yScaleContribution, 1.0f);
 
+		XMVECTOR scalePercentages = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f) + scaleDelta;
+
 		float toolScaleDependantScaleFactor = scale;
 		int i = 0;
 		Entity* e;
@@ -568,11 +581,11 @@ void Tool_Scaling::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, 
 
 			float scaleDependantScaleFactorAvg = (scaleDependantScaleFactorX + scaleDependantScaleFactorY + scaleDependantScaleFactorZ) / 3;
 
-			scaleDelta.m128_f32[0] = scaleDelta.m128_f32[0] * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
-			scaleDelta.m128_f32[1] = scaleDelta.m128_f32[1] * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
-			scaleDelta.m128_f32[2] = scaleDelta.m128_f32[2] * toolScaleDependantScaleFactor * scaleDependantScaleFactorAvg;
+			scalePercentages.m128_f32[0] = scalePercentages.m128_f32[0]; // * scaleDependantScaleFactorAvg * toolScaleDependantScaleFactor;
+			scalePercentages.m128_f32[1] = scalePercentages.m128_f32[1]; // * scaleDependantScaleFactorAvg * toolScaleDependantScaleFactor;
+			scalePercentages.m128_f32[2] = scalePercentages.m128_f32[2]; // * scaleDependantScaleFactorAvg * toolScaleDependantScaleFactor;
 
-			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) + Vector3(scaleDelta);
+			e->fetchData<Data::Transform>()->scale = Vector3(XMLoadFloat3(&originalScalesOfSelectedEntities.at(i))) * Vector3(scalePercentages);
 
 			if(e->fetchData<Data::Transform>()->scale.x < 0.01f)
 				e->fetchData<Data::Transform>()->scale.x = 0.01f;

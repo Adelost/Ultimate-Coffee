@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Manager_Tools.h"
-#include <Core/Enums.h>
 
+#include <Core/Enums.h>
 #include <Core/World.h>
 #include <Core/Enums.h>
 #include <Core/Factory_Entity.h>
 #include <Core/Events.h>
+#include <Core/DataMapper.h>
 #include "Window.h"
 #include "ui_MainWindow.h"
 #include <Core/Command_CreateEntity.h>
@@ -42,13 +43,21 @@ void Manager_Tools::setupToolbar()
 
 	// HELP					
 	// About
-	a = new QAction("&About", this);
+	a = new QAction("About", this);
 	connect(a, SIGNAL(triggered()), this, SLOT(action_about()));
 	m_ui->menuHelp->addAction(a);
 	// About Qt
 	a = new QAction(tr("About &Qt"), this);
 	connect(a, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 	m_ui->menuHelp->addAction(a);
+
+	// EDIT					
+	a = m_ui->actionCopy;
+	connect(a, SIGNAL(triggered()), this, SLOT(action_copy()));
+	a->setShortcut(QKeySequence("Ctrl+C"));
+	a = m_ui->actionPaste;
+	connect(a, SIGNAL(triggered()), this, SLOT(action_paste()));
+	a->setShortcut(QKeySequence("Ctrl+V"));
 }
 
 void Manager_Tools::setupActions()
@@ -61,10 +70,10 @@ void Manager_Tools::setupActions()
 	m_toolGroup = new QActionGroup(this);
 	m_ui->toolBar->setIconSize(QSize(18,18));
 	//createToolAction(mapper, Enum::Tool_Selection, "Selection");
-	createToolAction(mapper, Enum::Tool_Translate,	"Translate", "Select and translate")->activate(QAction::Trigger);
-	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate", "Select and rotate");
-	createToolAction(mapper, Enum::Tool_Scale,		"Scale", "Select and scale");
-	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create entity");
+	createToolAction(mapper, Enum::Tool_Translate,	"Translate", "Select and translate (1)")->activate(QAction::Trigger);
+	createToolAction(mapper, Enum::Tool_Rotate,		"Rotate", "Select and rotate (2)");
+	createToolAction(mapper, Enum::Tool_Scale,		"Scale", "Select and scale (3)");
+	createToolAction(mapper, Enum::Tool_Geometry,	"Geometry", "Create entity (4)");
 	//createToolAction(mapper, Enum::Tool_Entity,		"Entity");
 
 	// Context bar
@@ -75,20 +84,27 @@ void Manager_Tools::setupActions()
 // 	m_ui->contextBar->addAction(menu->menuAction());
 
 	//m_ui->contextBar->addSeparator();
-	a = createContextIcon("Coffee");
-	a->setToolTip("Recreate geometry");
-	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
-	a = createContextIcon("Tool");
+// 	a = createContextIcon("Coffee");
+// 	a->setToolTip("Recreate geometry");
+// 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+	a = createContextIcon("asteroid");
 	a->setToolTip("Create 1 asteroid");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
-	a = createContextIcon("Experiment");
+	a = createContextIcon("asteroids");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
-	a = createContextIcon("Simulate");
+	a = createContextIcon("simulate");
 	a->setToolTip("Run simulation");
 	a->setCheckable(true);
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
+	a = createContextIcon("homing");
+	a->setToolTip("Homing asteroids");
+	a->setCheckable(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
+	//a = createContextIcon("image");
+	//a->setToolTip("Import image");
+	//connect(a, SIGNAL(triggered(bool)), this, SLOT(loadImage()));
 }
 
 void Manager_Tools::action_about()
@@ -209,4 +225,86 @@ void Manager_Tools::createAsteroid()
 void Manager_Tools::runSimulation( bool state )
 {
 	SETTINGS()->setRunSimulation(state);
+}
+
+void Manager_Tools::action_copy()
+{
+	// Clear previous clipboard
+	Data::AddedToClipboard::clearClipboard();
+
+	// Add selected Entities to clipboard
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		e->addData(Data::AddedToClipboard());
+	}
+}
+
+void Manager_Tools::action_paste()
+{
+	std::vector<Command*> command_list;
+
+	// Clear previous selection
+	Data::Selected::clearSelection();
+
+	// Clone entities
+	DataMapper<Data::AddedToClipboard> map_clipboard;
+	while(map_clipboard.hasNext())
+	{
+		Entity* e = map_clipboard.nextEntity();
+		
+		// Make sure clone is not added to clipboard as well
+		Entity* clone = e->clone();
+		clone->removeData<Data::AddedToClipboard>();
+
+		// HACK: Recover data from cloning
+		Data::Render* d_render = clone->fetchData<Data::Render>();
+		if(d_render)
+		{
+			d_render->recoverFromCloning(clone);
+		}
+
+		// Select new entity
+		Data::Selected::select(clone);
+
+		// Save command
+		command_list.push_back(new Command_CreateEntity(clone, true));
+	}
+
+	// Inform about selection
+	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
+
+	// Add to history
+	if(command_list.size()>0)
+	{
+		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+	}
+}
+
+void Manager_Tools::homingAsteroids( bool state )
+{
+	Data::Movement_Floating::targetCamera = state;
+}
+
+void Manager_Tools::loadImage()
+{
+	// Load pixmap
+	QString path = ICON_PATH;
+	path += "Cursors/scene";
+	QPixmap pixmap(path);
+
+	// Create image out of cubes
+	
+	for(int x=0; x<5; x++)
+	{
+		for(int y=0; y<5; y++)
+		{
+			Entity* e = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
+			Data::Transform* d_transform = e->fetchData<Data::Transform>();
+
+			d_transform->position.x = x;
+			d_transform->position.y = y;
+		}
+	}
 }
