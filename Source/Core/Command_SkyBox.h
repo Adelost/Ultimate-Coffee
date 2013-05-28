@@ -27,4 +27,6 @@ public:
 	virtual int getByteSizeOfDataStruct();
 
 	virtual void loadDataStructFromBytes(char* data);
+
+	int getSkyBoxIndex(){return dataStruct_.skyBoxIndex;}
 };

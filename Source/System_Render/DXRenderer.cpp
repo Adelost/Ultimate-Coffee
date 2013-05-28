@@ -254,6 +254,7 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->RSSetState(0);
 	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
 
+
 	// Draw SkyBox
 	int skyboxIndex = SETTINGS()->skyboxIndex();
 	if(skyboxIndex == 1)
