@@ -27,6 +27,20 @@ public:
 	bool key_space;
 };
 
+class ChoosenEntity
+{
+public:
+	Color color;
+	Enum::Mesh mesh;
+
+public:
+	ChoosenEntity()
+	{
+		color = Color(0.4f, 0.6f, 0.9f);
+		mesh = Enum::Mesh_Box;
+	}
+};
+
 class Settings
 {
 private:
@@ -35,6 +49,7 @@ private:
 	bool m_runSimulation;
 
 public:
+	ChoosenEntity choosenEntity;
 	ButtonState button;
 	Color backBufferColor;
 	EntityPointer entity_selection;

@@ -159,7 +159,7 @@ void Manager_Docks::setupMenu()
 
 	// Item Browser
 	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
-	dock->setWindowTitle("Item Browser (Not fully implemented, as of 2013-05-23)");
+	dock->setWindowTitle("Item Browser");
 	m_itemBrowser = new ItemBrowser(dock);
 	dock->setWidget(m_itemBrowser);
 
@@ -795,23 +795,73 @@ void ItemBrowser::initTree()
 
 void ItemBrowser::loadGrid( QListWidgetItem* item )
 {
-	// Open 
+	// Path
 	QString path;
-	path = path + THUMBNAIL_PATH + "/" + item->text();
-	QDir dir(path);
-	QStringList filters;
-	filters << "*.png" << "*.jpg";
-	dir.setNameFilters(filters);
-	dir.setFilter(QDir::Files);
+	path = path + THUMBNAIL_PATH + item->text();
+	std::string str_path = path.toStdString();
 
-	QFileInfoList list = dir.entryInfoList();
-	foreach(QFileInfo i, list)
+	// Load items
+	QFile textFile(path + "/_items.txt");
+	if(textFile.open(QIODevice::ReadOnly))
 	{
-		QString filename = i.baseName();
+		QRegExp rx_tab("(\\t)");
+		QRegExp rx_comma("(\\,)");
 
-		QIcon icon(path + "/" + filename);
-		Item_Prefab* item = new Item_Prefab(icon, filename);
-		m_grid->addItem(item);
+		QTextStream textStream(&textFile);
+		while(!textStream.atEnd())
+		{
+			// Read line
+			QString line = textStream.readLine();
+
+			// Ignore comments and empty lines
+			if(!(line[0] == '#' || line.size() == 0))
+			{
+				QStringList list = line.split(rx_tab);
+				QString qstr_mesh = list[0];
+				QString qstr_name = list[1];
+				QString qstr_color = list[2];
+				list = qstr_color.split(rx_comma);
+				QString c_r = list[0];
+				QString c_g = list[1];
+				QString c_b = list[2];
+
+				// Read mesh
+				int meshId = Converter::StrToInt(qstr_mesh.toStdString());
+				Enum::Mesh mesh = static_cast<Enum::Mesh>(meshId);
+
+				// Read color
+				QColor c(Converter::StrToInt(c_r.toStdString()), Converter::StrToInt(c_g.toStdString()), Converter::StrToInt(c_b.toStdString()));
+				Color color = Vector3(c.redF(), c.greenF(), c.blueF());
+
+				// Create item
+				QIcon icon(path + "/" + qstr_name);
+				Item_Prefab* item = new Item_Prefab(icon, qstr_name);
+				item->color = color;
+				item->mesh = mesh;
+				m_grid->addItem(item);
+			}
+		}
+	}
+	else
+	{
+		// Open 
+		QString path;
+		path = path + THUMBNAIL_PATH + "/" + item->text();
+		QDir dir(path);
+		QStringList filters;
+		filters << "*.png" << "*.jpg";
+		dir.setNameFilters(filters);
+		dir.setFilter(QDir::Files);
+
+		QFileInfoList list = dir.entryInfoList();
+		foreach(QFileInfo i, list)
+		{
+			QString filename = i.baseName();
+
+			QIcon icon(path + "/" + filename);
+			Item_Prefab* item = new Item_Prefab(icon, filename);
+			m_grid->addItem(item);
+		}
 	}
 }
 
@@ -842,7 +892,8 @@ void ItemBrowser::selectEntity( QListWidgetItem* item )
 
 	// Select corresponding Entity
 	Item_Prefab* i = static_cast<Item_Prefab*>(item);
-	DEBUGPRINT("Selected " + Converter::IntToStr(i->modelId));
+	SETTINGS()->choosenEntity.color = i->color;
+	SETTINGS()->choosenEntity.mesh = i->mesh;
 }
 
 void Hierarchy::keyPressEvent( QKeyEvent *e )
@@ -1497,12 +1548,8 @@ void ToolPanel::pickColor()
 			m_colorDialog->setCurrentColor(c);
 		}
 	}
-
-
 	
 	m_colorDialog->show();
-
-
 }
 
 void ToolPanel::setColor( const QColor& color )
@@ -1532,4 +1579,14 @@ void ToolPanel::setColor( const QColor& color )
 ListItemWithId::ListItemWithId()
 {
 
+}
+
+Item_Prefab::Item_Prefab( QIcon icon, QString filname ) : QListWidgetItem(icon, filname)
+{
+	// Pick random mesh
+	int meshId = Math::randomInt(0, Enum::Mesh_End-1);
+	mesh = static_cast<Enum::Mesh>(meshId);
+
+	// Pick random color
+	color = Math::randomColor();
 }

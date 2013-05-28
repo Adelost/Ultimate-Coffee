@@ -19,6 +19,7 @@ public:
 		Vector3 position;
 		Quaternion rotation;
 		Vector3 scale;
+		Vector3 color;
 	};
 
 	dataStruct m_data;

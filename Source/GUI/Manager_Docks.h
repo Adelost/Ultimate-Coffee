@@ -74,13 +74,9 @@ public:
 class Item_Prefab : public QListWidgetItem
 {
 public:
-	Item_Prefab(QIcon icon, QString filname) : QListWidgetItem(icon, filname)
-	{
-		static int i;
-		modelId = i;
-		i++;
-	}
-	int modelId;
+	Item_Prefab(QIcon icon, QString filname);
+	Enum::Mesh mesh;
+	Color color;
 };
 
 class ItemBrowser : public QWidget, public IObserver

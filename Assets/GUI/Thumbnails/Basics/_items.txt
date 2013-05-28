@@ -1,0 +1,13 @@
+# 0 = Mesh_Box
+# 1 = Mesh_Sphere
+# 2 = Mesh_Cylinder
+# 3 = Mesh_Cone
+# 4 = Mesh_Pyramid
+# 5 = Mesh_Asteroid
+
+# MeshId, Name, Color
+0	box	167,165,182
+1	sphere	255,239,157
+2	cyliner	255,120,0
+3	cone	90,96,131
+4	pyramid	255,202,116
