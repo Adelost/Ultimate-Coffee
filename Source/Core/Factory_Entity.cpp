@@ -31,12 +31,8 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	if(type == Enum::Entity_Mesh)
 	{
-		static int count = -1;
-		count++;
-
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->position.x += count*1.5f;
 		
 		e->addData(Data::Bounding());
 		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Box));

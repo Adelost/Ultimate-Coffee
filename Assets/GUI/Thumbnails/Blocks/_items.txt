@@ -1,0 +1,13 @@
+# 0 = Mesh_Box
+# 1 = Mesh_Sphere
+# 2 = Mesh_Cylinder
+# 3 = Mesh_Cone
+# 4 = Mesh_Pyramid
+# 5 = Mesh_Asteroid
+
+# MeshId, Name, Color
+0	brick	153,152,157
+0	fancy	119,149,255
+0	floor	114,89,255
+0	road	182,182,182
+0	stucco	255,231,174

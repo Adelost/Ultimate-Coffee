@@ -43,4 +43,5 @@ public slots:
 	void runSimulation(bool state);
 	void homingAsteroids(bool state);
 	void loadImage();
+	void previewItemBrowser();
 };

@@ -13,6 +13,7 @@
 #include <Core/Command_RotateSceneEntity.h>
 #include <Core/Command_ScaleSceneEntity.h>
 #include <Core/Command_SkyBox.h>
+#include <Core/Command_CreateEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -727,6 +728,7 @@ void System_Editor::update()
 ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_PREVIEW_ITEMS);
 	POST_DELAYED_EVENT(new Event(EVENT_REFRESH_SPLITTER), 0.0f);
 
 	setObjectName("Item Browser");
@@ -879,6 +881,49 @@ void ItemBrowser::onEvent( Event* e )
 	case EVENT_REFRESH_SPLITTER: //Add command to the command history list in the GUI
 		moveHandle();
 		break;
+	case EVENT_PREVIEW_ITEMS:
+		 {
+			 std::vector<Command*> command_list;
+
+			 // HACK: Compensate for change in tools due to gridselection
+			 int toolTyp = SETTINGS()->selectedTool();
+
+			 Vector3 offset = Math::randomVector(-0.1f,0.1f);
+			 offset = offset + CAMERA_ENTITY().asEntity()->fetchData<Data::Transform>()->position;
+			 offset.z += 15.0f; 
+			 int row = 0;
+			 int col = 0;
+
+			 // Create startup items
+			 Entity* e;
+			 for(int i=0; i<m_grid->count(); i++)
+			 {
+				 selectEntity(m_grid->item(i));
+				 e = FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh);
+				 Data::Transform* d_transform = e->fetchData<Data::Transform>();
+				 d_transform->position.x = offset.x + col;
+				 d_transform->position.y = offset.y - row;
+				 d_transform->position.z = offset.z;
+
+				 
+				 col++;
+				 if(col > 5)
+				 {
+					 col = 0;
+					 row++;
+				 }
+				 
+				 // Save command
+				 command_list.push_back(new Command_CreateEntity(e, true));
+			 }
+
+			 // Save to history
+			 if(command_list.size() > 0)
+				 SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+
+			 SETTINGS()->setSelectedTool(toolTyp);
+		 }
+		 break;
 	default:
 		break;
 	}

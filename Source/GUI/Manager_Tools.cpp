@@ -87,24 +87,33 @@ void Manager_Tools::setupActions()
 // 	a = createContextIcon("Coffee");
 // 	a->setToolTip("Recreate geometry");
 // 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+	a = createContextIcon("preview");
+	a->setToolTip("Preview item browser");
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(previewItemBrowser()));
+
+	a = createContextIcon("image");
+	a->setToolTip("Import image");
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(loadImage()));
+
 	a = createContextIcon("asteroid");
 	a->setToolTip("Create 1 asteroid");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
+
 	a = createContextIcon("asteroids");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
+
+	a = createContextIcon("homing");
+	a->setToolTip("Homing asteroids");
+	a->setCheckable(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
+
 	a = createContextIcon("simulate");
 	a->setToolTip("Run simulation");
 	a->setCheckable(true);
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
-	a = createContextIcon("homing");
-	a->setToolTip("Homing asteroids");
-	a->setCheckable(true);
-	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
-	a = createContextIcon("image");
-	a->setToolTip("Import image");
-	connect(a, SIGNAL(triggered(bool)), this, SLOT(loadImage()));
+
 }
 
 void Manager_Tools::action_about()
@@ -299,6 +308,8 @@ void Manager_Tools::loadImage()
 	QString path = ICON_PATH;
 	if(SETTINGS()->button.key_shift)
 		path += "Images/lisa";
+	if(SETTINGS()->button.key_alt)
+		path += "Images/ski";
 	else
 		path += "Images/invader";
 	QPixmap pixmap(path);
@@ -344,4 +355,9 @@ void Manager_Tools::loadImage()
 	// Save to history
 	if(command_list.size() > 0)
 		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+}
+
+void Manager_Tools::previewItemBrowser()
+{
+	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 }
