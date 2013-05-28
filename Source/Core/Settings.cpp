@@ -11,7 +11,7 @@ Settings::Settings()
 	backBufferColor = Color(0.4f, 0.6f, 0.9f);
 	//showSkybox = true;
 	m_ColorScheme_3DManipulatorWidgets = Enum::ColorScheme::RGB;
-	m_showSkybox = true;
+	m_skyboxIndex = 1;
 }
 
 Settings::~Settings()
@@ -32,10 +32,15 @@ void Settings::setSelectedTool( int toolType )
 	}		
 }
 
-void Settings::setShowSkybox( bool state )
+void Settings::setSkyboxIndex( int index )
 {
-	m_showSkybox = state;
+	m_skyboxIndex = index;
 	SEND_EVENT(&Event(EVENT_SKYBOX_CHANGED));
+}
+
+int Settings::skyboxIndex()
+{
+	return m_skyboxIndex;
 }
 
 ButtonState::ButtonState()

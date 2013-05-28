@@ -24,6 +24,7 @@ private:
 	CommandHistorySpy* m_commandHistorySpy;
 	std::string m_lastValidProjectPath;
 	QAction* m_action_skybox;
+	QAction* m_action_skybox2;
 	QActionGroup* m_skyboxGroup;
 
 	bool storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute);
