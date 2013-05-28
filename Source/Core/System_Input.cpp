@@ -120,7 +120,9 @@ void System::Input::update()
 			{
 				Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
 				Data::Transform* d_transform = entity->fetchData<Data::Transform>();
-				Vector3 pos = r.position + r.direction * 15.0f;
+				Vector3 pos = r.position + r.direction * 15.0f * d_camera->scale();
+				d_transform->scale = d_transform->scale * d_camera->scale();
+
 				d_transform->position = pos;
 
 				// Add to history
