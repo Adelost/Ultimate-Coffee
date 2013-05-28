@@ -87,21 +87,24 @@ void Manager_Tools::setupActions()
 // 	a = createContextIcon("Coffee");
 // 	a->setToolTip("Recreate geometry");
 // 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
-	a = createContextIcon("Asteroid");
+	a = createContextIcon("asteroid");
 	a->setToolTip("Create 1 asteroid");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
-	a = createContextIcon("Asteroids");
+	a = createContextIcon("asteroids");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
-	a = createContextIcon("Simulate");
+	a = createContextIcon("simulate");
 	a->setToolTip("Run simulation");
 	a->setCheckable(true);
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
-	a = createContextIcon("Hunt");
+	a = createContextIcon("homing");
 	a->setToolTip("Homing asteroids");
 	a->setCheckable(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
+	//a = createContextIcon("image");
+	//a->setToolTip("Import image");
+	//connect(a, SIGNAL(triggered(bool)), this, SLOT(loadImage()));
 }
 
 void Manager_Tools::action_about()
@@ -266,7 +269,7 @@ void Manager_Tools::action_paste()
 		Data::Selected::select(clone);
 
 		// Save command
-		command_list.push_back(new Command_CreateEntity(clone, false));
+		command_list.push_back(new Command_CreateEntity(clone, true));
 	}
 
 	// Inform about selection
@@ -282,4 +285,26 @@ void Manager_Tools::action_paste()
 void Manager_Tools::homingAsteroids( bool state )
 {
 	Data::Movement_Floating::targetCamera = state;
+}
+
+void Manager_Tools::loadImage()
+{
+	// Load pixmap
+	QString path = ICON_PATH;
+	path += "Cursors/scene";
+	QPixmap pixmap(path);
+
+	// Create image out of cubes
+	
+	for(int x=0; x<5; x++)
+	{
+		for(int y=0; y<5; y++)
+		{
+			Entity* e = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
+			Data::Transform* d_transform = e->fetchData<Data::Transform>();
+
+			d_transform->position.x = x;
+			d_transform->position.y = y;
+		}
+	}
 }

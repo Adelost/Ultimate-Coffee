@@ -169,7 +169,9 @@ void DXRenderer::renderFrame()
 	{
 		Data::Camera* d_camera = CAMERA_ENTITY()->fetchData<Data::Camera>();
 
-		viewProjection = d_camera->viewProjection();
+		Matrix projection = d_camera->projection();
+		Matrix view = d_camera->view();
+		viewProjection = view * projection;
 	}
 	
 	

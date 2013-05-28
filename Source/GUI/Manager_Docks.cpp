@@ -130,7 +130,7 @@ void Manager_Docks::setupMenu()
 
 	// Add dock action
 	a = new QAction("Create Dock", m_window);
-	a->setShortcuts(QKeySequence::AddTab);
+	a->setShortcut(QKeySequence("Ctrl+Shift+T"));
 	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
 	m_menu->addAction(a);
 	connect(m_window->ui()->actionReset_Layout, SIGNAL(triggered()), this, SLOT(resetLayout()));
@@ -570,52 +570,52 @@ public:
 
 void Manager_Docks::update()
 {
-	// Add entities to list
-	DataMapper<Data::Created> map_created;
-	while(map_created.hasNext())
-	{
-		Entity* e = map_created.nextEntity();
-		e->removeData<Data::Created>();
-		int entityId = e->id();
-
-		// Make room for item
-		QStandardItem* item = m_hierarchy_model->item(entityId);
-		if(!item)
-		{
-			item = new QStandardItem();
-			m_hierarchy_model->setItem(entityId, item);
-		}
-
-		// Assign item
-		item->setText(e->name().c_str());
-		item->setEnabled(true);
-		item->setSelectable(true);
-		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
-
-		// HACK: Make camera undeletable
-		if(e->fetchData<Data::Camera>())
-		{
-			item->setSelectable(false);
-		}
-	}
-	
-	// Remove entries from list
-	DataMapper<Data::Deleted> map_removed;
-	while(map_removed.hasNext())
-	{
-		Entity* e = map_removed.nextEntity();
-		e->removeData<Data::Deleted>();
-		int entityId = e->id();
-
-		// Assign item
-		QStandardItem* item = m_hierarchy_model->item(entityId);
-		if(item)
-		{
-			item->setEnabled(false);
-			item->setSelectable(false);
-			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
-		}
-	}
+// 	// Add entities to list
+// 	DataMapper<Data::Created> map_created;
+// 	while(map_created.hasNext())
+// 	{
+// 		Entity* e = map_created.nextEntity();
+// 		e->removeData<Data::Created>();
+// 		int entityId = e->id();
+// 
+// 		// Make room for item
+// 		QStandardItem* item = m_hierarchy_model->item(entityId);
+// 		if(!item)
+// 		{
+// 			item = new QStandardItem();
+// 			m_hierarchy_model->setItem(entityId, item);
+// 		}
+// 
+// 		// Assign item
+// 		item->setText(e->name().c_str());
+// 		item->setEnabled(true);
+// 		item->setSelectable(true);
+// 		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
+// 
+// 		// HACK: Make camera undeletable
+// 		if(e->fetchData<Data::Camera>())
+// 		{
+// 			item->setSelectable(false);
+// 		}
+// 	}
+// 	
+// 	// Remove entries from list
+// 	DataMapper<Data::Deleted> map_removed;
+// 	while(map_removed.hasNext())
+// 	{
+// 		Entity* e = map_removed.nextEntity();
+// 		e->removeData<Data::Deleted>();
+// 		int entityId = e->id();
+// 
+// 		// Assign item
+// 		QStandardItem* item = m_hierarchy_model->item(entityId);
+// 		if(item)
+// 		{
+// 			item->setEnabled(false);
+// 			item->setSelectable(false);
+// 			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
+// 		}
+// 	}
 
 	
 }
@@ -1373,9 +1373,8 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		l = new QLabel("      ", w);
 		//l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
-
 		QPixmap pixmap(100, 20);
-		pixmap.fill(QColor("red"));
+		pixmap.fill(QColor());
 		QIcon icon(pixmap);
 		l = new QLabel("hello", w);
 		m_colorIcon = l;
@@ -1392,6 +1391,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		QSize size = button->sizeHint();
 		button->setMaximumSize(QSize(25,20));
 		connect(button, SIGNAL(clicked()), this, SLOT(pickColor()));
+		//setColor(QColor(3, 137, 255));
 		hl->addWidget(button);
 
 		l = new QLabel("          ", w);
@@ -1523,11 +1523,12 @@ void ToolPanel::pickColor()
 			c.setRedF(color.x);
 			c.setGreenF(color.y);
 			c.setBlueF(color.z);
+			m_colorDialog->setCurrentColor(c);
 		}
 	}
 
 
-	m_colorDialog->setCurrentColor(c);
+	
 	m_colorDialog->show();
 
 

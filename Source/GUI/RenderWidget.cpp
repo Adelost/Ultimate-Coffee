@@ -152,13 +152,17 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 		mousePrev = mouseAnchor;
 
 		// HACK: This is a hack, and you know it
-		static float value = 0.0005; // Makes speed 1
+		static float value = 0.0005; // Magic number makes speed 1
 		value += (dx + dy) * 0.001f;
+
+		// Restore to normal if key is pressed
+		if(SETTINGS()->button.key_left)
+			value = 0.0005;
 
 		float speed = Math::powerOf(2.0f, value);
 
-		// Convert dx to camera speed modification
-		Window::instance()->ui()->statusBar->showMessage("Camera Scale: " + QString::number(speed)+":1", 1500);
+		// Set scale
+		Window::instance()->ui()->statusBar->showMessage("Camera scale: " + QString::number(1/speed)+":1", 1500);
 		d_camera->setScale(speed);
 	}
 	// ELESE: Adjust camera rotation
@@ -182,8 +186,8 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 		float strafe = 0.0f;
 		float ascend = 0.0f;
 
-		strafe = -0.02f*dx;
-		ascend = 0.02f*dy;
+		strafe = -0.02f*dx*d_camera->scale();
+		ascend = 0.02f*dy*d_camera->scale();
 
 		// Rotate camera
 		d_camera->strafe(d_transform->position, strafe);
@@ -230,6 +234,9 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		break;
 	case Qt::Key_Alt:
 		SETTINGS()->button.key_alt = state;
+		break;
+	case Qt::Key_Space:
+		SETTINGS()->button.key_space = state;
 		break;
 	case Qt::Key_Delete:
 		if(state)

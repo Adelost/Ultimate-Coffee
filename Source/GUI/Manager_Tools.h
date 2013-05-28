@@ -42,4 +42,5 @@ public slots:
 	void newProject();
 	void runSimulation(bool state);
 	void homingAsteroids(bool state);
+	void loadImage();
 };

@@ -83,7 +83,7 @@ void System::Input::update()
 			//d_transform->position = d_transform->position + d_update->direction * d_update->speed * SETTINGS()->deltaTime * 100.0f;
 
 			// Apply rotation
-			Vector3 v = d_update->velocity * SETTINGS()->deltaTime;
+			Vector3 v = d_update->rotation * SETTINGS()->deltaTime;
 			Matrix m1 = Matrix::CreateFromQuaternion(d_transform->rotation);
 			Matrix m2 = Matrix::CreateFromYawPitchRoll(v.x, v.y, v.z);
 			m1 = m1 * m2;
