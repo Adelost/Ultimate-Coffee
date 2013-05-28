@@ -31,7 +31,7 @@ class Settings
 {
 private:
 	int m_selectedTool;
-	bool m_showSkybox;
+	int m_skyboxIndex;
 	bool m_runSimulation;
 
 public:
@@ -64,8 +64,8 @@ public:
 public:
 	void setSelectedTool(int toolType);
 	int selectedTool(){return m_selectedTool;}
-	void setShowSkybox(bool state);
-	bool showSkybox(){return m_showSkybox;}
+	void setSkyboxIndex(int index);
+	int skyboxIndex();
 	void setRunSimulation(bool state){m_runSimulation = state;}
 	bool runSimulation(){return m_runSimulation;}
 };

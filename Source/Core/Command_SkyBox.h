@@ -8,8 +8,8 @@ class Command_SkyBox : public Command
 public:
 	struct dataStruct
 	{
-		bool showSkyBox;
 		int skyBoxIndex;
+		int undoSkyBoxIndex;
 		Vector3 doColor;
 		Vector3 undoColor;
 	};
@@ -19,8 +19,6 @@ public:
 public:
 	Command_SkyBox();
 	~Command_SkyBox();
-
-	void setShowSkyBox(bool showSkyBox);
 
 	virtual void doRedo();
 	virtual void undo();

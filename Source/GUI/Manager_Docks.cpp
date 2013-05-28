@@ -12,6 +12,7 @@
 #include <Core/Command_TranslateSceneEntity.h>
 #include <Core/Command_RotateSceneEntity.h>
 #include <Core/Command_ScaleSceneEntity.h>
+#include <Core/Command_SkyBox.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -326,11 +327,29 @@ void Manager_Docks::onEvent(Event* e)
 					}
 				case Enum::CommandType::SKYBOX:
 					{
-						commandText = "Skybox toggle";
-					
-						std::string iconPath = ICON_PATH;
-						iconPath += "Options/Skybox";
-						commandIcon.addFile(iconPath.c_str());
+						Command_SkyBox* c = static_cast<Command_SkyBox*>(command);
+
+						// If backbuffer change	
+						if(c->dataStruct_.skyBoxIndex == 0)
+						{
+							float x = c->dataStruct_.doColor.x * 255;
+							float y = c->dataStruct_.doColor.y * 255;
+							float z = c->dataStruct_.doColor.z * 255;
+
+							QColor color(x,y,z);
+							QPixmap pixmap(16, 16);
+							pixmap.fill(color);
+							commandIcon.addPixmap(pixmap);
+							commandText = "Background color";
+						}
+						// Skybox
+						else
+						{
+							commandText = "Skybox changed";
+							std::string iconPath = ICON_PATH;
+							iconPath += "Options/Skybox";
+							commandIcon.addFile(iconPath.c_str());
+						}
 
 						break;
 					}

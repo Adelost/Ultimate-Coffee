@@ -22,6 +22,7 @@ DXRenderer::DXRenderer()
 	m_tex_depthStencil = nullptr;
 	m_viewport_screen = nullptr;
 	m_sky = nullptr;
+	m_sky2 = nullptr;
 	m_msaa_enable = true;
 
 	m_CBPerObject.world.Identity();
@@ -62,6 +63,7 @@ DXRenderer::~DXRenderer()
 	ReleaseCOM(m_dxDevice);
 	delete m_viewport_screen;
 	delete m_sky;
+	delete m_sky2;
 	delete m_manager_tools;
 }
 
@@ -86,7 +88,8 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_manager_tools = new Manager_3DTools(this->m_dxDevice, this->m_dxDeviceContext, this->m_view_depthStencil, this->m_viewport_screen);
 
-	m_sky = new Sky(m_dxDevice, m_dxDeviceContext, "root/Textures/Skyboxes/plain.dds", 5000.0f);
+	m_sky = new Sky(m_dxDevice, m_dxDeviceContext, "skybox_clearsky.dds", 5000.0f);
+	m_sky2 = new Sky(m_dxDevice, m_dxDeviceContext, "skybox_redclouds.dds", 5000.0f);
 	
 	return result;
 }
@@ -251,9 +254,13 @@ void DXRenderer::renderFrame()
 	m_dxDeviceContext->RSSetState(0);
 	m_dxDeviceContext->OMSetDepthStencilState(0, 0);
 
-	//// Draw SkyBox
-	//if(SETTINGS()->showSkybox())
-	//	m_sky->draw();
+
+	// Draw SkyBox
+	int skyboxIndex = SETTINGS()->skyboxIndex();
+	if(skyboxIndex == 1)
+		m_sky->draw();
+	if(skyboxIndex == 2)
+		m_sky2->draw();
 
 	// Draw Tools
 	m_manager_tools->update();

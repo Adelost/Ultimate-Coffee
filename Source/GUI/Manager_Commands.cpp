@@ -126,6 +126,18 @@ void Manager_Commands::setupMenu()
 
 		m_action_skybox = a;
 	}
+	{
+		std::string path = "";
+		std::string icon_name = "Skybox";
+		path = path + ICON_PATH + "Options/" + icon_name;
+
+		QAction* a = createTestButton("#000", mapper);
+		a->setIcon(QIcon(path.c_str()));
+		a->setObjectName(icon_name.c_str());
+		a->setToolTip("Toggle skybox #2");
+
+		m_action_skybox2 = a;
+	}
 }
 
 bool Manager_Commands::storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute)
@@ -346,10 +358,15 @@ void Manager_Commands::setBackBufferColor(QString p_str_color)
 {
 	QColor color = (p_str_color);
 
+
 	Command_SkyBox* c = new Command_SkyBox();
-	bool skybox = m_action_skybox->isChecked();
-	c->setShowSkyBox(skybox);
-	c->dataStruct_.doColor = Vector3(color.redF(), color.greenF(), color.blueF()); 
+
+	if(m_action_skybox->isChecked())
+		c->dataStruct_.skyBoxIndex = 1;
+	if(m_action_skybox2->isChecked())
+		c->dataStruct_.skyBoxIndex = 2;
+
+	c->dataStruct_.doColor = Vector3(color.redF(), color.greenF(), color.blueF());
 	c->dataStruct_.undoColor = Vector3(SETTINGS()->backBufferColor.x, SETTINGS()->backBufferColor.y, SETTINGS()->backBufferColor.z); 
 
 	SEND_EVENT(&Event_AddToCommandHistory(c, true));
