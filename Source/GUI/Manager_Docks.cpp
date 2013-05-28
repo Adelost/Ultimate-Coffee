@@ -1025,14 +1025,9 @@ void ToolPanel::setXRotationOfSelectedEntities(double p_rotX)
 
 			XMVECTOR quat = trans->rotation;
 
-			float xAngle = rotationXSpinBox->value(); // atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
-									//,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
-
-			float yAngle = rotationYSpinBox->value(); //(asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
-
-			float zAngle = rotationZSpinBox->value(); //atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
-									//,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
-
+			float xAngle = rotationXSpinBox->value();
+			float yAngle = rotationYSpinBox->value();
+			float zAngle = rotationZSpinBox->value();
 
 			XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw(p_rotX * (Math::Pi / 180), yAngle * (Math::Pi / 180), zAngle * (Math::Pi / 180));
 
@@ -1071,14 +1066,9 @@ void ToolPanel::setYRotationOfSelectedEntities(double p_rotY)
 
 			XMVECTOR quat = trans->rotation;
 
-			float xAngle = rotationXSpinBox->value(); // atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
-									//,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
-
-			float yAngle = rotationYSpinBox->value(); //(asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
-
-			float zAngle = rotationZSpinBox->value(); //atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
-									//,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
-
+			float xAngle = rotationXSpinBox->value();
+			float yAngle = rotationYSpinBox->value();
+			float zAngle = rotationZSpinBox->value();
 
 			XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw(xAngle * (Math::Pi / 180), p_rotY * (Math::Pi / 180), zAngle * (Math::Pi / 180));
 
@@ -1117,14 +1107,9 @@ void ToolPanel::setZRotationOfSelectedEntities(double p_rotZ)
 
 			XMVECTOR quat = trans->rotation;
 
-			float xAngle = rotationXSpinBox->value(); // atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
-									//,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
-
-			float yAngle = rotationYSpinBox->value(); //(asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
-
-			float zAngle = rotationZSpinBox->value(); //atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
-									//,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
-
+			float xAngle = rotationXSpinBox->value();
+			float yAngle = rotationYSpinBox->value();
+			float zAngle = rotationZSpinBox->value();
 
 			XMVECTOR rotQuat = XMQuaternionRotationRollPitchYaw(xAngle * (Math::Pi / 180), yAngle * (Math::Pi / 180), p_rotZ * (Math::Pi / 180));
 
@@ -1215,26 +1200,6 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		hl->addWidget(dsb);
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZTranslationOfSelectedEntities(double)));
 		translationZSpinBox = dsb;
-
-		//QLabel* l;
-		//vl->addWidget(new QLabel("Position"));
-		//QLayout* hl = new QHBoxLayout(w);
-		//vl->addItem(hl);
-
-		//l = new QLabel("  X  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
-
-		//l = new QLabel("  Y  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
-
-		//l = new QLabel("  Z  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
 		QLabel* l;
@@ -1280,23 +1245,6 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		hl->addWidget(dsb);
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZRotationOfSelectedEntities(double)));
 		rotationZSpinBox = dsb;
-
-		//QLabel* l;
-		//vl->addWidget(new QLabel("Rotation"));
-		//QLayout* hl = new QHBoxLayout(w);
-		//vl->addItem(hl);
-		//l = new QLabel("  X  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
-		//l = new QLabel("  Y  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
-		//l = new QLabel("  Z  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
 		QLabel* l;
@@ -1344,23 +1292,6 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		hl->addWidget(dsb);
 		connect(dsb, SIGNAL(valueChanged(double)), this, SLOT(setZScalingOfSelectedEntities(double)));
 		scalingZSpinBox = dsb;
-
-		//QLabel* l;
-		//vl->addWidget(new QLabel("Scale"));
-		//QLayout* hl = new QHBoxLayout(w);
-		//vl->addItem(hl);
-		//l = new QLabel("  X  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
-		//l = new QLabel("  Y  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
-		//l = new QLabel("  Z  ", w);
-		//l->setMaximumSize(l->sizeHint());
-		//hl->addWidget(l);
-		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
 		QLabel* l;
@@ -1458,29 +1389,30 @@ void ToolPanel::onEvent(Event *p_event)
 
 				Data::Transform *trans = Data::Selected::lastSelected->toPointer()->fetchData<Data::Transform>();
 
-				translationXSpinBox->setValue(trans->position.x);
-				translationYSpinBox->setValue(trans->position.y);
-				translationZSpinBox->setValue(trans->position.z);
+				if(trans)
+				{
+					translationXSpinBox->setValue(trans->position.x);
+					translationYSpinBox->setValue(trans->position.y);
+					translationZSpinBox->setValue(trans->position.z);
 
-				XMVECTOR quat = trans->rotation;
+					XMVECTOR quat = trans->rotation;
 
-				float xAngle = atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3]) )
-										,	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
+					float xAngle = atan2(	(2 * (quat.m128_f32[0] * quat.m128_f32[1] + quat.m128_f32[2] * quat.m128_f32[3])),	(1 - 2 * (pow(quat.m128_f32[1], 2) + pow(quat.m128_f32[2], 2)))		);
 
-				float yAngle = asin(		2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])		);
+					float yAngle =  asin(	 2 * (quat.m128_f32[0] * quat.m128_f32[2] - quat.m128_f32[3] * quat.m128_f32[1])	);
 
-				float zAngle = atan2(		(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) )
-										,	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
+					float zAngle = atan2(	(2 * (quat.m128_f32[0] * quat.m128_f32[3] + quat.m128_f32[1] * quat.m128_f32[2]) ),	(1 - 2 * (pow(quat.m128_f32[2], 2) + pow(quat.m128_f32[3], 2)))		);
 
-				rotationXSpinBox->setValue(xAngle * (Math::Pi / 180));
-				rotationYSpinBox->setValue(yAngle * (Math::Pi / 180));
-				rotationZSpinBox->setValue(zAngle * (Math::Pi / 180));
+					rotationXSpinBox->setValue(xAngle * (Math::Pi / 180));
+					rotationYSpinBox->setValue(yAngle * (Math::Pi / 180));
+					rotationZSpinBox->setValue(zAngle * (Math::Pi / 180));
 
-				scalingXSpinBox->setValue(trans->scale.x);
-				scalingYSpinBox->setValue(trans->scale.y);
-				scalingZSpinBox->setValue(trans->scale.z);
+					scalingXSpinBox->setValue(trans->scale.x);
+					scalingYSpinBox->setValue(trans->scale.y);
+					scalingZSpinBox->setValue(trans->scale.z);
 
-				spinboxValueSetBecauseOfSelectionOrTransformation = false;
+					spinboxValueSetBecauseOfSelectionOrTransformation = false;
+				}
 
 				// Set color icon
 				Data::Render* d_render = Data::Selected::lastSelected->toPointer()->fetchData<Data::Render>();

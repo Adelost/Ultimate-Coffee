@@ -409,15 +409,18 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Event_RotateSceneEntity* e = static_cast<Event_RotateSceneEntity*>(p_event);
 
 			Data::Transform* d_transform = Entity(e->m_idOfRotatableSceneEntity).fetchData<Data::Transform>();
-
-			d_transform->rotation.x = e->m_quatX;
-			d_transform->rotation.y = e->m_quatY;
-			d_transform->rotation.z = e->m_quatZ;
-			d_transform->rotation.w = e->m_quatW;
-
-			if(currentlyChosenTransformTool)
+			
+			if(d_transform)
 			{
-				currentlyChosenTransformTool->setActiveObject(1);
+				d_transform->rotation.x = e->m_quatX;
+				d_transform->rotation.y = e->m_quatY;
+				d_transform->rotation.z = e->m_quatZ;
+				d_transform->rotation.w = e->m_quatW;
+
+				if(currentlyChosenTransformTool)
+				{
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
 			}
 		}
 		break;
@@ -426,14 +429,17 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Event_ScaleSceneEntity* e = static_cast<Event_ScaleSceneEntity*>(p_event);
 
 			Data::Transform* d_transform = Entity(e->m_idOfScalableSceneEntity).fetchData<Data::Transform>();
-
-			d_transform->scale.x = e->m_scaleX;
-			d_transform->scale.y = e->m_scaleY;
-			d_transform->scale.z = e->m_scaleZ;
-
-			if(currentlyChosenTransformTool)
+			
+			if(d_transform)
 			{
-				currentlyChosenTransformTool->setActiveObject(1);
+				d_transform->scale.x = e->m_scaleX;
+				d_transform->scale.y = e->m_scaleY;
+				d_transform->scale.z = e->m_scaleZ;
+
+				if(currentlyChosenTransformTool)
+				{
+					currentlyChosenTransformTool->setActiveObject(1);
+				}
 			}
 		}
 		break;
