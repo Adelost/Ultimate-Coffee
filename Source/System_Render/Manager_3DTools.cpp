@@ -430,8 +430,8 @@ void Manager_3DTools::onEvent( Event* p_event )
 
 			Data::Transform* d_transform = Entity(e->m_idOfScalableSceneEntity).fetchData<Data::Transform>();
 			
-			if(d_transform)
-			{
+			//if(d_transform)
+			//{
 				d_transform->scale.x = e->m_scaleX;
 				d_transform->scale.y = e->m_scaleY;
 				d_transform->scale.z = e->m_scaleZ;
@@ -440,7 +440,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 				{
 					currentlyChosenTransformTool->setActiveObject(1);
 				}
-			}
+			//}
 		}
 		break;
 	case EVENT_ENTITY_SELECTION:
