@@ -31,6 +31,27 @@ namespace Vertex
 	};
 }
 
+class VertexPosNormTanTex
+{
+public:
+	Vector3 position;
+	Vector3 normal;
+	Vector3 tangentU;
+	Vector2 texureCordinate;
+
+public:
+	VertexPosNormTanTex(){}
+	VertexPosNormTanTex(const Vector3& p, const Vector3& n, const Vector3& t, const Vector2& uv)
+		: position(p), normal(n), tangentU(t), texureCordinate(uv){}
+	VertexPosNormTanTex(
+		float px, float py, float pz, 
+		float nx, float ny, float nz,
+		float tx, float ty, float tz,
+		float u, float v)
+		: position(px,py,pz), normal(nx,ny,nz),
+		tangentU(tx, ty, tz), texureCordinate(u,v){}
+};
+
 class InputLayoutDesc
 {
 public:

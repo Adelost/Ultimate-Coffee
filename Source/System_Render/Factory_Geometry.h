@@ -4,78 +4,10 @@
 #include <Core/Math.h>
 #include "Vertex.h"
 
+#include "MeshLoader.h"
 
 class Factory_Geometry
 {
-public:
-	class Vertex
-	{
-	public:
-		Vector3 position;
-		Vector3 normal;
-		Vector3 tangentU;
-		Vector2 texureCordinate;
-
-	public:
-		Vertex(){}
-		Vertex(const Vector3& p, const Vector3& n, const Vector3& t, const Vector2& uv)
-			: position(p), normal(n), tangentU(t), texureCordinate(uv){}
-		Vertex(
-			float px, float py, float pz, 
-			float nx, float ny, float nz,
-			float tx, float ty, float tz,
-			float u, float v)
-			: position(px,py,pz), normal(nx,ny,nz),
-			tangentU(tx, ty, tz), texureCordinate(u,v){}
-	};
-
-	class MeshData
-	{
-	public:
-		std::vector<Vertex> vertices;
-		std::vector<unsigned int> indices;
-
-	public:
-		void computeNormals()
-		{
-			for(int i=0; i<(int)indices.size(); i+=3)
-			{
-				int i0 = indices[i];
-				int i1 = indices[i+1];
-				int i2 = indices[i+2];
-				Vector3 v1 = vertices[i1].position - vertices[i0].position;
-				Vector3 v2 = vertices[i2].position - vertices[i0].position;
-				Vector3 normal = v1.Cross(v2);
-				normal.Normalize();
-
-				vertices[i0].normal = normal;
-				vertices[i1].normal = normal;
-				vertices[i2].normal = normal;
-			}
-		}
-		void randomizeColor()
-		{
-			
-		}
-		std::vector<Vector3> positionList()
-		{
-			std::vector<Vector3> list(vertices.size());
-			for(int i=0; i<(int)list.size(); i++)
-			{
-				list[i] = vertices[i].position;
-			}
-
-			return list;
-		}
-
-		std::vector<unsigned int> indexList()
-		{
-			return indices;
-		}
-
-		std::vector<VertexPosColNorm> createVertexList_posColNorm();
-	};
-
 private:
 	Factory_Geometry(){}
 
@@ -92,86 +24,89 @@ public:
 	*/
 	void createBox(float width, float height, float depth, MeshData& meshData)
 	{
+		MeshLoader loader;
+		loader.loadModel("../../Assets/Models/al.obj", meshData);
+
 		//
 		// Create the vertices.
 		//
 
-		Vertex v[24];
+		//Vertex v[24];
 
-		float w2 = 0.5f*width;
-		float h2 = 0.5f*height;
-		float d2 = 0.5f*depth;
+		//float w2 = 0.5f*width;
+		//float h2 = 0.5f*height;
+		//float d2 = 0.5f*depth;
 
-		// Fill in the front face vertex data.
-		v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[2] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		v[3] = Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		//// Fill in the front face vertex data.
+		//v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		//v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		//v[2] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		//v[3] = Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		// Fill in the back face vertex data.
-		v[4] = Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-		v[5] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[7] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		//// Fill in the back face vertex data.
+		//v[4] = Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		//v[5] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		//v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		//v[7] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-		// Fill in the top face vertex data.
-		v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[10] = Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		v[11] = Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		//// Fill in the top face vertex data.
+		//v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		//v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		//v[10] = Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		//v[11] = Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		// Fill in the bottom face vertex data.
-		v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-		v[13] = Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[14] = Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[15] = Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		//// Fill in the bottom face vertex data.
+		//v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		//v[13] = Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		//v[14] = Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		//v[15] = Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-		// Fill in the left face vertex data.
-		v[16] = Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-		v[17] = Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-		v[18] = Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-		v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+		//// Fill in the left face vertex data.
+		//v[16] = Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+		//v[17] = Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+		//v[18] = Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+		//v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
 
-		// Fill in the right face vertex data.
-		v[20] = Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-		v[21] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-		v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-		v[23] = Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+		//// Fill in the right face vertex data.
+		//v[20] = Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		//v[21] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		//v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+		//v[23] = Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
-		meshData.vertices.assign(&v[0], &v[24]);
+		//meshData.vertices.assign(&v[0], &v[24]);
 
-		//
-		// Create the indices.
-		//
+		////
+		//// Create the indices.
+		////
 
-		unsigned int i[36];
+		//unsigned int i[36];
 
 
-		// Fill in the front face index data
-		i[0] = 0; i[1] = 1; i[2] = 2;
-		i[3] = 0; i[4] = 2; i[5] = 3;
+		//// Fill in the front face index data
+		//i[0] = 0; i[1] = 1; i[2] = 2;
+		//i[3] = 0; i[4] = 2; i[5] = 3;
 
-		// Fill in the back face index data
-		i[6] = 4; i[7]  = 5; i[8]  = 6;
-		i[9] = 4; i[10] = 6; i[11] = 7;
+		//// Fill in the back face index data
+		//i[6] = 4; i[7]  = 5; i[8]  = 6;
+		//i[9] = 4; i[10] = 6; i[11] = 7;
 
-		// Fill in the top face index data
-		i[12] = 8; i[13] =  9; i[14] = 10;
-		i[15] = 8; i[16] = 10; i[17] = 11;
+		//// Fill in the top face index data
+		//i[12] = 8; i[13] =  9; i[14] = 10;
+		//i[15] = 8; i[16] = 10; i[17] = 11;
 
-		// Fill in the bottom face index data
-		i[18] = 12; i[19] = 13; i[20] = 14;
-		i[21] = 12; i[22] = 14; i[23] = 15;
+		//// Fill in the bottom face index data
+		//i[18] = 12; i[19] = 13; i[20] = 14;
+		//i[21] = 12; i[22] = 14; i[23] = 15;
 
-		// Fill in the left face index data
-		i[24] = 16; i[25] = 17; i[26] = 18;
-		i[27] = 16; i[28] = 18; i[29] = 19;
+		//// Fill in the left face index data
+		//i[24] = 16; i[25] = 17; i[26] = 18;
+		//i[27] = 16; i[28] = 18; i[29] = 19;
 
-		// Fill in the right face index data
-		i[30] = 20; i[31] = 21; i[32] = 22;
-		i[33] = 20; i[34] = 22; i[35] = 23;
+		//// Fill in the right face index data
+		//i[30] = 20; i[31] = 21; i[32] = 22;
+		//i[33] = 20; i[34] = 22; i[35] = 23;
 
-		meshData.indices.assign(&i[0], &i[36]);
+		//meshData.indices.assign(&i[0], &i[36]);
 	};
 
 	/**
@@ -183,47 +118,47 @@ public:
 		// Create the vertices.
 		//
 
-		Vertex v[24];
+		VertexPosNormTanTex v[24];
 
 		float w2 = 0.5f*width;
 		float h2 = 0.5f*height;
 		float d2 = 0.5f*depth;
 
 		// Fill in the front face vertex data.
-		v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[1] = Vertex(0, +h2, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[2] = Vertex(0, +h2, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		v[3] = Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		v[0] = VertexPosNormTanTex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[1] = VertexPosNormTanTex(0, +h2, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[2] = VertexPosNormTanTex(0, +h2, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		v[3] = VertexPosNormTanTex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 		// Fill in the back face vertex data.
-		v[4] = Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-		v[5] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[6] = Vertex(0, +h2, 0, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[7] = Vertex(0, +h2, 0, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		v[4] = VertexPosNormTanTex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		v[5] = VertexPosNormTanTex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[6] = VertexPosNormTanTex(0, +h2, 0, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[7] = VertexPosNormTanTex(0, +h2, 0, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 		// Fill in the top face vertex data.
-		v[8]  = Vertex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[9]  = Vertex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[10] = Vertex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		v[11] = Vertex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		v[8]  = VertexPosNormTanTex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[9]  = VertexPosNormTanTex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[10] = VertexPosNormTanTex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		v[11] = VertexPosNormTanTex(0, +h2, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 		// Fill in the bottom face vertex data.
-		v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-		v[13] = Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		v[14] = Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		v[15] = Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		v[12] = VertexPosNormTanTex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		v[13] = VertexPosNormTanTex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[14] = VertexPosNormTanTex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[15] = VertexPosNormTanTex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 		// Fill in the left face vertex data.
-		v[16] = Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-		v[17] = Vertex(0, +h2, 0, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-		v[18] = Vertex(0, +h2, 0, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-		v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+		v[16] = VertexPosNormTanTex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+		v[17] = VertexPosNormTanTex(0, +h2, 0, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+		v[18] = VertexPosNormTanTex(0, +h2, 0, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+		v[19] = VertexPosNormTanTex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
 
 		// Fill in the right face vertex data.
-		v[20] = Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-		v[21] = Vertex(0, +h2, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-		v[22] = Vertex(0, +h2, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-		v[23] = Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+		v[20] = VertexPosNormTanTex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		v[21] = VertexPosNormTanTex(0, +h2, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		v[22] = VertexPosNormTanTex(0, +h2, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+		v[23] = VertexPosNormTanTex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
 		meshData.vertices.assign(&v[0], &v[24]);
 
@@ -279,8 +214,8 @@ public:
 		// Poles: note that there will be texture coordinate distortion as there is
 		// not a unique point on the texture map to assign to the pole when mapping
 		// a rectangular texture onto a sphere.
-		Vertex topVertex(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertex bottomVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		VertexPosNormTanTex topVertex(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		VertexPosNormTanTex bottomVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 
 		meshData.vertices.push_back( topVertex );
 
@@ -297,7 +232,7 @@ public:
 			{
 				float theta = j*thetaStep;
 
-				Vertex v;
+				VertexPosNormTanTex v;
 
 				// spherical to cartesian
 				v.position.x = radius*sinf(phi)*cosf(theta);
@@ -403,7 +338,7 @@ public:
 			float dTheta = 2.0f*XM_PI/sliceCount;
 			for(UINT j = 0; j <= sliceCount; ++j)
 			{
-				Vertex vertex;
+				VertexPosNormTanTex vertex;
 
 				float c = cosf(j*dTheta);
 				float s = sinf(j*dTheta);
@@ -469,11 +404,11 @@ public:
 			float u = x/height + 0.5f;
 			float v = z/height + 0.5f;
 
-			meshData.vertices.push_back( Vertex(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v) );
+			meshData.vertices.push_back( VertexPosNormTanTex(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v) );
 		}
 
 		// Cap center vertex.
-		meshData.vertices.push_back( Vertex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f) );
+		meshData.vertices.push_back( VertexPosNormTanTex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f) );
 
 		// Index of center vertex.
 		UINT centerIndex = (UINT)meshData.vertices.size()-1;
@@ -507,11 +442,11 @@ public:
 			float u = x/height + 0.5f;
 			float v = z/height + 0.5f;
 
-			meshData.vertices.push_back( Vertex(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v) );
+			meshData.vertices.push_back( VertexPosNormTanTex(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v) );
 		}
 
 		// Cap center vertex.
-		meshData.vertices.push_back( Vertex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f) );
+		meshData.vertices.push_back( VertexPosNormTanTex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f) );
 
 		// Cache the index of center vertex.
 		UINT centerIndex = (UINT)meshData.vertices.size()-1;
@@ -523,7 +458,6 @@ public:
 			meshData.indices.push_back(baseIndex + i+1);
 		}
 	}
-
 
 	void createGrid(float width, float depth, unsigned int m, unsigned int n, MeshData& meshData)
 	{

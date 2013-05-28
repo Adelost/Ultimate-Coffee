@@ -127,6 +127,12 @@
     <ClInclude Include="Handle_CamViewRotation.h">
       <Filter>Source\Tools\Handles</Filter>
     </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshData.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -212,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="Handle_CamViewRotation.cpp">
       <Filter>Source\Tools\Handles</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshData.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

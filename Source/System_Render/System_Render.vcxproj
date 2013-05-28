@@ -96,13 +96,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;WIN32_LEAN_AND_MEAN;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../Dependencies/Includes/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;assimpD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Dependencies/Libs/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,6 +128,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Silky\Desktop\assimp--3.0.1270-source-only\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,7 +137,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Silky\Desktop\Assimp msvc 2012\code\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -183,6 +187,8 @@
     <ClInclude Include="ITool_Transformation.h" />
     <ClInclude Include="Manager_3DTools.h" />
     <ClInclude Include="Manager_Shader.h" />
+    <ClInclude Include="MeshData.h" />
+    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="stdafx.h" />
@@ -227,6 +233,8 @@
     <ClCompile Include="Handle_TranslationAxis.cpp" />
     <ClCompile Include="Handle_TranslationPlane.cpp" />
     <ClCompile Include="Manager_3DTools.cpp" />
+    <ClCompile Include="MeshData.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Sky.cpp" />

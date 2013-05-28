@@ -4,6 +4,7 @@
 #include <Core/Math.h>
 #include "CBuffers.h"
 #include "Factory_Geometry.h"
+#include "MeshData.h"
 
 typedef struct HWND__* HWND;
 typedef unsigned int UINT;
@@ -65,7 +66,7 @@ public:
 
 	bool initDX();
 
-	void createMeshBuffer( int meshId, Factory_Geometry::MeshData &mesh );
+	void createMeshBuffer( int meshId, MeshData &mesh );
 
 	void resizeDX(); 
 
