@@ -1153,6 +1153,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 
 	m_window = Window::instance();
 	m_colorDialog = new QColorDialog(this);
+	connect(m_colorDialog, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(setColor(const QColor &)));
 
 	QLayout* l = new QVBoxLayout(this);
 	setLayout(l);
@@ -1465,5 +1466,41 @@ void ToolPanel::onEvent(Event *p_event)
 
 void ToolPanel::pickColor()
 {
+	QColor c;
+
+	// Pick color from last selected entity
+	EntityPointer e = Data::Selected::lastSelected;
+	if(e.isValid())
+	{
+		Data::Render* d_render = e->fetchData<Data::Render>();
+		if(d_render)
+		{
+			Color color = d_render->mesh.color;
+			c.setRedF(color.x);
+			c.setGreenF(color.y);
+			c.setBlueF(color.z);
+		}
+	}
+
+
+	m_colorDialog->setCurrentColor(c);
 	m_colorDialog->show();
+}
+
+void ToolPanel::setColor( const QColor& color )
+{
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		Data::Render* d_render = e->fetchData<Data::Render>();
+		if(d_render)
+		{
+			Color c;
+			c.x = color.redF();
+			c.y = color.greenF();
+			c.z = color.blueF();
+			d_render->mesh.color = c;
+		}
+	}
 }

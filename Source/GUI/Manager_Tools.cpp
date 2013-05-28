@@ -272,11 +272,11 @@ void Manager_Tools::action_paste()
 	// Inform about selection
 	SEND_EVENT(&Event(EVENT_ENTITY_SELECTION));
 
-// 	// Add to history
-// 	if(command_list.size()>0)
-// 	{
-// 		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
-// 	}
+	// Add to history
+	if(command_list.size()>0)
+	{
+		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+	}
 }
 
 void Manager_Tools::homingAsteroids( bool state )
