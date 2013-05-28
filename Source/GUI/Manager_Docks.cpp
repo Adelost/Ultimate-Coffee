@@ -345,7 +345,7 @@ void Manager_Docks::onEvent(Event* e)
 						// Skybox
 						else
 						{
-							commandText = "Skybox toggle";
+							commandText = "Skybox changed";
 							std::string iconPath = ICON_PATH;
 							iconPath += "Options/Skybox";
 							commandIcon.addFile(iconPath.c_str());

@@ -67,6 +67,7 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 	m_vertexBuffer = nullptr;
 	m_indexBuffer = nullptr;
 	m_WVPBuffer = nullptr;
+	m_inputLayout = nullptr;
 
 	m_device = device;
 	m_context = context;
