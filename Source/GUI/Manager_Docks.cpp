@@ -198,8 +198,6 @@ void Manager_Docks::setupMenu()
 		QWidget* w = new ToolPanel(dock);
 		dock->setWidget(w);
 	}
-	
-	
 
 	// Console
 	dock = createDock("Console", Qt::LeftDockWidgetArea);
@@ -1155,6 +1153,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 
 	m_window = Window::instance();
 	m_colorDialog = new QColorDialog(this);
+	connect(m_colorDialog, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(setColor(const QColor &)));
 
 	QLayout* l = new QVBoxLayout(this);
 	setLayout(l);
@@ -1169,6 +1168,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 	scroll->setWidget(w);
 	QLayout* vl = new QVBoxLayout(w);
 	w->setLayout(vl);
+	const float SPINBOX_WIDH = 0.5f;
 	{
 		QLabel* l;
 		QDoubleSpinBox *dsb;
@@ -1183,6 +1183,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1195,6 +1196,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1207,6 +1209,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1247,6 +1250,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1258,6 +1262,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1269,6 +1274,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1306,6 +1312,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1318,6 +1325,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1330,6 +1338,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
 		dsb->setKeyboardTracking(false);
+		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
 		hl->addWidget(dsb);
@@ -1354,21 +1363,40 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		//hl->addWidget(new QDoubleSpinBox(w));
 	}
 	{
+		QLabel* l;
+
 		QPushButton* button;
 		vl->addWidget(new QLabel("Color"));
 		QLayout* hl = new QHBoxLayout(w);
 		vl->addItem(hl);
 
-// 		QPixmap pixmap(100,100);
-// 		pixmap.fill(QColor("red"));
-// 		QIcon* icon = QIcon(pixmap);
-// 		hl->addItem(icon);
+		l = new QLabel("      ", w);
+		//l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
+
+		QPixmap pixmap(100, 20);
+		pixmap.fill(QColor("red"));
+		QIcon icon(pixmap);
+		l = new QLabel("hello", w);
+		m_colorIcon = l;
+		l->setPixmap(pixmap);
+		l->setMaximumSize(l->sizeHint());
+		l->setStyleSheet("border: 1px solid #f5f5f5;");
+		hl->addWidget(l);
+
+		l = new QLabel(" ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
 
 		button = new QPushButton("...", w);
-		button->setMinimumSize(QSize(0,0));
-		button->setMaximumSize(button->sizeHint());
+		QSize size = button->sizeHint();
+		button->setMaximumSize(QSize(25,20));
 		connect(button, SIGNAL(clicked()), this, SLOT(pickColor()));
 		hl->addWidget(button);
+
+		l = new QLabel("          ", w);
+		l->setMaximumSize(l->sizeHint());
+		hl->addWidget(l);
 	}
 	vl->addItem(m_window->createSpacer(Qt::Vertical));
 }
@@ -1453,6 +1481,21 @@ void ToolPanel::onEvent(Event *p_event)
 				scalingZSpinBox->setValue(trans->scale.z);
 
 				spinboxValueSetBecauseOfSelectionOrTransformation = false;
+
+				// Set color icon
+				Data::Render* d_render = Data::Selected::lastSelected->toPointer()->fetchData<Data::Render>();
+				if(d_render)
+				{
+					Color c = d_render->mesh.color;
+					QColor color;
+					color.setRedF(c.x);
+					color.setGreenF(c.y);
+					color.setBlueF(c.z);
+					QPixmap pixmap(100, 20);
+					pixmap.fill(color);
+					QIcon icon(pixmap);
+					m_colorIcon->setPixmap(pixmap);
+				}
 			}
 			break;
 		}
@@ -1467,5 +1510,49 @@ void ToolPanel::onEvent(Event *p_event)
 
 void ToolPanel::pickColor()
 {
+	QColor c;
+
+	// Pick color from last selected entity
+	EntityPointer e = Data::Selected::lastSelected;
+	if(e.isValid())
+	{
+		Data::Render* d_render = e->fetchData<Data::Render>();
+		if(d_render)
+		{
+			Color color = d_render->mesh.color;
+			c.setRedF(color.x);
+			c.setGreenF(color.y);
+			c.setBlueF(color.z);
+		}
+	}
+
+
+	m_colorDialog->setCurrentColor(c);
 	m_colorDialog->show();
+
+
+}
+
+void ToolPanel::setColor( const QColor& color )
+{
+	DataMapper<Data::Selected> map_selected;
+	while(map_selected.hasNext())
+	{
+		Entity* e = map_selected.nextEntity();
+		Data::Render* d_render = e->fetchData<Data::Render>();
+		if(d_render)
+		{
+			Color c;
+			c.x = color.redF();
+			c.y = color.greenF();
+			c.z = color.blueF();
+			d_render->mesh.color = c;
+		}
+	}
+
+	// Set icon
+	QPixmap pixmap(100, 20);
+	pixmap.fill(color);
+	QIcon icon(pixmap);
+	m_colorIcon->setPixmap(pixmap);
 }

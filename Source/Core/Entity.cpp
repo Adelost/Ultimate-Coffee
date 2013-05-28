@@ -8,8 +8,6 @@ Entity::Entity( int p_id, int p_uniqueId )
 {
 	m_id = p_id;
 	m_uniqueId = p_uniqueId;
-
-	setName("Nameless", m_uniqueId);
 	m_type = Enum::Entity_Empty;
 }
 
@@ -48,15 +46,15 @@ Entity* Entity::findEntity( int p_id )
 	return s_manager_entity->entityAt(p_id);
 }
 
-std::string Entity::name()
-{
-	return m_name;
-}
-
-void Entity::setName( std::string p_name, int p_number )
-{
-	m_name = p_name + "_" + Converter::IntToStr(p_number);
-}
+// std::string Entity::name()
+// {
+// 	return m_name;
+// }
+// 
+// void Entity::setName( std::string p_name, int p_number )
+// {
+// 	m_name = p_name + "_" + Converter::IntToStr(p_number);
+// }
 
 Enum::EntityType Entity::type()
 {
@@ -89,6 +87,14 @@ Entity* Entity::clone()
 	clone->addData(Data::Created());
 
 	return clone;
+}
+
+std::string Entity::name()
+{
+	std::string name = EntityTypeToString(type());
+	name += "_" + Converter::IntToStr(id());
+
+	return name;
 }
 
 

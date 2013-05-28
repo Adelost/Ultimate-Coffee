@@ -17,6 +17,7 @@ namespace Data
 		float m_farPlane;
 		float m_fov;
 		float m_nearPlane;
+		float m_scale;
 
 		Vector3 m_position;
 		Quaternion m_rotation;
@@ -27,6 +28,7 @@ namespace Data
 			m_look = Vector3(0.0f, 0.0f, 1.0f);
 			m_right = Vector3(1.0f, 0.0f, 0.0f);
 			m_up = Vector3(0.0f, 1.0f, 0.0f);
+			m_scale = 1.0f;
 		}
 
 		void updateViewMatrix(Vector3& position)
@@ -149,6 +151,9 @@ namespace Data
 
 		Quaternion rotation(Vector3& position);
 		Quaternion rotation();
+
+		void setScale(float value);
+		float scale(){return m_scale;}
 	};
 }
 

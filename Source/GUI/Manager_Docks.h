@@ -16,6 +16,7 @@ class QStandardItemModel;
 class QListWidget;
 class Manager_Docks;
 class ItemBrowser;
+class QColorDialog;
 
 class Manager_Docks : public QObject, public IObserver
 {
@@ -132,7 +133,8 @@ class ToolPanel : public QWidget, IObserver
 
 private:
 	Window* m_window;
-	QWidget* m_colorDialog;
+	QColorDialog* m_colorDialog;
+	QLabel* m_colorIcon;
 
 	QDoubleSpinBox	*translationXSpinBox,	*translationYSpinBox,	*translationZSpinBox,
 					*rotationXSpinBox,		*rotationYSpinBox,		*rotationZSpinBox,
@@ -146,6 +148,7 @@ public:
 
 public slots:
 	void pickColor();
+	void setColor(const QColor& color);
 
 	void setXTranslationOfSelectedEntities(double X);
 	void setYTranslationOfSelectedEntities(double Y);

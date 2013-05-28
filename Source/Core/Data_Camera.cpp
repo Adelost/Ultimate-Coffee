@@ -56,3 +56,14 @@ DirectX::BoundingFrustum Data::Camera::getSubFrustum( FloatRectangle& window, Fl
 
 	return f;
 }
+
+void Data::Camera::setScale( float value )
+{
+	m_scale = value;
+	m_nearPlane = m_scale;
+	if(m_nearPlane>1.0f)
+		m_nearPlane = 1.0f;
+
+	// Move near plane closer
+	m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
+}

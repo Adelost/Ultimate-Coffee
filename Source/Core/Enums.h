@@ -49,6 +49,24 @@ namespace Enum
 		Entity_End
 	};
 
+	static std::string EntityTypeToString(EntityType type)
+	{
+		std::string out;
+
+		switch(type )
+		{
+		case Entity_Empty: out = "empty"; break;
+		case Entity_Sky: out = "skybox"; break;
+		case Entity_Mesh: out = "mesh"; break;
+		case Entity_Asteroid: out = "asteroid"; break;
+		case Entity_Camera: out = "camera"; break;
+		case Entity_Pointlight: out = "point_light"; break;
+		case Entity_DirLight: out = "direction_light"; break;
+		}
+
+		return out;
+	}
+
 	enum Mesh
 	{
 		Mesh_Box,

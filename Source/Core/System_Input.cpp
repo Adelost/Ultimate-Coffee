@@ -16,9 +16,9 @@ void System::Input::update()
 	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-	float speed = 15.0f;
+	float speed = 15.0f * d_camera->scale();
 	if(SETTINGS()->button.key_shift)
-		speed *= 5.0f;
+		speed *= 4.0f;
 	float delta = SETTINGS()->trueDeltaTime * speed;
 	float strafe = 0.0f;
 	float walk = 0.0f;

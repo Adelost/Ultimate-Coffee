@@ -125,7 +125,9 @@ QWidget* Window::renderWidget()
 
 QSpacerItem* Window::createSpacer( Qt::Orientation p_orientation )
 {
-	return new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	QSpacerItem* spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+	return spacer;
 }
 
 ISystem* Window::system_editor()
