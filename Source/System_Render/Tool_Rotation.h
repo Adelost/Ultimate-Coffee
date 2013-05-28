@@ -32,6 +32,8 @@ private:
 	ID3D11Buffer *m_WVPBuffer;
 	ID3D11InputLayout*			m_inputLayout;
 
+	ID3D11BlendState *m_blendState;
+
 	//
 
 	ID3D11Device *md3dDevice;
