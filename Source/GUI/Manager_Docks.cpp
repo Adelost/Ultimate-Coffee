@@ -258,7 +258,7 @@ void Manager_Docks::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type) 
 	{
-	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command to the command history list in the GUI
+	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command or commands to the command history list in the GUI
 		{
 			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
 			std::vector<Command*>* commands = commandEvent->commands;
@@ -1563,4 +1563,9 @@ void ToolPanel::setColor( const QColor& color )
 	pixmap.fill(color);
 	QIcon icon(pixmap);
 	m_colorIcon->setPixmap(pixmap);
+}
+
+ListItemWithId::ListItemWithId()
+{
+
 }
