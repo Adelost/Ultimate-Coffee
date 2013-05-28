@@ -411,9 +411,16 @@ void Manager_Docks::onEvent(Event* e)
 			}
 
 			connectCommandHistoryWidget(false);
-			for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
+			if(nrOfCommandsToRemove == nrOfListItems)
 			{
-				delete m_commandHistoryListWidget->takeItem(startAt); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+				m_commandHistoryListWidget->clear();
+			}
+			else
+			{
+				for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
+				{
+					delete m_commandHistoryListWidget->takeItem(startAt); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+				}
 			}
 			connectCommandHistoryWidget(true);
 		}
