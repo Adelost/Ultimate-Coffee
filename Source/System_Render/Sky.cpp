@@ -26,12 +26,18 @@ void Sky::draw()
 		m_hasInit = true;
 	}
 
-	m_context->IASetInputLayout(m_inputLayout);
-	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_context->VSSetShader(m_vertexShader, 0, 0);
 	m_context->PSSetShader(m_pixelShader, 0, 0);
+	m_context->PSSetShader(m_pixelShader, 0, 0);
+
+	m_context->IASetInputLayout(m_inputLayout);
+	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_context->RSSetState(RenderStates::NoCullRS);
 	m_context->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+
+
+	//((DeviceContext)GraphicsDevice).PixelShader.SetSampler(0, GraphicsDevice.SamplerStates.LinearWrap);
+
 
 	// Find world
 	Matrix viewProj = CAMERA_ENTITY()->fetchData<Data::Camera>()->viewProjection();

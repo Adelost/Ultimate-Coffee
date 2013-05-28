@@ -35,6 +35,9 @@
     <Filter Include="Source\Window">
       <UniqueIdentifier>{d8e84f86-8c72-4d8c-a51a-5daba3f9a70f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Qt-derived classes">
+      <UniqueIdentifier>{9a40b24d-3392-4fab-b2fe-22cfb9fa5ed3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

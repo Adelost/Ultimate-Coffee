@@ -259,7 +259,7 @@ void Manager_Docks::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type) 
 	{
-	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command to the command history list in the GUI
+	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command or commands to the command history list in the GUI
 		{
 			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
 			std::vector<Command*>* commands = commandEvent->commands;
@@ -327,14 +327,14 @@ void Manager_Docks::onEvent(Event* e)
 					}
 				case Enum::CommandType::SKYBOX:
 					{
-						Command_SkyBox* c = static_cast<Command_SkyBox*>(command);
+						Command_SkyBox* skyboxCommand = static_cast<Command_SkyBox*>(command);
 
 						// If backbuffer change	
-						if(c->dataStruct_.skyBoxIndex == 0)
+						if(skyboxCommand->dataStruct_.skyBoxIndex == 0)
 						{
-							float x = c->dataStruct_.doColor.x * 255;
-							float y = c->dataStruct_.doColor.y * 255;
-							float z = c->dataStruct_.doColor.z * 255;
+							float x = skyboxCommand->dataStruct_.doColor.x * 255;
+							float y = skyboxCommand->dataStruct_.doColor.y * 255;
+							float z = skyboxCommand->dataStruct_.doColor.z * 255;
 
 							QColor color(x,y,z);
 							QPixmap pixmap(16, 16);
@@ -347,7 +347,20 @@ void Manager_Docks::onEvent(Event* e)
 						{
 							commandText = "Skybox changed";
 							std::string iconPath = ICON_PATH;
+							
 							iconPath += "Options/Skybox";
+							int skyboxIndex = skyboxCommand->getSkyBoxIndex();
+
+							if(skyboxIndex > 0 && skyboxIndex < 10)
+							{
+								std::string number = Converter::IntToStr(skyboxIndex);
+								iconPath += number;
+							}
+							else
+							{
+								MESSAGEBOX("Missing skybox icon. void Manager_Docks::onEvent(Event* e).");
+							}
+							
 							commandIcon.addFile(iconPath.c_str());
 						}
 
@@ -1514,4 +1527,9 @@ void ToolPanel::setColor( const QColor& color )
 	pixmap.fill(color);
 	QIcon icon(pixmap);
 	m_colorIcon->setPixmap(pixmap);
+}
+
+ListItemWithId::ListItemWithId()
+{
+
 }
