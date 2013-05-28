@@ -46,6 +46,8 @@ Tool_Rotation::~Tool_Rotation()
 	ReleaseCOM(mMeshRotTool_viewCircle_VB);
 
 	ReleaseCOM(mMeshRotTool_viewRectangle_VB);
+
+	ReleaseCOM(m_blendState);
 }
 
 void Tool_Rotation::setIsVisible(bool &isVisible)
@@ -944,6 +946,21 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	vbd.MiscFlags = 0;
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_viewRectangle_VB));
+
+
+	D3D11_BLEND_DESC blendDesc;
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+						
+	md3dDevice->CreateBlendState(&blendDesc, &m_blendState);
 }
 
 void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
@@ -991,60 +1008,44 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 					
-			D3D11_BLEND_DESC blendDesc;
-			blendDesc.AlphaToCoverageEnable = false;
-			blendDesc.IndependentBlendEnable = false;
-			blendDesc.RenderTarget[0].BlendEnable = true;
-			blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-			blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-			blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-			blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-			blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-			blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-			
-			ID3D11BlendState *blendState;
-			md3dDevice->CreateBlendState(&blendDesc, &blendState);
-			
+	
 			float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 			UINT sampleMask   = 0xffffffff;
 			
-			md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+			md3dImmediateContext->OMSetBlendState(m_blendState, NULL, sampleMask);
 			md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
-			
-			ReleaseCOM(blendState);
-			
+
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
 			md3dImmediateContext->Draw(6, 0);
 			
 			md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
-		// Angle lines.
-		if(xRotationHandle->getIsSelected() || yRotationHandle->getIsSelected() || zRotationHandle->getIsSelected())
-		{
-			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_angleLine_VB, &stride, &offset);
-			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+							//// Angle lines.
+							//if(xRotationHandle->getIsSelected() || yRotationHandle->getIsSelected() || zRotationHandle->getIsSelected())
+							//{
+							//	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_angleLine_VB, &stride, &offset);
+							//	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-			XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
-			XMMATRIX translation = XMMatrixTranslationFromVector(trans);
-			XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
-			XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+							//	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
+							//	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
+							//	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+							//	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
 
-			XMVECTOR rotQuatToAnglePointA, rotQuatToAnglePointB;
-			omniRotateSphereHandle->getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(rotQuatToAnglePointA, rotQuatToAnglePointB);
+							//	XMVECTOR rotQuatToAnglePointA, rotQuatToAnglePointB;
+							//	omniRotateSphereHandle->getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(rotQuatToAnglePointA, rotQuatToAnglePointB);
 
-			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointA, rotQuat));
-			XMMATRIX world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual());
-			world_angleLine = XMMatrixTranspose(world_angleLine);
-			md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
-			md3dImmediateContext->Draw(2, 0);
+							//	XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointA, rotQuat));
+							//	XMMATRIX world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual());
+							//	world_angleLine = XMMatrixTranspose(world_angleLine);
+							//	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
+							//	md3dImmediateContext->Draw(2, 0);
 
-			rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointB, rotQuat));
-			world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual()); //world_angleLine =  translation; XMLoadFloat4x4(&getWorld_visual());
-			world_angleLine = XMMatrixTranspose(world_angleLine);
-			md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
-			md3dImmediateContext->Draw(2, 0);
-		}
+							//	rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointB, rotQuat));
+							//	world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual()); //world_angleLine =  translation; XMLoadFloat4x4(&getWorld_visual());
+							//	world_angleLine = XMMatrixTranspose(world_angleLine);
+							//	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
+							//	md3dImmediateContext->Draw(2, 0);
+							//}
 
 	// Draw control circles.
 
@@ -1068,9 +1069,6 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Zcircle_VB, &stride, &offset);
 	md3dImmediateContext->Draw(65, 0);
-
-
-	
 
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -1096,10 +1094,5 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_zAxisLine_VB, &stride, &offset);
 		md3dImmediateContext->Draw(80000, 0);
 	}
-
-
-
-	
-	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary.
 }
 

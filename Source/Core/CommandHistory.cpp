@@ -15,7 +15,12 @@ CommandHistory::CommandHistory(void)
 
 CommandHistory::~CommandHistory(void)
 {
-	reset();
+	int nrOfCommands = m_commands.size();
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		Command* command = m_commands.at(i);
+		delete command;
+	}
 }
 
 int CommandHistory::calculateSerializedByteSize()
