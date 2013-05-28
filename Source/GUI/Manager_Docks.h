@@ -134,6 +134,7 @@ class ToolPanel : public QWidget, IObserver
 private:
 	Window* m_window;
 	QColorDialog* m_colorDialog;
+	QLabel* m_colorIcon;
 
 	QDoubleSpinBox	*translationXSpinBox,	*translationYSpinBox,	*translationZSpinBox,
 					*rotationXSpinBox,		*rotationYSpinBox,		*rotationZSpinBox,
