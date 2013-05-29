@@ -20,13 +20,19 @@ public:
 
 public:
 	/**
+	Loads a model from file
+	*/
+	void loadModel(std::string filepathAndName, MeshData& meshData)
+	{
+		MeshLoader loader;
+		loader.loadModel(filepathAndName, meshData);
+	}
+
+	/**
 	Creates a box centered at the origin with the given dimensions.
 	*/
 	void createBox(float width, float height, float depth, MeshData& meshData)
 	{
-		//MeshLoader loader;
-		//loader.loadModel("../../Assets/Models/teapot.obj", meshData);
-
 		//
 		// Create the vertices.
 		//
