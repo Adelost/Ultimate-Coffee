@@ -169,7 +169,8 @@ void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR
 		bool selected = tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToIntersectionPoint);
 		if(!selected)
 		{
-			throw "Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation.";
+			MESSAGEBOX("Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation. This should never happen. Report to transformation tools admin.");
+			//throw "Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation.";
 		}
 	}
 }

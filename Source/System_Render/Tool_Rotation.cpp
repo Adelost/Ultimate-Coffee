@@ -174,7 +174,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
 			// Check if the ray intersects with the omni-rotation sphere.
-			omniRotateSphereHandle->setSphereRadius(1.0f);
+			omniRotateSphereHandle->setSphereRadius(1.11f);
 			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			if(sphereSelected)
 			{
