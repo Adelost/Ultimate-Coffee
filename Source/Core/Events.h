@@ -292,12 +292,14 @@ class Event_AddToCommandHistoryGUI : public Event
 public:
 	std::vector<Command*>* commands;
 	bool displayAsSingleCommandHistoryEntry; // Example display of true: "Entity creation (43)". Example display of false: "Entity creation".
+	int indexToBundledWithCommandHistoryGUIListEntry; // Standard is -2. If the standard value is not overridden the value will be set to the current command history index as given by "CommandHistory".
 
 public:
-	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
+	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry, int indexToBundledWithCommandHistoryGUIListEntry = -2) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
 	{
 		this->commands = commands;
 		this->displayAsSingleCommandHistoryEntry = displayAsSingleCommandHistoryEntry;
+		this->indexToBundledWithCommandHistoryGUIListEntry = indexToBundledWithCommandHistoryGUIListEntry;
 	}
 };
 
