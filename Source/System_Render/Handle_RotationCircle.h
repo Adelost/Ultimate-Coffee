@@ -31,6 +31,8 @@ private:
 
 	XMFLOAT3 selectionBlockingPlaneNormal;
 
+	bool m_selectionBlockingPlaneIsActive;
+
 public:
 	Handle_RotationCircle(XMVECTOR &direction, std::vector<XMFLOAT4> boundingLines, char axis);
 	~Handle_RotationCircle();
@@ -60,7 +62,7 @@ public:
 
 	void update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView);
 
-	void setSelectionBlockingPlaneNormal(XMVECTOR &normal);
+	void setSelectionBlockingPlaneNormal(XMVECTOR &normal, bool active);
 };
 
 #endif

@@ -70,6 +70,9 @@ private:
 	ID3D11Buffer* mMeshTransTool_xyTriangleListRectangle_VB;
 	ID3D11Buffer* mMeshTransTool_viewPlaneTriangleListRectangle_VB;
 
+	ID3D11Buffer* mMeshTransTool_obscuringRectangles_VB;
+	ID3D11Buffer* mMeshTransTool_viewRectangleObscuringPlane_VB;
+
 	////////////////////////////
 
 	XMFLOAT3 position;
@@ -109,6 +112,8 @@ private:
 
 	XMFLOAT4X4 world_viewPlaneTranslationControl_logical;
 	XMFLOAT4X4 world_viewPlaneTranslationControl_visual;
+
+	ID3D11BlendState *m_blendState;
 
 	//ID3D11Buffer *xyPlaneBuffer;
 	//ID3D11Buffer *yzPlaneBuffer;

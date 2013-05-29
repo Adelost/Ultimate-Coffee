@@ -25,6 +25,7 @@ enum EventType
 	EVENT_ENTITY_SELECTION,
 	EVENT_START_MULTISELECT,
 	EVENT_COFFEE,
+	EVENT_SELECTED_ENTITIES_HAVE_BEEN_TRANSFORMED,
 
 	// Commands
 	EVENT_ADD_TO_COMMAND_HISTORY,
@@ -185,6 +186,7 @@ public:
 		OpenHandCursor = 17,
 		ClosedHandCursor = 18,
 		SceneCursor = 20,
+		SceneCursor_Pointer = 21,
 	};
 
 public:
@@ -281,6 +283,26 @@ public:
 		this->command = command;
 		this->execute = execute;
 		this->displayAsSingleCommandHistoryEntry = true;
+	}
+};
+
+class Event_SelectedEntitiesHaveBeenTransformed : public Event
+{
+public:
+	bool m_transX, m_transY, m_transZ, m_scaleX, m_scaleY, m_scaleZ, m_rotX, m_rotY, m_rotZ;
+
+public:
+	Event_SelectedEntitiesHaveBeenTransformed() : Event(EVENT_SELECTED_ENTITIES_HAVE_BEEN_TRANSFORMED)
+	{
+		m_transX = false;
+		m_transY = false;
+		m_transZ = false;
+		m_scaleX = false;
+		m_scaleY = false;
+		m_scaleZ = false;
+		m_rotX = false;
+		m_rotY = false;
+		m_rotZ = false;
 	}
 };
 

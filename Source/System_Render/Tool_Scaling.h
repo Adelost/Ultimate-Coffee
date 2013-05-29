@@ -62,6 +62,8 @@ private:
 	ID3D11Buffer* mMeshTransTool_xyTriangleListRectangle_VB;
 	ID3D11Buffer* mMeshTransTool_viewPlaneTriangleListRectangle_VB;
 
+	ID3D11Buffer* mMeshTransTool_obscuringRectangles_VB;
+
 	////////////////////////////
 
 	XMFLOAT3 position;
@@ -113,6 +115,8 @@ private:
 	bool transformInEntityLocalSpace;
 
 	std::vector<XMFLOAT3> originalScalesOfSelectedEntities;
+
+	ID3D11BlendState *m_blendState;
 
 public:
 	Tool_Scaling(/*HWND windowHandle*/);
