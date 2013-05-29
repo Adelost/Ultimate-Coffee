@@ -44,6 +44,9 @@ void UpdateLoop::init()
 	
 	// Init game
 	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
+
+	// Create preview entities after project is restored
+	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 }
 
 void UpdateLoop::update()
