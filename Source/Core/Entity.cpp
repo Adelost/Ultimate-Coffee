@@ -82,6 +82,7 @@ Entity* Entity::clone()
 	// HACK: Is this a shallow copy?
 	// Be careful now.
 	//*clone = *e.asEntity();
+	clone->setType(e->type());
 
 	// Copy Data
 	s_manager_data->cloneData(e->id(), clone->id());
