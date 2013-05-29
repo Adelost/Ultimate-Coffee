@@ -15,6 +15,11 @@ CommandHistory::CommandHistory(void)
 
 CommandHistory::~CommandHistory(void)
 {
+	deallocateCommands();
+}
+
+void CommandHistory::deallocateCommands()
+{
 	int nrOfCommands = m_commands.size();
 	for(int i=0;i<nrOfCommands;i++)
 	{
@@ -330,12 +335,7 @@ std::stringstream* CommandHistory::getCommandHistoryAsText()
 void CommandHistory::reset()
 {
 	tryToJumpInCommandHistory(-1);
-	int nrOfCommands = m_commands.size();
-	for(int i=0;i<nrOfCommands;i++)
-	{
-		Command* command = m_commands.at(i);
-		delete command;
-	}
+	deallocateCommands();
 	m_commands.clear();
 	m_indexOfCurrentCommand = -1;
 	m_historyOverWriteTookPlaceWhenAddingCommands = false;

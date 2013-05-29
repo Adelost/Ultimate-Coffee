@@ -262,23 +262,27 @@ void Manager_Tools::action_paste()
 	while(map_clipboard.hasNext())
 	{
 		Entity* e = map_clipboard.nextEntity();
-		
-		// Make sure clone is not added to clipboard as well
-		Entity* clone = e->clone();
-		clone->removeData<Data::AddedToClipboard>();
-
-		// HACK: Recover data from cloning
-		Data::Render* d_render = clone->fetchData<Data::Render>();
-		if(d_render)
+		// HACK: Prevent copying of certain objects
+		int type = e->type();
+		if(type != Enum::Entity_Sky && type != Enum::Entity_DirLight && type != Enum::Entity_Empty)
 		{
-			d_render->recoverFromCloning(clone);
+			// Make sure clone is not added to clipboard as well
+			Entity* clone = e->clone();
+			clone->removeData<Data::AddedToClipboard>();
+
+			// HACK: Recover data from cloning
+			Data::Render* d_render = clone->fetchData<Data::Render>();
+			if(d_render)
+			{
+				d_render->recoverFromCloning(clone);
+			}
+
+			// Select new entity
+			Data::Selected::select(clone);
+
+			// Save command
+			command_list.push_back(new Command_CreateEntity(clone, true));
 		}
-
-		// Select new entity
-		Data::Selected::select(clone);
-
-		// Save command
-		command_list.push_back(new Command_CreateEntity(clone, true));
 	}
 
 	// Inform about selection

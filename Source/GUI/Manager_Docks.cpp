@@ -25,7 +25,8 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI);
-	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMAND_HISTORY_GUI_FILTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER);
 	SUBSCRIBE_TO_EVENT(this, EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_PLAY_SOUND_DING);
 	
@@ -268,15 +269,23 @@ void Manager_Docks::onEvent(Event* e)
 			std::vector<Command*>* commands = commandEvent->commands;
 			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
 			int indexToBundledWithCommandHistoryGUIListEntry = commandEvent->indexToBundledWithCommandHistoryGUIListEntry;
+			int overrideGUINumber = commandEvent->overrideNrOfCommandsGUINumber;
 
-			int nrOfCommandToBeAdded = commands->size();
-			for(int i=0;i<nrOfCommandToBeAdded;i++)
+			int nrOfCommandsToBeAdded = commands->size();
+			for(int i=0;i<nrOfCommandsToBeAdded;i++)
 			{
 				std::string commandText = "UNKNOWN COMMAND";
 				std::string appendToCommandText = "";
-				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAdded > 1)
+				if(displayAsSingleCommandHistoryEntry)
 				{
-					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAdded) +")";
+					if(overrideGUINumber > 0) // Special override. Another GUI number than the number of commands in "commands".
+					{
+						appendToCommandText = " (" + Converter::IntToStr(overrideGUINumber) +")";
+					}
+					else if(nrOfCommandsToBeAdded > 1) // Normal case. Add the number of commands in parenthesis if the number of comands sent in "Event_AddToCommandHistoryGUI" is larger than 1.
+					{
+						appendToCommandText = " (" + Converter::IntToStr(nrOfCommandsToBeAdded) +")";
+					}
 				}
 
 				QIcon commandIcon;
@@ -423,8 +432,15 @@ void Manager_Docks::onEvent(Event* e)
 						indexToBundledWithCommandHistoryGUIListEntry++;
 					}
 				}
-				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry);
-
+				if(overrideGUINumber > 0) // Use overrideGUINumber
+				{
+					addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry, overrideGUINumber);
+				}
+				else // Use nrOfCommandsToBeAdded
+				{
+					addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry, nrOfCommandsToBeAdded);
+				}
+				
 				if(displayAsSingleCommandHistoryEntry)
 				{
 					break; // Exit loop. Only add one command to the GUI.
@@ -471,7 +487,7 @@ void Manager_Docks::onEvent(Event* e)
 			if(m_commandHistoryListWidget->count() == 0)
 			{
 				QIcon icon;
-				addItemToCommandHistoryListWidget(icon, "Start", -1);
+				addItemToCommandHistoryListWidget(icon, "Start", -1, 1);
 			}
 			else
 			{
@@ -479,25 +495,79 @@ void Manager_Docks::onEvent(Event* e)
 			}
 		}
 		break;
-	case EVENT_GET_COMMAND_HISTORY_GUI_FILTER:
+	case EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER:
 		{
-			Event_GetCommandHistoryGUIFilter* getGUIFilterEvent = static_cast<Event_GetCommandHistoryGUIFilter*>(e);
-			
-			std::vector<bool>* GUIFilter = new std::vector<bool>;
-			int nrOfCommands = m_commandHistoryListWidget->count();
-			for(int i=1;i<nrOfCommands;i++) // i = 1, ignores ROOT_COMMAND
+			Event_SaveCommandHistoryGUIFilter* saveGUIFilter = static_cast<Event_SaveCommandHistoryGUIFilter*>(e);
+			std::string path = saveGUIFilter->path;
+
+			int nrOfCommandListItems = m_commandHistoryListWidget->count();
+
+			// Prepare save
+			QListWidgetItem* item = m_commandHistoryListWidget->item(0);
+			ListItemWithIndex* indexItem = getListItemWithIndexFromQListWidgetItem(item);
+			int byteSize = indexItem->getByteSizeOfDataStruct()*(nrOfCommandListItems-1); // -1 = skip ROOT_COMMAND
+			char* byteData = new char[byteSize];
+
+			// Save
+			int byteIndex = 0;
+			for(int i=1;i<nrOfCommandListItems;i++) // i = skip ROOT_COMMAND
 			{
 				QListWidgetItem* item = m_commandHistoryListWidget->item(i);
-				if(item->isHidden())
-				{
-					GUIFilter->push_back(true);
-				}
-				else
-				{
-					GUIFilter->push_back(false);
-				}
+				ListItemWithIndex* indexItem = getListItemWithIndexFromQListWidgetItem(item);
+
+				indexItem->receiveDataStructInSerializationFormat(byteData, byteIndex);
 			}
-			getGUIFilterEvent->GUIFilter = GUIFilter;
+			Converter::BytesToFile(byteData, byteSize, path);
+			delete [] byteData;
+		}
+		break;
+	case EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER:
+		{
+			Event_TryToLoadCommandHistoryGUIFilter* tryToLoadGUIFilter = static_cast<Event_TryToLoadCommandHistoryGUIFilter*>(e);
+			int byteSize = tryToLoadGUIFilter->fileSize;
+			std::vector<Command*>* commands = tryToLoadGUIFilter->commands;
+			std::string path = tryToLoadGUIFilter->path;
+
+			// Load bytes from file
+			ListItemWithIndex* liteItemWithIndex = new ListItemWithIndex(); // Use this object to load the values from file
+			char* byteData = new char[byteSize];
+			if(Converter::FileToBytes(path, byteData, byteSize))
+			{
+				// Interpret loaded bytes
+				int nextByte = 0;
+				int sizeOfOneListItem = liteItemWithIndex->getByteSizeOfDataStruct();
+
+				std::vector<Command*> subsetOfCommands;
+				while(nextByte < byteSize)
+				{
+					char* commandDataStructBytes = reinterpret_cast<char*>(byteData+nextByte);
+					liteItemWithIndex->loadDataStructFromBytes(commandDataStructBytes);
+
+					int GUINumber = liteItemWithIndex->getNrOfCommandsRepresented();
+					int CommandHistoryIndex = liteItemWithIndex->getCommandHistoryIndex();
+
+					Command* command = commands->at(CommandHistoryIndex);
+					subsetOfCommands.push_back(command);
+					if(GUINumber > 1) // Override GUINumber (refer to Event_AddToCommandHistoryGUI)
+					{
+						SEND_EVENT(&Event_AddToCommandHistoryGUI(&subsetOfCommands, true, CommandHistoryIndex, GUINumber));
+					}
+					else // No override of GUINumber (refer to Event_AddToCommandHistoryGUI)
+					{
+						SEND_EVENT(&Event_AddToCommandHistoryGUI(&subsetOfCommands, true, CommandHistoryIndex));
+					}
+					subsetOfCommands.clear();
+
+					nextByte += sizeOfOneListItem;
+				}
+				tryToLoadGUIFilter->loadedSuccessfully = true;
+			}
+			else
+			{
+				tryToLoadGUIFilter->loadedSuccessfully = false;
+			}
+			delete [] byteData;
+			delete liteItemWithIndex;
 		}
 		break;
 	case EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
@@ -507,11 +577,13 @@ void Manager_Docks::onEvent(Event* e)
 
 			int nrOfRows = m_commandHistoryListWidget->count();
 			int currentRow = m_commandHistoryListWidget->currentRow();
+			int newRow;
 			if(increment)
 			{
-				if(currentRow+1 < nrOfRows)
+				newRow = currentRow+1;
+				if(newRow < nrOfRows)
 				{
-					m_commandHistoryListWidget->setCurrentRow(currentRow+1);
+					m_commandHistoryListWidget->setCurrentRow(newRow);
 				}
 				else
 				{
@@ -520,9 +592,10 @@ void Manager_Docks::onEvent(Event* e)
 			}
 			else
 			{
-				if(currentRow-1 > -1)
+				newRow = currentRow-1;
+				if(newRow > -1)
 				{
-					m_commandHistoryListWidget->setCurrentRow(currentRow-1);
+					m_commandHistoryListWidget->setCurrentRow(newRow);
 				}
 				else
 				{
@@ -598,10 +671,10 @@ void Manager_Docks::connectCommandHistoryListWidget(bool connect_if_true_otherwi
 	}
 }
 
-void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index)
+void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented)
 {
 	// Add custom list item (with index retrievable on row change, refer to "Manager_Docks::currentCommandHistoryIndexChanged")
-	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index);
+	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index, nrOfCommandsRepresented);
 	m_commandHistoryListWidget->addItem(indexedItem);
 }
 
@@ -619,15 +692,25 @@ int Manager_Docks::findListItemIndexFromCommandHistoryIndex(int commandHistoryIn
 			break;
 		}
 	}
+	if(foundCommandHistoryIndexFromIndexItem == -2)
+	{
+		std::string errorMessage = "Failed to find a command history list item bundled with index " + Converter::IntToStr(commandHistoryIndex);
+		MESSAGEBOX(errorMessage);
+		return -1; // Prevent crash. -1 is a valid return value from this function, -2 is not.
+	}
 	return foundCommandHistoryIndexFromIndexItem;
+}
+
+ListItemWithIndex* Manager_Docks::getListItemWithIndexFromQListWidgetItem(QListWidgetItem* item)
+{
+	ListItemWithIndex* indexItem = static_cast<ListItemWithIndex*>(item);
+	return indexItem;
 }
 
 int Manager_Docks::getIndexFromItemWithIndex(QListWidgetItem* item)
 {
-	//QVariant data = item->data(0);
-	//int commandHistoryIndex = data.toInt();
-	ListItemWithIndex* indexItem = static_cast<ListItemWithIndex*>(item);
-	int commandHistoryIndex = indexItem->getIndex();
+	ListItemWithIndex* indexItem = getListItemWithIndexFromQListWidgetItem(item);
+	int commandHistoryIndex = indexItem->getCommandHistoryIndex();
 	return commandHistoryIndex;
 }
 
@@ -697,79 +780,79 @@ void Manager_Docks::setupHierarchy()
 
 void Manager_Docks::update()
 {
-// 	// Add entities to list
-// 	DataMapper<Data::Created> map_created;
-// 	while(map_created.hasNext())
-// 	{
-// 		Entity* e = map_created.nextEntity();
-// 		e->removeData<Data::Created>();
-// 		int type = e->type();
-// 		int entityId = e->id();
-// 
-// 		// Make room for item category
-// 		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
-// 		if(category)
-// 		{
-// 			int row = category->rowCount();
-// 			if(category->emptyRows.size() > 0)
-// 			{
-// 				row = category->emptyRows.back();
-// 				category->emptyRows.pop_back();
-// 			}
-// 
-// 			// Update item
-// 			QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
-// 			if(item)
-// 			{
-// 				item->setEnabled(true);
-// 				item->setSelectable(true);
-// 				m_hierarchy_tree->setRowHidden(row, category->index(), false);
-// 			}
-// 			else
-// 			{
-// 				item = new QStandardItem_Entity();
-// 			}
-// 			item->entityId = e->id();
-// 			item->setText(e->name().c_str());
-// 			e->hierarchyRow = row;
-// 			category->setChild(e->hierarchyRow, item);
-// 
-// 			// Update category
-// 			std::string typeName = e->typeName();
-// 			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
-// 			typeName = "[" + Converter::IntToStr(category->rowCount()) + "] "+typeName;
-// 			category->setText(typeName.c_str());
-// 		}
-// 	}
-// 
-// 	// Remove
-// 	DataMapper<Data::Deleted> map_removed;
-// 	while(map_removed.hasNext())
-// 	{
-// 		Entity* e = map_removed.nextEntity();
-// 		e->removeData<Data::Deleted>();
-// 		int type = e->type();
-// 		int entityId = e->id();
-// 
-// 		// Make room for item category
-// 		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
-// 		if(category)
-// 		{
-// 			// Hide item
-// 			int row = e->hierarchyRow;
-// 			QStandardItem* item = category->child(row);
-// 			category->emptyRows.push_back(row);
-// 			item->setEnabled(false);
-// 			item->setSelectable(false);
-// 			m_hierarchy_tree->setRowHidden(row, category->index(), true);
-// 
-// 			// Update category
-// 			std::string typeName = e->typeName();
-// 			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
-// 			typeName = "[" + Converter::IntToStr(category->rowCount()) + "] "+typeName;
-// 			category->setText(typeName.c_str());
-// 		}
-// 	}
+	// Add entities to list
+	DataMapper<Data::Created> map_created;
+	while(map_created.hasNext())
+	{
+		Entity* e = map_created.nextEntity();
+		e->removeData<Data::Created>();
+		int type = e->type();
+		int entityId = e->id();
+
+		// Make room for item category
+		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+		if(category)
+		{
+			int row = category->rowCount();
+			if(category->emptyRows.size() > 0)
+			{
+				row = category->emptyRows.back();
+				category->emptyRows.pop_back();
+			}
+
+			// Update item
+			QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
+			if(item)
+			{
+				item->setEnabled(true);
+				item->setSelectable(true);
+				m_hierarchy_tree->setRowHidden(row, category->index(), false);
+			}
+			else
+			{
+				item = new QStandardItem_Entity();
+			}
+			item->entityId = e->id();
+			item->setText(e->name().c_str());
+			e->hierarchyRow = row;
+			category->setChild(e->hierarchyRow, item);
+
+			// Update category
+			std::string typeName = e->typeName();
+			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+			typeName = "[" + Converter::IntToStr(category->rowCount()) + "] "+typeName;
+			category->setText(typeName.c_str());
+		}
+	}
+
+	// Remove
+	DataMapper<Data::Deleted> map_removed;
+	while(map_removed.hasNext())
+	{
+		Entity* e = map_removed.nextEntity();
+		e->removeData<Data::Deleted>();
+		int type = e->type();
+		int entityId = e->id();
+
+		// Make room for item category
+		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+		int row = e->hierarchyRow;
+		if(category && row != -1)
+		{
+			// Hide item
+			QStandardItem* item = category->child(row);
+			category->emptyRows.push_back(row);
+			item->setEnabled(false);
+			item->setSelectable(false);
+			m_hierarchy_tree->setRowHidden(row, category->index(), true);
+
+			// Update category
+			std::string typeName = e->typeName();
+			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+			typeName = "[" + Converter::IntToStr(category->rowCount()) + "] "+typeName;
+			category->setText(typeName.c_str());
+		}
+	}
 }
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
@@ -789,6 +872,10 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
 {
+	// HACK: Ignore category clicks (category has no parents, just like batman)
+	if(m_hierarchy_model->itemFromIndex(index)->parent() == 0)
+		return;
+
 	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
 
 	DataMapper<Data::Selected> map_selected;
@@ -821,6 +908,10 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
+	// HACK: Ignore category clicks (category has no parents, just like batman)
+	if(m_hierarchy_model->itemFromIndex(index)->parent() == 0)
+		return;
+
 	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
 
 	// Fetch camera
@@ -1735,15 +1826,21 @@ void ToolPanel::setColor( const QColor& color )
 	m_colorIcon->setPixmap(pixmap);
 }
 
-ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int index)
+ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int commandHistoryIndex, int nrOfCommandsRepresented)
 	: QListWidgetItem(icon, text)
 {
-	m_index = index;
+	m_dataStruct.commandHistoryIndex = commandHistoryIndex;
+	m_dataStruct.nrOfCommandsRepresented = nrOfCommandsRepresented;
 }
 
-int ListItemWithIndex::getIndex()
+int ListItemWithIndex::getCommandHistoryIndex()
 {
-	return m_index;
+	return m_dataStruct.commandHistoryIndex;
+}
+
+int ListItemWithIndex::getNrOfCommandsRepresented()
+{
+	return m_dataStruct.nrOfCommandsRepresented;
 }
 
 Item_Prefab::Item_Prefab( QIcon icon, QString filname ) : QListWidgetItem(icon, filname)

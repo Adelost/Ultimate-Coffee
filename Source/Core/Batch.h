@@ -139,6 +139,16 @@ public:
 
 	void overwrite(T& p_item, int p_index)
 	{
+		// HACK: Fix index problem
+		if(p_index >= m_item_list.size())
+		{
+			while(p_index >= m_item_list.size())
+			{
+				m_item_list.push_back(p_item);
+				m_gap_list.push_back(true);
+			}
+		}
+		
 		int tmp = m_index_firstGap;
 		removeItemAt(p_index);
 		m_index_firstGap = p_index;

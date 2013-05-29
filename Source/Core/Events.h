@@ -39,7 +39,8 @@ enum EventType
 	EVENT_GET_COMMAND_HISTORY_INFO,
 	EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI,
 	EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI,
-	EVENT_GET_COMMAND_HISTORY_GUI_FILTER,
+	EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER,
+	EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -315,13 +316,15 @@ public:
 	std::vector<Command*>* commands;
 	bool displayAsSingleCommandHistoryEntry; // Example display of true: "Entity creation (43)". Example display of false: "Entity creation".
 	int indexToBundledWithCommandHistoryGUIListEntry; // Standard is -2. If the standard value is not overridden the value will be set to the current command history index as given by "CommandHistory".
+	int overrideNrOfCommandsGUINumber; // Standard is 0. If standard is used the GUINumber will be the number of commands present in the "commands" vector, otherwise (if larger than zero) it will be the value of this variable. Refer to "displayAsSingleCommandHistoryEntry" for a GUINumber example.
 
 public:
-	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry, int indexToBundledWithCommandHistoryGUIListEntry = -2) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
+	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry, int indexToBundledWithCommandHistoryGUIListEntry = -2, int overrideNrOfCommandsGUINumber = 0) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
 	{
 		this->commands = commands;
 		this->displayAsSingleCommandHistoryEntry = displayAsSingleCommandHistoryEntry;
 		this->indexToBundledWithCommandHistoryGUIListEntry = indexToBundledWithCommandHistoryGUIListEntry;
+		this->overrideNrOfCommandsGUINumber = overrideNrOfCommandsGUINumber;
 	}
 };
 
@@ -376,14 +379,33 @@ public:
 	}
 };
 
-class Event_GetCommandHistoryGUIFilter : public Event
+class Event_SaveCommandHistoryGUIFilter : public Event
 {
 public:
-	std::vector<bool>* GUIFilter; // Return value
+	std::string path;
 
 public:
-	Event_GetCommandHistoryGUIFilter() : Event(EVENT_GET_COMMAND_HISTORY_GUI_FILTER)
+	Event_SaveCommandHistoryGUIFilter(std::string path) : Event(EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER)
 	{
+		this->path = path;
+	}
+};
+
+class Event_TryToLoadCommandHistoryGUIFilter : public Event
+{
+public:
+	std::string path;
+	int fileSize;
+	std::vector<Command*>* commands;
+	bool loadedSuccessfully; // Return value
+
+public:
+	Event_TryToLoadCommandHistoryGUIFilter(std::string path, std::vector<Command*>* commands, int fileSize) : Event(EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER)
+	{
+		loadedSuccessfully = false;
+		this->path = path;
+		this->commands = commands;
+		this->fileSize = fileSize;
 	}
 };
 

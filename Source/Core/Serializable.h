@@ -22,5 +22,5 @@ public:
 	virtual void* accessDerivedClassDataStruct() = 0;		// What derived class should do: reinterpret_cast<void*>(&dataStruct_);
 	virtual int getByteSizeOfDataStruct() = 0;				// What derived class should do: sizeof(dataStruct_);
 
-	virtual void loadDataStructFromBytes(char* data) = 0;	// What derived class should do: dataStruct_ = *reinterpret_cast<DataStruct*>(&dataStruct);
+	virtual void loadDataStructFromBytes(char* data) = 0;	// What derived class should do: dataStruct_ = *reinterpret_cast<DataStruct*>(data);
 };

@@ -34,8 +34,7 @@ private:
 	void newProject();
 	void loadCommandHistory(std::string path);
 	void saveCommandHistory(std::string path);
-	//void saveCommandHistoryGUIFilter(std::string path);
-	//void loadCommandHistoryGUIFilter(std::string path);
+	void convertPathToGUIFilterPath(std::string& path);
 	void clearCommandHistoryGUI();
 	int tryToGetFileSize(std::string path);
 

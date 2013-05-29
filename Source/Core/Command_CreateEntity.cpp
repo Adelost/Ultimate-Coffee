@@ -48,11 +48,6 @@ void Command_CreateEntity::createEntity()
 	int id = m_data.entityId;
 	WORLD()->manager_entity()->reserveUniqueId(uniqueId);
 	WORLD()->manager_entity()->reserveId(id);
-	if(m_data.entityType == Enum::Entity_Empty)
-	{
-		int t;
-		t = 0;
-	}
 	Entity* e = FACTORY_ENTITY()->createEntity(m_data.entityType);
 
 	// Assign spatial data
@@ -71,16 +66,16 @@ void Command_CreateEntity::createEntity()
 		d_render->mesh.color = m_data.color;
 		d_render->setMesh(m_data.mesh);
 	}
-}
 
-void Command_CreateEntity::removeEntity()
-{
 	if(m_data.entityType == Enum::Entity_Empty)
 	{
 		int t;
 		t = 0;
 	}
+}
 
+void Command_CreateEntity::removeEntity()
+{
 	int id = m_data.entityUniqueId;
 	Entity* e = Entity::findEntity(m_data.entityId);
 
@@ -89,6 +84,7 @@ void Command_CreateEntity::removeEntity()
 	m_data.entityId = e->id();
 	m_data.entityUniqueId = e->uniqueId();
 	m_data.entityType = e->type();
+	m_data.hierarchyRow = e->hierarchyRow;
 	m_data.position = d_transform->position;
 	m_data.rotation = d_transform->rotation;
 	m_data.scale = d_transform->scale;
@@ -102,6 +98,12 @@ void Command_CreateEntity::removeEntity()
 	}
 
 	e->removeEntity();
+
+	if(m_data.entityType == Enum::Entity_Empty)
+	{
+		int t;
+		t = 0;
+	}
 }
 
 Command_CreateEntity::Command_CreateEntity( Entity* e, bool create )
@@ -124,9 +126,11 @@ Command_CreateEntity::Command_CreateEntity( Entity* e, bool create )
 	m_data.entityId = e->id();
 	m_data.entityUniqueId = e->uniqueId();
 	m_data.entityType = e->type();
+	m_data.hierarchyRow = e->hierarchyRow;
 	m_data.position = d_transform->position;
 	m_data.rotation = d_transform->rotation;
 	m_data.scale = d_transform->scale;
+	
 
 	// Render
 	Data::Render* d_render = e->fetchData<Data::Render>();

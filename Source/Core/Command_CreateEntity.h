@@ -17,6 +17,7 @@ public:
 		Enum::EntityType entityType;
 		int entityId;
 		int entityUniqueId;
+		int hierarchyRow;
 
 		Vector3 position;
 		Quaternion rotation;
