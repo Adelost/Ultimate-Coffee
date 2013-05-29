@@ -445,6 +445,10 @@ bool DXRenderer::initDX()
 		// Asteroid
 		Factory_Geometry::instance()->createSphere(0.5f, 3, 3, mesh);
 		createMeshBuffer(Enum::Mesh_Asteroid, mesh);
+
+		// Al
+		Factory_Geometry::instance()->loadModel("Al.obj", mesh);
+		createMeshBuffer(Enum::Mesh_Al, mesh);
 	}
 
 	// Create per object constant buffer

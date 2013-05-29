@@ -22,10 +22,10 @@ public:
 	/**
 	Loads a model from file
 	*/
-	void loadModel(std::string filepathAndName, MeshData& meshData)
+	void loadModel(std::string filename, MeshData& meshData)
 	{
 		MeshLoader loader;
-		loader.loadModel(filepathAndName, meshData);
+		loader.loadModel("../../Assets/Models/" + filename, meshData);
 	}
 
 	/**
