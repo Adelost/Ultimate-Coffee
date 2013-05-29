@@ -221,8 +221,8 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	{
 		m_lastValidProjectPath = path;
 
-		//std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
-		//saveCommandHistoryGUIFilter(pathWithoutUCFileExtension + "_GUIFilter.ucg");
+		std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
+		saveCommandHistoryGUIFilter(pathWithoutUCFileExtension + "_GUIFilter.ucg");
 	}
 	else
 	{
@@ -231,96 +231,15 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	delete[] bytes;
 }
 
-//void Manager_Commands::saveCommandHistoryGUIFilter(std::string path)
-//{
-//	Event_GetCommandHistoryGUIFilter returnValue;
-//	SEND_EVENT(&returnValue);
-//	std::vector<bool>* GUIFilter = returnValue.GUIFilter;
-//
-//	if(sizeof(bool) != sizeof(char))
-//	{
-//		MESSAGEBOX("Unexpected discrepancy. Failed to save GUI Filter.");
-//		return;
-//	}
-//
-//	int nrOfBools = GUIFilter->size();
-//	char* bytes = new char[nrOfBools];
-//	for(int i=0;i<nrOfBools;i++)
-//	{
-//		bytes[i] = GUIFilter->at(i);
-//	}
-//
-//	int sizeOfBytes = sizeof(bool)*nrOfBools;
-//	if(!Converter::BytesToFile(bytes, sizeOfBytes, path))
-//	{
-//		MESSAGEBOX("Failed to save command history GUI filter");
-//	}
-//	delete[] bytes;
-//	delete returnValue.GUIFilter; // Handle this deallocation in some better way.
-//}
+void Manager_Commands::saveCommandHistoryGUIFilter(std::string path)
+{
 
-//void Manager_Commands::loadCommandHistoryGUIFilter(std::string path)
-//{
-//	if(sizeof(bool) != sizeof(char))
-//	{
-//		MESSAGEBOX("Unexpected discrepancy. Failed to load GUI Filter.");
-//		return;
-//	}
-//
-//	std::vector<Command*>* allCommands = m_commandHistorySpy->getCommands();
-//
-//	std::vector<bool> GUIFilter;
-//	int bufferSize = tryToGetFileSize(path);
-//	char* bytes = new char[bufferSize];
-//	int nrOfBools = bufferSize/sizeof(bool);
-//	if(Converter::FileToBytes(path, bytes, bufferSize))
-//	{
-//		for(int i=0;i<nrOfBools;i++)
-//		{
-//			GUIFilter.push_back(bytes[i]);
-//		}
-//
-//		std::vector<Command*> subSetOfAllCommands;
-//		bool singleEntryInCommandHistoryMode = false;
-//		int i = 0;
-//		int counter = 0;
-//		while(i < nrOfBools)
-//		{
-//			bool hidden = GUIFilter.at(i);
-//			if(!hidden)
-//			{
-//				subSetOfAllCommands.push_back(allCommands->at(i));
-//			}
-//			else
-//			{
-//				SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, false));
-//				subSetOfAllCommands.clear();
-//
-//				while(hidden)
-//				{
-//					subSetOfAllCommands.push_back(allCommands->at(i));
-//					i++;
-//					if(i >= nrOfBools)
-//					{
-//						break;
-//					}
-//					hidden = GUIFilter.at(i);
-//				}
-//				subSetOfAllCommands.push_back(allCommands->at(i));
-//				SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, true));
-//				subSetOfAllCommands.clear();
-//			}
-//			i++;
-//		}
-//		SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, false));
-//	}
-//	else
-//	{
-//		// If the file could not be found or read, add commands to GUI without GUI filter
-//		SEND_EVENT(&Event_AddToCommandHistoryGUI(allCommands, false));
-//	}
-//	delete [] bytes;
-//}
+}
+
+void Manager_Commands::loadCommandHistoryGUIFilter(std::string path)
+{
+
+}
 
 void Manager_Commands::clearCommandHistoryGUI()
 {

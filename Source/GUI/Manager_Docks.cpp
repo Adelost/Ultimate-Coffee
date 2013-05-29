@@ -269,14 +269,14 @@ void Manager_Docks::onEvent(Event* e)
 			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
 			int indexToBundledWithCommandHistoryGUIListEntry = commandEvent->indexToBundledWithCommandHistoryGUIListEntry;
 
-			int nrOfCommandToBeAdded = commands->size();
-			for(int i=0;i<nrOfCommandToBeAdded;i++)
+			int nrOfCommandsToBeAdded = commands->size();
+			for(int i=0;i<nrOfCommandsToBeAdded;i++)
 			{
 				std::string commandText = "UNKNOWN COMMAND";
 				std::string appendToCommandText = "";
-				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAdded > 1)
+				if(displayAsSingleCommandHistoryEntry && nrOfCommandsToBeAdded > 1)
 				{
-					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAdded) +")";
+					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandsToBeAdded) +")";
 				}
 
 				QIcon commandIcon;
@@ -423,7 +423,7 @@ void Manager_Docks::onEvent(Event* e)
 						indexToBundledWithCommandHistoryGUIListEntry++;
 					}
 				}
-				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry);
+				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry, nrOfCommandsToBeAdded);
 
 				if(displayAsSingleCommandHistoryEntry)
 				{
@@ -471,7 +471,7 @@ void Manager_Docks::onEvent(Event* e)
 			if(m_commandHistoryListWidget->count() == 0)
 			{
 				QIcon icon;
-				addItemToCommandHistoryListWidget(icon, "Start", -1);
+				addItemToCommandHistoryListWidget(icon, "Start", -1, 1);
 			}
 			else
 			{
@@ -598,10 +598,10 @@ void Manager_Docks::connectCommandHistoryListWidget(bool connect_if_true_otherwi
 	}
 }
 
-void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index)
+void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented)
 {
 	// Add custom list item (with index retrievable on row change, refer to "Manager_Docks::currentCommandHistoryIndexChanged")
-	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index);
+	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index, nrOfCommandsRepresented);
 	m_commandHistoryListWidget->addItem(indexedItem);
 }
 
@@ -619,15 +619,19 @@ int Manager_Docks::findListItemIndexFromCommandHistoryIndex(int commandHistoryIn
 			break;
 		}
 	}
+	if(foundCommandHistoryIndexFromIndexItem == -2)
+	{
+		std::string errorMessage = "Failed to find a command history list item bundled with index " + Converter::IntToStr(commandHistoryIndex);
+		MESSAGEBOX(errorMessage);
+		return -1; // Prevent crash. -1 is a valid return value from this function, -2 is not.
+	}
 	return foundCommandHistoryIndexFromIndexItem;
 }
 
 int Manager_Docks::getIndexFromItemWithIndex(QListWidgetItem* item)
 {
-	//QVariant data = item->data(0);
-	//int commandHistoryIndex = data.toInt();
 	ListItemWithIndex* indexItem = static_cast<ListItemWithIndex*>(item);
-	int commandHistoryIndex = indexItem->getIndex();
+	int commandHistoryIndex = indexItem->getCommandHistoryIndex();
 	return commandHistoryIndex;
 }
 
@@ -1772,15 +1776,16 @@ void ToolPanel::setColor( const QColor& color )
 	m_colorIcon->setPixmap(pixmap);
 }
 
-ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int index)
+ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int commandHistoryIndex, int nrOfCommandsRepresented)
 	: QListWidgetItem(icon, text)
 {
-	m_index = index;
+	m_dataStruct.commandHistoryIndex = commandHistoryIndex;
+	m_dataStruct.nrOfCommandsRepresented = nrOfCommandsRepresented;
 }
 
-int ListItemWithIndex::getIndex()
+int ListItemWithIndex::getCommandHistoryIndex()
 {
-	return m_index;
+	return m_dataStruct.commandHistoryIndex;
 }
 
 Item_Prefab::Item_Prefab( QIcon icon, QString filname ) : QListWidgetItem(icon, filname)

@@ -5,6 +5,7 @@
 #include <Core/IObserver.h>
 #include <QDockWidget.h>
 #include <QListWidget.h>
+#include <Core\Serializable.h>
 
 //#include <math.h>
 
@@ -42,7 +43,7 @@ public:
 	void connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect);
 
 	// Adds a "ListItemWithIndex" to a "QListWidget"
-	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index);
+	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented);
 	
 	// Example: the command which in the "CommandHistory" is at index 5, what index does it have in the "QListWidget"
 	int findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex);
@@ -188,12 +189,22 @@ protected:
 	}
 };
 
-class ListItemWithIndex : public QListWidgetItem
+class ListItemWithIndex : public QListWidgetItem, public Serializable
 {
 private:
-	int m_index;
+	struct DataStruct
+	{
+		int commandHistoryIndex; // Defines the mapping between a command in "CommandHistory" and a QListWidgetItem (ListItemWithIndex) in a QListWidget.
+		int nrOfCommandsRepresented; // Needed when saving and loading GUIFilter, refer to //check. Example when nrOfCommandsRepresented=27 "Entity creation (27)".
+	};
+	DataStruct m_dataStruct;
 
 public:
-	ListItemWithIndex(const QIcon& icon, const QString& text, int index);
-	int getIndex();
+	ListItemWithIndex(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented);
+	int getCommandHistoryIndex();
+
+	// pure virtual overrides from "Serializable"
+	void* accessDerivedClassDataStruct(){return reinterpret_cast<void*>(&m_dataStruct);}
+	virtual int getByteSizeOfDataStruct(){return sizeof(m_dataStruct);}
+	virtual void loadDataStructFromBytes(char* data){m_dataStruct = *reinterpret_cast<DataStruct*>(&m_dataStruct);}
 };

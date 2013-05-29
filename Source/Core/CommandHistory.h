@@ -24,6 +24,9 @@ private:
 	// Used internally to set current command.
 	void setCurrentCommand(int index);
 
+	// Called from "reset" and the destructor
+	void deallocateCommands();
+
 	// Calculates byte size needed to store this command history to binary file.
 	int calculateSerializedByteSize();
 
