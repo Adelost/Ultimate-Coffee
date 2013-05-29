@@ -77,7 +77,6 @@ namespace Data
 			// Ray definition in view space.
 			p_rayOrigin = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 			p_rayDir    = Vector3(vx, vy, 1.0f);
-			p_rayDir.Normalize();
 		}
 
 		void getPickingRay(Float2& p_pickedCordinate, Float2 p_screenSize, Ray* p_ray)
@@ -89,7 +88,6 @@ namespace Data
 			// Ray definition in view space.
 			p_ray->position = Vector3(0.0f, 0.0f, 0.0f);
 			p_ray->direction = Vector3(vx, vy, 1.0f);
-			p_ray->direction.Normalize();
 		}
 
 		void lookAt(const Vector3& p_cameraPos, const Vector3& p_target, const Vector3& p_up)

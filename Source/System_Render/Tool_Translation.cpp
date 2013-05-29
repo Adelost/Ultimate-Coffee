@@ -1261,7 +1261,7 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 
 		// Triangle B...
 
-		posCol.Pos.x = 0.25f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f;
+		posCol.Pos.x = 0.25f; posCol.Pos.y = 0.25f; posCol.Pos.z = 0.01f;
 		vertices.push_back(posCol);
 
 		posCol.Pos.x = 0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.01f;

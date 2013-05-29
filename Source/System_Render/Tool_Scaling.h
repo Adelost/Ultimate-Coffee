@@ -27,6 +27,7 @@ private:
 	ID3D11PixelShader*			m_pixelShader;
 	ID3D11VertexShader*			m_vertexShader;
 
+	ID3D11Buffer *m_ToolPS_PerFrame_Buffer;
 	ID3D11Buffer *m_ColorSchemeIdBuffer;
 	ID3D11Buffer *m_WVPBuffer;
 	ID3D11InputLayout*			m_inputLayout;
@@ -117,6 +118,8 @@ private:
 	std::vector<XMFLOAT3> originalScalesOfSelectedEntities;
 
 	ID3D11BlendState *m_blendState;
+
+
 
 public:
 	Tool_Scaling(/*HWND windowHandle*/);

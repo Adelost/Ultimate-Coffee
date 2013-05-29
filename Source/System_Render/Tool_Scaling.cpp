@@ -843,6 +843,13 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ColorSchemeIdBuffer));
 
+	D3D11_BUFFER_DESC ToolPS_PerFrame_BufferDesc;
+	ZeroMemory(&ColorSchemeId_Desc, sizeof(ColorSchemeId_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+	ColorSchemeId_Desc.Usage = D3D11_USAGE_DEFAULT;
+	ColorSchemeId_Desc.ByteWidth = 16;
+	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ToolPS_PerFrame_Buffer));
+
 	// Create test mesh for visual translation control.
 	
 	D3D11_BUFFER_DESC vbd;
@@ -1034,7 +1041,7 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		mMeshTransTool_xyPlane2_VB;
 
 		// Create obscuring surfaces.
-		posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f; // Transparent.
+		posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.5f; // Transparent.
 
 		// XY plane front surface.
 
@@ -1653,7 +1660,7 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
 	
-	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;;
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
@@ -1666,6 +1673,15 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	md3dImmediateContext->UpdateSubresource(m_ColorSchemeIdBuffer, 0, NULL, &SETTINGS()->m_ColorScheme_3DManipulatorWidgets, 0, 0);
 	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
 	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
+
+	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_ToolPS_PerFrame_Buffer);
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	XMVECTOR camViewVector = entity_camera->fetchData<Data::Camera>()->getLookVector();
+	//camViewVector = XMVector3Transform(camViewVector, worldViewProj);
+	md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 0, NULL, &camViewVector, 0, 0);
+	XMVECTOR toolPos = activeEntity->fetchData<Data::Transform>()->position;
+	md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 1, NULL, &toolPos, 0, 0);
+
 
 	// Draw control frames.
 
