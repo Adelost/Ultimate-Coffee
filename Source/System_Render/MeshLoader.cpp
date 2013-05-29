@@ -32,7 +32,7 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 	// NOTE: Some models have another winding order, potential to change that here
 	// NOTE: I have not been able to successfully load normals from the mesh so we let assimp autogenerate some for us
 	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | /*aiProcess_FlipWindingOrder |*/ aiProcess_GenNormals | aiProcess_CalcTangentSpace);
-	
+
 	if(!scene || !scene->HasMeshes())
 	{
 		return false;
@@ -163,4 +163,3 @@ unsigned int* MeshLoader::facesToIndices(void* aiArray, unsigned int nrOfFaces)
 
 	return indices;
 }
-																							

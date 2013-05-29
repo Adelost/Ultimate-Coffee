@@ -713,7 +713,18 @@ void Manager_Docks::focusOnEntity( const QModelIndex& index )
 	Entity* clickedEntity = Entity::findEntity(index.row());
 	Data::ZoomTo d_zoomTo;
 	d_zoomTo.target = clickedEntity->toPointer();
-	entity_camera->addData(d_zoomTo);
+	Data::Transform* cameraTransform = entity_camera->fetchData<Data::Transform>();
+	Data::Transform* clickedEntityTransform = d_zoomTo.target->fetchData<Data::Transform>();
+
+	if(cameraTransform != nullptr && clickedEntityTransform != nullptr)
+	{
+		float delay = 3.0f; // seconds
+		float distance = Vector3::Distance(clickedEntityTransform->position, cameraTransform->position);
+		d_zoomTo.speed = delay / distance;
+		d_zoomTo.speed = std::max(d_zoomTo.speed, 3.0f); // Fix
+		d_zoomTo.origin = *cameraTransform;
+		entity_camera->addData(d_zoomTo);
+	}
 	
 	DEBUGPRINT("Focus on Entity: " + Converter::IntToStr(clickedEntity->id()));
 }

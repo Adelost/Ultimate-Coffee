@@ -25,88 +25,88 @@ public:
 	void createBox(float width, float height, float depth, MeshData& meshData)
 	{
 		MeshLoader loader;
-		loader.loadModel("../../Assets/Models/al.obj", meshData);
+		loader.loadModel("../../Assets/Models/teapot.obj", meshData);
 
-		////
-		//// Create the vertices.
-		////
+		//
+		// Create the vertices.
+		//
 
-		//VertexPosNormTanTex v[24];
+		VertexPosNormTanTex v[24];
 
-		//float w2 = 0.5f*width;
-		//float h2 = 0.5f*height;
-		//float d2 = 0.5f*depth;
+		float w2 = 0.5f*width;
+		float h2 = 0.5f*height;
+		float d2 = 0.5f*depth;
 
-		//// Fill in the front face vertex data.
-		//v[0] = VertexPosNormTanTex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		//v[1] = VertexPosNormTanTex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		//v[2] = VertexPosNormTanTex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		//v[3] = VertexPosNormTanTex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		// Fill in the front face vertex data.
+		v[0] = VertexPosNormTanTex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[1] = VertexPosNormTanTex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[2] = VertexPosNormTanTex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		v[3] = VertexPosNormTanTex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		//// Fill in the back face vertex data.
-		//v[4] = VertexPosNormTanTex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-		//v[5] = VertexPosNormTanTex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		//v[6] = VertexPosNormTanTex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		//v[7] = VertexPosNormTanTex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		// Fill in the back face vertex data.
+		v[4] = VertexPosNormTanTex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		v[5] = VertexPosNormTanTex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[6] = VertexPosNormTanTex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[7] = VertexPosNormTanTex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-		//// Fill in the top face vertex data.
-		//v[8]  = VertexPosNormTanTex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		//v[9]  = VertexPosNormTanTex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		//v[10] = VertexPosNormTanTex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		//v[11] = VertexPosNormTanTex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		// Fill in the top face vertex data.
+		v[8]  = VertexPosNormTanTex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[9]  = VertexPosNormTanTex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[10] = VertexPosNormTanTex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		v[11] = VertexPosNormTanTex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		//// Fill in the bottom face vertex data.
-		//v[12] = VertexPosNormTanTex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-		//v[13] = VertexPosNormTanTex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		//v[14] = VertexPosNormTanTex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		//v[15] = VertexPosNormTanTex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		// Fill in the bottom face vertex data.
+		v[12] = VertexPosNormTanTex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		v[13] = VertexPosNormTanTex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		v[14] = VertexPosNormTanTex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		v[15] = VertexPosNormTanTex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-		//// Fill in the left face vertex data.
-		//v[16] = VertexPosNormTanTex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-		//v[17] = VertexPosNormTanTex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-		//v[18] = VertexPosNormTanTex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-		//v[19] = VertexPosNormTanTex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+		// Fill in the left face vertex data.
+		v[16] = VertexPosNormTanTex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+		v[17] = VertexPosNormTanTex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+		v[18] = VertexPosNormTanTex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+		v[19] = VertexPosNormTanTex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
 
-		//// Fill in the right face vertex data.
-		//v[20] = VertexPosNormTanTex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-		//v[21] = VertexPosNormTanTex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-		//v[22] = VertexPosNormTanTex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-		//v[23] = VertexPosNormTanTex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+		// Fill in the right face vertex data.
+		v[20] = VertexPosNormTanTex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		v[21] = VertexPosNormTanTex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		v[22] = VertexPosNormTanTex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+		v[23] = VertexPosNormTanTex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
-		//meshData.vertices.assign(&v[0], &v[24]);
+		meshData.vertices.assign(&v[0], &v[24]);
 
-		////
-		//// Create the indices.
-		////
+		//
+		// Create the indices.
+		//
 
-		//unsigned int i[36];
+		unsigned int i[36];
 
 
-		//// Fill in the front face index data
-		//i[0] = 0; i[1] = 1; i[2] = 2;
-		//i[3] = 0; i[4] = 2; i[5] = 3;
+		// Fill in the front face index data
+		i[0] = 0; i[1] = 1; i[2] = 2;
+		i[3] = 0; i[4] = 2; i[5] = 3;
 
-		//// Fill in the back face index data
-		//i[6] = 4; i[7]  = 5; i[8]  = 6;
-		//i[9] = 4; i[10] = 6; i[11] = 7;
+		// Fill in the back face index data
+		i[6] = 4; i[7]  = 5; i[8]  = 6;
+		i[9] = 4; i[10] = 6; i[11] = 7;
 
-		//// Fill in the top face index data
-		//i[12] = 8; i[13] =  9; i[14] = 10;
-		//i[15] = 8; i[16] = 10; i[17] = 11;
+		// Fill in the top face index data
+		i[12] = 8; i[13] =  9; i[14] = 10;
+		i[15] = 8; i[16] = 10; i[17] = 11;
 
-		//// Fill in the bottom face index data
-		//i[18] = 12; i[19] = 13; i[20] = 14;
-		//i[21] = 12; i[22] = 14; i[23] = 15;
+		// Fill in the bottom face index data
+		i[18] = 12; i[19] = 13; i[20] = 14;
+		i[21] = 12; i[22] = 14; i[23] = 15;
 
-		//// Fill in the left face index data
-		//i[24] = 16; i[25] = 17; i[26] = 18;
-		//i[27] = 16; i[28] = 18; i[29] = 19;
+		// Fill in the left face index data
+		i[24] = 16; i[25] = 17; i[26] = 18;
+		i[27] = 16; i[28] = 18; i[29] = 19;
 
-		//// Fill in the right face index data
-		//i[30] = 20; i[31] = 21; i[32] = 22;
-		//i[33] = 20; i[34] = 22; i[35] = 23;
+		// Fill in the right face index data
+		i[30] = 20; i[31] = 21; i[32] = 22;
+		i[33] = 20; i[34] = 22; i[35] = 23;
 
-		//meshData.indices.assign(&i[0], &i[36]);
+		meshData.indices.assign(&i[0], &i[36]);
 	};
 
 	/**

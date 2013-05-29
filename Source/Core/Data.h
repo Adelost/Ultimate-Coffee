@@ -233,7 +233,8 @@ namespace Data
 	{
 	public:
 		EntityPointer target;
-		float delay; // Used for linear interpolation perhaps?
+		Transform origin;
+		float speed;
 	};
 }
 
