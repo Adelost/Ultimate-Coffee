@@ -663,52 +663,52 @@ public:
 
 void Manager_Docks::update()
 {
-// 	// Add entities to list
-// 	DataMapper<Data::Created> map_created;
-// 	while(map_created.hasNext())
-// 	{
-// 		Entity* e = map_created.nextEntity();
-// 		e->removeData<Data::Created>();
-// 		int entityId = e->id();
-// 
-// 		// Make room for item
-// 		QStandardItem* item = m_hierarchy_model->item(entityId);
-// 		if(!item)
-// 		{
-// 			item = new QStandardItem();
-// 			m_hierarchy_model->setItem(entityId, item);
-// 		}
-// 
-// 		// Assign item
-// 		item->setText(e->name().c_str());
-// 		item->setEnabled(true);
-// 		item->setSelectable(true);
-// 		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
-// 
-// 		// HACK: Make camera undeletable
-// 		if(e->fetchData<Data::Camera>())
-// 		{
-// 			item->setSelectable(false);
-// 		}
-// 	}
-// 	
-// 	// Remove entries from list
-// 	DataMapper<Data::Deleted> map_removed;
-// 	while(map_removed.hasNext())
-// 	{
-// 		Entity* e = map_removed.nextEntity();
-// 		e->removeData<Data::Deleted>();
-// 		int entityId = e->id();
-// 
-// 		// Assign item
-// 		QStandardItem* item = m_hierarchy_model->item(entityId);
-// 		if(item)
-// 		{
-// 			item->setEnabled(false);
-// 			item->setSelectable(false);
-// 			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
-// 		}
-// 	}
+	// Add entities to list
+	DataMapper<Data::Created> map_created;
+	while(map_created.hasNext())
+	{
+		Entity* e = map_created.nextEntity();
+		e->removeData<Data::Created>();
+		int entityId = e->id();
+
+		// Make room for item
+		QStandardItem* item = m_hierarchy_model->item(entityId);
+		if(!item)
+		{
+			item = new QStandardItem();
+			m_hierarchy_model->setItem(entityId, item);
+		}
+
+		// Assign item
+		item->setText(e->name().c_str());
+		item->setEnabled(true);
+		item->setSelectable(true);
+		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
+
+		// HACK: Make camera undeletable
+		if(e->fetchData<Data::Camera>())
+		{
+			item->setSelectable(false);
+		}
+	}
+	
+	// Remove entries from list
+	DataMapper<Data::Deleted> map_removed;
+	while(map_removed.hasNext())
+	{
+		Entity* e = map_removed.nextEntity();
+		e->removeData<Data::Deleted>();
+		int entityId = e->id();
+
+		// Assign item
+		QStandardItem* item = m_hierarchy_model->item(entityId);
+		if(item)
+		{
+			item->setEnabled(false);
+			item->setSelectable(false);
+			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
+		}
+	}
 
 	
 }
