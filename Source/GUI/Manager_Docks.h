@@ -158,17 +158,17 @@ public slots:
 	void pickColor();
 	void setColor(const QColor& color);
 
-	void setXTranslationOfSelectedEntities(double X);
-	void setYTranslationOfSelectedEntities(double Y);
-	void setZTranslationOfSelectedEntities(double Z);
+	void setXTranslationOfSelectedEntities(double p_transX);
+	void setYTranslationOfSelectedEntities(double p_transY);
+	void setZTranslationOfSelectedEntities(double p_transZ);
 
-	void setXScalingOfSelectedEntities(double X);
-	void setYScalingOfSelectedEntities(double Y);
-	void setZScalingOfSelectedEntities(double Z);
+	void setXScalingOfSelectedEntities(double p_scaleX);
+	void setYScalingOfSelectedEntities(double p_scaleY);
+	void setZScalingOfSelectedEntities(double p_scaleZ);
 
-	void setXRotationOfSelectedEntities(double X);
-	void setYRotationOfSelectedEntities(double Y);
-	void setZRotationOfSelectedEntities(double Z);
+	void setXRotationOfSelectedEntities(double p_rotationX);
+	void setYRotationOfSelectedEntities(double p_rotationY);
+	void setZRotationOfSelectedEntities(double p_rotationZ);
 };
 
 class ListWidgetWithoutKeyboardInput : public QListWidget
