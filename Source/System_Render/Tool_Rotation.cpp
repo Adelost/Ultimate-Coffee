@@ -89,19 +89,25 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
 				omniRotateSphereHandle->setSphereRadius(1.11f);
-				omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
+					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-				xAxis = XMVector3Transform(xAxis, rotation);
-				xAxis = XMVector3Normalize(xAxis);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
-				aRotationToolHandleWasSelected = true;
+					XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+					xAxis = XMVector3Transform(xAxis, rotation);
+					xAxis = XMVector3Normalize(xAxis);
+
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 		
@@ -109,21 +115,28 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		{
 			yRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = yRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle; //yRotationHandle;
 				omniRotateSphereHandle->setSphereRadius(1.11f);
-				omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle; //yRotationHandle;
+					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-				yAxis = XMVector3Transform(yAxis, rotation);
-				yAxis = XMVector3Normalize(yAxis);
+					XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+					yAxis = XMVector3Transform(yAxis, rotation);
+					yAxis = XMVector3Normalize(yAxis);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, yAxis);
-				aRotationToolHandleWasSelected = true;
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, yAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 		
@@ -131,21 +144,28 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		{
 			zRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = zRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle; //zRotationHandle;
 				omniRotateSphereHandle->setSphereRadius(1.11f);
-				omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+						
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle; //zRotationHandle;
+					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-				zAxis = XMVector3Transform(zAxis, rotation);
-				zAxis = XMVector3Normalize(zAxis);
+					XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+					zAxis = XMVector3Transform(zAxis, rotation);
+					zAxis = XMVector3Normalize(zAxis);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, zAxis);
-				aRotationToolHandleWasSelected = true;
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, zAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 
@@ -153,21 +173,28 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		{
 			viewAxisRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, false);
 			aSingleAxisRotationHandleWasSelected = viewAxisRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle;
 				omniRotateSphereHandle->setSphereRadius(1.21f);
-				omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle;
+					omniRotateSphereHandle->setSphereRadius(1.21f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR viewVectorAxis = -SETTINGS()->entity_camera->fetchData<Data::Camera>()->getLookVector();	// TO-DO:	Get camera's view vector and use it here.
-				//viewVectorAxis = XMVector3Transform(viewVectorAxis, rotation);
-				viewVectorAxis = XMVector3Normalize(viewVectorAxis);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
-				aRotationToolHandleWasSelected = true;
+					XMVECTOR viewVectorAxis = -SETTINGS()->entity_camera->fetchData<Data::Camera>()->getLookVector();	// TO-DO:	Get camera's view vector and use it here.
+					//viewVectorAxis = XMVector3Transform(viewVectorAxis, rotation);
+					viewVectorAxis = XMVector3Normalize(viewVectorAxis);
+
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 
@@ -176,6 +203,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			// Check if the ray intersects with the omni-rotation sphere.
 			omniRotateSphereHandle->setSphereRadius(1.11f);
 			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+
 			if(sphereSelected)
 			{
 				XMVECTOR dummy = XMVectorZero();
