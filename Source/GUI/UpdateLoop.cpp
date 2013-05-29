@@ -46,7 +46,7 @@ void UpdateLoop::init()
 	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 
 	// Create preview entities after project is restored
-	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
+	//SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 }
 
 void UpdateLoop::update()
@@ -60,21 +60,6 @@ void UpdateLoop::update()
 	else
 		SETTINGS()->deltaTime = 0.0f;
 	m_world->update();
-
-	DataMapper<Data::ZoomTo> map_zoomTo;
-	while(map_zoomTo.hasNext())
-	{
-		Entity* e = map_zoomTo.nextEntity();
-
-		Data::ZoomTo* d_zoomTo = e->fetchData<Data::ZoomTo>();
-		Data::Transform* d_transform = e->fetchData<Data::Transform>();
-		Data::Transform* d_destinationTransform = d_zoomTo->target->fetchData<Data::Transform>();
-
-		Vector3 direction = d_destinationTransform->position - d_transform->position;
-		direction.Normalize();
-		d_transform->position += direction * d_zoomTo->speed * SETTINGS()->deltaTime;
-
-	}
 
 	// Update EventManager to enable queued messages
 	EventManager::getInstance()->update(SETTINGS()->deltaTime);

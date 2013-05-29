@@ -234,8 +234,11 @@ namespace Data
 	{
 	public:
 		EntityPointer target;
-		Transform origin;
+		Vector3 originLook;
+		float distanceFromTargetToStopAt;
+		float delay;
 		float speed;
+		float rotationLerpT;
 	};
 }
 

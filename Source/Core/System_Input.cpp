@@ -49,10 +49,7 @@ void System::Input::update()
 	d_transform->rotation = d_camera->rotation();
 	d_camera->updateViewMatrix(d_transform->position);
 
-	// Update camera
-	d_transform->rotation = d_camera->rotation();
-	d_camera->updateViewMatrix(d_transform->position);
-
+	updateZoomTo();
 
 	// Do some random stuff
 	DataMapper<Data::Movement_Floating> map_update;
@@ -141,6 +138,55 @@ void System::Input::update()
 		{
 			SEND_EVENT(&Event_AddToCommandHistory(&command_list))
 			command_list.clear();
+		}
+	}
+}
+
+
+void System::Input::updateZoomTo()
+{
+	DataMapper<Data::ZoomTo> map_zoomTo;
+	while(map_zoomTo.hasNext())
+	{
+		Entity* e = map_zoomTo.nextEntity();
+
+		Data::ZoomTo* d_zoomTo = e->fetchData<Data::ZoomTo>();
+		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		Data::Transform* d_destinationTransform = d_zoomTo->target->fetchData<Data::Transform>();
+
+		bool doneMovement = false;
+		bool doneRotating = false;
+
+		float deltaSpeed = d_zoomTo->speed * SETTINGS()->deltaTime;
+		Vector3 direction = d_destinationTransform->position - d_transform->position;
+		float movement = deltaSpeed;
+		if(movement > (direction.Length() - d_zoomTo->distanceFromTargetToStopAt))
+		{
+			movement = direction.Length() - d_zoomTo->distanceFromTargetToStopAt;
+			doneMovement = true;
+		}
+
+		direction.Normalize();
+		d_transform->position += direction * movement;
+
+		d_zoomTo->rotationLerpT += SETTINGS()->deltaTime / d_zoomTo->delay;
+		if(d_zoomTo->rotationLerpT > 1.0f)
+		{
+			d_zoomTo->rotationLerpT = 1.0f;
+			doneRotating = true;
+		}
+
+		Data::Camera* camera = e->fetchData<Data::Camera>();
+		if(camera != nullptr)
+		{
+			Vector3 look = Vector3::Lerp(d_zoomTo->originLook, direction, d_zoomTo->rotationLerpT);
+			camera->setLookVector(look, Vector3(0.0f, -1.0f, 0.0f));
+			camera->updateViewMatrix(d_transform->position);
+		}
+
+		if(doneMovement && doneRotating)
+		{
+			e->removeData<Data::ZoomTo>();
 		}
 	}
 }

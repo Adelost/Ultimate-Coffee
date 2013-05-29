@@ -920,18 +920,33 @@ void Manager_Docks::focusOnEntity( const QModelIndex& index )
 
 	// Allow camera to focus on the entity double-clicked on
 	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
+
+	if(entity_camera->id() == clickedEntity->id())
+		return;
+
 	Data::ZoomTo d_zoomTo;
 	d_zoomTo.target = clickedEntity->toPointer();
-	Data::Transform* cameraTransform = entity_camera->fetchData<Data::Transform>();
-	Data::Transform* clickedEntityTransform = d_zoomTo.target->fetchData<Data::Transform>();
+	Data::Transform* d_cameraTransform = entity_camera->fetchData<Data::Transform>();
+	Data::Transform* d_clickedEntityTransform = d_zoomTo.target->fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-	if(cameraTransform != nullptr && clickedEntityTransform != nullptr)
+	if(d_camera != nullptr)
 	{
-		float delay = 3.0f; // seconds
-		float distance = Vector3::Distance(clickedEntityTransform->position, cameraTransform->position);
-		d_zoomTo.speed = delay / distance;
-		d_zoomTo.speed = std::max(d_zoomTo.speed, 3.0f); // Fix
-		d_zoomTo.origin = *cameraTransform;
+		d_zoomTo.originLook = d_camera->getLookVector();
+	}
+	else
+	{
+		d_zoomTo.originLook = Vector3(0.0f, 0.0f, 1.0f);
+	}
+
+	if(d_cameraTransform != nullptr && d_clickedEntityTransform != nullptr)
+	{
+		d_zoomTo.rotationLerpT = 0.0f;
+		d_zoomTo.distanceFromTargetToStopAt = 5.0f;
+		d_zoomTo.delay = 1.0f;
+		float distance = Vector3::Distance(d_clickedEntityTransform->position, d_cameraTransform->position) - d_zoomTo.distanceFromTargetToStopAt;
+		d_zoomTo.speed = distance / d_zoomTo.delay;
+		d_zoomTo.speed = std::max(d_zoomTo.speed, d_zoomTo.delay);
 		entity_camera->addData(d_zoomTo);
 	}
 	

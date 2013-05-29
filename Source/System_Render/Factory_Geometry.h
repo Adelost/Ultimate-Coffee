@@ -24,8 +24,8 @@ public:
 	*/
 	void createBox(float width, float height, float depth, MeshData& meshData)
 	{
-		MeshLoader loader;
-		loader.loadModel("../../Assets/Models/teapot.obj", meshData);
+		//MeshLoader loader;
+		//loader.loadModel("../../Assets/Models/teapot.obj", meshData);
 
 		//
 		// Create the vertices.
