@@ -721,8 +721,8 @@ void Manager_Docks::update()
 			QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
 			if(item)
 			{
-				item->setEnabled(false);
-				item->setSelectable(false);
+				item->setEnabled(true);
+				item->setSelectable(true);
 				m_hierarchy_tree->setRowHidden(row, category->index(), false);
 			}
 			else
