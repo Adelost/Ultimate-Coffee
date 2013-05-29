@@ -182,6 +182,8 @@ void Manager_3DTools::onEvent( Event* p_event )
 						XMVECTOR xm_rayOrigin, xm_rayDir;
 						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
 
+						xm_rayDir = XMVector3Normalize(xm_rayDir);
+
 						XMMATRIX camView = d_camera->view();
 						XMMATRIX camProj = d_camera->projection();
 						POINT mouseCursorPoint;
@@ -226,6 +228,8 @@ void Manager_3DTools::onEvent( Event* p_event )
 							d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
 							XMVECTOR xm_rayOrigin, xm_rayDir;
 							xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+							xm_rayDir = XMVector3Normalize(xm_rayDir);
 
 							XMMATRIX camView = d_camera->view();
 							XMMATRIX camProj = d_camera->projection();
@@ -299,6 +303,8 @@ void Manager_3DTools::onEvent( Event* p_event )
 						XMVECTOR xm_rayOrigin, xm_rayDir;
 						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
 
+						xm_rayDir = XMVector3Normalize(xm_rayDir);
+
 						XMMATRIX camView = d_camera->view();
 						XMMATRIX camProj = d_camera->projection();
 						POINT mouseCursorPoint;
@@ -324,6 +330,8 @@ void Manager_3DTools::onEvent( Event* p_event )
 						d_camera->getPickingRay(currentScreenCoords, screenDim, rayOrigin, rayDir);
 						XMVECTOR xm_rayOrigin, xm_rayDir;
 						xm_rayOrigin = rayOrigin; xm_rayDir = rayDir;
+
+						xm_rayDir = XMVector3Normalize(xm_rayDir);
 
 						XMMATRIX camView = d_camera->view();
 						XMMATRIX camProj = d_camera->projection();
@@ -389,8 +397,12 @@ void Manager_3DTools::onEvent( Event* p_event )
 	case EVENT_TRANSLATE_SCENE_ENTITY:
 		{
 			Event_TranslateSceneEntity* e = static_cast<Event_TranslateSceneEntity*>(p_event);
-			
+
 			Data::Transform* d_transform = Entity(e->m_idOfTranslatableSceneEntity).fetchData<Data::Transform>();
+
+			if(d_transform == NULL)
+				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp");
+
 			if(d_transform)
 			{
 				d_transform->position.x = e->m_transX;
@@ -409,7 +421,10 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Event_RotateSceneEntity* e = static_cast<Event_RotateSceneEntity*>(p_event);
 
 			Data::Transform* d_transform = Entity(e->m_idOfRotatableSceneEntity).fetchData<Data::Transform>();
-			
+
+			if(d_transform == NULL)
+				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp");
+
 			if(d_transform)
 			{
 				d_transform->rotation.x = e->m_quatX;
@@ -430,8 +445,11 @@ void Manager_3DTools::onEvent( Event* p_event )
 
 			Data::Transform* d_transform = Entity(e->m_idOfScalableSceneEntity).fetchData<Data::Transform>();
 			
-			//if(d_transform)
-			//{
+			if(d_transform == NULL)
+				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp");
+
+			if(d_transform)
+			{
 				d_transform->scale.x = e->m_scaleX;
 				d_transform->scale.y = e->m_scaleY;
 				d_transform->scale.z = e->m_scaleZ;
@@ -440,7 +458,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 				{
 					currentlyChosenTransformTool->setActiveObject(1);
 				}
-			//}
+			}
 		}
 		break;
 	case EVENT_ENTITY_SELECTION:
