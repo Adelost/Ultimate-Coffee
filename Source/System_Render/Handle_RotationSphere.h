@@ -60,6 +60,8 @@ public:
 
 	void unselect();
 
+	void setSphereRadius(float radius);
+
 	/* Called to calculate the required translation axis to get rotate a sphere so that point A, on the sphere,
 	   would be moved to where point B, on the sphere is, if rotation occured with the angle between the two points on the sphere. */
 	XMVECTOR calcRotationAxisFromTwoPointsOnSphere(Sphere &sphere, XMVECTOR &pointA, XMVECTOR &pointB);

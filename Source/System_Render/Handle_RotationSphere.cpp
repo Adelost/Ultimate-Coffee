@@ -72,6 +72,11 @@ float Handle_RotationSphere::calcAngleBetweenTwoPointsOnSphere(Sphere &sphere, X
 	return angleVec.m128_f32[0];
 }
 
+void Handle_RotationSphere::setSphereRadius(float radius)
+{
+	sphere.Radius = radius;
+}
+
 /* Called for continued picking against the axis plane, if LMB has yet to be released. */
 void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATRIX &camView, XMMATRIX &camProj, D3D11_VIEWPORT &theViewport, POINT &mouseCursorPoint)
 {
@@ -114,7 +119,7 @@ void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR
 		XMStoreFloat4(&lastQuaternionRotationMade, XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f));
 
 		XMVECTOR exitPointVector = XMLoadFloat3(&currentlyPickedPointOnSphere); // - XMLoadFloat3(&sphere.Center);
-		XMVECTOR reEntryPointVector = -exitPointVector;
+		XMVECTOR reEntryPointVector = -exitPointVector * 0.90f;
 		
 		int viewPortHeight = SETTINGS()->windowSize.y;
 		int viewPortWidth = SETTINGS()->windowSize.x;
@@ -155,7 +160,8 @@ void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR
 
 		// Ray definition in view space.
 		rayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-		rayDir    = XMVectorSet(vx, vy, 1.0f, 0.0f);
+		rayDir = XMVectorSet(vx, vy, 1.0f, 0.0f);
+		rayDir = XMVector3Normalize(rayDir);
 
 		float distanceToIntersectionPoint;
 
@@ -163,7 +169,8 @@ void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR
 		bool selected = tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToIntersectionPoint);
 		if(!selected)
 		{
-			throw "Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation.";
+			MESSAGEBOX("Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation. This should never happen. Report to transformation tools admin.");
+			//throw "Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation.";
 		}
 	}
 }
