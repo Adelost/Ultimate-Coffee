@@ -12,7 +12,7 @@ Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 	isSelected = false;
 	currentlySelectedHandle = NULL;
 
-	scale = 1.1f;
+	scale = 1.0f;
 	XMVECTOR center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	omniRotateSphereHandle = new Handle_RotationSphere(center, scale /*, windowHandle*/);
 
@@ -46,6 +46,8 @@ Tool_Rotation::~Tool_Rotation()
 	ReleaseCOM(mMeshRotTool_viewCircle_VB);
 
 	ReleaseCOM(mMeshRotTool_viewRectangle_VB);
+
+	ReleaseCOM(m_blendState);
 }
 
 void Tool_Rotation::setIsVisible(bool &isVisible)
@@ -83,89 +85,125 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			xRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			xRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
-				omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+				omniRotateSphereHandle->setSphereRadius(1.11f);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
+					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-				xAxis = XMVector3Transform(xAxis, rotation);
-				xAxis = XMVector3Normalize(xAxis);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
-				aRotationToolHandleWasSelected = true;
+					XMVECTOR xAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+					xAxis = XMVector3Transform(xAxis, rotation);
+					xAxis = XMVector3Normalize(xAxis);
+
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, xAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			yRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			yRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = yRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle; //yRotationHandle;
+				omniRotateSphereHandle->setSphereRadius(1.11f);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+			
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle; //yRotationHandle;
+					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-				yAxis = XMVector3Transform(yAxis, rotation);
-				yAxis = XMVector3Normalize(yAxis);
+					XMVECTOR yAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+					yAxis = XMVector3Transform(yAxis, rotation);
+					yAxis = XMVector3Normalize(yAxis);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, yAxis);
-				aRotationToolHandleWasSelected = true;
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, yAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			zRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			zRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = zRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle; //zRotationHandle;
+				omniRotateSphereHandle->setSphereRadius(1.11f);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+						
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle; //zRotationHandle;
+					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
-				XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-				zAxis = XMVector3Transform(zAxis, rotation);
-				zAxis = XMVector3Normalize(zAxis);
+					XMVECTOR zAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+					zAxis = XMVector3Transform(zAxis, rotation);
+					zAxis = XMVector3Normalize(zAxis);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, zAxis);
-				aRotationToolHandleWasSelected = true;
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, zAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			viewAxisRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			viewAxisRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, false);
 			aSingleAxisRotationHandleWasSelected = viewAxisRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
+			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				currentlySelectedHandle = omniRotateSphereHandle;
-				
-				XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
-				XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+				omniRotateSphereHandle->setSphereRadius(1.21f);
+				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				XMVECTOR viewVectorAxis = -SETTINGS()->entity_camera->fetchData<Data::Camera>()->getLookVector();	// TO-DO:	Get camera's view vector and use it here.
-				//viewVectorAxis = XMVector3Transform(viewVectorAxis, rotation);
-				viewVectorAxis = XMVector3Normalize(viewVectorAxis);
+				if(aSingleAxisRotationHandleWasSelected)
+				{
+					currentlySelectedHandle = omniRotateSphereHandle;
+					omniRotateSphereHandle->setSphereRadius(1.21f);
+					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
-				omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
-				aRotationToolHandleWasSelected = true;
+					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+					XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
+
+					XMVECTOR viewVectorAxis = -SETTINGS()->entity_camera->fetchData<Data::Camera>()->getLookVector();	// TO-DO:	Get camera's view vector and use it here.
+					//viewVectorAxis = XMVector3Transform(viewVectorAxis, rotation);
+					viewVectorAxis = XMVector3Normalize(viewVectorAxis);
+
+					omniRotateSphereHandle->constrainRotationToOneFixedAxis(true, viewVectorAxis);
+					aRotationToolHandleWasSelected = true;
+				}
 			}
 		}
 
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
 			// Check if the ray intersects with the omni-rotation sphere.
+			omniRotateSphereHandle->setSphereRadius(1.11f);
 			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
+
 			if(sphereSelected)
 			{
 				XMVECTOR dummy = XMVectorZero();
@@ -180,7 +218,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 	if(currentlySelectedHandle && currentlySelectedHandle == omniRotateSphereHandle)
 	{
 		// Set the cursor icon to the one indicating that the free rotation sphere is being handled.
-		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::ClosedHandCursor));
+		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::SceneCursor_Pointer));
 	}
 
 	isSelected = aRotationToolHandleWasSelected;
@@ -387,6 +425,9 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 
 		++i;
 	}
+
+	Event_SelectedEntitiesHaveBeenTransformed transformEvent;
+	SEND_EVENT(&transformEvent);
 }
 
 /* Called for current translation delta made by picking. */
@@ -944,6 +985,21 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	vbd.MiscFlags = 0;
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_viewRectangle_VB));
+
+
+	D3D11_BLEND_DESC blendDesc;
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+						
+	md3dDevice->CreateBlendState(&blendDesc, &m_blendState);
 }
 
 void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
@@ -991,60 +1047,44 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 					
-			D3D11_BLEND_DESC blendDesc;
-			blendDesc.AlphaToCoverageEnable = false;
-			blendDesc.IndependentBlendEnable = false;
-			blendDesc.RenderTarget[0].BlendEnable = true;
-			blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-			blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-			blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-			blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-			blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-			blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-			
-			ID3D11BlendState *blendState;
-			md3dDevice->CreateBlendState(&blendDesc, &blendState);
-			
+	
 			float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 			UINT sampleMask   = 0xffffffff;
 			
-			md3dImmediateContext->OMSetBlendState(blendState, NULL, sampleMask);
+			md3dImmediateContext->OMSetBlendState(m_blendState, NULL, sampleMask);
 			md3dImmediateContext->RSSetState(RenderStates::DepthBiasedRS);
-			
-			ReleaseCOM(blendState);
-			
+
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
 			md3dImmediateContext->Draw(6, 0);
 			
 			md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 
-		// Angle lines.
-		if(xRotationHandle->getIsSelected() || yRotationHandle->getIsSelected() || zRotationHandle->getIsSelected())
-		{
-			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_angleLine_VB, &stride, &offset);
-			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+							//// Angle lines.
+							//if(xRotationHandle->getIsSelected() || yRotationHandle->getIsSelected() || zRotationHandle->getIsSelected())
+							//{
+							//	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_angleLine_VB, &stride, &offset);
+							//	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-			XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
-			XMMATRIX translation = XMMatrixTranslationFromVector(trans);
-			XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
-			XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
+							//	XMVECTOR trans = activeEntity->fetchData<Data::Transform>()->position;
+							//	XMMATRIX translation = XMMatrixTranslationFromVector(trans);
+							//	XMMATRIX scaling = XMMatrixScaling(scale, scale, scale);
+							//	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
 
-			XMVECTOR rotQuatToAnglePointA, rotQuatToAnglePointB;
-			omniRotateSphereHandle->getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(rotQuatToAnglePointA, rotQuatToAnglePointB);
+							//	XMVECTOR rotQuatToAnglePointA, rotQuatToAnglePointB;
+							//	omniRotateSphereHandle->getAnglesFromPositiveXUnitAxisToLastAndCurrentlyPickedPoints(rotQuatToAnglePointA, rotQuatToAnglePointB);
 
-			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointA, rotQuat));
-			XMMATRIX world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual());
-			world_angleLine = XMMatrixTranspose(world_angleLine);
-			md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
-			md3dImmediateContext->Draw(2, 0);
+							//	XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointA, rotQuat));
+							//	XMMATRIX world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual());
+							//	world_angleLine = XMMatrixTranspose(world_angleLine);
+							//	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
+							//	md3dImmediateContext->Draw(2, 0);
 
-			rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointB, rotQuat));
-			world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual()); //world_angleLine =  translation; XMLoadFloat4x4(&getWorld_visual());
-			world_angleLine = XMMatrixTranspose(world_angleLine);
-			md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
-			md3dImmediateContext->Draw(2, 0);
-		}
+							//	rotation = XMMatrixRotationQuaternion(XMQuaternionMultiply(rotQuatToAnglePointB, rotQuat));
+							//	world_angleLine = scaling * rotation * translation * camView * camProj;; //XMLoadFloat4x4(&getWorld_visual()); //world_angleLine =  translation; XMLoadFloat4x4(&getWorld_visual());
+							//	world_angleLine = XMMatrixTranspose(world_angleLine);
+							//	md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &world_angleLine, 0, 0);
+							//	md3dImmediateContext->Draw(2, 0);
+							//}
 
 	// Draw control circles.
 
@@ -1068,9 +1108,6 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_Zcircle_VB, &stride, &offset);
 	md3dImmediateContext->Draw(65, 0);
-
-
-	
 
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -1096,10 +1133,5 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_zAxisLine_VB, &stride, &offset);
 		md3dImmediateContext->Draw(80000, 0);
 	}
-
-
-
-	
-	//md3dImmediateContext->OMSetDepthStencilState(0, 0); // Perhaps unnecessary.
 }
 

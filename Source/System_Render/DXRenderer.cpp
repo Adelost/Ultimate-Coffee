@@ -156,8 +156,9 @@ void DXRenderer::renderFrame()
 		Entity* e = map_dirLight.nextEntity();
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
 		Data::DirLight* d_dirLight = e->fetchData<Data::DirLight>();
-
-		m_CBPerFrame.dlColor = Vector4(d_dirLight->color.x, d_dirLight->color.y, d_dirLight->color.z, d_dirLight->ambient);
+		Data::Render* d_render = e->fetchData<Data::Render>();
+		
+		m_CBPerFrame.dlColor = Vector4(d_render->mesh.color.x, d_render->mesh.color.y, d_render->mesh.color.z, d_dirLight->ambient);
 		Vector3 dir = Math::directionFromQuaterion(d_transform->rotation);
 		Vector4 dirAmb = Vector4(dir);
 		dirAmb.w = 0.0f;
@@ -179,10 +180,11 @@ void DXRenderer::renderFrame()
 		viewProjection = view * projection;
 	}
 	
-	
+	static std::vector<Entity*> wireframe_list;
+	wireframe_list.clear();
 	{
 		Data::Render::Manager* manager = &Data::Render::manager;
-		
+
 		// Loop through each render batch
 		for(int i=0; i<(int)manager->renderBatch_list.size(); i++)
 		{
@@ -201,23 +203,58 @@ void DXRenderer::renderFrame()
 					Data::Transform* d_transform = e->fetchData<Data::Transform>();
 					Data::Render* d_render = e->fetchData<Data::Render>();
 
-					m_CBPerObject.world = d_transform->toWorldMatrix();
-					m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
-					m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
-					m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
-					m_CBPerObject.color = d_render->mesh.color;
-					m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
-					m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					if(!d_render->invisible)
+					{
+						m_CBPerObject.world = d_transform->toWorldMatrix();
+						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+						m_CBPerObject.color = d_render->mesh.color;
+						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					}
+				}
+			}
+		}
+
+		m_CBPerFrame.drawDebug = 1;
+		m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
+		m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+		m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
+
+		// Render all selected meshes
+		for(int i=0; i<(int)manager->renderBatch_list.size(); i++)
+		{
+			// Bind correct buffers
+			Buffer* vertexBuffer = manager->buffer_list[i].vertex;
+			Buffer* indexBuffer = manager->buffer_list[i].index;
+			if(vertexBuffer && indexBuffer)
+			{
+				vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+				indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
+				Batch<EntityPointer>* b = &manager->renderBatch_list[i];
+				while(b->hasNext())
+				{
+					Entity* e = b->next()->asEntity();
+					Data::Transform* d_transform = e->fetchData<Data::Transform>();
+					Data::Render* d_render = e->fetchData<Data::Render>();
+
+					if(d_render->invisible)
+					{
+						m_CBPerObject.world = d_transform->toWorldMatrix();
+						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+						m_CBPerObject.color = d_render->mesh.color;
+						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					}
 				}
 			}
 		}
 	}
 
-	// Render all selected meshes
-	m_CBPerFrame.drawDebug = 1;
-	m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
-	m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
-	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 	{
 		Data::Render::Manager* manager = &Data::Render::manager;
 
@@ -390,6 +427,8 @@ bool DXRenderer::initDX()
 		// Sphere
 		Factory_Geometry::instance()->createSphere(0.5f, 20, 20, mesh);
 		createMeshBuffer(Enum::Mesh_Sphere, mesh);
+		Factory_Geometry::instance()->createSphere(0.5f, 4, 4, mesh);
+		createMeshBuffer(Enum::Mesh_Sphere_LowPoly, mesh);
 
 		// Cylinder
 		Factory_Geometry::instance()->createCylinder(0.5f, 0.5f, 1.0f, 20, 20, mesh);
@@ -544,10 +583,11 @@ void DXRenderer::updatePointLights()
 
 			Data::Transform* transform =  e->fetchData<Data::Transform>();
 			Data::PointLight* pointLight =  e->fetchData<Data::PointLight>();
+			Data::Render* d_render =  e->fetchData<Data::Render>();
 			
 			float range = pointLight->range;
 			m_CBPerFrame.plPosition[i] = Vector4(transform->position.x, transform->position.y, transform->position.z, 1.0f);
-			m_CBPerFrame.plColorAndRange[i] = Vector4(pointLight->color.x, pointLight->color.y, pointLight->color.z, range);
+			m_CBPerFrame.plColorAndRange[i] = Vector4(d_render->mesh.color.x, d_render->mesh.color.y, d_render->mesh.color.z, range);
 		}
 		else
 		{

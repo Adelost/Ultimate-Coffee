@@ -130,6 +130,7 @@ namespace Data
 		static Manager manager;
 
 	public:
+		bool invisible;
 		MeshInfo mesh;
 		EntityPointer owner;
 		

@@ -161,7 +161,7 @@ bool Handle_RotationCircle::tryForSelection(MyRectangle &selectionRectangle, XMV
 
 					float test = XMVector3Dot(avgLinePointPos, XMLoadFloat3(&selectionBlockingPlaneNormal)).m128_f32[0];
 
-		if(res >= 0.0f)
+		if(res >= 0.0f || m_selectionBlockingPlaneIsActive != true)
 		{
 			// Project the 3D re-entry point to 2D, so that the screen coordinates can be calculated.
 			XMVECTOR lineSegmentPointAScreenPos = XMVector3Project(linePointA,
@@ -332,9 +332,11 @@ void Handle_RotationCircle::update(XMVECTOR &rayOrigin, XMVECTOR &rayDir, XMMATR
 {
 }
 
-void Handle_RotationCircle::setSelectionBlockingPlaneNormal(XMVECTOR &normal)
+void Handle_RotationCircle::setSelectionBlockingPlaneNormal(XMVECTOR &normal, bool active)
 {
 	//XMVECTOR transformedNormal = XMVector3Transform(normal, XMLoadFloat4x4(world));
 	//XMStoreFloat3(&selectionBlockingPlaneNormal, transformedNormal);
 	XMStoreFloat3(&selectionBlockingPlaneNormal, normal);
+
+	m_selectionBlockingPlaneIsActive = active;
 }

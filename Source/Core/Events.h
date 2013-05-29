@@ -22,20 +22,25 @@ enum EventType
 	EVENT_SET_CURSOR_POSITION,
 	EVENT_SET_CURSOR,
 	EVENT_REFRESH_SPLITTER,
+	EVENT_PREVIEW_ITEMS,
 	EVENT_ENTITY_SELECTION,
 	EVENT_START_MULTISELECT,
 	EVENT_COFFEE,
+	EVENT_SELECTED_ENTITIES_HAVE_BEEN_TRANSFORMED,
+
+	EVENT_PLAY_SOUND_DING,
 
 	// Commands
 	EVENT_ADD_TO_COMMAND_HISTORY,
 	EVENT_ADD_TO_COMMAND_HISTORY_GUI,
-	EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI,
-	EVENT_TRACK_TO_COMMAND_HISTORY_INDEX,
+	EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI,
+	EVENT_JUMP_TO_COMMAND_HISTORY_INDEX,
 	EVENT_SET_SELECTED_COMMAND_GUI,
 	EVENT_GET_COMMAND_HISTORY_INFO,
-	EVENT_GET_NEXT_VISIBLE_COMMAND_ROW,
 	EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI,
-	EVENT_GET_COMMAND_HISTORY_GUI_FILTER,
+	EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI,
+	EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER,
+	EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER,
 
 	// Events used to retrieve something
 	EVENT_GET_WINDOW_HANDLE,
@@ -185,6 +190,7 @@ public:
 		OpenHandCursor = 17,
 		ClosedHandCursor = 18,
 		SceneCursor = 20,
+		SceneCursor_Pointer = 21,
 	};
 
 public:
@@ -284,56 +290,78 @@ public:
 	}
 };
 
+class Event_SelectedEntitiesHaveBeenTransformed : public Event
+{
+public:
+	bool m_transX, m_transY, m_transZ, m_scaleX, m_scaleY, m_scaleZ, m_rotX, m_rotY, m_rotZ;
+
+public:
+	Event_SelectedEntitiesHaveBeenTransformed() : Event(EVENT_SELECTED_ENTITIES_HAVE_BEEN_TRANSFORMED)
+	{
+		m_transX = false;
+		m_transY = false;
+		m_transZ = false;
+		m_scaleX = false;
+		m_scaleY = false;
+		m_scaleZ = false;
+		m_rotX = false;
+		m_rotY = false;
+		m_rotZ = false;
+	}
+};
+
 class Event_AddToCommandHistoryGUI : public Event
 {
 public:
 	std::vector<Command*>* commands;
 	bool displayAsSingleCommandHistoryEntry; // Example display of true: "Entity creation (43)". Example display of false: "Entity creation".
+	int indexToBundledWithCommandHistoryGUIListEntry; // Standard is -2. If the standard value is not overridden the value will be set to the current command history index as given by "CommandHistory".
+	int overrideNrOfCommandsGUINumber; // Standard is 0. If standard is used the GUINumber will be the number of commands present in the "commands" vector, otherwise (if larger than zero) it will be the value of this variable. Refer to "displayAsSingleCommandHistoryEntry" for a GUINumber example.
 
 public:
-	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
+	Event_AddToCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry, int indexToBundledWithCommandHistoryGUIListEntry = -2, int overrideNrOfCommandsGUINumber = 0) : Event(EVENT_ADD_TO_COMMAND_HISTORY_GUI)
 	{
 		this->commands = commands;
 		this->displayAsSingleCommandHistoryEntry = displayAsSingleCommandHistoryEntry;
+		this->indexToBundledWithCommandHistoryGUIListEntry = indexToBundledWithCommandHistoryGUIListEntry;
+		this->overrideNrOfCommandsGUINumber = overrideNrOfCommandsGUINumber;
 	}
 };
 
-class Event_RemoveCommandsFromCommandHistoryGUI : public Event
+class Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI : public Event
 {
 public:
-	int startIndex; // Index of first command to be removed
-	int nrOfCommands; // Counting from "startIndex". Standard is "1", meaning that one command will be removed, the command at "startIndex". If higher or equal than the number of commands in the command history GUI, this variable will become the number of commands in the command history GUI.
+	bool removeAllCommands; // Standard is false
 
 public:
-	Event_RemoveCommandsFromCommandHistoryGUI(int startIndex, int nrOfCommands = 1) : Event(EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI)
+	Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI(bool removeAllCommands = false) : Event(EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI)
 	{
-		this->startIndex = startIndex;
-		this->nrOfCommands = nrOfCommands;
+		this->removeAllCommands = removeAllCommands;
 	}
 };
 
 // Backtracks by undoing until a command index is reached, or track forward by redoing until command index is reached
-class Event_TrackToCommandHistoryIndex : public Event
+class Event_JumpToCommandHistoryIndex : public Event
 {
 public:
-	int indexOfCommand;
+	int commandHistoryIndex;
 
 public:
-	Event_TrackToCommandHistoryIndex(int indexOfCommand) : Event(EVENT_TRACK_TO_COMMAND_HISTORY_INDEX)
+	Event_JumpToCommandHistoryIndex(int commandHistoryIndex) : Event(EVENT_JUMP_TO_COMMAND_HISTORY_INDEX)
 	{
-		this->indexOfCommand = indexOfCommand;
+		this->commandHistoryIndex = commandHistoryIndex;
 	}
 };
 
 class Event_SetSelectedCommandGUI : public Event
 {
 public:
-	int indexOfCommand;
+	int commandHistoryIndex;
 
 public:
-	Event_SetSelectedCommandGUI(int indexOfCommand) : Event(EVENT_SET_SELECTED_COMMAND_GUI)
+	Event_SetSelectedCommandGUI(int commandHistoryIndex) : Event(EVENT_SET_SELECTED_COMMAND_GUI)
 	{
-		this->indexOfCommand = indexOfCommand;
+		this->commandHistoryIndex = commandHistoryIndex;
 	}
 };
 
@@ -346,29 +374,49 @@ public:
 public:
 	Event_GetCommandHistoryInfo() : Event(EVENT_GET_COMMAND_HISTORY_INFO)
 	{
+		indexOfCurrentCommand = -2;
+		nrOfCommands = -1;
 	}
 };
 
-class Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI : public Event
+class Event_SaveCommandHistoryGUIFilter : public Event
 {
 public:
-	int row; // Return value
-	bool next; // Next if true, previous if false.
+	std::string path;
 
 public:
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI(bool next) : Event(EVENT_GET_NEXT_VISIBLE_COMMAND_ROW)
+	Event_SaveCommandHistoryGUIFilter(std::string path) : Event(EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER)
 	{
-		this->next = next;
+		this->path = path;
 	}
 };
 
-class Event_GetCommandHistoryGUIFilter : public Event
+class Event_TryToLoadCommandHistoryGUIFilter : public Event
 {
 public:
-	std::vector<bool>* GUIFilter; // Return value
+	std::string path;
+	int fileSize;
+	std::vector<Command*>* commands;
+	bool loadedSuccessfully; // Return value
 
 public:
-	Event_GetCommandHistoryGUIFilter() : Event(EVENT_GET_COMMAND_HISTORY_GUI_FILTER)
+	Event_TryToLoadCommandHistoryGUIFilter(std::string path, std::vector<Command*>* commands, int fileSize) : Event(EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER)
 	{
+		loadedSuccessfully = false;
+		this->path = path;
+		this->commands = commands;
+		this->fileSize = fileSize;
+	}
+};
+
+class Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI : public Event
+{
+public:
+	bool if_true_increment_if_false_decrement;
+
+public:
+	Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI(bool if_true_increment_if_false_decrement) : Event(EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI)
+	{
+		this->if_true_increment_if_false_decrement = if_true_increment_if_false_decrement;
 	}
 };

@@ -1,0 +1,31 @@
+# 0 = Mesh_Box
+# 1 = Mesh_Sphere
+# 2 = Mesh_Cylinder
+# 3 = Mesh_Cone
+# 4 = Mesh_Pyramid
+# 5 = Mesh_Asteroid
+
+# MeshId, Name, Color
+3	elmbranch	79,199,5
+3	elmleafbig	79,199,5
+3	elmleafsmall	79,199,5
+3	elmtrunk	79,199,5
+3	forked	79,199,5
+3	grass	79,199,5
+3	ground1	79,199,5
+3	ground2	79,199,5
+3	honeysuckle	79,199,5
+3	joshua_branch	79,199,5
+3	joshua_leaf	79,199,5
+3	joshua_trunk	79,199,5
+3	joshuabranch	79,199,5
+3	landchunk	79,199,5
+3	large_evergreen_dirty	79,199,5
+3	large_gourd	79,199,5
+3	pine_trunk	79,199,5
+3	redwood	79,199,5
+3	seed	79,199,5
+3	small_gourd	79,199,5
+3	ThickPineBranch1	79,199,5
+3	ThickPineBranch2	79,199,5
+3	Wildgrass	79,199,5

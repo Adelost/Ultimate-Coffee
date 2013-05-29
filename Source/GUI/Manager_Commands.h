@@ -28,14 +28,13 @@ private:
 	QActionGroup* m_skyboxGroup;
 
 	bool storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute);
-	void updateCommandHistoryGUI(std::vector<Command*>* commands, int nrOfCommandsBeforeAdd, bool displayAsSingleCommandHistoryEntry);
+	void updateCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry);
 	bool jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
 	void newProject();
 	void loadCommandHistory(std::string path);
 	void saveCommandHistory(std::string path);
-	void saveCommandHistoryGUIFilter(std::string path);
-	void loadCommandHistoryGUIFilter(std::string path);
+	void convertPathToGUIFilterPath(std::string& path);
 	void clearCommandHistoryGUI();
 	int tryToGetFileSize(std::string path);
 

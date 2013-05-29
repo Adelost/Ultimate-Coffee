@@ -13,12 +13,17 @@ public:
 	struct dataStruct
 	{
 		bool createCommand; // If false, command acts as remove command
+		
 		Enum::EntityType entityType;
 		int entityId;
 		int entityUniqueId;
+		int hierarchyRow;
+
 		Vector3 position;
 		Quaternion rotation;
 		Vector3 scale;
+		Color color;
+		int mesh;
 	};
 
 	dataStruct m_data;

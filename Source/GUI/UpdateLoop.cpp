@@ -31,9 +31,7 @@ void UpdateLoop::init()
 	m_world->addSystem(Window::instance()->system_editor());
 	m_world->addSystem(new System::Test());
 
-	// Init game
-	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
-
+	
 	// Create Entities
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
 	FACTORY_ENTITY()->createEntity(Enum::Entity_Sky);
@@ -41,14 +39,14 @@ void UpdateLoop::init()
 	FACTORY_ENTITY()->createEntity(Enum::Entity_DirLight);
 	for(int i=0; i<1; i++)
 	{
-		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight, true);
+		FACTORY_ENTITY()->createEntity(Enum::Entity_Pointlight);
 	}
+	
+	// Init game
+	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 
-	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Box);
-	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Sphere);
-	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Cylinder);
-	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Cone);
-	FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh, true)->fetchData<Data::Render>()->setMesh(Enum::Mesh_Pyramid);
+	// Create preview entities after project is restored
+	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 }
 
 void UpdateLoop::update()

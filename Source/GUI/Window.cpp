@@ -42,7 +42,7 @@ void Window::init()
 	m_manager_commands->init();
 
 	m_manager_docks->resetLayout();
-	new SplashScreen(this);
+	m_ui->menuWindow->addAction((new SplashScreen(this))->toggleViewAction());
 
 	m_refreshTimer = new QTimer(this);
 

@@ -25,3 +25,8 @@ int CommandHistorySpy::getNrOfCommands()
 {
 	return m_commandHistory->m_commands.size();
 }
+
+bool CommandHistorySpy::getHistoryOverWriteTookPlaceWhenAddingCommands()
+{
+	return m_commandHistory->m_historyOverWriteTookPlaceWhenAddingCommands;
+}

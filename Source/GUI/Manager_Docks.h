@@ -5,17 +5,20 @@
 #include <Core/IObserver.h>
 #include <QDockWidget.h>
 #include <QListWidget.h>
+#include <Core\Serializable.h>
 
 //#include <math.h>
 
 class Window;
+class ListItemWithIndex;
+class ItemBrowser;
+class Manager_Docks;
+
 class QDockWidget;
 class QMenu;
 class QAction;
 class QStandardItemModel;
 class QListWidget;
-class Manager_Docks;
-class ItemBrowser;
 class QColorDialog;
 
 class Manager_Docks : public QObject, public IObserver
@@ -39,7 +42,21 @@ public:
 	void setupMenu();
 	void setupHierarchy();
 
-	void connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect);
+	void connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect);
+
+	// Adds a "ListItemWithIndex" to a "QListWidget"
+	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented);
+	
+	// Example: the command which in the "CommandHistory" is at index 5, what index does it have in the "QListWidget"
+	int findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex);
+
+	// Only send "QListWidgetItem" that really are "ListItemWithIndex" as argument
+	ListItemWithIndex* getListItemWithIndexFromQListWidgetItem(QListWidgetItem* item);
+
+	// Only send "QListWidgetItem" that really are "ListItemWithIndex" as argument
+	int getIndexFromItemWithIndex(QListWidgetItem* item);
+
+	void playDingSound();
 
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
@@ -53,7 +70,7 @@ public slots:
 	void saveLayout();
 	void loadLayout();
 	void resetLayout();
-	void currentCommandHistoryIndexChanged(int currentRowChanged);
+	void currentCommandHistoryIndexChanged(int currentRow);
 	void selectEntity(const QModelIndex& index);
 	void focusOnEntity(const QModelIndex& index);
 };
@@ -74,13 +91,9 @@ public:
 class Item_Prefab : public QListWidgetItem
 {
 public:
-	Item_Prefab(QIcon icon, QString filname) : QListWidgetItem(icon, filname)
-	{
-		static int i;
-		modelId = i;
-		i++;
-	}
-	int modelId;
+	Item_Prefab(QIcon icon, QString filname);
+	Enum::Mesh mesh;
+	Color color;
 };
 
 class ItemBrowser : public QWidget, public IObserver
@@ -150,17 +163,17 @@ public slots:
 	void pickColor();
 	void setColor(const QColor& color);
 
-	void setXTranslationOfSelectedEntities(double X);
-	void setYTranslationOfSelectedEntities(double Y);
-	void setZTranslationOfSelectedEntities(double Z);
+	void setXTranslationOfSelectedEntities(double p_transX);
+	void setYTranslationOfSelectedEntities(double p_transY);
+	void setZTranslationOfSelectedEntities(double p_transZ);
 
-	void setXScalingOfSelectedEntities(double X);
-	void setYScalingOfSelectedEntities(double Y);
-	void setZScalingOfSelectedEntities(double Z);
+	void setXScalingOfSelectedEntities(double p_scaleX);
+	void setYScalingOfSelectedEntities(double p_scaleY);
+	void setZScalingOfSelectedEntities(double p_scaleZ);
 
-	void setXRotationOfSelectedEntities(double X);
-	void setYRotationOfSelectedEntities(double Y);
-	void setZRotationOfSelectedEntities(double Z);
+	void setXRotationOfSelectedEntities(double p_rotationX);
+	void setYRotationOfSelectedEntities(double p_rotationY);
+	void setZRotationOfSelectedEntities(double p_rotationZ);
 };
 
 class ListWidgetWithoutKeyboardInput : public QListWidget
@@ -181,10 +194,24 @@ protected:
 	}
 };
 
-class ListItemWithId : public QListWidgetItem
+class ListItemWithIndex : public QListWidgetItem, public Serializable
 {
-	//Q_OBJECT
+private:
+	struct DataStruct
+	{
+		int commandHistoryIndex; // Defines the mapping between a command in "CommandHistory" and a QListWidgetItem (ListItemWithIndex) in a QListWidget.
+		int nrOfCommandsRepresented; // Needed when saving and loading GUIFilter, refer to EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER. Example when nrOfCommandsRepresented=27 "Entity creation (27)".
+	};
+	DataStruct m_dataStruct;
 
 public:
-	ListItemWithId();
+	ListItemWithIndex(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented);
+	ListItemWithIndex(){};
+	int getCommandHistoryIndex();
+	int getNrOfCommandsRepresented();
+
+	// pure virtual overrides from "Serializable"
+	void* accessDerivedClassDataStruct(){return reinterpret_cast<void*>(&m_dataStruct);}
+	int getByteSizeOfDataStruct(){return sizeof(m_dataStruct);}
+	void loadDataStructFromBytes(char* data){m_dataStruct = *reinterpret_cast<DataStruct*>(data);}
 };
