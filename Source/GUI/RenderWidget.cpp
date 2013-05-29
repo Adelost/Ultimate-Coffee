@@ -265,8 +265,17 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 			while(m_selected.hasNext())
 			{
 				Entity* e = m_selected.nextEntity();
-				command_list.push_back(new Command_CreateEntity(e, false));
-				e->removeEntity();
+
+				if(e->type() == Enum::Entity_Camera)
+				{
+					MESSAGEBOX("Take it easy son. We only got one camera here. It's expensive");
+				}
+				else
+				{
+					command_list.push_back(new Command_CreateEntity(e, false));
+					e->removeEntity();
+				}
+				
 			}
 			if(command_list.size() > 0)
 			{
@@ -463,9 +472,11 @@ void Tool_MultiSelect::onEvent( Event* event )
 						}
 						else
 						{
+							bool onlyOne = entity_list.size() == 1;
 							for(int i=0; i<entity_list.size(); i++)
 							{
-								Data::Selected::select(entity_list[i]);
+								if(onlyOne || entity_list[i]->type() != Enum::Entity_DirLight && entity_list[i]->type() != Enum::Entity_Pointlight)
+									Data::Selected::select(entity_list[i]);
 							}
 						}
 						

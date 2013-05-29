@@ -289,6 +289,11 @@ void Manager_Commands::translateSceneEntity()
 
 Manager_Commands::~Manager_Commands()
 {
+	if(m_lastValidProjectPath == "")
+	{
+		std::string path = "./recent.uc";
+		saveCommandHistory(path); //check, might be risky to call this from the destructor. It assumes infrastructure needed to save a level is not deallocated (2013-05-29, 23.29)
+	}
 	delete m_commandHistory;
 	delete m_commandHistorySpy;
 }
