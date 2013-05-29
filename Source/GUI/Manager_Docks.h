@@ -64,8 +64,7 @@ public slots:
 	void saveLayout();
 	void loadLayout();
 	void resetLayout();
-	//void commandHistoryItemPressed(QListWidgetItem* item);
-	void currentCommandHistoryIndexChanged(int);
+	void currentCommandHistoryIndexChanged(int currentRow);
 	void selectEntity(const QModelIndex& index);
 	void focusOnEntity(const QModelIndex& index);
 };
@@ -86,13 +85,9 @@ public:
 class Item_Prefab : public QListWidgetItem
 {
 public:
-	Item_Prefab(QIcon icon, QString filname) : QListWidgetItem(icon, filname)
-	{
-		static int i;
-		modelId = i;
-		i++;
-	}
-	int modelId;
+	Item_Prefab(QIcon icon, QString filname);
+	Enum::Mesh mesh;
+	Color color;
 };
 
 class ItemBrowser : public QWidget, public IObserver
@@ -193,11 +188,9 @@ protected:
 	}
 };
 
-//class ListItemWithIndex : public QObject, public QListWidgetItem
 class ListItemWithIndex : public QListWidgetItem
 {
 private:
-	//Q_OBJECT
 	int m_index;
 
 public:

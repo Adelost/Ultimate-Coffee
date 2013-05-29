@@ -31,16 +31,15 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 	if(type == Enum::Entity_Mesh)
 	{
-		static int count = 0;
-
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		d_transform->position.x += count*1.5f;
 		
 		e->addData(Data::Bounding());
-		e->addData(Data::Render(e, Enum::Mesh_Box));
+		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Box));
 
-		count++;
+		// Add mesh
+		d_render->setMesh(SETTINGS()->choosenEntity.mesh);
+		d_render->mesh.color = SETTINGS()->choosenEntity.color;
 	}
 
 	if(type == Enum::Entity_Asteroid)
@@ -83,7 +82,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		id++;
 
 		Data::Transform* transform = e->addData(Data::Transform());
-		transform->position = Vector3(30.0f * id, 0.0f, 30.0f * id);
+		transform->position = Vector3(30.0f * id, 0.0f, 60.0f * id);
 		transform->scale = Vector3(0.1f, 0.1f, 0.1f);
 		
 		Data::PointLight* pointLight = e->addData(Data::PointLight());

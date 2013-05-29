@@ -13,6 +13,7 @@
 #include <Core/Command_RotateSceneEntity.h>
 #include <Core/Command_ScaleSceneEntity.h>
 #include <Core/Command_SkyBox.h>
+#include <Core/Command_CreateEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -161,7 +162,7 @@ void Manager_Docks::setupMenu()
 
 	// Item Browser
 	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
-	dock->setWindowTitle("Item Browser (Not fully implemented, as of 2013-05-23)");
+	dock->setWindowTitle("Item Browser");
 	m_itemBrowser = new ItemBrowser(dock);
 	dock->setWidget(m_itemBrowser);
 
@@ -413,8 +414,7 @@ void Manager_Docks::onEvent(Event* e)
 			int commandHistoryIndex = selectionEvent->commandHistoryIndex;
 
 			int listItemIndex = findListItemIndexFromCommandHistoryIndex(commandHistoryIndex);
-			QListWidgetItem* item = m_commandHistoryListWidget->item(listItemIndex);
-			item->setSelected(true);
+			m_commandHistoryListWidget->setCurrentRow(listItemIndex);
 		}
 		break;
 	case EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
@@ -447,11 +447,6 @@ void Manager_Docks::onEvent(Event* e)
 			if(m_commandHistoryListWidget->count() == 0)
 			{
 				QIcon icon;
-				//check
-				//QColor color(1.0f,1.0f,1.0f);
-				//QPixmap pixmap(16, 16);
-				//pixmap.fill(color);
-				//icon.addPixmap(pixmap);
 				addItemToCommandHistoryListWidget(icon, "Start");
 			}
 			else
@@ -610,13 +605,7 @@ void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const Q
 
 	// Add custom list item (with index retrievable on row change, refer to "Manager_Docks::currentCommandHistoryIndexChanged")
 	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index);
-	QListWidgetItem* item = static_cast<QListWidgetItem*>(indexedItem);
-	m_commandHistoryListWidget->addItem(item);
-
-	//QListWidgetItem* item = new QListWidgetItem(icon, text);
-	//const QVariant data(index);
-	//item->setData(0, data);
-	//m_commandHistoryListWidget->addItem(item);
+	m_commandHistoryListWidget->addItem(indexedItem);
 }
 
 int Manager_Docks::findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex)
@@ -724,19 +713,6 @@ void Manager_Docks::update()
 	
 }
 
-//void Manager_Docks::commandHistoryItemPressed(QListWidgetItem* item)
-//{
-//	Event_GetCommandHistoryInfo commandHistoryInfo; // Retrieve information from command history
-//	SEND_EVENT(&commandHistoryInfo); // The event is assumed to have correct values below
-//	int indexOfCurrentCommand = commandHistoryInfo.indexOfCurrentCommand;
-//
-//	int commandHistoryIndex = getIndexFromItemWithIndex(item);
-//	if(indexOfCurrentCommand != commandHistoryIndex) // Only jump when not jumping to the index that is already current
-//	{
-//		SEND_EVENT(&Event_JumpToCommandHistoryIndex(commandHistoryIndex));
-//	}
-//}
-
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
 	QListWidgetItem* currentItem = m_commandHistoryListWidget->item(currentRow);
@@ -806,6 +782,7 @@ void System_Editor::update()
 ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_PREVIEW_ITEMS);
 	POST_DELAYED_EVENT(new Event(EVENT_REFRESH_SPLITTER), 0.0f);
 
 	setObjectName("Item Browser");
@@ -874,23 +851,73 @@ void ItemBrowser::initTree()
 
 void ItemBrowser::loadGrid( QListWidgetItem* item )
 {
-	// Open 
+	// Path
 	QString path;
-	path = path + THUMBNAIL_PATH + "/" + item->text();
-	QDir dir(path);
-	QStringList filters;
-	filters << "*.png" << "*.jpg";
-	dir.setNameFilters(filters);
-	dir.setFilter(QDir::Files);
+	path = path + THUMBNAIL_PATH + item->text();
+	std::string str_path = path.toStdString();
 
-	QFileInfoList list = dir.entryInfoList();
-	foreach(QFileInfo i, list)
+	// Load items
+	QFile textFile(path + "/_items.txt");
+	if(textFile.open(QIODevice::ReadOnly))
 	{
-		QString filename = i.baseName();
+		QRegExp rx_tab("(\\t)");
+		QRegExp rx_comma("(\\,)");
 
-		QIcon icon(path + "/" + filename);
-		Item_Prefab* item = new Item_Prefab(icon, filename);
-		m_grid->addItem(item);
+		QTextStream textStream(&textFile);
+		while(!textStream.atEnd())
+		{
+			// Read line
+			QString line = textStream.readLine();
+
+			// Ignore comments and empty lines
+			if(!(line[0] == '#' || line.size() == 0))
+			{
+				QStringList list = line.split(rx_tab);
+				QString qstr_mesh = list[0];
+				QString qstr_name = list[1];
+				QString qstr_color = list[2];
+				list = qstr_color.split(rx_comma);
+				QString c_r = list[0];
+				QString c_g = list[1];
+				QString c_b = list[2];
+
+				// Read mesh
+				int meshId = Converter::StrToInt(qstr_mesh.toStdString());
+				Enum::Mesh mesh = static_cast<Enum::Mesh>(meshId);
+
+				// Read color
+				QColor c(Converter::StrToInt(c_r.toStdString()), Converter::StrToInt(c_g.toStdString()), Converter::StrToInt(c_b.toStdString()));
+				Color color = Vector3(c.redF(), c.greenF(), c.blueF());
+
+				// Create item
+				QIcon icon(path + "/" + qstr_name);
+				Item_Prefab* item = new Item_Prefab(icon, qstr_name);
+				item->color = color;
+				item->mesh = mesh;
+				m_grid->addItem(item);
+			}
+		}
+	}
+	else
+	{
+		// Open 
+		QString path;
+		path = path + THUMBNAIL_PATH + "/" + item->text();
+		QDir dir(path);
+		QStringList filters;
+		filters << "*.png" << "*.jpg";
+		dir.setNameFilters(filters);
+		dir.setFilter(QDir::Files);
+
+		QFileInfoList list = dir.entryInfoList();
+		foreach(QFileInfo i, list)
+		{
+			QString filename = i.baseName();
+
+			QIcon icon(path + "/" + filename);
+			Item_Prefab* item = new Item_Prefab(icon, filename);
+			m_grid->addItem(item);
+		}
 	}
 }
 
@@ -908,6 +935,49 @@ void ItemBrowser::onEvent( Event* e )
 	case EVENT_REFRESH_SPLITTER: //Add command to the command history list in the GUI
 		moveHandle();
 		break;
+	case EVENT_PREVIEW_ITEMS:
+		 {
+			 std::vector<Command*> command_list;
+
+			 // HACK: Compensate for change in tools due to gridselection
+			 int toolTyp = SETTINGS()->selectedTool();
+
+			 Vector3 offset = Math::randomVector(-0.1f,0.1f);
+			 offset = offset + CAMERA_ENTITY().asEntity()->fetchData<Data::Transform>()->position;
+			 offset.z += 15.0f; 
+			 int row = 0;
+			 int col = 0;
+
+			 // Create startup items
+			 Entity* e;
+			 for(int i=0; i<m_grid->count(); i++)
+			 {
+				 selectEntity(m_grid->item(i));
+				 e = FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh);
+				 Data::Transform* d_transform = e->fetchData<Data::Transform>();
+				 d_transform->position.x = offset.x + col;
+				 d_transform->position.y = offset.y - row;
+				 d_transform->position.z = offset.z;
+
+				 
+				 col++;
+				 if(col > 5)
+				 {
+					 col = 0;
+					 row++;
+				 }
+				 
+				 // Save command
+				 command_list.push_back(new Command_CreateEntity(e, true));
+			 }
+
+			 // Save to history
+			 if(command_list.size() > 0)
+				 SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+
+			 SETTINGS()->setSelectedTool(toolTyp);
+		 }
+		 break;
 	default:
 		break;
 	}
@@ -921,7 +991,8 @@ void ItemBrowser::selectEntity( QListWidgetItem* item )
 
 	// Select corresponding Entity
 	Item_Prefab* i = static_cast<Item_Prefab*>(item);
-	DEBUGPRINT("Selected " + Converter::IntToStr(i->modelId));
+	SETTINGS()->choosenEntity.color = i->color;
+	SETTINGS()->choosenEntity.mesh = i->mesh;
 }
 
 void Hierarchy::keyPressEvent( QKeyEvent *e )
@@ -1576,12 +1647,8 @@ void ToolPanel::pickColor()
 			m_colorDialog->setCurrentColor(c);
 		}
 	}
-
-
 	
 	m_colorDialog->show();
-
-
 }
 
 void ToolPanel::setColor( const QColor& color )
@@ -1617,4 +1684,14 @@ ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int
 int ListItemWithIndex::getIndex()
 {
 	return m_index;
+}
+
+Item_Prefab::Item_Prefab( QIcon icon, QString filname ) : QListWidgetItem(icon, filname)
+{
+	// Pick random mesh
+	int meshId = Math::randomInt(0, Enum::Mesh_End-1);
+	mesh = static_cast<Enum::Mesh>(meshId);
+
+	// Pick random color
+	color = Math::randomColor();
 }

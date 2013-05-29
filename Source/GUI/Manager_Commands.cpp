@@ -21,6 +21,8 @@ void Manager_Commands::init()
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
+	projectedLoaded = false;
+
 	// Init undo/redo system
 	m_commandHistory = new CommandHistory();
 	m_commandHistorySpy = new CommandHistorySpy(m_commandHistory);
@@ -194,11 +196,51 @@ void Manager_Commands::loadCommandHistory(std::string path)
 		m_lastValidProjectPath = path;
 
 		m_commandHistory->reset();
-		if(m_commandHistory->tryToLoadFromSerializationByteFormat(bytes, bufferSize))
+
+//--------------------------------------------------------------------------------------
+// Load hack after rewrite of command history GUI handling 2013-05-29 04.11
+//--------------------------------------------------------------------------------------
+		if(m_commandHistory->tryToLoadFromSerializationByteFormat(bytes, bufferSize, false))
 		{
-			std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
-			loadCommandHistoryGUIFilter(pathWithoutUCFileExtension + "_GUIFilter.ucg");
+			//std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
+
+			CommandHistory* newCommandHistory = new CommandHistory();
+			CommandHistory* oldCommandHistory = m_commandHistory;
+			CommandHistorySpy* newCommandHistorySpy = new CommandHistorySpy(newCommandHistory);
+			CommandHistorySpy* oldCommandHistorySpy = m_commandHistorySpy;
+
+			m_commandHistory = newCommandHistory;
+			m_commandHistorySpy = newCommandHistorySpy;
+
+			std::vector<Command*>* allCommands = oldCommandHistorySpy->getCommands();
+			int currentCommandAfterLoad = oldCommandHistorySpy->getIndexOfCurrentCommand();
+
+			int nrOfCommands = allCommands->size();
+			for(int i=0;i<nrOfCommands;i++)
+			{
+				bool addCommandSucceeded = false;
+				Command* command = allCommands->at(i);
+				addCommandSucceeded = m_commandHistory->tryToAddCommand(command, true);
+				if(!addCommandSucceeded)
+				{
+					MESSAGEBOX("Failed to load project");
+				}
+				if(m_commandHistorySpy->getHistoryOverWriteTookPlaceWhenAddingCommands()) // If history overwrite took place: remove command representations from GUI.
+				{
+					SEND_EVENT(&Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI());
+				}
+				std::vector<Command*> guiCommands;
+				guiCommands.push_back(command);
+				SEND_EVENT(&Event_AddToCommandHistoryGUI(&guiCommands, false));
+			}
+
+			m_commandHistory->tryToJumpInCommandHistory(currentCommandAfterLoad);
 			updateCurrentCommandGUI();
+
+			oldCommandHistories.push_back(oldCommandHistory);
+			//delete oldCommandHistory;
+			delete oldCommandHistorySpy;
+			projectedLoaded = true;
 		}
 		else
 		{
@@ -220,8 +262,8 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	{
 		m_lastValidProjectPath = path;
 
-		std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
-		saveCommandHistoryGUIFilter(pathWithoutUCFileExtension + "_GUIFilter.ucg");
+		//std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
+		//saveCommandHistoryGUIFilter(pathWithoutUCFileExtension + "_GUIFilter.ucg");
 	}
 	else
 	{
@@ -230,96 +272,96 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	delete[] bytes;
 }
 
-void Manager_Commands::saveCommandHistoryGUIFilter(std::string path)
-{
-	Event_GetCommandHistoryGUIFilter returnValue;
-	SEND_EVENT(&returnValue);
-	std::vector<bool>* GUIFilter = returnValue.GUIFilter;
+//void Manager_Commands::saveCommandHistoryGUIFilter(std::string path)
+//{
+//	Event_GetCommandHistoryGUIFilter returnValue;
+//	SEND_EVENT(&returnValue);
+//	std::vector<bool>* GUIFilter = returnValue.GUIFilter;
+//
+//	if(sizeof(bool) != sizeof(char))
+//	{
+//		MESSAGEBOX("Unexpected discrepancy. Failed to save GUI Filter.");
+//		return;
+//	}
+//
+//	int nrOfBools = GUIFilter->size();
+//	char* bytes = new char[nrOfBools];
+//	for(int i=0;i<nrOfBools;i++)
+//	{
+//		bytes[i] = GUIFilter->at(i);
+//	}
+//
+//	int sizeOfBytes = sizeof(bool)*nrOfBools;
+//	if(!Converter::BytesToFile(bytes, sizeOfBytes, path))
+//	{
+//		MESSAGEBOX("Failed to save command history GUI filter");
+//	}
+//	delete[] bytes;
+//	delete returnValue.GUIFilter; // Handle this deallocation in some better way.
+//}
 
-	if(sizeof(bool) != sizeof(char))
-	{
-		MESSAGEBOX("Unexpected discrepancy. Failed to save GUI Filter.");
-		return;
-	}
-
-	int nrOfBools = GUIFilter->size();
-	char* bytes = new char[nrOfBools];
-	for(int i=0;i<nrOfBools;i++)
-	{
-		bytes[i] = GUIFilter->at(i);
-	}
-
-	int sizeOfBytes = sizeof(bool)*nrOfBools;
-	if(!Converter::BytesToFile(bytes, sizeOfBytes, path))
-	{
-		MESSAGEBOX("Failed to save command history GUI filter");
-	}
-	delete[] bytes;
-	delete returnValue.GUIFilter; // Handle this deallocation in some better way.
-}
-
-void Manager_Commands::loadCommandHistoryGUIFilter(std::string path)
-{
-	if(sizeof(bool) != sizeof(char))
-	{
-		MESSAGEBOX("Unexpected discrepancy. Failed to load GUI Filter.");
-		return;
-	}
-
-	std::vector<Command*>* allCommands = m_commandHistorySpy->getCommands();
-
-	std::vector<bool> GUIFilter;
-	int bufferSize = tryToGetFileSize(path);
-	char* bytes = new char[bufferSize];
-	int nrOfBools = bufferSize/sizeof(bool);
-	if(Converter::FileToBytes(path, bytes, bufferSize))
-	{
-		for(int i=0;i<nrOfBools;i++)
-		{
-			GUIFilter.push_back(bytes[i]);
-		}
-
-		std::vector<Command*> subSetOfAllCommands;
-		bool singleEntryInCommandHistoryMode = false;
-		int i = 0;
-		int counter = 0;
-		while(i < nrOfBools)
-		{
-			bool hidden = GUIFilter.at(i);
-			if(!hidden)
-			{
-				subSetOfAllCommands.push_back(allCommands->at(i));
-			}
-			else
-			{
-				SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, false));
-				subSetOfAllCommands.clear();
-
-				while(hidden)
-				{
-					subSetOfAllCommands.push_back(allCommands->at(i));
-					i++;
-					if(i >= nrOfBools)
-					{
-						break;
-					}
-					hidden = GUIFilter.at(i);
-				}
-				subSetOfAllCommands.push_back(allCommands->at(i));
-				SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, true));
-				subSetOfAllCommands.clear();
-			}
-			i++;
-		}
-		SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, false));
-	}
-	else
-	{
-		// If the file could not be found or read, add commands to GUI without GUI filter
-		SEND_EVENT(&Event_AddToCommandHistoryGUI(allCommands, false));
-	}
-	delete [] bytes;
-}
+//void Manager_Commands::loadCommandHistoryGUIFilter(std::string path)
+//{
+//	if(sizeof(bool) != sizeof(char))
+//	{
+//		MESSAGEBOX("Unexpected discrepancy. Failed to load GUI Filter.");
+//		return;
+//	}
+//
+//	std::vector<Command*>* allCommands = m_commandHistorySpy->getCommands();
+//
+//	std::vector<bool> GUIFilter;
+//	int bufferSize = tryToGetFileSize(path);
+//	char* bytes = new char[bufferSize];
+//	int nrOfBools = bufferSize/sizeof(bool);
+//	if(Converter::FileToBytes(path, bytes, bufferSize))
+//	{
+//		for(int i=0;i<nrOfBools;i++)
+//		{
+//			GUIFilter.push_back(bytes[i]);
+//		}
+//
+//		std::vector<Command*> subSetOfAllCommands;
+//		bool singleEntryInCommandHistoryMode = false;
+//		int i = 0;
+//		int counter = 0;
+//		while(i < nrOfBools)
+//		{
+//			bool hidden = GUIFilter.at(i);
+//			if(!hidden)
+//			{
+//				subSetOfAllCommands.push_back(allCommands->at(i));
+//			}
+//			else
+//			{
+//				SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, false));
+//				subSetOfAllCommands.clear();
+//
+//				while(hidden)
+//				{
+//					subSetOfAllCommands.push_back(allCommands->at(i));
+//					i++;
+//					if(i >= nrOfBools)
+//					{
+//						break;
+//					}
+//					hidden = GUIFilter.at(i);
+//				}
+//				subSetOfAllCommands.push_back(allCommands->at(i));
+//				SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, true));
+//				subSetOfAllCommands.clear();
+//			}
+//			i++;
+//		}
+//		SEND_EVENT(&Event_AddToCommandHistoryGUI(&subSetOfAllCommands, false));
+//	}
+//	else
+//	{
+//		// If the file could not be found or read, add commands to GUI without GUI filter
+//		SEND_EVENT(&Event_AddToCommandHistoryGUI(allCommands, false));
+//	}
+//	delete [] bytes;
+//}
 
 void Manager_Commands::clearCommandHistoryGUI()
 {
@@ -362,29 +404,25 @@ void Manager_Commands::translateSceneEntity()
 
 Manager_Commands::~Manager_Commands()
 {
-	delete m_commandHistory;
+	for(int i=0;i<oldCommandHistories.size();i++)
+	{
+		delete oldCommandHistories.at(i);
+	}
+	if(!projectedLoaded)
+	{
+		delete m_commandHistory;
+	}
 	delete m_commandHistorySpy;
 }
 
 void Manager_Commands::redoLatestCommand()
 {
 	SEND_EVENT(&Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI(true));
-	//Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI returnValue(true);
-	//SEND_EVENT(&returnValue);
-	//int commandHistoryIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(returnValue.row); 
-	//if(jumpInCommandHistory(commandHistoryIndex))
-	//{
-	//	updateCurrentCommandGUI();
-	//}
 }
 
 void Manager_Commands::undoLatestCommand()
 {
 	SEND_EVENT(&Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI(false));
-	//if(jumpInCommandHistory(commandHistoryIndex))
-	//{
-	//	updateCurrentCommandGUI();
-	//}
 }
 
 void Manager_Commands::quicksaveCommandHistory()
@@ -466,7 +504,6 @@ void Manager_Commands::onEvent(Event* e)
 				deallocateCommandList = true;
 			}
 
-			int nrOfCommandsBeforeAdd = m_commandHistorySpy->getNrOfCommands();
 			if(!storeCommandsInCommandHistory(commands, execute))
 			{
 				MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add command to command history.");

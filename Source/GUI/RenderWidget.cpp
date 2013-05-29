@@ -117,7 +117,7 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	{
 		Data::Camera* d_camera = map_camera.next();
 		float aspectRatio =  static_cast<float>(width)/height;
-		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 0.1f, 3000.0f);
+		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 0.1f, 5000.0f);
 	}
 
 	// Notify rest of code
@@ -257,8 +257,7 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 				command_list.push_back(new Command_CreateEntity(e, false));
 				e->removeEntity();
 			}
-			int count = command_list.size();
-			if(count>0)
+			if(command_list.size() > 0)
 			{
 				//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 				//if(count == 1)
@@ -332,8 +331,6 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 	QPoint pos = p_event->pos();
 	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));
 
-
-
 	// HACK: Hide mouse when rotating camera
 	if(button == Qt::RightButton)
 	{
@@ -346,8 +343,6 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			SEND_EVENT(&Event_SetCursor(Event_SetCursor::NormalCursor));
 		}
 	}
-
-
 
 	// HACK: Place Entities if EntityTool is selected
 	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)
@@ -370,8 +365,9 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 		{
 			Entity* entity = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
 			Data::Transform* d_transform = entity->fetchData<Data::Transform>();
-			Vector3 pos = r.position + r.direction * 15.0f;
+			Vector3 pos = r.position + r.direction * 15.0f * d_camera->scale();
 			d_transform->position = pos;
+			d_transform->scale = d_transform->scale * d_camera->scale();
 
 			// Add to history
 			SEND_EVENT(&Event_AddToCommandHistory(new Command_CreateEntity(entity), false));

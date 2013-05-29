@@ -219,7 +219,7 @@ char* CommandHistory::receiveSerializedByteFormat(int& byteSize)
 	return byteData;
 }
 
-bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteSize)
+bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteSize, bool execute)
 {
 	// Refer to "receiveSerializedByteFormat" for format description
 	// The byte array "bytes" is navigated using the index "nextByte"
@@ -288,7 +288,7 @@ bool CommandHistory::tryToLoadFromSerializationByteFormat(char* bytes, int byteS
 			{
 				return false;
 			}
-			if(m_indexOfCurrentCommand <= loadedIndexOfCurrentCommand)
+			if(m_indexOfCurrentCommand <= loadedIndexOfCurrentCommand && execute)
 			{
 				command->doRedo(); // Execute command up and until current, as loaded from file
 			}

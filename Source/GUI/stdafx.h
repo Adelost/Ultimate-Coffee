@@ -41,3 +41,4 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QColorDialog>
+#include <QTextStream>

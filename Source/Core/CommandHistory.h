@@ -52,8 +52,8 @@ public:
 	// "byteSize" is a return value. Refer to .cpp file for format description.
 	char* receiveSerializedByteFormat(int& byteSize); 
 
-	// "bytes" is assumed to be in the serialized byte format as returned from "receiveSerializedByteFormat". "byteSize" is assumed to be the size in bytes of the "bytes" parameter.
-	bool tryToLoadFromSerializationByteFormat(char* bytes, int byteSize);
+	// "bytes" is assumed to be in the serialized byte format as returned from "receiveSerializedByteFormat". "byteSize" is assumed to be the size in bytes of the "bytes" parameter. "execute" specifies wheter to execute up and untill current (true) or to only load the data (false).
+	bool tryToLoadFromSerializationByteFormat(char* bytes, int byteSize, bool execute);
 
 	// Returns the command history information as text.
 	std::stringstream* getCommandHistoryAsText();
