@@ -154,8 +154,9 @@ void DXRenderer::renderFrame()
 		Entity* e = map_dirLight.nextEntity();
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
 		Data::DirLight* d_dirLight = e->fetchData<Data::DirLight>();
-
-		m_CBPerFrame.dlColor = Vector4(d_dirLight->color.x, d_dirLight->color.y, d_dirLight->color.z, d_dirLight->ambient);
+		Data::Render* d_render = e->fetchData<Data::Render>();
+		
+		m_CBPerFrame.dlColor = Vector4(d_render->mesh.color.x, d_render->mesh.color.y, d_render->mesh.color.z, d_dirLight->ambient);
 		Vector3 dir = Math::directionFromQuaterion(d_transform->rotation);
 		Vector4 dirAmb = Vector4(dir);
 		dirAmb.w = 0.0f;
@@ -580,10 +581,11 @@ void DXRenderer::updatePointLights()
 
 			Data::Transform* transform =  e->fetchData<Data::Transform>();
 			Data::PointLight* pointLight =  e->fetchData<Data::PointLight>();
+			Data::Render* d_render =  e->fetchData<Data::Render>();
 			
 			float range = pointLight->range;
 			m_CBPerFrame.plPosition[i] = Vector4(transform->position.x, transform->position.y, transform->position.z, 1.0f);
-			m_CBPerFrame.plColorAndRange[i] = Vector4(pointLight->color.x, pointLight->color.y, pointLight->color.z, range);
+			m_CBPerFrame.plColorAndRange[i] = Vector4(d_render->mesh.color.x, d_render->mesh.color.y, d_render->mesh.color.z, range);
 		}
 		else
 		{
