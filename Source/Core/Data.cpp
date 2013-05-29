@@ -175,6 +175,7 @@ Data::Render::Manager Data::Render::manager;
 
 Data::Render::Render( Entity* entity, int meshId )
 {
+	invisible = false;
 	this->owner = entity->toPointer();
 	setMesh(meshId);
 }

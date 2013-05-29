@@ -177,10 +177,11 @@ void DXRenderer::renderFrame()
 		viewProjection = view * projection;
 	}
 	
-	
+	static std::vector<Entity*> wireframe_list;
+	wireframe_list.clear();
 	{
 		Data::Render::Manager* manager = &Data::Render::manager;
-		
+
 		// Loop through each render batch
 		for(int i=0; i<(int)manager->renderBatch_list.size(); i++)
 		{
@@ -199,23 +200,58 @@ void DXRenderer::renderFrame()
 					Data::Transform* d_transform = e->fetchData<Data::Transform>();
 					Data::Render* d_render = e->fetchData<Data::Render>();
 
-					m_CBPerObject.world = d_transform->toWorldMatrix();
-					m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
-					m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
-					m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
-					m_CBPerObject.color = d_render->mesh.color;
-					m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
-					m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					if(!d_render->invisible)
+					{
+						m_CBPerObject.world = d_transform->toWorldMatrix();
+						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+						m_CBPerObject.color = d_render->mesh.color;
+						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					}
+				}
+			}
+		}
+
+		m_CBPerFrame.drawDebug = 1;
+		m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
+		m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+		m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
+
+		// Render all selected meshes
+		for(int i=0; i<(int)manager->renderBatch_list.size(); i++)
+		{
+			// Bind correct buffers
+			Buffer* vertexBuffer = manager->buffer_list[i].vertex;
+			Buffer* indexBuffer = manager->buffer_list[i].index;
+			if(vertexBuffer && indexBuffer)
+			{
+				vertexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+				indexBuffer->setDeviceContextBuffer(m_dxDeviceContext);
+
+				Batch<EntityPointer>* b = &manager->renderBatch_list[i];
+				while(b->hasNext())
+				{
+					Entity* e = b->next()->asEntity();
+					Data::Transform* d_transform = e->fetchData<Data::Transform>();
+					Data::Render* d_render = e->fetchData<Data::Render>();
+
+					if(d_render->invisible)
+					{
+						m_CBPerObject.world = d_transform->toWorldMatrix();
+						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+						m_CBPerObject.color = d_render->mesh.color;
+						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+					}
 				}
 			}
 		}
 	}
 
-	// Render all selected meshes
-	m_CBPerFrame.drawDebug = 1;
-	m_dxDeviceContext->RSSetState(RenderStates::WireframeNoCullRS);
-	m_dxDeviceContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
-	m_dxDeviceContext->UpdateSubresource(m_frameConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerFrame, 0, 0);
 	{
 		Data::Render::Manager* manager = &Data::Render::manager;
 
@@ -388,6 +424,8 @@ bool DXRenderer::initDX()
 		// Sphere
 		Factory_Geometry::instance()->createSphere(0.5f, 20, 20, mesh);
 		createMeshBuffer(Enum::Mesh_Sphere, mesh);
+		Factory_Geometry::instance()->createSphere(0.5f, 4, 4, mesh);
+		createMeshBuffer(Enum::Mesh_Sphere_LowPoly, mesh);
 
 		// Cylinder
 		Factory_Geometry::instance()->createCylinder(0.5f, 0.5f, 1.0f, 20, 20, mesh);

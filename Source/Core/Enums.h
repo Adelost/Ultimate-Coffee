@@ -75,6 +75,7 @@ namespace Enum
 		Mesh_Cone,
 		Mesh_Pyramid,
 		Mesh_Asteroid,
+		Mesh_Sphere_LowPoly,
 
 		Mesh_End
 	};

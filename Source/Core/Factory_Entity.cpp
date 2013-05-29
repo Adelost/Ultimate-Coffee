@@ -71,9 +71,15 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 	if(type == Enum::Entity_DirLight)
 	{
 		Data::Transform* d_transform = e->addData(Data::Transform());
+		d_transform->position = Vector3(-5.0f, 0.0f, 15.0f);
 		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, -Math::Pi2*0.05f, Math::Pi2*0.03f);
 
 		e->addData(Data::DirLight());
+
+		// Add mesh
+		e->addData(Data::Bounding());
+		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Pyramid));
+		d_render->invisible = true;
 	}
 
 	if(type == Enum::Entity_Pointlight)
@@ -83,7 +89,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 
 		Data::Transform* transform = e->addData(Data::Transform());
 		transform->position = Vector3(30.0f * id, 0.0f, 60.0f * id);
-		transform->scale = Vector3(0.1f, 0.1f, 0.1f);
+		//transform->scale = Vector3(0.1f, 0.1f, 0.1f);
 		
 		Data::PointLight* pointLight = e->addData(Data::PointLight());
 		switch(id)
@@ -102,6 +108,11 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 			break;
 		}
 		pointLight->range = 50.0f;
+
+		// Add mesh
+		e->addData(Data::Bounding());
+		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Sphere_LowPoly));
+		d_render->invisible = true;
 	}
 
 	// Add to history
