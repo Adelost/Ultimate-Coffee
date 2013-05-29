@@ -780,79 +780,79 @@ void Manager_Docks::setupHierarchy()
 
 void Manager_Docks::update()
 {
-	//// Add entities to list
-	//DataMapper<Data::Created> map_created;
-	//while(map_created.hasNext())
-	//{
-	//	Entity* e = map_created.nextEntity();
-	//	e->removeData<Data::Created>();
-	//	int type = e->type();
-	//	int entityId = e->id();
+	// Add entities to list
+	DataMapper<Data::Created> map_created;
+	while(map_created.hasNext())
+	{
+		Entity* e = map_created.nextEntity();
+		e->removeData<Data::Created>();
+		int type = e->type();
+		int entityId = e->id();
 
-	//	// Make room for item category
-	//	QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
-	//	if(category)
-	//	{
-	//		int row = category->rowCount();
-	//		if(category->emptyRows.size() > 0)
-	//		{
-	//			row = category->emptyRows.back();
-	//			category->emptyRows.pop_back();
-	//		}
+		// Make room for item category
+		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+		if(category)
+		{
+			int row = category->rowCount();
+			if(category->emptyRows.size() > 0)
+			{
+				row = category->emptyRows.back();
+				category->emptyRows.pop_back();
+			}
 
-	//		// Update item
-	//		QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
-	//		if(item)
-	//		{
-	//			item->setEnabled(true);
-	//			item->setSelectable(true);
-	//			m_hierarchy_tree->setRowHidden(row, category->index(), false);
-	//		}
-	//		else
-	//		{
-	//			item = new QStandardItem_Entity();
-	//		}
-	//		item->entityId = e->id();
-	//		item->setText(e->name().c_str());
-	//		e->hierarchyRow = row;
-	//		category->setChild(e->hierarchyRow, item);
+			// Update item
+			QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
+			if(item)
+			{
+				item->setEnabled(true);
+				item->setSelectable(true);
+				m_hierarchy_tree->setRowHidden(row, category->index(), false);
+			}
+			else
+			{
+				item = new QStandardItem_Entity();
+			}
+			item->entityId = e->id();
+			item->setText(e->name().c_str());
+			e->hierarchyRow = row;
+			category->setChild(e->hierarchyRow, item);
 
-	//		// Update category
-	//		std::string typeName = e->typeName();
-	//		m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
-	//		typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
-	//		category->setText(typeName.c_str());
-	//	}
-	//}
+			// Update category
+			std::string typeName = e->typeName();
+			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+			typeName = "[" + Converter::IntToStr(category->rowCount()) + "] "+typeName;
+			category->setText(typeName.c_str());
+		}
+	}
 
-	//// Remove
-	//DataMapper<Data::Deleted> map_removed;
-	//while(map_removed.hasNext())
-	//{
-	//	Entity* e = map_removed.nextEntity();
-	//	e->removeData<Data::Deleted>();
-	//	int type = e->type();
-	//	int entityId = e->id();
+	// Remove
+	DataMapper<Data::Deleted> map_removed;
+	while(map_removed.hasNext())
+	{
+		Entity* e = map_removed.nextEntity();
+		e->removeData<Data::Deleted>();
+		int type = e->type();
+		int entityId = e->id();
 
-	//	// Make room for item category
-	//	QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
-	//	if(category)
-	//	{
-	//		// Hide item
-	//		int row = e->hierarchyRow;
-	//		QStandardItem* item = category->child(row);
-	//		category->emptyRows.push_back(row);
-	//		item->setEnabled(false);
-	//		item->setSelectable(false);
-	//		m_hierarchy_tree->setRowHidden(row, category->index(), true);
+		// Make room for item category
+		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+		int row = e->hierarchyRow;
+		if(category && row != -1)
+		{
+			// Hide item
+			QStandardItem* item = category->child(row);
+			category->emptyRows.push_back(row);
+			item->setEnabled(false);
+			item->setSelectable(false);
+			m_hierarchy_tree->setRowHidden(row, category->index(), true);
 
-	//		// Update category
-	//		std::string typeName = e->typeName();
-	//		m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
-	//		typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
-	//		category->setText(typeName.c_str());
-	//	}
-	//}
+			// Update category
+			std::string typeName = e->typeName();
+			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+			typeName = "[" + Converter::IntToStr(category->rowCount()) + "] "+typeName;
+			category->setText(typeName.c_str());
+		}
+	}
 }
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
@@ -872,6 +872,10 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
 {
+	// HACK: Ignore category clicks (category has no parents, just like batman)
+	if(m_hierarchy_model->itemFromIndex(index)->parent() == 0)
+		return;
+
 	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
 
 	DataMapper<Data::Selected> map_selected;
@@ -904,6 +908,10 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
+	// HACK: Ignore category clicks (category has no parents, just like batman)
+	if(m_hierarchy_model->itemFromIndex(index)->parent() == 0)
+		return;
+
 	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
 
 	// Fetch camera

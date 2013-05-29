@@ -1,0 +1,41 @@
+# 0 = Mesh_Box
+# 1 = Mesh_Sphere
+# 2 = Mesh_Cylinder
+# 3 = Mesh_Cone
+# 4 = Mesh_Pyramid
+# 5 = Mesh_Asteroid
+# 6 = Mesh_Sphere_LowPoly
+
+# MeshId, Name, Color
+2	basket	71,71,71
+5	b_backbone	255,231,174
+6	b_birdskull	255,231,174
+5	b_bonearm	255,231,174
+5	b_boneleg	255,231,174
+6	b_skull	255,231,174
+0	box	86,64,31
+2	buckler	99,103,109
+0	catstand	213,144,65
+
+5	chisel	153,152,157
+5	drain	93,89,83
+2	footpillow	255,112,46
+5	gpost	101,107,147
+5	hammertool	88,57,27
+5	joshuatrunk	66,42,26
+6	log	130,84,51
+2	longpillow	5,98,126
+5	nail	145,141,141
+4	pack	121,189,12
+
+4	pack1	162,122,52
+5	pitcher	189,91,93
+5	post	88,57,27
+6	rope	213,213,213
+5	sacklarge	168,110,51
+5	sacksmall	126,61,39
+4	squarepillow	255,231,174
+2	statue	140,187,218
+0	stone_block_pile	49,91,98
+5	tag	75,142,152
+0	trapdoor	208,157,67
