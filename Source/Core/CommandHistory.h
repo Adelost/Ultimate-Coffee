@@ -9,7 +9,7 @@ class Command;
 // *Add commands (tryToAddCommand and tryToAddCommand)
 // *History jumping (tryToJumpInCommandHistory)
 // *Save to byte format (receiveSerializedByteFormat)
-// *Load from byte format (tryToLoadFromSerializationByteFormat)s
+// *Load from byte format (tryToLoadFromSerializationByteFormat)
 // *Retrieve as std::stringstream (getCommandHistoryAsText)
 //--------------------------------------------------------------------------------------
 class CommandHistory
@@ -52,8 +52,8 @@ public:
 	// "byteSize" is a return value. Refer to .cpp file for format description.
 	char* receiveSerializedByteFormat(int& byteSize); 
 
-	// "bytes" is assumed to be in the serialized byte format as returned from "receiveSerializedByteFormat". "byteSize" is assumed to be the size in bytes of the "bytes" parameter. "execute" specifies wheter to execute up and untill current (true) or to only load the data (false).
-	bool tryToLoadFromSerializationByteFormat(char* bytes, int byteSize, bool execute);
+	// "bytes" is assumed to be in the serialized byte format as returned from "receiveSerializedByteFormat". "byteSize" is assumed to be the size in bytes of the "bytes" parameter. "executeUpAndUntilCurrent" specifies wheter to execute up and untill current (standard: true) or to only load the command history data (false) without executing the commands.
+	bool tryToLoadFromSerializationByteFormat(char* bytes, int byteSize, bool executeUpAndUntilCurrent = true);
 
 	// Returns the command history information as text.
 	std::stringstream* getCommandHistoryAsText();

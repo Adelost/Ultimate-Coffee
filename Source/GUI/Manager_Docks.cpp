@@ -267,7 +267,8 @@ void Manager_Docks::onEvent(Event* e)
 			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
 			std::vector<Command*>* commands = commandEvent->commands;
 			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
-			
+			int indexToBundledWithCommandHistoryGUIListEntry = commandEvent->indexToBundledWithCommandHistoryGUIListEntry;
+
 			int nrOfCommandToBeAdded = commands->size();
 			for(int i=0;i<nrOfCommandToBeAdded;i++)
 			{
@@ -399,7 +400,30 @@ void Manager_Docks::onEvent(Event* e)
 				}
 				commandText += appendToCommandText;
 				QString commandtextAsQString = commandText.c_str();
-				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString);
+
+				// Special case: give the added command history entry the command history index that is the current index in the command history
+				if(indexToBundledWithCommandHistoryGUIListEntry == -2)
+				{
+					// Get info from "Manager_Commands"
+					Event_GetCommandHistoryInfo returnValue;
+					SEND_EVENT(&returnValue);
+					if(returnValue.indexOfCurrentCommand < -1) // Invalid command index. The "Event_GetCommandHistoryInfo" event might have got lost somewhere.
+					{
+						MESSAGEBOX("Error when adding command(s) to the command list GUI. Added command(s) may not work as intended.");
+					}
+					else
+					{
+						indexToBundledWithCommandHistoryGUIListEntry = returnValue.indexOfCurrentCommand;
+					}
+				}
+				else
+				{
+					if(i != 0)
+					{
+						indexToBundledWithCommandHistoryGUIListEntry++;
+					}
+				}
+				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry);
 
 				if(displayAsSingleCommandHistoryEntry)
 				{
@@ -447,7 +471,7 @@ void Manager_Docks::onEvent(Event* e)
 			if(m_commandHistoryListWidget->count() == 0)
 			{
 				QIcon icon;
-				addItemToCommandHistoryListWidget(icon, "Start");
+				addItemToCommandHistoryListWidget(icon, "Start", -1);
 			}
 			else
 			{
@@ -574,21 +598,8 @@ void Manager_Docks::connectCommandHistoryListWidget(bool connect_if_true_otherwi
 	}
 }
 
-void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text)
+void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index)
 {
-	// Get info from "Manager_Commands"
-	int index = -1;
-	Event_GetCommandHistoryInfo returnValue;
-	SEND_EVENT(&returnValue);
-	if(returnValue.indexOfCurrentCommand < -1) // Invalid command index. The "Event_GetCommandHistoryInfo" event might have got lost somewhere.
-	{
-		MESSAGEBOX("Error when adding command(s) to the command list GUI. Added command(s) may not work as intended.");
-	}
-	else
-	{
-		index = returnValue.indexOfCurrentCommand;
-	}
-
 	// Add custom list item (with index retrievable on row change, refer to "Manager_Docks::currentCommandHistoryIndexChanged")
 	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index);
 	m_commandHistoryListWidget->addItem(indexedItem);

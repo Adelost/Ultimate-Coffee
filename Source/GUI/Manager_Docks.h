@@ -42,7 +42,7 @@ public:
 	void connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect);
 
 	// Adds a "ListItemWithIndex" to a "QListWidget"
-	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text);
+	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index);
 	
 	// Example: the command which in the "CommandHistory" is at index 5, what index does it have in the "QListWidget"
 	int findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex);

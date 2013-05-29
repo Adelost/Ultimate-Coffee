@@ -21,8 +21,6 @@ void Manager_Commands::init()
 	m_window = Window::instance();
 	m_ui = m_window->ui();
 
-	projectedLoaded = false;
-
 	// Init undo/redo system
 	m_commandHistory = new CommandHistory();
 	m_commandHistorySpy = new CommandHistorySpy(m_commandHistory);
@@ -196,51 +194,12 @@ void Manager_Commands::loadCommandHistory(std::string path)
 		m_lastValidProjectPath = path;
 
 		m_commandHistory->reset();
-
-//--------------------------------------------------------------------------------------
-// Load hack after rewrite of command history GUI handling 2013-05-29 04.11
-//--------------------------------------------------------------------------------------
-		if(m_commandHistory->tryToLoadFromSerializationByteFormat(bytes, bufferSize, false))
+		if(m_commandHistory->tryToLoadFromSerializationByteFormat(bytes, bufferSize))
 		{
-			//std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
-
-			CommandHistory* newCommandHistory = new CommandHistory();
-			CommandHistory* oldCommandHistory = m_commandHistory;
-			CommandHistorySpy* newCommandHistorySpy = new CommandHistorySpy(newCommandHistory);
-			CommandHistorySpy* oldCommandHistorySpy = m_commandHistorySpy;
-
-			m_commandHistory = newCommandHistory;
-			m_commandHistorySpy = newCommandHistorySpy;
-
-			std::vector<Command*>* allCommands = oldCommandHistorySpy->getCommands();
-			int currentCommandAfterLoad = oldCommandHistorySpy->getIndexOfCurrentCommand();
-
-			int nrOfCommands = allCommands->size();
-			for(int i=0;i<nrOfCommands;i++)
-			{
-				bool addCommandSucceeded = false;
-				Command* command = allCommands->at(i);
-				addCommandSucceeded = m_commandHistory->tryToAddCommand(command, true);
-				if(!addCommandSucceeded)
-				{
-					MESSAGEBOX("Failed to load project");
-				}
-				if(m_commandHistorySpy->getHistoryOverWriteTookPlaceWhenAddingCommands()) // If history overwrite took place: remove command representations from GUI.
-				{
-					SEND_EVENT(&Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI());
-				}
-				std::vector<Command*> guiCommands;
-				guiCommands.push_back(command);
-				SEND_EVENT(&Event_AddToCommandHistoryGUI(&guiCommands, false));
-			}
-
-			m_commandHistory->tryToJumpInCommandHistory(currentCommandAfterLoad);
+			int startIndex = 0;
+			std::vector<Command*>* allCommands = m_commandHistorySpy->getCommands();
+			SEND_EVENT(&Event_AddToCommandHistoryGUI(allCommands, false, startIndex));
 			updateCurrentCommandGUI();
-
-			oldCommandHistories.push_back(oldCommandHistory);
-			//delete oldCommandHistory;
-			delete oldCommandHistorySpy;
-			projectedLoaded = true;
 		}
 		else
 		{
@@ -404,14 +363,7 @@ void Manager_Commands::translateSceneEntity()
 
 Manager_Commands::~Manager_Commands()
 {
-	for(int i=0;i<oldCommandHistories.size();i++)
-	{
-		delete oldCommandHistories.at(i);
-	}
-	if(!projectedLoaded)
-	{
-		delete m_commandHistory;
-	}
+	delete m_commandHistory;
 	delete m_commandHistorySpy;
 }
 

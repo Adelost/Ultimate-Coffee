@@ -27,9 +27,6 @@ private:
 	QAction* m_action_skybox2;
 	QActionGroup* m_skyboxGroup;
 
-	bool projectedLoaded;
-	std::vector<CommandHistory*> oldCommandHistories; // In order to avoid memory leaks while hacking in load functionalitet after rewrite of command history GUI handling 2013-05-29 04.08
-
 	bool storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute);
 	void updateCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry);
 	bool jumpInCommandHistory(int commandHistoryIndex);
