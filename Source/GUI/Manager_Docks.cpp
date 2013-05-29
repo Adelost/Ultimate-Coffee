@@ -913,18 +913,11 @@ void Manager_Docks::focusOnEntity( const QModelIndex& index )
 		return;
 
 	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
-
-	// Fetch camera
-	Entity* entity_camera = CAMERA_ENTITY().asEntity();
-
-
+	
 	// Allow camera to focus on the entity double-clicked on
 	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
-	Data::ZoomTo d_zoomTo;
-	d_zoomTo.target = clickedEntity->toPointer();
-	entity_camera->addData(d_zoomTo);
-	
-	DEBUGPRINT("Focus on Entity: " + Converter::IntToStr(clickedEntity->id()));
+
+	Data::ZoomTo::zoomTo(clickedEntity);
 }
 
 

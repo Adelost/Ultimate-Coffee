@@ -6,6 +6,8 @@
 #include "Sky.h"
 #include "RenderStates.h"
 
+#include "MeshLoader.h"
+
 DXRenderer::DXRenderer()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_BACKBUFFER_COLOR);
@@ -90,7 +92,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 
 	m_sky = new Sky(m_dxDevice, m_dxDeviceContext, "skybox_clearsky.dds", 5000.0f);
 	m_sky2 = new Sky(m_dxDevice, m_dxDeviceContext, "skybox_redclouds.dds", 5000.0f);
-	
+
 	return result;
 }
 
@@ -416,7 +418,7 @@ bool DXRenderer::initDX()
 	ReleaseCOM(PS_Buffer);
 
 	// Create meshes
-	Factory_Geometry::MeshData mesh;
+	MeshData mesh;
 	{
 		// Box
 		Factory_Geometry::instance()->createBox(1.0f, 1.0f, 1.0f, mesh);
@@ -596,7 +598,7 @@ void DXRenderer::updatePointLights()
 	}
 }
 
-void DXRenderer::createMeshBuffer( int meshId, Factory_Geometry::MeshData &mesh )
+void DXRenderer::createMeshBuffer( int meshId, MeshData &mesh )
 {
 	std::vector<VertexPosColNorm> vertex_list = mesh.createVertexList_posColNorm();
 	std::vector<unsigned int> index_list = mesh.indexList();

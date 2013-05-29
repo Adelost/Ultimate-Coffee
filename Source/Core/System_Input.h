@@ -8,6 +8,9 @@ namespace System
 	{
 	public:
 		void update();
+
+	private:
+		void updateZoomTo();
 	};
 
 }

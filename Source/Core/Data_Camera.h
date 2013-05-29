@@ -97,6 +97,13 @@ namespace Data
 			m_up = m_look.Cross(m_right);
 		}
 
+		void setLookVector(const Vector3& p_lookVector, const Vector3& p_up)
+		{
+			m_look = p_lookVector; m_look.Normalize();
+			m_right = m_look.Cross(p_up); m_right.Normalize();
+			m_up = m_look.Cross(m_right);
+		}
+
 		void strafe(Vector3& p_cameraPos, float p_distance)
 		{
 			p_cameraPos = p_cameraPos + m_right * p_distance;

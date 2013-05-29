@@ -3,6 +3,7 @@
 
 #include "TextureLoader.h"
 
+#include "MeshData.h"
 
 
 Sky::~Sky()
@@ -84,7 +85,7 @@ Sky::Sky( ID3D11Device* device, ID3D11DeviceContext* context, const std::string&
 void Sky::init()
 {
 	// Create box
-	Factory_Geometry::MeshData sphere;
+	MeshData sphere;
 	Factory_Geometry::instance()->createSphere(100.0f, 30, 30, sphere);
 	std::vector<Vector3> vertex_list = sphere.positionList();
 	std::vector<unsigned int> index_list = sphere.indexList();

@@ -233,8 +233,14 @@ namespace Data
 	class ZoomTo : public Type<ZoomTo>
 	{
 	public:
+		static void zoomTo(Entity* e);
+	public:
 		EntityPointer target;
-		float delay; // Used for linear interpolation perhaps?
+		Vector3 originLook;
+		float distanceFromTargetToStopAt;
+		float delay;
+		float speed;
+		float rotationLerpT;
 	};
 }
 
