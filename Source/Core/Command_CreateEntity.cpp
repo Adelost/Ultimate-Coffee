@@ -57,12 +57,29 @@ void Command_CreateEntity::createEntity()
 		d_transform->rotation = m_data.rotation;
 		d_transform->scale = m_data.scale;
 	}
+
+	// Render
+	Data::Render* d_render = e->fetchData<Data::Render>();
+	if(d_render)
+	{
+		d_render->mesh.color = m_data.color;
+		d_render->setMesh(m_data.mesh);
+	}
 }
 
 void Command_CreateEntity::removeEntity()
 {
 	int id = m_data.entityUniqueId;
 	Entity* e = Entity::findEntity(m_data.entityId);
+
+	// Render
+	Data::Render* d_render = e->fetchData<Data::Render>();
+	if(d_render)
+	{
+		m_data.color = d_render->mesh.color;
+		m_data.mesh = d_render->mesh.id;
+	}
+
 	e->removeEntity();
 }
 
@@ -89,6 +106,14 @@ Command_CreateEntity::Command_CreateEntity( Entity* e, bool create )
 	m_data.position = d_transform->position;
 	m_data.rotation = d_transform->rotation;
 	m_data.scale = d_transform->scale;
+
+	// Render
+	Data::Render* d_render = e->fetchData<Data::Render>();
+	if(d_render)
+	{
+		m_data.color = d_render->mesh.color;
+		m_data.mesh = d_render->mesh.id;
+	}
 }
 
 Command_CreateEntity::Command_CreateEntity( bool create )

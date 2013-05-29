@@ -13,6 +13,7 @@
 #include <Core/Command_RotateSceneEntity.h>
 #include <Core/Command_ScaleSceneEntity.h>
 #include <Core/Command_SkyBox.h>
+#include <Core/Command_CreateEntity.h>
 
 Manager_Docks::~Manager_Docks()
 {
@@ -22,10 +23,11 @@ void Manager_Docks::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
-	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
-	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
+	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMAND_HISTORY_GUI_FILTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_PLAY_SOUND_DING);
 	
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
@@ -154,12 +156,13 @@ void Manager_Docks::setupMenu()
 	// Command History
 	dock = createDock("History", Qt::LeftDockWidgetArea);
 	m_commandHistoryListWidget = new ListWidgetWithoutKeyboardInput(dock);
-	connectCommandHistoryWidget(true);
+	connectCommandHistoryListWidget(true);
+	//connect(m_commandHistoryListWidget, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(commandHistoryItemPressed(QListWidgetItem*)));
 	dock->setWidget(m_commandHistoryListWidget);
 
 	// Item Browser
 	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
-	dock->setWindowTitle("Item Browser (Not fully implemented, as of 2013-05-23)");
+	dock->setWindowTitle("Item Browser");
 	m_itemBrowser = new ItemBrowser(dock);
 	dock->setWidget(m_itemBrowser);
 
@@ -264,15 +267,16 @@ void Manager_Docks::onEvent(Event* e)
 			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
 			std::vector<Command*>* commands = commandEvent->commands;
 			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
-			
-			int nrOfCommandToBeAddedToCommandHistoryGUI = commands->size();
-			for(int i=0;i<nrOfCommandToBeAddedToCommandHistoryGUI;i++)
+			int indexToBundledWithCommandHistoryGUIListEntry = commandEvent->indexToBundledWithCommandHistoryGUIListEntry;
+
+			int nrOfCommandToBeAdded = commands->size();
+			for(int i=0;i<nrOfCommandToBeAdded;i++)
 			{
 				std::string commandText = "UNKNOWN COMMAND";
 				std::string appendToCommandText = "";
-				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAddedToCommandHistoryGUI > 1)
+				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAdded > 1)
 				{
-					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAddedToCommandHistoryGUI) +")";
+					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAdded) +")";
 				}
 
 				QIcon commandIcon;
@@ -396,11 +400,34 @@ void Manager_Docks::onEvent(Event* e)
 				}
 				commandText += appendToCommandText;
 				QString commandtextAsQString = commandText.c_str();
-				QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
-				m_commandHistoryListWidget->addItem(item);
-				if(displayAsSingleCommandHistoryEntry && i != nrOfCommandToBeAddedToCommandHistoryGUI-1) // When "displayAsSingleCommandHistoryEntry" is set, make last the command in "commands" visible in the command history list
+
+				// Special case: give the added command history entry the command history index that is the current index in the command history
+				if(indexToBundledWithCommandHistoryGUIListEntry == -2)
 				{
-					item->setHidden(true);
+					// Get info from "Manager_Commands"
+					Event_GetCommandHistoryInfo returnValue;
+					SEND_EVENT(&returnValue);
+					if(returnValue.indexOfCurrentCommand < -1) // Invalid command index. The "Event_GetCommandHistoryInfo" event might have got lost somewhere.
+					{
+						MESSAGEBOX("Error when adding command(s) to the command list GUI. Added command(s) may not work as intended.");
+					}
+					else
+					{
+						indexToBundledWithCommandHistoryGUIListEntry = returnValue.indexOfCurrentCommand;
+					}
+				}
+				else
+				{
+					if(i != 0)
+					{
+						indexToBundledWithCommandHistoryGUIListEntry++;
+					}
+				}
+				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry);
+
+				if(displayAsSingleCommandHistoryEntry)
+				{
+					break; // Exit loop. Only add one command to the GUI.
 				}
 			}
 		}
@@ -408,88 +435,48 @@ void Manager_Docks::onEvent(Event* e)
 	case EVENT_SET_SELECTED_COMMAND_GUI:
 		{
 			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
-			int index = selectionEvent->indexOfCommand;
-			if(index > -1) // Note: do not call "setCurrentRow" with a negative value. It will deselect all list items as intended, but then it resets itself to zero causing an unwanted SIGNAL that was harder to disconnect than when disconnected under "EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI". Just avoid it.
-			{
-				m_commandHistoryListWidget->setCurrentRow(index);
-			}
-			else
-			{
-				int nrOfItems = m_commandHistoryListWidget->count();
-				int itemIndex = 0;
-				QListWidgetItem* item;
-				do
-				{
-					item = m_commandHistoryListWidget->item(itemIndex);
-					itemIndex++;
-				}
-				while(item->isHidden() && itemIndex < nrOfItems);
+			int commandHistoryIndex = selectionEvent->commandHistoryIndex;
 
-				// Deselect first visible command in the command history list
-				item->setSelected(false);
-			}
+			int listItemIndex = findListItemIndexFromCommandHistoryIndex(commandHistoryIndex);
+			m_commandHistoryListWidget->setCurrentRow(listItemIndex);
 		}
 		break;
-	case EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI:
+	case EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
 		{
-			Event_RemoveCommandsFromCommandHistoryGUI* removeCommandFromGUIEvent = static_cast<Event_RemoveCommandsFromCommandHistoryGUI*>(e);
-			int startAt = removeCommandFromGUIEvent->startIndex;
-			int nrOfCommandsToRemove = removeCommandFromGUIEvent->nrOfCommands;
+			Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI* removeCommandFromGUIEvent = static_cast<Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI*>(e);
+			int removeAll = removeCommandFromGUIEvent->removeAllCommands;
 
-			int nrOfListItems = m_commandHistoryListWidget->count();
-			if(nrOfCommandsToRemove > nrOfListItems)
+			connectCommandHistoryListWidget(false);
+			if(removeAll)
 			{
-				nrOfCommandsToRemove = nrOfListItems;
+				m_commandHistoryListWidget->clear(); // Remove all commands from the GUI list at once
 			}
-
-			connectCommandHistoryWidget(false);
-			if(nrOfCommandsToRemove == nrOfListItems)
+			else // Remove all command after current row
 			{
-				m_commandHistoryListWidget->clear();
-			}
-			else
-			{
-				for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
+				int nextRowAfterCurrentRow = m_commandHistoryListWidget->currentRow() + 1;
+				int nrOfCommandsInTheGUIList = m_commandHistoryListWidget->count();
+				int nrOfCommandsToBeRemovedFromTheGUIList = nrOfCommandsInTheGUIList - nextRowAfterCurrentRow;
+				int i = 0;
+				while(i < nrOfCommandsToBeRemovedFromTheGUIList)
 				{
-					delete m_commandHistoryListWidget->takeItem(startAt); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+					delete m_commandHistoryListWidget->takeItem(nextRowAfterCurrentRow); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryListWidget(false);" is used above, to prevent the SIGNAL from being handled.
+					i++;
 				}
 			}
-			connectCommandHistoryWidget(true);
-		}
-		break;
-	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
-		{
-			Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI*>(e);
-			bool next = getEvent->next;
-
-			int nrOfRows = m_commandHistoryListWidget->count();
-			int currentRow = m_commandHistoryListWidget->currentRow();
-			
-			int addValue;
-			if(next)
-			{
-				currentRow++;
-				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
-				{
-					currentRow++;
-				}
-			}
-			else
-			{
-				currentRow--;
-				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
-				{
-					currentRow--;
-				}
-			}
-
-			getEvent->row = currentRow; // Return value
+			connectCommandHistoryListWidget(true);
 		}
 		break;
 	case EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI:
 		{
-			QListWidgetItem* rootCommandListItem = new QListWidgetItem("Start");
-			m_commandHistoryListWidget->addItem(rootCommandListItem);
+			if(m_commandHistoryListWidget->count() == 0)
+			{
+				QIcon icon;
+				addItemToCommandHistoryListWidget(icon, "Start", -1);
+			}
+			else
+			{
+				MESSAGEBOX("Trying to add 'Start' to command history GUI list when the list is not empty. This operation is not supported.")
+			}
 		}
 		break;
 	case EVENT_GET_COMMAND_HISTORY_GUI_FILTER:
@@ -511,6 +498,42 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			}
 			getGUIFilterEvent->GUIFilter = GUIFilter;
+		}
+		break;
+	case EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
+		{
+			Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI* incrementOrDecrement = static_cast<Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI*>(e);
+			bool increment = incrementOrDecrement->if_true_increment_if_false_decrement;
+
+			int nrOfRows = m_commandHistoryListWidget->count();
+			int currentRow = m_commandHistoryListWidget->currentRow();
+			if(increment)
+			{
+				if(currentRow+1 < nrOfRows)
+				{
+					m_commandHistoryListWidget->setCurrentRow(currentRow+1);
+				}
+				else
+				{
+					playDingSound();
+				}
+			}
+			else
+			{
+				if(currentRow-1 > -1)
+				{
+					m_commandHistoryListWidget->setCurrentRow(currentRow-1);
+				}
+				else
+				{
+					playDingSound();
+				}
+			}
+		}
+		break;
+	case EVENT_PLAY_SOUND_DING:
+		{
+			playDingSound();
 		}
 		break;
 	default:
@@ -563,21 +586,7 @@ void Manager_Docks::resetLayout()
 	}
 }
 
-void Manager_Docks::setupHierarchy()
-{
-	/*for(int i=0; i<5; i++)
-	{
-	QStandardItem* item;
-	item = new QStandardItem("Foo");
-	item->setChild(0, new QStandardItem("Fii"));
-	QStandardItem* item2 = new QStandardItem("Fum");
-	item2->setChild(0, new QStandardItem("Fuu"));
-	item->setChild(1, item2);
-	m_hierarchy->appendRow(item);
-	}*/
-}
-
-void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect)
+void Manager_Docks::connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect)
 {
 	if(connect_if_true_otherwise_disconnect)
 	{
@@ -586,6 +595,48 @@ void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_d
 	else
 	{
 		disconnect(m_commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+	}
+}
+
+void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index)
+{
+	// Add custom list item (with index retrievable on row change, refer to "Manager_Docks::currentCommandHistoryIndexChanged")
+	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index);
+	m_commandHistoryListWidget->addItem(indexedItem);
+}
+
+int Manager_Docks::findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex)
+{
+	int nrOfCommands = m_commandHistoryListWidget->count();
+	int foundCommandHistoryIndexFromIndexItem = -2;
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		QListWidgetItem* item = m_commandHistoryListWidget->item(i);
+		int currentCommandHistoryIndexFromIndexItem = getIndexFromItemWithIndex(item);
+		if(currentCommandHistoryIndexFromIndexItem == commandHistoryIndex)
+		{
+			foundCommandHistoryIndexFromIndexItem = i;
+			break;
+		}
+	}
+	return foundCommandHistoryIndexFromIndexItem;
+}
+
+int Manager_Docks::getIndexFromItemWithIndex(QListWidgetItem* item)
+{
+	//QVariant data = item->data(0);
+	//int commandHistoryIndex = data.toInt();
+	ListItemWithIndex* indexItem = static_cast<ListItemWithIndex*>(item);
+	int commandHistoryIndex = indexItem->getIndex();
+	return commandHistoryIndex;
+}
+
+void Manager_Docks::playDingSound()
+{
+	static QSound sound("Windows Ding.wav");
+	if(sound.isFinished()) // Still does not work as intended (2013-05-22 22.06) when holding down CTRL+Z or CTRL+Y
+	{
+		sound.play();
 	}
 }
 
@@ -607,74 +658,139 @@ public:
 	}
 };
 
+class QStandardItem_Category : public QStandardItem
+{
+public:
+	std::vector<int> emptyRows;
+	int rowCount()
+	{
+		return QStandardItem::rowCount() - emptyRows.size();
+	}
+};
+
+class QStandardItem_Entity : public QStandardItem
+{
+public:
+	int entityId;
+};
+
+void Manager_Docks::setupHierarchy()
+{
+	// Create categories
+	for(int i=0; i<Enum::Entity_End; i++)
+	{
+		QStandardItem* category = m_hierarchy_model->item(i);
+		if(!category)
+		{
+			category = new QStandardItem_Category();
+			category->setSelectable(false);
+			m_hierarchy_model->setItem(i, category);
+
+			// Hide category, until used
+			m_hierarchy_tree->setRowHidden(i, m_hierarchy_tree->rootIndex(), true);
+			
+		}
+	}
+}
+
+
+
 void Manager_Docks::update()
 {
-// 	// Add entities to list
-// 	DataMapper<Data::Created> map_created;
-// 	while(map_created.hasNext())
-// 	{
-// 		Entity* e = map_created.nextEntity();
-// 		e->removeData<Data::Created>();
-// 		int entityId = e->id();
-// 
-// 		// Make room for item
-// 		QStandardItem* item = m_hierarchy_model->item(entityId);
-// 		if(!item)
-// 		{
-// 			item = new QStandardItem();
-// 			m_hierarchy_model->setItem(entityId, item);
-// 		}
-// 
-// 		// Assign item
-// 		item->setText(e->name().c_str());
-// 		item->setEnabled(true);
-// 		item->setSelectable(true);
-// 		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
-// 
-// 		// HACK: Make camera undeletable
-// 		if(e->fetchData<Data::Camera>())
-// 		{
-// 			item->setSelectable(false);
-// 		}
-// 	}
-// 	
-// 	// Remove entries from list
-// 	DataMapper<Data::Deleted> map_removed;
-// 	while(map_removed.hasNext())
-// 	{
-// 		Entity* e = map_removed.nextEntity();
-// 		e->removeData<Data::Deleted>();
-// 		int entityId = e->id();
-// 
-// 		// Assign item
-// 		QStandardItem* item = m_hierarchy_model->item(entityId);
-// 		if(item)
-// 		{
-// 			item->setEnabled(false);
-// 			item->setSelectable(false);
-// 			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
-// 		}
-// 	}
+	//// Add entities to list
+	//DataMapper<Data::Created> map_created;
+	//while(map_created.hasNext())
+	//{
+	//	Entity* e = map_created.nextEntity();
+	//	e->removeData<Data::Created>();
+	//	int type = e->type();
+	//	int entityId = e->id();
 
-	
+	//	// Make room for item category
+	//	QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+	//	if(category)
+	//	{
+	//		int row = category->rowCount();
+	//		if(category->emptyRows.size() > 0)
+	//		{
+	//			row = category->emptyRows.back();
+	//			category->emptyRows.pop_back();
+	//		}
+
+	//		// Update item
+	//		QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
+	//		if(item)
+	//		{
+	//			item->setEnabled(true);
+	//			item->setSelectable(true);
+	//			m_hierarchy_tree->setRowHidden(row, category->index(), false);
+	//		}
+	//		else
+	//		{
+	//			item = new QStandardItem_Entity();
+	//		}
+	//		item->entityId = e->id();
+	//		item->setText(e->name().c_str());
+	//		e->hierarchyRow = row;
+	//		category->setChild(e->hierarchyRow, item);
+
+	//		// Update category
+	//		std::string typeName = e->typeName();
+	//		m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+	//		typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
+	//		category->setText(typeName.c_str());
+	//	}
+	//}
+
+	//// Remove
+	//DataMapper<Data::Deleted> map_removed;
+	//while(map_removed.hasNext())
+	//{
+	//	Entity* e = map_removed.nextEntity();
+	//	e->removeData<Data::Deleted>();
+	//	int type = e->type();
+	//	int entityId = e->id();
+
+	//	// Make room for item category
+	//	QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+	//	if(category)
+	//	{
+	//		// Hide item
+	//		int row = e->hierarchyRow;
+	//		QStandardItem* item = category->child(row);
+	//		category->emptyRows.push_back(row);
+	//		item->setEnabled(false);
+	//		item->setSelectable(false);
+	//		m_hierarchy_tree->setRowHidden(row, category->index(), true);
+
+	//		// Update category
+	//		std::string typeName = e->typeName();
+	//		m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+	//		typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
+	//		category->setText(typeName.c_str());
+	//	}
+	//}
 }
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
-	Event_GetCommandHistoryInfo* commandHistoryInfo = new Event_GetCommandHistoryInfo(); // Retrieve information from command history
-	SEND_EVENT(commandHistoryInfo); //The event is assumed to have correct values below
-
-	// Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in CommandHistory::tryToJumpInCommandHistory)
-	int trackToCommandIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(currentRow);
-	if(commandHistoryInfo->indexOfCurrentCommand != trackToCommandIndex)
+	QListWidgetItem* currentItem = m_commandHistoryListWidget->item(currentRow);
+	int commandHistoryIndexStoredInItemAtCurrentRow = getIndexFromItemWithIndex(currentItem);
+	
+	Event_GetCommandHistoryInfo commandHistoryInfo; // Retrieve information from command history
+	SEND_EVENT(&commandHistoryInfo); // The event is assumed to have correct values below
+	int indexOfCurrentCommand = commandHistoryInfo.indexOfCurrentCommand;
+	
+	if(indexOfCurrentCommand != commandHistoryIndexStoredInItemAtCurrentRow) // Only jump when not jumping to the index that is already current
 	{
-		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
+		SEND_EVENT(&Event_JumpToCommandHistoryIndex(commandHistoryIndexStoredInItemAtCurrentRow));
 	}
-	delete commandHistoryInfo;
 }
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
 {
+	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
+
 	DataMapper<Data::Selected> map_selected;
 
 	// Remove previous selection
@@ -686,14 +802,14 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 		Data::Selected::lastSelected.invalidate();
 	foreach(QModelIndex index, index_list)
 	{
-		int entityId = index.row();
+		int entityId = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index))->entityId;
 		Entity* e = Entity::findEntity(entityId);
 		e->addData(Data::Selected());
 	}
 
 	// If clicked was selected (not deselected with CTRL click)
 	// add as LastClicked
-	Entity* clickedEntity = Entity::findEntity(index.row());
+	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
 	if(clickedEntity->fetchData<Data::Selected>())
 		Data::Selected::select(clickedEntity);
 	else
@@ -705,12 +821,14 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
+	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
+
 	// Fetch camera
 	Entity* entity_camera = CAMERA_ENTITY().asEntity();
 
 
 	// Allow camera to focus on the entity double-clicked on
-	Entity* clickedEntity = Entity::findEntity(index.row());
+	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
 	Data::ZoomTo d_zoomTo;
 	d_zoomTo.target = clickedEntity->toPointer();
 	entity_camera->addData(d_zoomTo);
@@ -727,6 +845,7 @@ void System_Editor::update()
 ItemBrowser::ItemBrowser( QWidget* p_parent ) : QWidget(p_parent)
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_REFRESH_SPLITTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_PREVIEW_ITEMS);
 	POST_DELAYED_EVENT(new Event(EVENT_REFRESH_SPLITTER), 0.0f);
 
 	setObjectName("Item Browser");
@@ -795,23 +914,73 @@ void ItemBrowser::initTree()
 
 void ItemBrowser::loadGrid( QListWidgetItem* item )
 {
-	// Open 
+	// Path
 	QString path;
-	path = path + THUMBNAIL_PATH + "/" + item->text();
-	QDir dir(path);
-	QStringList filters;
-	filters << "*.png" << "*.jpg";
-	dir.setNameFilters(filters);
-	dir.setFilter(QDir::Files);
+	path = path + THUMBNAIL_PATH + item->text();
+	std::string str_path = path.toStdString();
 
-	QFileInfoList list = dir.entryInfoList();
-	foreach(QFileInfo i, list)
+	// Load items
+	QFile textFile(path + "/_items.txt");
+	if(textFile.open(QIODevice::ReadOnly))
 	{
-		QString filename = i.baseName();
+		QRegExp rx_tab("(\\t)");
+		QRegExp rx_comma("(\\,)");
 
-		QIcon icon(path + "/" + filename);
-		Item_Prefab* item = new Item_Prefab(icon, filename);
-		m_grid->addItem(item);
+		QTextStream textStream(&textFile);
+		while(!textStream.atEnd())
+		{
+			// Read line
+			QString line = textStream.readLine();
+
+			// Ignore comments and empty lines
+			if(!(line[0] == '#' || line.size() == 0))
+			{
+				QStringList list = line.split(rx_tab);
+				QString qstr_mesh = list[0];
+				QString qstr_name = list[1];
+				QString qstr_color = list[2];
+				list = qstr_color.split(rx_comma);
+				QString c_r = list[0];
+				QString c_g = list[1];
+				QString c_b = list[2];
+
+				// Read mesh
+				int meshId = Converter::StrToInt(qstr_mesh.toStdString());
+				Enum::Mesh mesh = static_cast<Enum::Mesh>(meshId);
+
+				// Read color
+				QColor c(Converter::StrToInt(c_r.toStdString()), Converter::StrToInt(c_g.toStdString()), Converter::StrToInt(c_b.toStdString()));
+				Color color = Vector3(c.redF(), c.greenF(), c.blueF());
+
+				// Create item
+				QIcon icon(path + "/" + qstr_name);
+				Item_Prefab* item = new Item_Prefab(icon, qstr_name);
+				item->color = color;
+				item->mesh = mesh;
+				m_grid->addItem(item);
+			}
+		}
+	}
+	else
+	{
+		// Open 
+		QString path;
+		path = path + THUMBNAIL_PATH + "/" + item->text();
+		QDir dir(path);
+		QStringList filters;
+		filters << "*.png" << "*.jpg";
+		dir.setNameFilters(filters);
+		dir.setFilter(QDir::Files);
+
+		QFileInfoList list = dir.entryInfoList();
+		foreach(QFileInfo i, list)
+		{
+			QString filename = i.baseName();
+
+			QIcon icon(path + "/" + filename);
+			Item_Prefab* item = new Item_Prefab(icon, filename);
+			m_grid->addItem(item);
+		}
 	}
 }
 
@@ -829,6 +998,49 @@ void ItemBrowser::onEvent( Event* e )
 	case EVENT_REFRESH_SPLITTER: //Add command to the command history list in the GUI
 		moveHandle();
 		break;
+	case EVENT_PREVIEW_ITEMS:
+		 {
+			 std::vector<Command*> command_list;
+
+			 // HACK: Compensate for change in tools due to gridselection
+			 int toolTyp = SETTINGS()->selectedTool();
+
+			 Vector3 offset = Math::randomVector(-0.1f,0.1f);
+			 offset = offset + CAMERA_ENTITY().asEntity()->fetchData<Data::Transform>()->position;
+			 offset.z += 15.0f; 
+			 int row = 0;
+			 int col = 0;
+
+			 // Create startup items
+			 Entity* e;
+			 for(int i=0; i<m_grid->count(); i++)
+			 {
+				 selectEntity(m_grid->item(i));
+				 e = FACTORY_ENTITY()->createEntity(Enum::Entity_Mesh);
+				 Data::Transform* d_transform = e->fetchData<Data::Transform>();
+				 d_transform->position.x = offset.x + col;
+				 d_transform->position.y = offset.y - row;
+				 d_transform->position.z = offset.z;
+
+				 
+				 col++;
+				 if(col > 5)
+				 {
+					 col = 0;
+					 row++;
+				 }
+				 
+				 // Save command
+				 command_list.push_back(new Command_CreateEntity(e, true));
+			 }
+
+			 // Save to history
+			 if(command_list.size() > 0)
+				 SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+
+			 SETTINGS()->setSelectedTool(toolTyp);
+		 }
+		 break;
 	default:
 		break;
 	}
@@ -842,7 +1054,8 @@ void ItemBrowser::selectEntity( QListWidgetItem* item )
 
 	// Select corresponding Entity
 	Item_Prefab* i = static_cast<Item_Prefab*>(item);
-	DEBUGPRINT("Selected " + Converter::IntToStr(i->modelId));
+	SETTINGS()->choosenEntity.color = i->color;
+	SETTINGS()->choosenEntity.mesh = i->mesh;
 }
 
 void Hierarchy::keyPressEvent( QKeyEvent *e )
@@ -1494,12 +1707,8 @@ void ToolPanel::pickColor()
 			m_colorDialog->setCurrentColor(c);
 		}
 	}
-
-
 	
 	m_colorDialog->show();
-
-
 }
 
 void ToolPanel::setColor( const QColor& color )
@@ -1526,7 +1735,23 @@ void ToolPanel::setColor( const QColor& color )
 	m_colorIcon->setPixmap(pixmap);
 }
 
-ListItemWithId::ListItemWithId()
+ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int index)
+	: QListWidgetItem(icon, text)
 {
+	m_index = index;
+}
 
+int ListItemWithIndex::getIndex()
+{
+	return m_index;
+}
+
+Item_Prefab::Item_Prefab( QIcon icon, QString filname ) : QListWidgetItem(icon, filname)
+{
+	// Pick random mesh
+	int meshId = Math::randomInt(0, Enum::Mesh_End-1);
+	mesh = static_cast<Enum::Mesh>(meshId);
+
+	// Pick random color
+	color = Math::randomColor();
 }

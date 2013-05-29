@@ -87,24 +87,33 @@ void Manager_Tools::setupActions()
 // 	a = createContextIcon("Coffee");
 // 	a->setToolTip("Recreate geometry");
 // 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+	a = createContextIcon("preview");
+	a->setToolTip("Preview item browser");
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(previewItemBrowser()));
+
+	a = createContextIcon("image");
+	a->setToolTip("Import image");
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(loadImage()));
+
 	a = createContextIcon("asteroid");
 	a->setToolTip("Create 1 asteroid");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroid()));
+
 	a = createContextIcon("asteroids");
 	a->setToolTip("Create 1000 asteroids");
 	connect(a, SIGNAL(triggered()), this, SLOT(createAsteroids()));
+
+	a = createContextIcon("homing");
+	a->setToolTip("Homing asteroids");
+	a->setCheckable(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
+
 	a = createContextIcon("simulate");
 	a->setToolTip("Run simulation");
 	a->setCheckable(true);
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
-	a = createContextIcon("homing");
-	a->setToolTip("Homing asteroids");
-	a->setCheckable(true);
-	connect(a, SIGNAL(triggered(bool)), this, SLOT(homingAsteroids(bool)));
-	//a = createContextIcon("image");
-	//a->setToolTip("Import image");
-	//connect(a, SIGNAL(triggered(bool)), this, SLOT(loadImage()));
+
 }
 
 void Manager_Tools::action_about()
@@ -289,22 +298,66 @@ void Manager_Tools::homingAsteroids( bool state )
 
 void Manager_Tools::loadImage()
 {
+	std::vector<Command*> command_list;
+
+	// Prepare camera
+	Entity* cam = CAMERA_ENTITY().asEntity();
+	Data::Transform* d_cam_transform = cam->fetchData<Data::Transform>();
+
 	// Load pixmap
 	QString path = ICON_PATH;
-	path += "Cursors/scene";
+	if(SETTINGS()->button.key_shift)
+		path += "Images/lisa";
+	else if(SETTINGS()->button.key_alt)
+		path += "Images/ski";
+	else
+		path += "Images/invader";
 	QPixmap pixmap(path);
+	QImage image(path);
+
+	Vector3 offset = d_cam_transform->position;
+	offset.x -= image.size().width()/2;
+	offset.y -= image.size().height()/2;
 
 	// Create image out of cubes
-	
-	for(int x=0; x<5; x++)
+	for(int x=0; x<image.size().width(); x++)
 	{
-		for(int y=0; y<5; y++)
+		for(int y=0; y<image.size().height(); y++)
 		{
-			Entity* e = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
-			Data::Transform* d_transform = e->fetchData<Data::Transform>();
+			QColor p(image.pixel(x, y));
+			
+			// Make white act as transparent by not creating
+			// any entity
+			if(!(p.red() == 255 && p.green() == 255 && p.blue() == 255))
+			{
+				Entity* e = WORLD()->factory_entity()->createEntity(Enum::Entity_Mesh);
+				Data::Transform* d_transform = e->fetchData<Data::Transform>();
+				Data::Render* d_render = e->fetchData<Data::Render>();
+				Data::Movement_Floating* d_float = e->addData(Data::Movement_Floating());
+				//d_float->rotation = Vector3();
+				d_float->velocity = Vector3();
 
-			d_transform->position.x = x;
-			d_transform->position.y = y;
+				//d_transform->position = d_cam_transform->position;
+
+				d_transform->position.x = x;
+				d_transform->position.y = image.size().height() - y;
+				d_transform->position.z = 60.0f;
+				d_transform->position += offset;
+
+				Color color(p.redF(), p.greenF(), p.blueF());
+				d_render->mesh.color = color;
+
+				command_list.push_back(new Command_CreateEntity(e, true));
+			}
 		}
 	}
+
+	// Save to history
+	if(command_list.size() > 0)
+		SEND_EVENT(&Event_AddToCommandHistory(&command_list, false));
+}
+
+void Manager_Tools::previewItemBrowser()
+{
+	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 }

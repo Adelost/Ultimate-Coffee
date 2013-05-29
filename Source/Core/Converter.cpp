@@ -64,16 +64,6 @@ wchar_t* Converter::StrlToWstr(std::string string)
 	return wstr;
 }
 
-int Converter::ConvertFromCommandHistoryIndexToCommandHistoryGUIListIndex(int commandHistoryIndex)
-{
-	return commandHistoryIndex+1;
-}
-
-int Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(int commandHistoryGUIListIndex)
-{
-	return commandHistoryGUIListIndex-1;
-}
-
 bool Converter::BytesToFile(const char* bytes, int sizeOfBytes, std::string path)
 {
 	std::ofstream outputFile(path, std::ios::binary);

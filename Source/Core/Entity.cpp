@@ -9,6 +9,7 @@ Entity::Entity( int p_id, int p_uniqueId )
 	m_id = p_id;
 	m_uniqueId = p_uniqueId;
 	m_type = Enum::Entity_Empty;
+	hierarchyRow = -1;
 }
 
 void Entity::removeEntity()
@@ -91,10 +92,15 @@ Entity* Entity::clone()
 
 std::string Entity::name()
 {
-	std::string name = EntityTypeToString(type());
+	std::string name = typeName();
 	name += "_" + Converter::IntToStr(id());
 
 	return name;
+}
+
+std::string Entity::typeName()
+{
+	return EntityTypeToString(type());
 }
 
 

@@ -268,8 +268,7 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 				command_list.push_back(new Command_CreateEntity(e, false));
 				e->removeEntity();
 			}
-			int count = command_list.size();
-			if(count>0)
+			if(command_list.size() > 0)
 			{
 				//check. If an entity has a name that needs to be saved to file, put it in the data struct of the command (Henrik, 2013-05-18, 14.34)
 				//if(count == 1)
@@ -343,8 +342,6 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 	QPoint pos = p_event->pos();
 	SEND_EVENT(&Event_MousePress(pos.x(), pos.y(), button, state));
 
-
-
 	// HACK: Hide mouse when rotating camera
 	if(button == Qt::RightButton)
 	{
@@ -357,8 +354,6 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			SEND_EVENT(&Event_SetCursor(Event_SetCursor::NormalCursor));
 		}
 	}
-
-
 
 	// HACK: Place Entities if EntityTool is selected
 	if(p_pressed && button == Qt::LeftButton && SETTINGS()->selectedTool() == Enum::Tool_Geometry)

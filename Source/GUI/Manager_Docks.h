@@ -39,7 +39,18 @@ public:
 	void setupMenu();
 	void setupHierarchy();
 
-	void connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect);
+	void connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect);
+
+	// Adds a "ListItemWithIndex" to a "QListWidget"
+	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text, int index);
+	
+	// Example: the command which in the "CommandHistory" is at index 5, what index does it have in the "QListWidget"
+	int findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex);
+
+	// Only send "QListWidgetItem" that really are "ListItemWithIndex" as argument
+	int getIndexFromItemWithIndex(QListWidgetItem* item);
+
+	void playDingSound();
 
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
@@ -53,7 +64,7 @@ public slots:
 	void saveLayout();
 	void loadLayout();
 	void resetLayout();
-	void currentCommandHistoryIndexChanged(int currentRowChanged);
+	void currentCommandHistoryIndexChanged(int currentRow);
 	void selectEntity(const QModelIndex& index);
 	void focusOnEntity(const QModelIndex& index);
 };
@@ -74,13 +85,9 @@ public:
 class Item_Prefab : public QListWidgetItem
 {
 public:
-	Item_Prefab(QIcon icon, QString filname) : QListWidgetItem(icon, filname)
-	{
-		static int i;
-		modelId = i;
-		i++;
-	}
-	int modelId;
+	Item_Prefab(QIcon icon, QString filname);
+	Enum::Mesh mesh;
+	Color color;
 };
 
 class ItemBrowser : public QWidget, public IObserver
@@ -181,10 +188,12 @@ protected:
 	}
 };
 
-class ListItemWithId : public QListWidgetItem
+class ListItemWithIndex : public QListWidgetItem
 {
-	//Q_OBJECT
+private:
+	int m_index;
 
 public:
-	ListItemWithId();
+	ListItemWithIndex(const QIcon& icon, const QString& text, int index);
+	int getIndex();
 };

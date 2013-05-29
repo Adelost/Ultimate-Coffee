@@ -16,4 +16,5 @@ public:
 	std::vector<Command*>* getCommands();
 	int getIndexOfCurrentCommand();
 	int getNrOfCommands();
+	bool getHistoryOverWriteTookPlaceWhenAddingCommands();
 };

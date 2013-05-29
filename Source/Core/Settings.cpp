@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "Enums.h"
 #include "Events.h"
+#include "Data.h"
 
 Settings::Settings()
 {
