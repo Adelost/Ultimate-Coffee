@@ -586,20 +586,6 @@ void Manager_Docks::resetLayout()
 	}
 }
 
-void Manager_Docks::setupHierarchy()
-{
-	/*for(int i=0; i<5; i++)
-	{
-	QStandardItem* item;
-	item = new QStandardItem("Foo");
-	item->setChild(0, new QStandardItem("Fii"));
-	QStandardItem* item2 = new QStandardItem("Fum");
-	item2->setChild(0, new QStandardItem("Fuu"));
-	item->setChild(1, item2);
-	m_hierarchy->appendRow(item);
-	}*/
-}
-
 void Manager_Docks::connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect)
 {
 	if(connect_if_true_otherwise_disconnect)
@@ -672,46 +658,91 @@ public:
 	}
 };
 
+class QStandardItem_Category : public QStandardItem
+{
+public:
+	std::vector<int> empty_spots;
+};
+
+class QStandardItem_Entity : public QStandardItem
+{
+public:
+	int entityId;
+};
+
+void Manager_Docks::setupHierarchy()
+{
+	// Create categories
+	for(int i=0; i<Enum::Entity_End; i++)
+	{
+		QStandardItem* category = m_hierarchy_model->item(i);
+		if(!category)
+		{
+			m_hierarchy_model->setItem(i, new QStandardItem_Category());
+
+			// Hide category, until used
+			m_hierarchy_tree->setRowHidden(i, m_hierarchy_tree->rootIndex(), true);
+		}
+	}
+}
+
+
+
 void Manager_Docks::update()
 {
-// 	// Add entities to list
-// 	DataMapper<Data::Created> map_created;
-// 	while(map_created.hasNext())
-// 	{
-// 		Entity* e = map_created.nextEntity();
-// 		e->removeData<Data::Created>();
-// 		int entityId = e->id();
-// 
-// 		// Make room for item
-// 		QStandardItem* item = m_hierarchy_model->item(entityId);
-// 		if(!item)
-// 		{
-// 			item = new QStandardItem();
-// 			m_hierarchy_model->setItem(entityId, item);
-// 		}
-// 
-// 		// Assign item
-// 		item->setText(e->name().c_str());
-// 		item->setEnabled(true);
-// 		item->setSelectable(true);
-// 		m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), false);
-// 
-// 		// HACK: Make camera undeletable
-// 		if(e->fetchData<Data::Camera>())
-// 		{
-// 			item->setSelectable(false);
-// 		}
-// 	}
-// 	
-// 	// Remove entries from list
+	// Add entities to list
+	DataMapper<Data::Created> map_created;
+	while(map_created.hasNext())
+	{
+		Entity* e = map_created.nextEntity();
+		e->removeData<Data::Created>();
+		int type = e->type();
+		int entityId = e->id();
+
+		// Make room for item category
+		QStandardItem* category = m_hierarchy_model->item(type);
+		if(category)
+		{
+			// Update item
+			QStandardItem_Entity* item = new QStandardItem_Entity();
+			item->entityId = e->id();
+			item->setText(e->name().c_str());
+			e->hierarchyRow = category->rowCount();
+			category->setChild(e->hierarchyRow, item);
+
+			// Update category
+			std::string typeName = e->typeName();
+			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+			typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
+			category->setText(typeName.c_str());
+		}
+	}
+	
+	// Remove entries from list
 // 	DataMapper<Data::Deleted> map_removed;
 // 	while(map_removed.hasNext())
 // 	{
 // 		Entity* e = map_removed.nextEntity();
 // 		e->removeData<Data::Deleted>();
+// 		int type = e->type();
 // 		int entityId = e->id();
 // 
-// 		// Assign item
+// 		// Find item and delete it
+// 		QStandardItem* category = m_hierarchy_model->item(type);
+// 		if(category)
+// 		{
+// 			// Update item
+// 			QStandardItem* item = new QStandardItem(e->name().c_str());
+// 			e->hierarchyRow = category->rowCount();
+// 			category->setChild(e->hierarchyRow, item);
+// 
+// 			// Update category
+// 			std::string typeName = e->typeName();
+// 			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+// 			typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
+// 			category->setText(typeName.c_str());
+// 		}
+// 
 // 		QStandardItem* item = m_hierarchy_model->item(entityId);
 // 		if(item)
 // 		{
@@ -720,8 +751,6 @@ void Manager_Docks::update()
 // 			m_hierarchy_tree->setRowHidden(entityId, m_hierarchy_tree->rootIndex(), true);
 // 		}
 // 	}
-
-	
 }
 
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
@@ -741,6 +770,8 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
 {
+//	QStandardItem_Entity* clicked 
+
 	DataMapper<Data::Selected> map_selected;
 
 	// Remove previous selection

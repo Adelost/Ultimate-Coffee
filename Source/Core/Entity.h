@@ -90,5 +90,9 @@ public:
 	std::string name();
 	//void setName(std::string p_name, int p_number);
 	Enum::EntityType type();
+	std::string typeName();
 	void setType(Enum::EntityType type);
+
+	// HACK: Row stored in
+	int hierarchyRow;
 };

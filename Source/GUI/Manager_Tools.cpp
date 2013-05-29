@@ -308,7 +308,7 @@ void Manager_Tools::loadImage()
 	QString path = ICON_PATH;
 	if(SETTINGS()->button.key_shift)
 		path += "Images/lisa";
-	if(SETTINGS()->button.key_alt)
+	else if(SETTINGS()->button.key_alt)
 		path += "Images/ski";
 	else
 		path += "Images/invader";
