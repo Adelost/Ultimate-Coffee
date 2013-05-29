@@ -46,7 +46,7 @@ void UpdateLoop::init()
 	SEND_EVENT(&Event(EVENT_NEW_PROJECT));
 
 	// Create preview entities after project is restored
-	//SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
+	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 }
 
 void UpdateLoop::update()
