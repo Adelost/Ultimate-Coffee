@@ -650,7 +650,11 @@ public:
 class QStandardItem_Category : public QStandardItem
 {
 public:
-	std::vector<int> empty_spots;
+	std::vector<int> emptyRows;
+	int rowCount()
+	{
+		return QStandardItem::rowCount() - emptyRows.size();
+	}
 };
 
 class QStandardItem_Entity : public QStandardItem
@@ -667,10 +671,13 @@ void Manager_Docks::setupHierarchy()
 		QStandardItem* category = m_hierarchy_model->item(i);
 		if(!category)
 		{
-			m_hierarchy_model->setItem(i, new QStandardItem_Category());
+			category = new QStandardItem_Category();
+			category->setSelectable(false);
+			m_hierarchy_model->setItem(i, category);
 
 			// Hide category, until used
 			m_hierarchy_tree->setRowHidden(i, m_hierarchy_tree->rootIndex(), true);
+			
 		}
 	}
 }
@@ -689,15 +696,61 @@ void Manager_Docks::update()
 		int entityId = e->id();
 
 		// Make room for item category
-		QStandardItem* category = m_hierarchy_model->item(type);
+		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
 		if(category)
 		{
+			int row = category->rowCount();
+			if(category->emptyRows.size() > 0)
+			{
+				row = category->emptyRows.back();
+				category->emptyRows.pop_back();
+			}
+
 			// Update item
-			QStandardItem_Entity* item = new QStandardItem_Entity();
+			QStandardItem_Entity* item = (QStandardItem_Entity*)category->child(row);
+			if(item)
+			{
+				item->setEnabled(false);
+				item->setSelectable(false);
+				m_hierarchy_tree->setRowHidden(row, category->index(), false);
+			}
+			else
+			{
+				item = new QStandardItem_Entity();
+			}
 			item->entityId = e->id();
 			item->setText(e->name().c_str());
-			e->hierarchyRow = category->rowCount();
+			e->hierarchyRow = row;
 			category->setChild(e->hierarchyRow, item);
+
+			// Update category
+			std::string typeName = e->typeName();
+			m_hierarchy_tree->setRowHidden(type, m_hierarchy_tree->rootIndex(), false);
+			typeName += " [" + Converter::IntToStr(category->rowCount()) + "]";
+			category->setText(typeName.c_str());
+		}
+	}
+
+	// Remove
+	DataMapper<Data::Deleted> map_removed;
+	while(map_removed.hasNext())
+	{
+		Entity* e = map_removed.nextEntity();
+		e->removeData<Data::Deleted>();
+		int type = e->type();
+		int entityId = e->id();
+
+		// Make room for item category
+		QStandardItem_Category* category = (QStandardItem_Category*)m_hierarchy_model->item(type);
+		if(category)
+		{
+			// Hide item
+			int row = e->hierarchyRow;
+			QStandardItem* item = category->child(row);
+			category->emptyRows.push_back(row);
+			item->setEnabled(false);
+			item->setSelectable(false);
+			m_hierarchy_tree->setRowHidden(row, category->index(), true);
 
 			// Update category
 			std::string typeName = e->typeName();
@@ -759,7 +812,7 @@ void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
 {
-//	QStandardItem_Entity* clicked 
+	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
 
 	DataMapper<Data::Selected> map_selected;
 
@@ -772,14 +825,14 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 		Data::Selected::lastSelected.invalidate();
 	foreach(QModelIndex index, index_list)
 	{
-		int entityId = index.row();
+		int entityId = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index))->entityId;
 		Entity* e = Entity::findEntity(entityId);
 		e->addData(Data::Selected());
 	}
 
 	// If clicked was selected (not deselected with CTRL click)
 	// add as LastClicked
-	Entity* clickedEntity = Entity::findEntity(index.row());
+	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
 	if(clickedEntity->fetchData<Data::Selected>())
 		Data::Selected::select(clickedEntity);
 	else
@@ -791,12 +844,14 @@ void Manager_Docks::selectEntity( const QModelIndex& index )
 
 void Manager_Docks::focusOnEntity( const QModelIndex& index )
 {
+	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
+
 	// Fetch camera
 	Entity* entity_camera = CAMERA_ENTITY().asEntity();
 
 
 	// Allow camera to focus on the entity double-clicked on
-	Entity* clickedEntity = Entity::findEntity(index.row());
+	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
 	Data::ZoomTo d_zoomTo;
 	d_zoomTo.target = clickedEntity->toPointer();
 	entity_camera->addData(d_zoomTo);

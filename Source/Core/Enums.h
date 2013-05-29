@@ -40,9 +40,9 @@ namespace Enum
 	{
 		Entity_Empty,
 		Entity_Camera,
+		Entity_Sky,
 		Entity_DirLight,
 		Entity_Pointlight,
-		Entity_Sky,
 		Entity_Mesh,
 		Entity_Asteroid,
 	
