@@ -10,6 +10,7 @@ class Manager_Entity
 private:
 	Batch<Entity> m_entity_list;
 	int m_nextUniqueId;
+	int m_reservedUniqueId;
 	int m_reservedId;
 
 public:
@@ -23,6 +24,10 @@ public:
 	if they need to be readded to the world.
 	Used with caution.
 	*/
+	void reserveUniqueId(int id)
+	{
+		m_reservedUniqueId = id;
+	}
 	void reserveId(int id)
 	{
 		m_reservedId = id;

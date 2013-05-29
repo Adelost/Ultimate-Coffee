@@ -137,6 +137,15 @@ public:
 		return itemIndex;
 	}
 
+	void overwrite(T& p_item, int p_index)
+	{
+		int tmp = m_index_firstGap;
+		removeItemAt(p_index);
+		m_index_firstGap = p_index;
+		addItem(p_item);
+		m_index_firstGap = tmp;
+	}
+
 	bool hasNext()
 	{
 		// Step to next Item or until end is reached
