@@ -472,9 +472,11 @@ void Tool_MultiSelect::onEvent( Event* event )
 						}
 						else
 						{
+							bool onlyOne = entity_list.size() == 1;
 							for(int i=0; i<entity_list.size(); i++)
 							{
-								Data::Selected::select(entity_list[i]);
+								if(onlyOne || entity_list[i]->type() != Enum::Entity_DirLight && entity_list[i]->type() != Enum::Entity_Pointlight)
+									Data::Selected::select(entity_list[i]);
 							}
 						}
 						
