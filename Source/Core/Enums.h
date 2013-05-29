@@ -39,13 +39,13 @@ namespace Enum
 	enum EntityType
 	{
 		Entity_Empty,
+		Entity_Camera,
+		Entity_DirLight,
+		Entity_Pointlight,
 		Entity_Sky,
 		Entity_Mesh,
 		Entity_Asteroid,
-		Entity_Camera,
-		Entity_Pointlight,
-		Entity_DirLight,
-
+	
 		Entity_End
 	};
 
@@ -55,13 +55,13 @@ namespace Enum
 
 		switch(type )
 		{
-		case Entity_Empty: out = "empty"; break;
-		case Entity_Sky: out = "skybox"; break;
-		case Entity_Mesh: out = "mesh"; break;
-		case Entity_Asteroid: out = "asteroid"; break;
-		case Entity_Camera: out = "camera"; break;
-		case Entity_Pointlight: out = "point_light"; break;
-		case Entity_DirLight: out = "direction_light"; break;
+		case Entity_Empty:		out = "Empty";				break;
+		case Entity_Sky:		out = "Skybox";				break;
+		case Entity_Mesh:		out = "Mesh";				break;
+		case Entity_Asteroid:	out = "Asteroid";			break;
+		case Entity_Camera:		out = "Camera";				break;
+		case Entity_Pointlight: out = "PointLight";		break;
+		case Entity_DirLight:	out = "DirectionLight";	break;
 		}
 
 		return out;
