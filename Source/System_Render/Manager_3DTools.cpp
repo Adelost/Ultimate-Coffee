@@ -401,7 +401,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Data::Transform* d_transform = Entity(e->m_idOfTranslatableSceneEntity).fetchData<Data::Transform>();
 
 			if(d_transform == NULL)
-				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp");
+				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_TRANSLATE_SCENE_ENTITY, in Manager_3DTools.cpp, when it should not have been?");
 
 			if(d_transform)
 			{
@@ -423,7 +423,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Data::Transform* d_transform = Entity(e->m_idOfRotatableSceneEntity).fetchData<Data::Transform>();
 
 			if(d_transform == NULL)
-				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp");
+				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_ROTATE_SCENE_ENTITY, in Manager_3DTools.cpp, when it should not have been?");
 
 			if(d_transform)
 			{
@@ -446,7 +446,7 @@ void Manager_3DTools::onEvent( Event* p_event )
 			Data::Transform* d_transform = Entity(e->m_idOfScalableSceneEntity).fetchData<Data::Transform>();
 			
 			if(d_transform == NULL)
-				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp");
+				MESSAGEBOX("Delete bug? d_transform was NULL in case EVENT_SCALE_SCENE_ENTITY, in Manager_3DTools.cpp, when it should not have been?");
 
 			if(d_transform)
 			{
