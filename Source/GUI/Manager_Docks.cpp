@@ -22,10 +22,11 @@ void Manager_Docks::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
-	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI);
-	SUBSCRIBE_TO_EVENT(this, EVENT_GET_NEXT_VISIBLE_COMMAND_ROW);
+	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMAND_HISTORY_GUI_FILTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
+	SUBSCRIBE_TO_EVENT(this, EVENT_PLAY_SOUND_DING);
 	
 	m_commandHistoryListWidget = nullptr;
 	m_window = Window::instance();
@@ -154,7 +155,8 @@ void Manager_Docks::setupMenu()
 	// Command History
 	dock = createDock("History", Qt::LeftDockWidgetArea);
 	m_commandHistoryListWidget = new ListWidgetWithoutKeyboardInput(dock);
-	connectCommandHistoryWidget(true);
+	connectCommandHistoryListWidget(true);
+	//connect(m_commandHistoryListWidget, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(commandHistoryItemPressed(QListWidgetItem*)));
 	dock->setWidget(m_commandHistoryListWidget);
 
 	// Item Browser
@@ -265,14 +267,14 @@ void Manager_Docks::onEvent(Event* e)
 			std::vector<Command*>* commands = commandEvent->commands;
 			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
 			
-			int nrOfCommandToBeAddedToCommandHistoryGUI = commands->size();
-			for(int i=0;i<nrOfCommandToBeAddedToCommandHistoryGUI;i++)
+			int nrOfCommandToBeAdded = commands->size();
+			for(int i=0;i<nrOfCommandToBeAdded;i++)
 			{
 				std::string commandText = "UNKNOWN COMMAND";
 				std::string appendToCommandText = "";
-				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAddedToCommandHistoryGUI > 1)
+				if(displayAsSingleCommandHistoryEntry && nrOfCommandToBeAdded > 1)
 				{
-					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAddedToCommandHistoryGUI) +")";
+					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandToBeAdded) +")";
 				}
 
 				QIcon commandIcon;
@@ -396,11 +398,11 @@ void Manager_Docks::onEvent(Event* e)
 				}
 				commandText += appendToCommandText;
 				QString commandtextAsQString = commandText.c_str();
-				QListWidgetItem* item = new QListWidgetItem(commandIcon, commandtextAsQString);
-				m_commandHistoryListWidget->addItem(item);
-				if(displayAsSingleCommandHistoryEntry && i != nrOfCommandToBeAddedToCommandHistoryGUI-1) // When "displayAsSingleCommandHistoryEntry" is set, make last the command in "commands" visible in the command history list
+				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString);
+
+				if(displayAsSingleCommandHistoryEntry)
 				{
-					item->setHidden(true);
+					break; // Exit loop. Only add one command to the GUI.
 				}
 			}
 		}
@@ -408,88 +410,54 @@ void Manager_Docks::onEvent(Event* e)
 	case EVENT_SET_SELECTED_COMMAND_GUI:
 		{
 			Event_SetSelectedCommandGUI* selectionEvent = static_cast<Event_SetSelectedCommandGUI*>(e);
-			int index = selectionEvent->indexOfCommand;
-			if(index > -1) // Note: do not call "setCurrentRow" with a negative value. It will deselect all list items as intended, but then it resets itself to zero causing an unwanted SIGNAL that was harder to disconnect than when disconnected under "EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI". Just avoid it.
-			{
-				m_commandHistoryListWidget->setCurrentRow(index);
-			}
-			else
-			{
-				int nrOfItems = m_commandHistoryListWidget->count();
-				int itemIndex = 0;
-				QListWidgetItem* item;
-				do
-				{
-					item = m_commandHistoryListWidget->item(itemIndex);
-					itemIndex++;
-				}
-				while(item->isHidden() && itemIndex < nrOfItems);
+			int commandHistoryIndex = selectionEvent->commandHistoryIndex;
 
-				// Deselect first visible command in the command history list
-				item->setSelected(false);
-			}
+			int listItemIndex = findListItemIndexFromCommandHistoryIndex(commandHistoryIndex);
+			QListWidgetItem* item = m_commandHistoryListWidget->item(listItemIndex);
+			item->setSelected(true);
 		}
 		break;
-	case EVENT_REMOVE_SPECIFIED_COMMANDS_FROM_COMMAND_HISTORY_GUI:
+	case EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
 		{
-			Event_RemoveCommandsFromCommandHistoryGUI* removeCommandFromGUIEvent = static_cast<Event_RemoveCommandsFromCommandHistoryGUI*>(e);
-			int startAt = removeCommandFromGUIEvent->startIndex;
-			int nrOfCommandsToRemove = removeCommandFromGUIEvent->nrOfCommands;
+			Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI* removeCommandFromGUIEvent = static_cast<Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI*>(e);
+			int removeAll = removeCommandFromGUIEvent->removeAllCommands;
 
-			int nrOfListItems = m_commandHistoryListWidget->count();
-			if(nrOfCommandsToRemove > nrOfListItems)
+			connectCommandHistoryListWidget(false);
+			if(removeAll)
 			{
-				nrOfCommandsToRemove = nrOfListItems;
+				m_commandHistoryListWidget->clear(); // Remove all commands from the GUI list at once
 			}
-
-			connectCommandHistoryWidget(false);
-			if(nrOfCommandsToRemove == nrOfListItems)
+			else // Remove all command after current row
 			{
-				m_commandHistoryListWidget->clear();
-			}
-			else
-			{
-				for(int i=startAt;i<startAt+nrOfCommandsToRemove;i++)
+				int nextRowAfterCurrentRow = m_commandHistoryListWidget->currentRow() + 1;
+				int nrOfCommandsInTheGUIList = m_commandHistoryListWidget->count();
+				int nrOfCommandsToBeRemovedFromTheGUIList = nrOfCommandsInTheGUIList - nextRowAfterCurrentRow;
+				int i = 0;
+				while(i < nrOfCommandsToBeRemovedFromTheGUIList)
 				{
-					delete m_commandHistoryListWidget->takeItem(startAt); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryWidget(false);" is used above, to prevent the SIGNAL from being handled.
+					delete m_commandHistoryListWidget->takeItem(nextRowAfterCurrentRow); // "takeItem" affects current selected item of the widget, creating an unwanted SIGNAL. Therefore "connectCommandHistoryListWidget(false);" is used above, to prevent the SIGNAL from being handled.
+					i++;
 				}
 			}
-			connectCommandHistoryWidget(true);
-		}
-		break;
-	case EVENT_GET_NEXT_VISIBLE_COMMAND_ROW:
-		{
-			Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI* getEvent = static_cast<Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI*>(e);
-			bool next = getEvent->next;
-
-			int nrOfRows = m_commandHistoryListWidget->count();
-			int currentRow = m_commandHistoryListWidget->currentRow();
-			
-			int addValue;
-			if(next)
-			{
-				currentRow++;
-				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
-				{
-					currentRow++;
-				}
-			}
-			else
-			{
-				currentRow--;
-				while(currentRow < nrOfRows-1 && currentRow > -1 && m_commandHistoryListWidget->item(currentRow)->isHidden())
-				{
-					currentRow--;
-				}
-			}
-
-			getEvent->row = currentRow; // Return value
+			connectCommandHistoryListWidget(true);
 		}
 		break;
 	case EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI:
 		{
-			QListWidgetItem* rootCommandListItem = new QListWidgetItem("Start");
-			m_commandHistoryListWidget->addItem(rootCommandListItem);
+			if(m_commandHistoryListWidget->count() == 0)
+			{
+				QIcon icon;
+				//check
+				//QColor color(1.0f,1.0f,1.0f);
+				//QPixmap pixmap(16, 16);
+				//pixmap.fill(color);
+				//icon.addPixmap(pixmap);
+				addItemToCommandHistoryListWidget(icon, "Start");
+			}
+			else
+			{
+				MESSAGEBOX("Trying to add 'Start' to command history GUI list when the list is not empty. This operation is not supported.")
+			}
 		}
 		break;
 	case EVENT_GET_COMMAND_HISTORY_GUI_FILTER:
@@ -511,6 +479,42 @@ void Manager_Docks::onEvent(Event* e)
 				}
 			}
 			getGUIFilterEvent->GUIFilter = GUIFilter;
+		}
+		break;
+	case EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
+		{
+			Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI* incrementOrDecrement = static_cast<Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI*>(e);
+			bool increment = incrementOrDecrement->if_true_increment_if_false_decrement;
+
+			int nrOfRows = m_commandHistoryListWidget->count();
+			int currentRow = m_commandHistoryListWidget->currentRow();
+			if(increment)
+			{
+				if(currentRow+1 < nrOfRows)
+				{
+					m_commandHistoryListWidget->setCurrentRow(currentRow+1);
+				}
+				else
+				{
+					playDingSound();
+				}
+			}
+			else
+			{
+				if(currentRow-1 > -1)
+				{
+					m_commandHistoryListWidget->setCurrentRow(currentRow-1);
+				}
+				else
+				{
+					playDingSound();
+				}
+			}
+		}
+		break;
+	case EVENT_PLAY_SOUND_DING:
+		{
+			playDingSound();
 		}
 		break;
 	default:
@@ -577,7 +581,7 @@ void Manager_Docks::setupHierarchy()
 	}*/
 }
 
-void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect)
+void Manager_Docks::connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect)
 {
 	if(connect_if_true_otherwise_disconnect)
 	{
@@ -586,6 +590,67 @@ void Manager_Docks::connectCommandHistoryWidget(bool connect_if_true_otherwise_d
 	else
 	{
 		disconnect(m_commandHistoryListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(currentCommandHistoryIndexChanged(int)));
+	}
+}
+
+void Manager_Docks::addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text)
+{
+	// Get info from "Manager_Commands"
+	int index = -1;
+	Event_GetCommandHistoryInfo returnValue;
+	SEND_EVENT(&returnValue);
+	if(returnValue.indexOfCurrentCommand < -1) // Invalid command index. The "Event_GetCommandHistoryInfo" event might have got lost somewhere.
+	{
+		MESSAGEBOX("Error when adding command(s) to the command list GUI. Added command(s) may not work as intended.");
+	}
+	else
+	{
+		index = returnValue.indexOfCurrentCommand;
+	}
+
+	// Add custom list item (with index retrievable on row change, refer to "Manager_Docks::currentCommandHistoryIndexChanged")
+	ListItemWithIndex* indexedItem = new ListItemWithIndex(icon, text, index);
+	QListWidgetItem* item = static_cast<QListWidgetItem*>(indexedItem);
+	m_commandHistoryListWidget->addItem(item);
+
+	//QListWidgetItem* item = new QListWidgetItem(icon, text);
+	//const QVariant data(index);
+	//item->setData(0, data);
+	//m_commandHistoryListWidget->addItem(item);
+}
+
+int Manager_Docks::findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex)
+{
+	int nrOfCommands = m_commandHistoryListWidget->count();
+	int foundCommandHistoryIndexFromIndexItem = -2;
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		QListWidgetItem* item = m_commandHistoryListWidget->item(i);
+		int currentCommandHistoryIndexFromIndexItem = getIndexFromItemWithIndex(item);
+		if(currentCommandHistoryIndexFromIndexItem == commandHistoryIndex)
+		{
+			foundCommandHistoryIndexFromIndexItem = i;
+			break;
+		}
+	}
+	return foundCommandHistoryIndexFromIndexItem;
+}
+
+int Manager_Docks::getIndexFromItemWithIndex(QListWidgetItem* item)
+{
+	//QVariant data = item->data(0);
+	//int commandHistoryIndex = data.toInt();
+	ListItemWithIndex* indexItem = static_cast<ListItemWithIndex*>(item);
+	int commandHistoryIndex = indexItem->getIndex();
+	return commandHistoryIndex;
+}
+
+void Manager_Docks::playDingSound()
+{
+	static QSound sound("Windows Ding.wav");
+	if(sound.isFinished()) // Still does not work as intended (2013-05-22 22.06) when holding down CTRL+Z or CTRL+Y
+	{
+		sound.play();
 	}
 }
 
@@ -659,18 +724,32 @@ void Manager_Docks::update()
 	
 }
 
+//void Manager_Docks::commandHistoryItemPressed(QListWidgetItem* item)
+//{
+//	Event_GetCommandHistoryInfo commandHistoryInfo; // Retrieve information from command history
+//	SEND_EVENT(&commandHistoryInfo); // The event is assumed to have correct values below
+//	int indexOfCurrentCommand = commandHistoryInfo.indexOfCurrentCommand;
+//
+//	int commandHistoryIndex = getIndexFromItemWithIndex(item);
+//	if(indexOfCurrentCommand != commandHistoryIndex) // Only jump when not jumping to the index that is already current
+//	{
+//		SEND_EVENT(&Event_JumpToCommandHistoryIndex(commandHistoryIndex));
+//	}
+//}
+
 void Manager_Docks::currentCommandHistoryIndexChanged(int currentRow)
 {
-	Event_GetCommandHistoryInfo* commandHistoryInfo = new Event_GetCommandHistoryInfo(); // Retrieve information from command history
-	SEND_EVENT(commandHistoryInfo); //The event is assumed to have correct values below
-
-	// Jump in command history if the selected command index is not already current (this check is not really needed since it is checked in CommandHistory::tryToJumpInCommandHistory)
-	int trackToCommandIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(currentRow);
-	if(commandHistoryInfo->indexOfCurrentCommand != trackToCommandIndex)
+	QListWidgetItem* currentItem = m_commandHistoryListWidget->item(currentRow);
+	int commandHistoryIndexStoredInItemAtCurrentRow = getIndexFromItemWithIndex(currentItem);
+	
+	Event_GetCommandHistoryInfo commandHistoryInfo; // Retrieve information from command history
+	SEND_EVENT(&commandHistoryInfo); // The event is assumed to have correct values below
+	int indexOfCurrentCommand = commandHistoryInfo.indexOfCurrentCommand;
+	
+	if(indexOfCurrentCommand != commandHistoryIndexStoredInItemAtCurrentRow) // Only jump when not jumping to the index that is already current
 	{
-		SEND_EVENT(&Event_TrackToCommandHistoryIndex(trackToCommandIndex));
+		SEND_EVENT(&Event_JumpToCommandHistoryIndex(commandHistoryIndexStoredInItemAtCurrentRow));
 	}
-	delete commandHistoryInfo;
 }
 
 void Manager_Docks::selectEntity( const QModelIndex& index )
@@ -1529,7 +1608,13 @@ void ToolPanel::setColor( const QColor& color )
 	m_colorIcon->setPixmap(pixmap);
 }
 
-ListItemWithId::ListItemWithId()
+ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int index)
+	: QListWidgetItem(icon, text)
 {
+	m_index = index;
+}
 
+int ListItemWithIndex::getIndex()
+{
+	return m_index;
 }

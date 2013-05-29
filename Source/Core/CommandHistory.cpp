@@ -15,7 +15,12 @@ CommandHistory::CommandHistory(void)
 
 CommandHistory::~CommandHistory(void)
 {
-	reset();
+	int nrOfCommands = m_commands.size();
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		Command* command = m_commands.at(i);
+		delete command;
+	}
 }
 
 int CommandHistory::calculateSerializedByteSize()
@@ -70,11 +75,12 @@ bool CommandHistory::tryToAddCommand(Command* command, bool execute)
 	//--------------------------------------------------------------------------------------
 	// Add command
 	//--------------------------------------------------------------------------------------
-	int nrOfCommands = m_commands.size();
+ 	int nrOfCommands = m_commands.size();
 	if(m_indexOfCurrentCommand == nrOfCommands-1) //expand vector
 	{
 		m_commands.push_back(command);
 		setCurrentCommand(m_indexOfCurrentCommand+1);
+		m_historyOverWriteTookPlaceWhenAddingCommands = false;
 	}
 	else // overwrite old command and forget about history after this point
 	{
@@ -91,8 +97,30 @@ bool CommandHistory::tryToAddCommand(Command* command, bool execute)
 			delete removedCommand;
 		}
 		m_commands.resize(newSize);
+		m_historyOverWriteTookPlaceWhenAddingCommands = true;
 	}
 
+	return true;
+}
+
+bool CommandHistory::tryToAddCommands(std::vector<Command*>* commands, bool execute)
+{
+	bool historyOverWriteTookPlace = false;
+	int nrOfCommands = commands->size();
+	for(int i=0;i<nrOfCommands;i++)
+	{
+		Command* command = commands->at(i);
+		if(!tryToAddCommand(command, execute))
+		{
+			m_historyOverWriteTookPlaceWhenAddingCommands = historyOverWriteTookPlace;
+			return false;
+		}
+		if(m_historyOverWriteTookPlaceWhenAddingCommands)
+		{
+			historyOverWriteTookPlace = true;
+		}
+	}
+	m_historyOverWriteTookPlaceWhenAddingCommands = historyOverWriteTookPlace;
 	return true;
 }
 
@@ -310,4 +338,5 @@ void CommandHistory::reset()
 	}
 	m_commands.clear();
 	m_indexOfCurrentCommand = -1;
+	m_historyOverWriteTookPlaceWhenAddingCommands = false;
 }

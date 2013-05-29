@@ -14,7 +14,7 @@
 void Manager_Commands::init()
 {
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_TO_COMMAND_HISTORY);
-	SUBSCRIBE_TO_EVENT(this, EVENT_TRACK_TO_COMMAND_HISTORY_INDEX);
+	SUBSCRIBE_TO_EVENT(this, EVENT_JUMP_TO_COMMAND_HISTORY_INDEX);
 	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMAND_HISTORY_INFO);
 	SUBSCRIBE_TO_EVENT(this, EVENT_NEW_PROJECT);
 	SUBSCRIBE_TO_EVENT(this, EVENT_SKYBOX_CHANGED);
@@ -144,27 +144,15 @@ bool Manager_Commands::storeCommandsInCommandHistory(std::vector<Command*>* comm
 {
 	int nrOfCommands = commands->size();
 	bool addCommandSucceeded = false;
-	Command* command;
-	for(int i=0;i<nrOfCommands;i++)
-	{
-		command = commands->at(i);
-		addCommandSucceeded = m_commandHistory->tryToAddCommand(command, execute);
-		if(!addCommandSucceeded)
-		{
-			break;
-		}
-	}
+	addCommandSucceeded = m_commandHistory->tryToAddCommands(commands, execute);
 	return addCommandSucceeded;
 }
 
-void Manager_Commands::updateCommandHistoryGUI(std::vector<Command*>* commands, int nrOfCommandsBeforeAdd, bool displayAsSingleCommandHistoryEntry)
+void Manager_Commands::updateCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry)
 {
-	int nrOfCommandsAfterAdd = m_commandHistorySpy->getNrOfCommands();
-	if(nrOfCommandsAfterAdd <= nrOfCommandsBeforeAdd) // If history overwrite took place: remove command representations from GUI.
+	if(m_commandHistorySpy->getHistoryOverWriteTookPlaceWhenAddingCommands()) // If history overwrite took place: remove command representations from GUI.
 	{
-		int GUI_Index = Converter::ConvertFromCommandHistoryIndexToCommandHistoryGUIListIndex(m_commandHistorySpy->getIndexOfCurrentCommand());
-		int nrOfCommandToBeRemovedFromGUI = nrOfCommandsBeforeAdd - nrOfCommandsAfterAdd;
-		SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(GUI_Index, nrOfCommandToBeRemovedFromGUI+1));
+		SEND_EVENT(&Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI());
 	}
 	SEND_EVENT(&Event_AddToCommandHistoryGUI(commands, displayAsSingleCommandHistoryEntry));
 	updateCurrentCommandGUI();
@@ -174,11 +162,7 @@ bool Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 {
 	if(!m_commandHistory->tryToJumpInCommandHistory(commandHistoryIndex))
 	{
-		static QSound sound("Windows Ding.wav");
-		if(sound.isFinished()) // Still does not work as intended (2013-05-22 22.06) when holding down CTRL+Z or CTRL+Y
-		{
-			sound.play();
-		}
+		SEND_EVENT(&Event(EVENT_PLAY_SOUND_DING));
 		return false;
 	}
 	return true;
@@ -186,8 +170,8 @@ bool Manager_Commands::jumpInCommandHistory(int commandHistoryIndex)
 
 void Manager_Commands::updateCurrentCommandGUI()
 {
-	int GUI_Index = Converter::ConvertFromCommandHistoryIndexToCommandHistoryGUIListIndex(m_commandHistorySpy->getIndexOfCurrentCommand());
-	SEND_EVENT(&Event_SetSelectedCommandGUI(GUI_Index));
+	int commandHistoryIndex = m_commandHistorySpy->getIndexOfCurrentCommand();
+	SEND_EVENT(&Event_SetSelectedCommandGUI(commandHistoryIndex));
 }
 
 void Manager_Commands::newProject()
@@ -339,8 +323,7 @@ void Manager_Commands::loadCommandHistoryGUIFilter(std::string path)
 
 void Manager_Commands::clearCommandHistoryGUI()
 {
-	int nrOfCommands = m_commandHistorySpy->getNrOfCommands();
-	SEND_EVENT(&Event_RemoveCommandsFromCommandHistoryGUI(0, nrOfCommands+1)); // +1 removes ROOT_COMMAND
+	SEND_EVENT(&Event_RemoveAllCommandsAfterCurrentRowFromCommandHistoryGUI(true)); // true = clear command hsitory GUI list
 }
 
 int Manager_Commands::tryToGetFileSize(std::string path)
@@ -385,24 +368,23 @@ Manager_Commands::~Manager_Commands()
 
 void Manager_Commands::redoLatestCommand()
 {
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI returnValue(true);
-	SEND_EVENT(&returnValue);
-	int commandHistoryIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(returnValue.row); 
-	if(jumpInCommandHistory(commandHistoryIndex))
-	{
-		updateCurrentCommandGUI();
-	}
+	SEND_EVENT(&Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI(true));
+	//Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI returnValue(true);
+	//SEND_EVENT(&returnValue);
+	//int commandHistoryIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(returnValue.row); 
+	//if(jumpInCommandHistory(commandHistoryIndex))
+	//{
+	//	updateCurrentCommandGUI();
+	//}
 }
 
 void Manager_Commands::undoLatestCommand()
 {
-	Event_GetNextOrPreviousVisibleCommandRowInCommandHistoryGUI returnValue(false);
-	SEND_EVENT(&returnValue);
-	int commandHistoryIndex = Converter::ConvertFromCommandHistoryGUIListIndexToCommandHistoryIndex(returnValue.row);
-	if(jumpInCommandHistory(commandHistoryIndex))
-	{
-		updateCurrentCommandGUI();
-	}
+	SEND_EVENT(&Event_IncrementOrDecrementCurrentRowInCommandHistoryGUI(false));
+	//if(jumpInCommandHistory(commandHistoryIndex))
+	//{
+	//	updateCurrentCommandGUI();
+	//}
 }
 
 void Manager_Commands::quicksaveCommandHistory()
@@ -489,17 +471,17 @@ void Manager_Commands::onEvent(Event* e)
 			{
 				MESSAGEBOX("Failed to add command to the command history. Make sure the command pointer is initialized before trying to add command to command history.");
 			}
-			updateCommandHistoryGUI(commands, nrOfCommandsBeforeAdd, displayAsSingleCommandHistoryEntry);
+			updateCommandHistoryGUI(commands, displayAsSingleCommandHistoryEntry);
 			if(deallocateCommandList)
 			{
 				delete commands;
 			}
 			break;
 		}
-	case EVENT_TRACK_TO_COMMAND_HISTORY_INDEX:
+	case EVENT_JUMP_TO_COMMAND_HISTORY_INDEX:
 		{
-			Event_TrackToCommandHistoryIndex* commandHistoryIndexEvent = static_cast<Event_TrackToCommandHistoryIndex*>(e);
-			int index = commandHistoryIndexEvent->indexOfCommand;
+			Event_JumpToCommandHistoryIndex* commandHistoryIndexEvent = static_cast<Event_JumpToCommandHistoryIndex*>(e);
+			int index = commandHistoryIndexEvent->commandHistoryIndex;
 
 			jumpInCommandHistory(index);
 			break;

@@ -28,7 +28,7 @@ private:
 	QActionGroup* m_skyboxGroup;
 
 	bool storeCommandsInCommandHistory(std::vector<Command*>* commands, bool execute);
-	void updateCommandHistoryGUI(std::vector<Command*>* commands, int nrOfCommandsBeforeAdd, bool displayAsSingleCommandHistoryEntry);
+	void updateCommandHistoryGUI(std::vector<Command*>* commands, bool displayAsSingleCommandHistoryEntry);
 	bool jumpInCommandHistory(int commandHistoryIndex);
 	void updateCurrentCommandGUI();
 	void newProject();

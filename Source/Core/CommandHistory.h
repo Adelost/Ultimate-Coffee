@@ -6,7 +6,7 @@ class Command;
 //--------------------------------------------------------------------------------------
 // Encapsulates a vector of "Command"s and an index identifying the current command.
 // Functionality:
-// *Add command (tryToAddCommand)
+// *Add commands (tryToAddCommand and tryToAddCommand)
 // *History jumping (tryToJumpInCommandHistory)
 // *Save to byte format (receiveSerializedByteFormat)
 // *Load from byte format (tryToLoadFromSerializationByteFormat)s
@@ -19,6 +19,7 @@ class CommandHistory
 private:
 	std::vector<Command*> m_commands;		// Stores all commands the "CommandHistory" is responsible for.
 	int m_indexOfCurrentCommand;			// -1 means no command is current.
+	bool m_historyOverWriteTookPlaceWhenAddingCommands; // Did history overwrite occur when calling "tryToAddCommand" or "tryToAddCommands" the last time?
 
 	// Used internally to set current command.
 	void setCurrentCommand(int index);
@@ -39,9 +40,12 @@ public:
 	// Calls "reset".
 	~CommandHistory(void);
 	
-	// Returns true if successfully added, otherwise false.
+	// Adds a single "Command". Returns true if successfully added, otherwise false.
 	bool tryToAddCommand(Command* command, bool execute);
-	
+
+	// Adds a vector of "Command"s. Returns true if successfully added, otherwise false.
+	bool tryToAddCommands(std::vector<Command*>*commands, bool execute);
+
 	// Backtracks by undoing all commands from current until index is reached, OR track forward by redoing all commands from current until index is reached. Returns true if jump was successful, otherwise false.
 	bool tryToJumpInCommandHistory(int jumpToIndex);
 

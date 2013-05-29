@@ -39,7 +39,18 @@ public:
 	void setupMenu();
 	void setupHierarchy();
 
-	void connectCommandHistoryWidget(bool connect_if_true_otherwise_disconnect);
+	void connectCommandHistoryListWidget(bool connect_if_true_otherwise_disconnect);
+
+	// Adds a "ListItemWithIndex" to a "QListWidget"
+	void addItemToCommandHistoryListWidget(const QIcon& icon, const QString& text);
+	
+	// Example: the command which in the "CommandHistory" is at index 5, what index does it have in the "QListWidget"
+	int findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex);
+
+	// Only send "QListWidgetItem" that really are "ListItemWithIndex" as argument
+	int getIndexFromItemWithIndex(QListWidgetItem* item);
+
+	void playDingSound();
 
 	QAction* createAction(QString p_name);
 	QDockWidget* createDock(QString p_name, Qt::DockWidgetArea p_area);
@@ -53,7 +64,8 @@ public slots:
 	void saveLayout();
 	void loadLayout();
 	void resetLayout();
-	void currentCommandHistoryIndexChanged(int currentRowChanged);
+	//void commandHistoryItemPressed(QListWidgetItem* item);
+	void currentCommandHistoryIndexChanged(int);
 	void selectEntity(const QModelIndex& index);
 	void focusOnEntity(const QModelIndex& index);
 };
@@ -181,10 +193,14 @@ protected:
 	}
 };
 
-class ListItemWithId : public QListWidgetItem
+//class ListItemWithIndex : public QObject, public QListWidgetItem
+class ListItemWithIndex : public QListWidgetItem
 {
+private:
 	//Q_OBJECT
+	int m_index;
 
 public:
-	ListItemWithId();
+	ListItemWithIndex(const QIcon& icon, const QString& text, int index);
+	int getIndex();
 };
