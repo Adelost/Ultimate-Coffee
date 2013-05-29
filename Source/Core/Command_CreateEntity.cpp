@@ -80,14 +80,18 @@ void Command_CreateEntity::removeEntity()
 	Entity* e = Entity::findEntity(m_data.entityId);
 
 	// Render
-	Data::Transform* d_transform = e->fetchData<Data::Transform>();
 	m_data.entityId = e->id();
 	m_data.entityUniqueId = e->uniqueId();
 	m_data.entityType = e->type();
 	m_data.hierarchyRow = e->hierarchyRow;
-	m_data.position = d_transform->position;
-	m_data.rotation = d_transform->rotation;
-	m_data.scale = d_transform->scale;
+
+	Data::Transform* d_transform = e->fetchData<Data::Transform>();
+	if(d_transform)
+	{
+		m_data.position = d_transform->position;
+		m_data.rotation = d_transform->rotation;
+		m_data.scale = d_transform->scale;
+	}
 
 	// Render
 	Data::Render* d_render = e->fetchData<Data::Render>();
@@ -122,14 +126,19 @@ Command_CreateEntity::Command_CreateEntity( Entity* e, bool create )
 	//	name = "Remove " + e->name();
 	//setName(name);
 
-	Data::Transform* d_transform = e->fetchData<Data::Transform>();
+	// Render
 	m_data.entityId = e->id();
 	m_data.entityUniqueId = e->uniqueId();
 	m_data.entityType = e->type();
 	m_data.hierarchyRow = e->hierarchyRow;
-	m_data.position = d_transform->position;
-	m_data.rotation = d_transform->rotation;
-	m_data.scale = d_transform->scale;
+
+	Data::Transform* d_transform = e->fetchData<Data::Transform>();
+	if(d_transform)
+	{
+		m_data.position = d_transform->position;
+		m_data.rotation = d_transform->rotation;
+		m_data.scale = d_transform->scale;
+	}
 	
 
 	// Render

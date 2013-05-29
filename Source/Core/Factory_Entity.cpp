@@ -72,7 +72,7 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 	{
 		Data::Transform* d_transform = e->addData(Data::Transform());
 		d_transform->position = Vector3(-5.0f, 0.0f, 15.0f);
-		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, -Math::Pi2*0.05f, Math::Pi2*0.03f);
+		d_transform->rotation = Quaternion::CreateFromYawPitchRoll(0, -Math::Pi2*0.2f, Math::Pi2*0.03f);
 
 		Data::DirLight* d_dirLight = e->addData(Data::DirLight());
 
@@ -96,7 +96,8 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 		switch(id)
 		{
 		case 1:
-			pointLight->color = Vector3(1.0f, 0.0f, 0.0f);
+			pointLight->color = Vector3(1.0f, 1.0f, 1.0f);
+			//transform->position = Vector3(33.67 * id, -8.92, -77.47);
 			break;
 		case 2:
 			pointLight->color = Vector3(0.0f, 1.0f, 0.0f);
