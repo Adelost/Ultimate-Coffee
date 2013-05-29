@@ -5,6 +5,7 @@
 
 #include "DataMapper.h"
 #include "Entity.h"
+#include "World.h"
 
 EntityPointer Data::Selected::lastSelected;
 
@@ -187,3 +188,40 @@ void Data::Render::recoverFromCloning( Entity* owner )
 	setMesh(mesh.id);
 }
 
+
+void Data::ZoomTo::zoomTo( Entity* e )
+{
+	// Fetch camera
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+
+	// HACK: To tired to say why
+	if(entity_camera->id() == e->id())
+		return;
+
+
+	Data::ZoomTo d_zoomTo;
+	d_zoomTo.target = e->toPointer();
+	Data::Transform* d_cameraTransform = entity_camera->fetchData<Data::Transform>();
+	Data::Transform* d_clickedEntityTransform = d_zoomTo.target->fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+	if(d_camera != nullptr)
+	{
+		d_zoomTo.originLook = d_camera->getLookVector();
+	}
+	else
+	{
+		d_zoomTo.originLook = Vector3(0.0f, 0.0f, 1.0f);
+	}
+
+	if(d_cameraTransform != nullptr && d_clickedEntityTransform != nullptr)
+	{
+		d_zoomTo.rotationLerpT = 0.0f;
+		d_zoomTo.distanceFromTargetToStopAt = 5.0f;
+		d_zoomTo.delay = 1.0f;
+		float distance = Vector3::Distance(d_clickedEntityTransform->position, d_cameraTransform->position) - d_zoomTo.distanceFromTargetToStopAt;
+		d_zoomTo.speed = distance / d_zoomTo.delay;
+		d_zoomTo.speed = max(d_zoomTo.speed, d_zoomTo.delay);
+		entity_camera->addData(d_zoomTo);
+	}
+}

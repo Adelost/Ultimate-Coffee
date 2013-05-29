@@ -233,6 +233,8 @@ namespace Data
 	class ZoomTo : public Type<ZoomTo>
 	{
 	public:
+		static void zoomTo(Entity* e);
+	public:
 		EntityPointer target;
 		Vector3 originLook;
 		float distanceFromTargetToStopAt;
