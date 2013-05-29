@@ -485,6 +485,9 @@ void Manager_Commands::onEvent(Event* e)
 	case EVENT_NEW_PROJECT:
 		{
 			newProject();
+
+			// HACK (Mattias): Create preview entities after project is restored
+			SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 			break;
 		}
 	}
