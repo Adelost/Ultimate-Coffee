@@ -39,5 +39,5 @@ float4 PS(VertexOut pin) : SV_Target
 
 	//return pin.color*float4(litColor*fallOff + ambientLight, 1);
 
-   return litColor; //float4(litColor.xyz, 0.25f);
+   return litColor;
 }
