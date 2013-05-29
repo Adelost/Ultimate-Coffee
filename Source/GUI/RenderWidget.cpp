@@ -247,7 +247,17 @@ void RenderWidget::setKeyState( QKeyEvent* p_event, bool p_pressed )
 		SETTINGS()->button.key_alt = state;
 		break;
 	case Qt::Key_Space:
-		SETTINGS()->button.key_space = state;
+		{
+			SETTINGS()->button.key_space = state;
+			// Zoom to shortcut
+			if(state && SETTINGS()->button.key_ctrl)
+			{
+				if(Data::Selected::lastSelected.isValid())
+				{
+					Data::ZoomTo::zoomTo(Data::Selected::lastSelected.asEntity());
+				}
+			}
+		}
 		break;
 	case Qt::Key_Delete:
 		if(state)

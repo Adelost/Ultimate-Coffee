@@ -913,44 +913,11 @@ void Manager_Docks::focusOnEntity( const QModelIndex& index )
 		return;
 
 	QStandardItem_Entity* clicked = static_cast<QStandardItem_Entity*>(m_hierarchy_model->itemFromIndex(index));
-
-	// Fetch camera
-	Entity* entity_camera = CAMERA_ENTITY().asEntity();
-
-
+	
 	// Allow camera to focus on the entity double-clicked on
 	Entity* clickedEntity = Entity::findEntity(clicked->entityId);
 
-	if(entity_camera->id() == clickedEntity->id())
-		return;
-
-	Data::ZoomTo d_zoomTo;
-	d_zoomTo.target = clickedEntity->toPointer();
-	Data::Transform* d_cameraTransform = entity_camera->fetchData<Data::Transform>();
-	Data::Transform* d_clickedEntityTransform = d_zoomTo.target->fetchData<Data::Transform>();
-	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
-
-	if(d_camera != nullptr)
-	{
-		d_zoomTo.originLook = d_camera->getLookVector();
-	}
-	else
-	{
-		d_zoomTo.originLook = Vector3(0.0f, 0.0f, 1.0f);
-	}
-
-	if(d_cameraTransform != nullptr && d_clickedEntityTransform != nullptr)
-	{
-		d_zoomTo.rotationLerpT = 0.0f;
-		d_zoomTo.distanceFromTargetToStopAt = 5.0f;
-		d_zoomTo.delay = 1.0f;
-		float distance = Vector3::Distance(d_clickedEntityTransform->position, d_cameraTransform->position) - d_zoomTo.distanceFromTargetToStopAt;
-		d_zoomTo.speed = distance / d_zoomTo.delay;
-		d_zoomTo.speed = std::max(d_zoomTo.speed, d_zoomTo.delay);
-		entity_camera->addData(d_zoomTo);
-	}
-	
-	DEBUGPRINT("Focus on Entity: " + Converter::IntToStr(clickedEntity->id()));
+	Data::ZoomTo::zoomTo(clickedEntity);
 }
 
 
