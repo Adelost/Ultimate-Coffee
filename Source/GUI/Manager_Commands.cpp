@@ -196,9 +196,20 @@ void Manager_Commands::loadCommandHistory(std::string path)
 		m_commandHistory->reset();
 		if(m_commandHistory->tryToLoadFromSerializationByteFormat(bytes, bufferSize))
 		{
-			int startIndex = 0;
+			// Try loading project with accompanying GUI filter file (.ucg)
 			std::vector<Command*>* allCommands = m_commandHistorySpy->getCommands();
-			SEND_EVENT(&Event_AddToCommandHistoryGUI(allCommands, false, startIndex));
+			convertPathToGUIFilterPath(path);
+			int fileSize = tryToGetFileSize(path);
+			Event_TryToLoadCommandHistoryGUIFilter tryLoad(path, allCommands, fileSize);
+			SEND_EVENT(&tryLoad);
+
+			// If the GUI filter file (.ucg) failed to load: load project without GUI filter
+			if(!tryLoad.loadedSuccessfully) 
+			{
+				int startIndex = 0;
+				std::vector<Command*>* allCommands = m_commandHistorySpy->getCommands();
+				SEND_EVENT(&Event_AddToCommandHistoryGUI(allCommands, false, startIndex));
+			}
 			updateCurrentCommandGUI();
 		}
 		else
@@ -221,8 +232,8 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	{
 		m_lastValidProjectPath = path;
 
-		std::string pathWithoutUCFileExtension = path.substr(0, path.size()-3);
-		saveCommandHistoryGUIFilter(pathWithoutUCFileExtension + "_GUIFilter.ucg");
+		convertPathToGUIFilterPath(path);
+		SEND_EVENT(&Event_SaveCommandHistoryGUIFilter(path));
 	}
 	else
 	{
@@ -231,14 +242,10 @@ void Manager_Commands::saveCommandHistory(std::string path)
 	delete[] bytes;
 }
 
-void Manager_Commands::saveCommandHistoryGUIFilter(std::string path)
+void Manager_Commands::convertPathToGUIFilterPath(std::string& path)
 {
-
-}
-
-void Manager_Commands::loadCommandHistoryGUIFilter(std::string path)
-{
-
+	path = path.substr(0, path.size()-3);
+	path += ".ucg"; // Add new file extension
 }
 
 void Manager_Commands::clearCommandHistoryGUI()
@@ -406,7 +413,7 @@ void Manager_Commands::onEvent(Event* e)
 			newProject();
 
 			// HACK (Mattias): Create preview entities after project is restored
-			SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
+			//SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
 			break;
 		}
 	}

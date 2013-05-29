@@ -25,7 +25,8 @@ void Manager_Docks::init()
 	SUBSCRIBE_TO_EVENT(this, EVENT_SET_SELECTED_COMMAND_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_REMOVE_ALL_COMMANDS_FROM_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_ADD_ROOT_COMMAND_TO_COMMAND_HISTORY_GUI);
-	SUBSCRIBE_TO_EVENT(this, EVENT_GET_COMMAND_HISTORY_GUI_FILTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER);
+	SUBSCRIBE_TO_EVENT(this, EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER);
 	SUBSCRIBE_TO_EVENT(this, EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI);
 	SUBSCRIBE_TO_EVENT(this, EVENT_PLAY_SOUND_DING);
 	
@@ -268,15 +269,23 @@ void Manager_Docks::onEvent(Event* e)
 			std::vector<Command*>* commands = commandEvent->commands;
 			bool displayAsSingleCommandHistoryEntry = commandEvent->displayAsSingleCommandHistoryEntry;
 			int indexToBundledWithCommandHistoryGUIListEntry = commandEvent->indexToBundledWithCommandHistoryGUIListEntry;
+			int overrideGUINumber = commandEvent->overrideNrOfCommandsGUINumber;
 
 			int nrOfCommandsToBeAdded = commands->size();
 			for(int i=0;i<nrOfCommandsToBeAdded;i++)
 			{
 				std::string commandText = "UNKNOWN COMMAND";
 				std::string appendToCommandText = "";
-				if(displayAsSingleCommandHistoryEntry && nrOfCommandsToBeAdded > 1)
+				if(displayAsSingleCommandHistoryEntry)
 				{
-					appendToCommandText = " (" + Converter::IntToStr(nrOfCommandsToBeAdded) +")";
+					if(overrideGUINumber > 0) // Special override. Another GUI number than the number of commands in "commands".
+					{
+						appendToCommandText = " (" + Converter::IntToStr(overrideGUINumber) +")";
+					}
+					else if(nrOfCommandsToBeAdded > 1) // Normal case. Add the number of commands in parenthesis if the number of comands sent in "Event_AddToCommandHistoryGUI" is larger than 1.
+					{
+						appendToCommandText = " (" + Converter::IntToStr(nrOfCommandsToBeAdded) +")";
+					}
 				}
 
 				QIcon commandIcon;
@@ -423,8 +432,15 @@ void Manager_Docks::onEvent(Event* e)
 						indexToBundledWithCommandHistoryGUIListEntry++;
 					}
 				}
-				addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry, nrOfCommandsToBeAdded);
-
+				if(overrideGUINumber > 0) // Use overrideGUINumber
+				{
+					addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry, overrideGUINumber);
+				}
+				else // Use nrOfCommandsToBeAdded
+				{
+					addItemToCommandHistoryListWidget(commandIcon, commandtextAsQString, indexToBundledWithCommandHistoryGUIListEntry, nrOfCommandsToBeAdded);
+				}
+				
 				if(displayAsSingleCommandHistoryEntry)
 				{
 					break; // Exit loop. Only add one command to the GUI.
@@ -479,25 +495,79 @@ void Manager_Docks::onEvent(Event* e)
 			}
 		}
 		break;
-	case EVENT_GET_COMMAND_HISTORY_GUI_FILTER:
+	case EVENT_SAVE_COMMAND_HISTORY_GUI_FILTER:
 		{
-			Event_GetCommandHistoryGUIFilter* getGUIFilterEvent = static_cast<Event_GetCommandHistoryGUIFilter*>(e);
-			
-			std::vector<bool>* GUIFilter = new std::vector<bool>;
-			int nrOfCommands = m_commandHistoryListWidget->count();
-			for(int i=1;i<nrOfCommands;i++) // i = 1, ignores ROOT_COMMAND
+			Event_SaveCommandHistoryGUIFilter* saveGUIFilter = static_cast<Event_SaveCommandHistoryGUIFilter*>(e);
+			std::string path = saveGUIFilter->path;
+
+			int nrOfCommandListItems = m_commandHistoryListWidget->count();
+
+			// Prepare save
+			QListWidgetItem* item = m_commandHistoryListWidget->item(0);
+			ListItemWithIndex* indexItem = getListItemWithIndexFromQListWidgetItem(item);
+			int byteSize = indexItem->getByteSizeOfDataStruct()*(nrOfCommandListItems-1); // -1 = skip ROOT_COMMAND
+			char* byteData = new char[byteSize];
+
+			// Save
+			int byteIndex = 0;
+			for(int i=1;i<nrOfCommandListItems;i++) // i = skip ROOT_COMMAND
 			{
 				QListWidgetItem* item = m_commandHistoryListWidget->item(i);
-				if(item->isHidden())
-				{
-					GUIFilter->push_back(true);
-				}
-				else
-				{
-					GUIFilter->push_back(false);
-				}
+				ListItemWithIndex* indexItem = getListItemWithIndexFromQListWidgetItem(item);
+
+				indexItem->receiveDataStructInSerializationFormat(byteData, byteIndex);
 			}
-			getGUIFilterEvent->GUIFilter = GUIFilter;
+			Converter::BytesToFile(byteData, byteSize, path);
+			delete [] byteData;
+		}
+		break;
+	case EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER:
+		{
+			Event_TryToLoadCommandHistoryGUIFilter* tryToLoadGUIFilter = static_cast<Event_TryToLoadCommandHistoryGUIFilter*>(e);
+			int byteSize = tryToLoadGUIFilter->fileSize;
+			std::vector<Command*>* commands = tryToLoadGUIFilter->commands;
+			std::string path = tryToLoadGUIFilter->path;
+
+			// Load bytes from file
+			ListItemWithIndex* liteItemWithIndex = new ListItemWithIndex(); // Use this object to load the values from file
+			char* byteData = new char[byteSize];
+			if(Converter::FileToBytes(path, byteData, byteSize))
+			{
+				// Interpret loaded bytes
+				int nextByte = 0;
+				int sizeOfOneListItem = liteItemWithIndex->getByteSizeOfDataStruct();
+
+				std::vector<Command*> subsetOfCommands;
+				while(nextByte < byteSize)
+				{
+					char* commandDataStructBytes = reinterpret_cast<char*>(byteData+nextByte);
+					liteItemWithIndex->loadDataStructFromBytes(commandDataStructBytes);
+
+					int GUINumber = liteItemWithIndex->getNrOfCommandsRepresented();
+					int CommandHistoryIndex = liteItemWithIndex->getCommandHistoryIndex();
+
+					Command* command = commands->at(CommandHistoryIndex);
+					subsetOfCommands.push_back(command);
+					if(GUINumber > 1) // Override GUINumber (refer to Event_AddToCommandHistoryGUI)
+					{
+						SEND_EVENT(&Event_AddToCommandHistoryGUI(&subsetOfCommands, true, CommandHistoryIndex, GUINumber));
+					}
+					else // No override of GUINumber (refer to Event_AddToCommandHistoryGUI)
+					{
+						SEND_EVENT(&Event_AddToCommandHistoryGUI(&subsetOfCommands, true, CommandHistoryIndex));
+					}
+					subsetOfCommands.clear();
+
+					nextByte += sizeOfOneListItem;
+				}
+				tryToLoadGUIFilter->loadedSuccessfully = true;
+			}
+			else
+			{
+				tryToLoadGUIFilter->loadedSuccessfully = false;
+			}
+			delete [] byteData;
+			delete liteItemWithIndex;
 		}
 		break;
 	case EVENT_INCREMENT_OR_DECREMENT_CURRENT_ROW_IN_COMMAND_HISTORY_GUI:
@@ -507,11 +577,13 @@ void Manager_Docks::onEvent(Event* e)
 
 			int nrOfRows = m_commandHistoryListWidget->count();
 			int currentRow = m_commandHistoryListWidget->currentRow();
+			int newRow;
 			if(increment)
 			{
-				if(currentRow+1 < nrOfRows)
+				newRow = currentRow+1;
+				if(newRow < nrOfRows)
 				{
-					m_commandHistoryListWidget->setCurrentRow(currentRow+1);
+					m_commandHistoryListWidget->setCurrentRow(newRow);
 				}
 				else
 				{
@@ -520,9 +592,10 @@ void Manager_Docks::onEvent(Event* e)
 			}
 			else
 			{
-				if(currentRow-1 > -1)
+				newRow = currentRow-1;
+				if(newRow > -1)
 				{
-					m_commandHistoryListWidget->setCurrentRow(currentRow-1);
+					m_commandHistoryListWidget->setCurrentRow(newRow);
 				}
 				else
 				{
@@ -628,9 +701,15 @@ int Manager_Docks::findListItemIndexFromCommandHistoryIndex(int commandHistoryIn
 	return foundCommandHistoryIndexFromIndexItem;
 }
 
-int Manager_Docks::getIndexFromItemWithIndex(QListWidgetItem* item)
+ListItemWithIndex* Manager_Docks::getListItemWithIndexFromQListWidgetItem(QListWidgetItem* item)
 {
 	ListItemWithIndex* indexItem = static_cast<ListItemWithIndex*>(item);
+	return indexItem;
+}
+
+int Manager_Docks::getIndexFromItemWithIndex(QListWidgetItem* item)
+{
+	ListItemWithIndex* indexItem = getListItemWithIndexFromQListWidgetItem(item);
 	int commandHistoryIndex = indexItem->getCommandHistoryIndex();
 	return commandHistoryIndex;
 }
@@ -1749,6 +1828,11 @@ ListItemWithIndex::ListItemWithIndex(const QIcon& icon, const QString& text, int
 int ListItemWithIndex::getCommandHistoryIndex()
 {
 	return m_dataStruct.commandHistoryIndex;
+}
+
+int ListItemWithIndex::getNrOfCommandsRepresented()
+{
+	return m_dataStruct.nrOfCommandsRepresented;
 }
 
 Item_Prefab::Item_Prefab( QIcon icon, QString filname ) : QListWidgetItem(icon, filname)

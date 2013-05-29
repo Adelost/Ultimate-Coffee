@@ -10,13 +10,15 @@
 //#include <math.h>
 
 class Window;
+class ListItemWithIndex;
+class ItemBrowser;
+class Manager_Docks;
+
 class QDockWidget;
 class QMenu;
 class QAction;
 class QStandardItemModel;
 class QListWidget;
-class Manager_Docks;
-class ItemBrowser;
 class QColorDialog;
 
 class Manager_Docks : public QObject, public IObserver
@@ -47,6 +49,9 @@ public:
 	
 	// Example: the command which in the "CommandHistory" is at index 5, what index does it have in the "QListWidget"
 	int findListItemIndexFromCommandHistoryIndex(int commandHistoryIndex);
+
+	// Only send "QListWidgetItem" that really are "ListItemWithIndex" as argument
+	ListItemWithIndex* getListItemWithIndexFromQListWidgetItem(QListWidgetItem* item);
 
 	// Only send "QListWidgetItem" that really are "ListItemWithIndex" as argument
 	int getIndexFromItemWithIndex(QListWidgetItem* item);
@@ -195,16 +200,18 @@ private:
 	struct DataStruct
 	{
 		int commandHistoryIndex; // Defines the mapping between a command in "CommandHistory" and a QListWidgetItem (ListItemWithIndex) in a QListWidget.
-		int nrOfCommandsRepresented; // Needed when saving and loading GUIFilter, refer to //check. Example when nrOfCommandsRepresented=27 "Entity creation (27)".
+		int nrOfCommandsRepresented; // Needed when saving and loading GUIFilter, refer to EVENT_TRY_TO_LOAD_COMMAND_HISTORY_GUI_FILTER. Example when nrOfCommandsRepresented=27 "Entity creation (27)".
 	};
 	DataStruct m_dataStruct;
 
 public:
 	ListItemWithIndex(const QIcon& icon, const QString& text, int index, int nrOfCommandsRepresented);
+	ListItemWithIndex(){};
 	int getCommandHistoryIndex();
+	int getNrOfCommandsRepresented();
 
 	// pure virtual overrides from "Serializable"
 	void* accessDerivedClassDataStruct(){return reinterpret_cast<void*>(&m_dataStruct);}
-	virtual int getByteSizeOfDataStruct(){return sizeof(m_dataStruct);}
-	virtual void loadDataStructFromBytes(char* data){m_dataStruct = *reinterpret_cast<DataStruct*>(&m_dataStruct);}
+	int getByteSizeOfDataStruct(){return sizeof(m_dataStruct);}
+	void loadDataStructFromBytes(char* data){m_dataStruct = *reinterpret_cast<DataStruct*>(data);}
 };
