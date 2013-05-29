@@ -69,6 +69,17 @@ void RenderWidget::onEvent( Event* p_event )
 					QWidget::setCursor(cursor);	
 				}
 				break;
+			case Event_SetCursor::SceneCursor_Pointer:
+				{
+					QString path = ICON_PATH;
+					path += "Cursors/scene_pointer";
+					QPixmap pixmap(path);
+					int hotspotX = 0;
+					int hotspotY = 0;
+					QCursor cursor(pixmap, hotspotX, hotspotY);
+					QWidget::setCursor(cursor);	
+				}
+				break;
 			default:
 				{
 					Qt::CursorShape cursor = static_cast<Qt::CursorShape>(cursorShape);

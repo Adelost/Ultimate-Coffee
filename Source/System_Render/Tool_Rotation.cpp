@@ -12,7 +12,7 @@ Tool_Rotation::Tool_Rotation(/*HWND windowHandle*/)
 	isSelected = false;
 	currentlySelectedHandle = NULL;
 
-	scale = 1.1f;
+	scale = 1.15f;
 	XMVECTOR center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	omniRotateSphereHandle = new Handle_RotationSphere(center, scale /*, windowHandle*/);
 
@@ -85,7 +85,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			xRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			xRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
@@ -106,7 +106,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			yRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			yRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = yRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
@@ -126,7 +126,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			zRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			zRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, true);
 			aSingleAxisRotationHandleWasSelected = zRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
@@ -146,7 +146,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
-			viewAxisRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector);
+			viewAxisRotationHandle->setSelectionBlockingPlaneNormal(camLookAtVector, false);
 			aSingleAxisRotationHandleWasSelected = viewAxisRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
@@ -182,7 +182,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 	if(currentlySelectedHandle && currentlySelectedHandle == omniRotateSphereHandle)
 	{
 		// Set the cursor icon to the one indicating that the free rotation sphere is being handled.
-		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::ClosedHandCursor));
+		SEND_EVENT(&Event_SetCursor(Event_SetCursor::CursorShape::SceneCursor_Pointer));
 	}
 
 	isSelected = aRotationToolHandleWasSelected;
@@ -389,6 +389,9 @@ void Tool_Rotation::update(MyRectangle &selectionRectangle, XMVECTOR &rayOrigin,
 
 		++i;
 	}
+
+	Event_SelectedEntitiesHaveBeenTransformed transformEvent;
+	SEND_EVENT(&transformEvent);
 }
 
 /* Called for current translation delta made by picking. */
