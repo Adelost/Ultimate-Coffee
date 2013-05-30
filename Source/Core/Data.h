@@ -91,6 +91,7 @@ namespace Data
 		public:
 			Buffer* vertex;
 			Buffer* index;
+			float largestValue;
 
 		public:
 			BufferStore()

@@ -54,6 +54,8 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 	unsigned int runningIndIndex	= 0;
 	unsigned int indOffset			= 0;
 
+	float largestValue = 0.0f;
+
 	for(unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		// Vertices
@@ -96,6 +98,19 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 			SAFE_ASSIGNEMENT(tangents,	vertices[runningVertIndex].tangentU,		Vector3(0.0f, 0.0f, 0.0f),	tangents[j]);
 			SAFE_ASSIGNEMENT(textureUV, vertices[runningVertIndex].texureCordinate, Vector2(0.0f, 0.0f),		Vector2(textureUV[j].x, textureUV[j].y));
 
+			if(abs(positions[j].x) > largestValue)
+			{
+				largestValue = abs(positions[j].x);
+			}
+			else if(abs(positions[j].y) > largestValue)
+			{
+				largestValue = abs(positions[j].y);
+			}
+			else if(abs(positions[j].z) > largestValue)
+			{
+				largestValue = abs(positions[j].z);
+			}
+
 			runningVertIndex++;
 		}
 
@@ -122,6 +137,7 @@ bool MeshLoader::loadModel(std::string filename, MeshData& meshData)
 
 	meshData.vertices.assign(&vertices[0], &vertices[totalNrOfVertices]);
 	meshData.indices.assign(&indices[0], &indices[totalNrOfFaces * 3]);
+	meshData.largestValue = largestValue;
 
 	delete vertices;
 	delete indices;
@@ -162,27 +178,4 @@ unsigned int* MeshLoader::facesToIndices(void* aiArray, unsigned int nrOfFaces)
 	}
 
 	return indices;
-}
-
-float MeshLoader::extractLargestValue(Vector3* vertices, unsigned int nrOfVertices)
-{
-	float largestValue = 0.0f;
-
-	for(unsigned int i = 0; i < nrOfVertices; i++)
-	{
-		if(abs(vertices[i].x) > largestValue)
-		{
-			largestValue = abs(vertices[i].x);
-		}
-		else if(abs(vertices[i].y) > largestValue)
-		{
-			largestValue = abs(vertices[i].y);
-		}
-		else if(abs(vertices[i].z) > largestValue)
-		{
-			largestValue = abs(vertices[i].z);
-		}
-	}
-
-	return largestValue;
 }
