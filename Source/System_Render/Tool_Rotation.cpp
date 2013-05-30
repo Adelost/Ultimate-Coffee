@@ -48,6 +48,9 @@ Tool_Rotation::~Tool_Rotation()
 	ReleaseCOM(mMeshRotTool_viewRectangle_VB);
 
 	ReleaseCOM(m_blendState);
+
+	ReleaseCOM(mMeshRotTool_sphere_VB);
+	ReleaseCOM(mMeshRotTool_sphere_IB);
 }
 
 void Tool_Rotation::setIsVisible(bool &isVisible)
@@ -89,13 +92,13 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			aSingleAxisRotationHandleWasSelected = xRotationHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, camProj, distanceToPointOfIntersection);
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				omniRotateSphereHandle->setSphereRadius(1.11f);
+				omniRotateSphereHandle->setSphereRadius(1.115f);
 				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 				if(aSingleAxisRotationHandleWasSelected)
 				{
 					currentlySelectedHandle = omniRotateSphereHandle; //xRotationHandle;
-					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->setSphereRadius(1.115f);
 					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
@@ -118,13 +121,13 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				omniRotateSphereHandle->setSphereRadius(1.11f);
+				omniRotateSphereHandle->setSphereRadius(1.115f);
 				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 			
 				if(aSingleAxisRotationHandleWasSelected)
 				{
 					currentlySelectedHandle = omniRotateSphereHandle; //yRotationHandle;
-					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->setSphereRadius(1.115f);
 					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
@@ -147,13 +150,13 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				omniRotateSphereHandle->setSphereRadius(1.11f);
+				omniRotateSphereHandle->setSphereRadius(1.115f);
 				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 						
 				if(aSingleAxisRotationHandleWasSelected)
 				{
 					currentlySelectedHandle = omniRotateSphereHandle; //zRotationHandle;
-					omniRotateSphereHandle->setSphereRadius(1.11f);
+					omniRotateSphereHandle->setSphereRadius(1.115f);
 					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
@@ -176,13 +179,13 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 			
 			if(aSingleAxisRotationHandleWasSelected)
 			{
-				omniRotateSphereHandle->setSphereRadius(1.21f);
+				omniRotateSphereHandle->setSphereRadius(1.215f);
 				aSingleAxisRotationHandleWasSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 				if(aSingleAxisRotationHandleWasSelected)
 				{
 					currentlySelectedHandle = omniRotateSphereHandle;
-					omniRotateSphereHandle->setSphereRadius(1.21f);
+					omniRotateSphereHandle->setSphereRadius(1.215f);
 					omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 					XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
@@ -201,7 +204,7 @@ bool Tool_Rotation::tryForSelection(MyRectangle &selectionRectangle, XMVECTOR &r
 		if(!aSingleAxisRotationHandleWasSelected)
 		{
 			// Check if the ray intersects with the omni-rotation sphere.
-			omniRotateSphereHandle->setSphereRadius(1.11f);
+			omniRotateSphereHandle->setSphereRadius(1.115f);
 			sphereSelected = omniRotateSphereHandle->tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToPointOfIntersection);
 
 			if(sphereSelected)
@@ -1000,6 +1003,27 @@ void Tool_Rotation::init(ID3D11Device *device, ID3D11DeviceContext *deviceContex
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 						
 	md3dDevice->CreateBlendState(&blendDesc, &m_blendState);
+
+	vertices.clear();
+	GeometryGenerator::MeshData2 circleData;
+	geoGen.CreateSphere(0.90f, 50, 50, circleData);
+
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::PosCol) * 2501;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	vinitData.pSysMem = &circleData.Vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mMeshRotTool_sphere_VB));
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * 14700;
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibd.CPUAccessFlags = 0;
+    ibd.MiscFlags = 0;
+    vinitData.pSysMem = &circleData.Indices[0];
+	HR(md3dDevice->CreateBuffer(&ibd, &vinitData, &mMeshRotTool_sphere_IB));	
 }
 
 void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencilView *depthStencilView)
@@ -1056,6 +1080,14 @@ void Tool_Rotation::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStenci
 
 			md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_viewRectangle_VB, &stride, &offset);
 			md3dImmediateContext->Draw(6, 0);
+
+			if(!isSelected)
+			{
+				//md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
+				md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshRotTool_sphere_VB, &stride, &offset);
+				md3dImmediateContext->IASetIndexBuffer(mMeshRotTool_sphere_IB, DXGI_FORMAT_R32_UINT, offset);
+				md3dImmediateContext->DrawIndexed(14700, 0, 0);
+			}
 			
 			md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 

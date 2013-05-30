@@ -101,10 +101,12 @@ Tool_Translation::~Tool_Translation()
 	ReleaseCOM(mMeshTransTool_yzPlane2_VB);
 	ReleaseCOM(mMeshTransTool_zxPlane2_VB);
 	ReleaseCOM(mMeshTransTool_xyPlane2_VB);
-
 	ReleaseCOM(mMeshTransTool_viewPlane_VB);
 
 	ReleaseCOM(m_blendState);
+
+	ReleaseCOM(mMeshTransTool_obscuringRectangles_VB);
+	ReleaseCOM(mMeshTransTool_viewRectangleObscuringPlane_VB);
 
 	//ReleaseCOM(mMeshTransTool_yzTriangleListRectangle_VB);
 	//ReleaseCOM(mMeshTransTool_zxTriangleListRectangle_VB);
@@ -768,6 +770,8 @@ void Tool_Translation::init(ID3D11Device *device, ID3D11DeviceContext *deviceCon
 	std::vector<Vertex::PosCol> vertices;
 
 	Vertex::PosCol posCol;
+
+	posCol.Col.w = 1.0f;
 
 	// YZ line-list rectangle.
 

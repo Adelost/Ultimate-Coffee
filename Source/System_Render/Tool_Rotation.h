@@ -45,13 +45,16 @@ private:
 
 	ID3D11Buffer* mMeshRotTool_angleLine_VB;
 
-	ID3D11Buffer* mMeshRotTool_circle_VB;
+	//ID3D11Buffer* mMeshRotTool_circle_VB;
 	ID3D11Buffer* mMeshRotTool_Xcircle_VB;
 	ID3D11Buffer* mMeshRotTool_Ycircle_VB;
 	ID3D11Buffer* mMeshRotTool_Zcircle_VB;
 	ID3D11Buffer* mMeshRotTool_viewCircle_VB;
 
 	ID3D11Buffer* mMeshRotTool_viewRectangle_VB;
+
+	ID3D11Buffer* mMeshRotTool_sphere_VB;
+	ID3D11Buffer* mMeshRotTool_sphere_IB;
 
 	///////////////////////////////
 

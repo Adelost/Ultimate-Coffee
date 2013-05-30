@@ -42,7 +42,7 @@ private:
 	ID3D11DeviceContext *md3dImmediateContext;
 
 	// Test mesh for translation tool.
-	ID3D11Buffer* mMeshTransToolVB;
+	//ID3D11Buffer* mMeshTransToolVB;
 	
 	// Debug:
 	ID3D11Buffer* mMeshTransTool_xAxisLine_VB;
@@ -65,10 +65,10 @@ private:
 	ID3D11Buffer* mMeshTransTool_xyPlane2_VB;
 	ID3D11Buffer* mMeshTransTool_viewPlane_VB;
 
-	ID3D11Buffer* mMeshTransTool_yzTriangleListRectangle_VB;
-	ID3D11Buffer* mMeshTransTool_zxTriangleListRectangle_VB;
-	ID3D11Buffer* mMeshTransTool_xyTriangleListRectangle_VB;
-	ID3D11Buffer* mMeshTransTool_viewPlaneTriangleListRectangle_VB;
+	//ID3D11Buffer* mMeshTransTool_yzTriangleListRectangle_VB;
+	//ID3D11Buffer* mMeshTransTool_zxTriangleListRectangle_VB;
+	//ID3D11Buffer* mMeshTransTool_xyTriangleListRectangle_VB;
+	//ID3D11Buffer* mMeshTransTool_viewPlaneTriangleListRectangle_VB;
 
 	ID3D11Buffer* mMeshTransTool_obscuringRectangles_VB;
 	ID3D11Buffer* mMeshTransTool_viewRectangleObscuringPlane_VB;

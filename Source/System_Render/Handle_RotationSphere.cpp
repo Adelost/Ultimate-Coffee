@@ -159,14 +159,18 @@ void Handle_RotationSphere::pickSphere(MyRectangle &selectionRectangle, XMVECTOR
 		float vy = (-2.0f * newCursorScreenPos_clientSpace.m128_f32[1] / viewPortHeight + 1.0f) / P.r[1].m128_f32[1];
 
 		// Ray definition in view space.
-		rayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-		rayDir = XMVectorSet(vx, vy, 1.0f, 0.0f);
-		rayDir = XMVector3Normalize(rayDir);
+		XMVECTOR rayOrigin2 = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		XMVECTOR rayDir2 = XMVectorSet(vx, vy, 1.0f, 0.0f);
+		rayDir2 = XMVector3Normalize(rayDir2);
+
+			//transRayOrigin = XMVector3TransformCoord(rayOrigin2, toLocal);
+			//transRayDir = XMVector3TransformNormal(rayDir2, toLocal);
+			//transRayDir = XMVector3Normalize(transRayDir);
 
 		float distanceToIntersectionPoint;
 
 		// Re-select the rotation sphere. This call should never return false in this function.
-		bool selected = tryForSelection(selectionRectangle, rayOrigin, rayDir, camView, distanceToIntersectionPoint);
+		bool selected = tryForSelection(selectionRectangle, rayOrigin2, rayDir2, camView, distanceToIntersectionPoint);
 		if(!selected)
 		{
 			MESSAGEBOX("Error in Handle_RotationSphere::pickSphere(); Re-selection of rotation sphere failed during a 'spin-around' operation. This should never happen. Report to transformation tools admin.");

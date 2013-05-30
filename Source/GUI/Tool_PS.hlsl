@@ -13,10 +13,10 @@ struct VertexOut
 
 float4 PS(VertexOut pin) : SV_Target
 {
-	float3 norm = normalize(g_camViewVectorW);
-	float3 invCamLookAt = -norm;
-	float3 lightFixturePos = g_pivotPoint + invCamLookAt;
-	float dist = length(lightFixturePos - pin.PosH);
+	//float3 norm = normalize(g_camViewVectorW);
+	//float3 invCamLookAt = -norm;
+	//float3 lightFixturePos = g_pivotPoint + invCamLookAt;
+	//float dist = length(lightFixturePos - pin.PosH);
 
 	float4 litColor = pin.Col;
 	//if(dist > 0.00005f)

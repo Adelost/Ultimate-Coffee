@@ -116,6 +116,8 @@ Tool_Scaling::~Tool_Scaling()
 	ReleaseCOM(mMeshTransTool_xyPlane2_VB);
 	ReleaseCOM(mMeshTransTool_viewPlane_VB);
 
+	ReleaseCOM(mMeshTransTool_obscuringRectangles_VB);
+
 	//ReleaseCOM(mMeshTransTool_yzTriangleListRectangle_VB);
 	//ReleaseCOM(mMeshTransTool_zxTriangleListRectangle_VB);
 	//ReleaseCOM(mMeshTransTool_xyTriangleListRectangle_VB);
@@ -1747,13 +1749,13 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
 	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
 
-	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_ToolPS_PerFrame_Buffer);
-	Entity* entity_camera = CAMERA_ENTITY().asEntity();
-	XMVECTOR camViewVector = entity_camera->fetchData<Data::Camera>()->getLookVector();
-	//camViewVector = XMVector3Transform(camViewVector, worldViewProj);
-	md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 0, NULL, &camViewVector, 0, 0);
-	XMVECTOR toolPos = activeEntity->fetchData<Data::Transform>()->position;
-	md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 1, NULL, &toolPos, 0, 0);
+			//md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_ToolPS_PerFrame_Buffer);
+			//Entity* entity_camera = CAMERA_ENTITY().asEntity();
+			//XMVECTOR camViewVector = entity_camera->fetchData<Data::Camera>()->getLookVector();
+			////camViewVector = XMVector3Transform(camViewVector, worldViewProj);
+			//md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 0, NULL, &camViewVector, 0, 0);
+			//XMVECTOR toolPos = activeEntity->fetchData<Data::Transform>()->position;
+			//md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 1, NULL, &toolPos, 0, 0);
 
 
 	// Draw control boxes.

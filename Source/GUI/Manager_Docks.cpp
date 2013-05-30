@@ -1538,6 +1538,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
@@ -1550,6 +1551,7 @@ ToolPanel::ToolPanel( QWidget* parent ) : QWidget(parent)
 		dsb->setRange(-1000.0f, 1000.0f);
 		dsb->setWrapping(1);
 		dsb->setSingleStep(1);
+		dsb->setKeyboardTracking(false);
 		dsb->setMaximumWidth(dsb->width()*SPINBOX_WIDH);
 		l->setMaximumSize(l->sizeHint());
 		hl->addWidget(l);
@@ -1746,6 +1748,20 @@ void ToolPanel::onEvent(Event *p_event)
 
 					spinboxValueSetBecauseOfSelectionOrTransformation = false;
 				}
+				//else
+				//{
+				//	translationXSpinBox->setValue(0.0f);
+				//	translationYSpinBox->setValue(0.0f);
+				//	translationZSpinBox->setValue(0.0f);
+
+				//	rotationXSpinBox->setValue(0.0f);
+				//	rotationYSpinBox->setValue(0.0f);
+				//	rotationZSpinBox->setValue(0.0f);
+
+				//	scalingXSpinBox->setValue(0.0f);
+				//	scalingYSpinBox->setValue(0.0f);
+				//	scalingZSpinBox->setValue(0.0f);
+				//}
 
 				// Set color icon
 				Data::Render* d_render = Data::Selected::lastSelected->toPointer()->fetchData<Data::Render>();

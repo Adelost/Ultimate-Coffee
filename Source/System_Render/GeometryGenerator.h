@@ -73,11 +73,11 @@ public:
 	//</summary>
 	void CreateBox(float width, float height, float depth, MeshData2& meshData, char colorMode, XMMATRIX &localSpaceTransform);
 
-	///<summary>
-	/// Creates a sphere centered at the origin with the given radius.  The
-	/// slices and stacks parameters control the degree of tessellation.
-	///</summary>
-	//void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	//<summary>
+	// Creates a sphere centered at the origin with the given radius.  The
+	// slices and stacks parameters control the degree of tessellation.
+	//</summary>
+	void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData2& meshData);
 
 	///<summary>
 	/// Creates a geosphere centered at the origin with the given radius.  The
