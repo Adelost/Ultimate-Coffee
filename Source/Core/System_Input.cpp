@@ -157,7 +157,7 @@ void System::Input::updateZoomTo()
 		bool doneMovement = false;
 		bool doneRotating = false;
 
-		float deltaSpeed = d_zoomTo->speed * SETTINGS()->deltaTime;
+		float deltaSpeed = d_zoomTo->speed * SETTINGS()->trueDeltaTime;
 		Vector3 direction = d_destinationTransform->position - d_transform->position;
 		float movement = deltaSpeed;
 		if(movement > (direction.Length() - d_zoomTo->distanceFromTargetToStopAt))
@@ -169,7 +169,7 @@ void System::Input::updateZoomTo()
 		direction.Normalize();
 		d_transform->position += direction * movement;
 
-		d_zoomTo->rotationLerpT += SETTINGS()->deltaTime / d_zoomTo->delay;
+		d_zoomTo->rotationLerpT += SETTINGS()->trueDeltaTime / d_zoomTo->delay;
 		if(d_zoomTo->rotationLerpT > 1.0f)
 		{
 			d_zoomTo->rotationLerpT = 1.0f;
