@@ -37,7 +37,7 @@ Entity* Data::Bounding::intersect( Ray& ray )
 	return out;
 }
 
-bool Data::Bounding::intersect( Entity* entity, const Ray& ray, float* distance)
+bool Data::Bounding::intersect( Entity* entity, Ray& ray, float* distance)
 {
 	// Translate Ray to local space
 	Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
