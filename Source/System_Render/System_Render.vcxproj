@@ -84,7 +84,8 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)../Binaries/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)../Temp/$(Configuration)/$(ProjectName)/</IntDir>
-    <IncludePath>../;$(IncludePath)</IncludePath>
+    <IncludePath>../;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>../;$(IncludePath)</IncludePath>
