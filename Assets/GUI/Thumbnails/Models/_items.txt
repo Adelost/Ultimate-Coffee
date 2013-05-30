@@ -6,7 +6,8 @@
 # 5 = Mesh_Asteroid
 # 6 = Mesh_Sphere_LowPoly
 # 7 = Mesh_Al
+# 8 = Mesh_Shuttle
 
 # MeshId, Name, Color
 7	al	112,89,44
-7	shuttle	129,128,108
+8	shuttle	129,128,108

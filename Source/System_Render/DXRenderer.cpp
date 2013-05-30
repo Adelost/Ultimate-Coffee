@@ -449,6 +449,10 @@ bool DXRenderer::initDX()
 		// Al
 		Factory_Geometry::instance()->loadModel("Al.obj", mesh);
 		createMeshBuffer(Enum::Mesh_Al, mesh);
+
+		// Shuttle
+		Factory_Geometry::instance()->loadModel("Shuttle.obj", mesh);
+		createMeshBuffer(Enum::Mesh_Shuttle, mesh);
 	}
 
 	// Create per object constant buffer
