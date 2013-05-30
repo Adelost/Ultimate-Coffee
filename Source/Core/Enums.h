@@ -77,6 +77,7 @@ namespace Enum
 		Mesh_Asteroid,
 		Mesh_Sphere_LowPoly,
 		Mesh_Al,
+		Mesh_Shuttle,
 
 		Mesh_End
 	};

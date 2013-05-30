@@ -6,10 +6,9 @@
 # 5 = Mesh_Asteroid
 # 6 = Mesh_Sphere_LowPoly
 # 7 = Mesh_Al
+# 8 = Mesh_Shuttle
 
 # MeshId, Name, Color
-0	box	167,165,182
-1	sphere	255,239,157
-2	cylinder	255,120,0
-3	cone	90,96,131
-4	pyramid	255,202,116
+7	al	112,89,44
+7	capone	129,128,108
+8	shuttle	129,128,108
