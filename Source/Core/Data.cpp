@@ -10,8 +10,10 @@
 EntityPointer Data::Selected::lastSelected;
 
 
-Entity* Data::Bounding::intersect( const Ray& ray )
+Entity* Data::Bounding::intersect( Ray& ray )
 {
+	ray.direction.Normalize();
+
 	Entity* out = nullptr;
 	float hitDistance = FLT_MAX;
 
@@ -204,6 +206,7 @@ void Data::ZoomTo::zoomTo( Entity* e )
 	Data::Transform* d_cameraTransform = entity_camera->fetchData<Data::Transform>();
 	Data::Transform* d_clickedEntityTransform = d_zoomTo.target->fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+	Data::Render* d_render = d_zoomTo.target->fetchData<Data::Render>();
 
 	if(d_camera != nullptr)
 	{
@@ -214,11 +217,16 @@ void Data::ZoomTo::zoomTo( Entity* e )
 		d_zoomTo.originLook = Vector3(0.0f, 0.0f, 1.0f);
 	}
 
+	float largestMeshSide = 1.0f;
+	if(d_render != nullptr)
+	{
+		largestMeshSide = Data::Render::manager.buffer_list[d_render->mesh.id].largestValue;
+	}
+
 	if(d_cameraTransform != nullptr && d_clickedEntityTransform != nullptr)
 	{
 		d_zoomTo.rotationLerpT = 0.0f;
-		float largestMeshSide = 1.0f;
-		d_zoomTo.distanceFromTargetToStopAt = 5.0f * largestMeshSide;
+		d_zoomTo.distanceFromTargetToStopAt = 2.5f * largestMeshSide;
 		d_zoomTo.delay = 1.0f;
 		float distance = Vector3::Distance(d_clickedEntityTransform->position, d_cameraTransform->position) - d_zoomTo.distanceFromTargetToStopAt;
 		d_zoomTo.speed = distance / d_zoomTo.delay;

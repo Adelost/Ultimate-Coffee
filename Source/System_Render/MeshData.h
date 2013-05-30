@@ -9,6 +9,7 @@ class MeshData
 public:
 	std::vector<VertexPosNormTanTex> vertices;
 	std::vector<unsigned int> indices;
+	float largestValue;
 
 public:
 	void computeNormals()

@@ -624,4 +624,5 @@ void DXRenderer::createMeshBuffer( int meshId, MeshData &mesh )
 	// Store
 	Data::Render::manager.buffer_list[meshId].vertex = vertexBuffer;
 	Data::Render::manager.buffer_list[meshId].index = indexBuffer;
+	Data::Render::manager.buffer_list[meshId].largestValue = mesh.largestValue;
 }

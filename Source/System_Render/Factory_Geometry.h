@@ -113,6 +113,8 @@ public:
 		i[33] = 20; i[34] = 22; i[35] = 23;
 
 		meshData.indices.assign(&i[0], &i[36]);
+
+		meshData.largestValue = 1.0f;
 	};
 
 	/**
@@ -202,6 +204,8 @@ public:
 		meshData.indices.assign(&i[0], &i[36]);
 
 		meshData.computeNormals();
+
+		meshData.largestValue = 1.0f;
 	};
 
 	/**
@@ -316,6 +320,8 @@ public:
 			meshData.indices.push_back(baseIndex+i);
 			meshData.indices.push_back(baseIndex+i+1);
 		}
+
+		meshData.largestValue = 1.0f;
 	};
 
 	void createCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
@@ -390,6 +396,8 @@ public:
 
 		buildCylinderTopCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData);
 		buildCylinderBottomCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData);
+
+		meshData.largestValue = 1.0f;
 	};
 
 	void buildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
