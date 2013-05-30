@@ -10,8 +10,10 @@
 EntityPointer Data::Selected::lastSelected;
 
 
-Entity* Data::Bounding::intersect( const Ray& ray )
+Entity* Data::Bounding::intersect( Ray& ray )
 {
+	ray.direction.Normalize();
+
 	Entity* out = nullptr;
 	float hitDistance = FLT_MAX;
 

@@ -74,9 +74,9 @@ namespace Data
 		Returns the Entity intersected with. NULL if
 		no intersection.
 		*/
-		static Entity* intersect(const Ray& ray);
+		static Entity* intersect(Ray& ray);
 		static void intersect(const BoundingFrustum& frustum, std::vector<Entity*>* entity_list);
-		bool intersect(Entity* entity, const Ray& ray, float* distance);
+		bool intersect(Entity* entity, Ray& ray, float* distance);
 	};
 
 	/**
