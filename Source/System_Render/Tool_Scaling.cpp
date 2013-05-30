@@ -859,6 +859,8 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 	Vertex::PosCol posCol;
 
+	posCol.Col.w = 1.0f;
+
 	// YZ line-list rectangle.
 
 	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f;
