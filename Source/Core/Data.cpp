@@ -217,7 +217,8 @@ void Data::ZoomTo::zoomTo( Entity* e )
 	if(d_cameraTransform != nullptr && d_clickedEntityTransform != nullptr)
 	{
 		d_zoomTo.rotationLerpT = 0.0f;
-		d_zoomTo.distanceFromTargetToStopAt = 5.0f;
+		float largestMeshSide = 1.0f;
+		d_zoomTo.distanceFromTargetToStopAt = 5.0f * largestMeshSide;
 		d_zoomTo.delay = 1.0f;
 		float distance = Vector3::Distance(d_clickedEntityTransform->position, d_cameraTransform->position) - d_zoomTo.distanceFromTargetToStopAt;
 		d_zoomTo.speed = distance / d_zoomTo.delay;
