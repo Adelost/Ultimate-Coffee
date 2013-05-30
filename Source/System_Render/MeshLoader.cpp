@@ -163,3 +163,26 @@ unsigned int* MeshLoader::facesToIndices(void* aiArray, unsigned int nrOfFaces)
 
 	return indices;
 }
+
+float MeshLoader::extractLargestValue(Vector3* vertices, unsigned int nrOfVertices)
+{
+	float largestValue = 0.0f;
+
+	for(unsigned int i = 0; i < nrOfVertices; i++)
+	{
+		if(abs(vertices[i].x) > largestValue)
+		{
+			largestValue = abs(vertices[i].x);
+		}
+		else if(abs(vertices[i].y) > largestValue)
+		{
+			largestValue = abs(vertices[i].y);
+		}
+		else if(abs(vertices[i].z) > largestValue)
+		{
+			largestValue = abs(vertices[i].z);
+		}
+	}
+
+	return largestValue;
+}
