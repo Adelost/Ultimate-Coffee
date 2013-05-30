@@ -27,7 +27,7 @@ VertexOut VS( VertexIn vIn )
 
 	vOut.PosH	= mul(float4(vIn.PosL, 1), gWorldViewProj);
 	
-	float divFactor = 3.0f;
+	float divFactor = 2.25f;
 
 	if(gColorSchemeId == 0) // XYZ = RGB.
 	{
