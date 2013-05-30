@@ -10,4 +10,5 @@
 
 # MeshId, Name, Color
 7	al	112,89,44
+7	capone	129,128,108
 8	shuttle	129,128,108
