@@ -150,9 +150,9 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 	}
 	else // Multi-color mode!
 	{
-		XMVECTOR colorX = XMVectorSet(0.0f, 1.0f, 1.0f, 1.0f);
-		XMVECTOR colorY = XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
-		XMVECTOR colorZ = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+		XMVECTOR colorX = XMVectorSet(1.0f, 2.0f, 2.0f, 0.0f);
+		XMVECTOR colorY = XMVectorSet(2.0f, 2.0f, 1.0f, 0.0f);
+		XMVECTOR colorZ = XMVectorSet(2.0f, 1.0f, 2.0f, 0.0f);
 
 		XMVECTOR v0pos = XMVector3Transform(XMVectorSet(-w2, -h2, -d2, 1.0f), localSpace);
 		XMVECTOR v1pos = XMVector3Transform(XMVectorSet(-w2, +h2, -d2, 1.0f), localSpace);

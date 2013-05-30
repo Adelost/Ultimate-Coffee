@@ -843,6 +843,13 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ColorSchemeIdBuffer));
 
+	D3D11_BUFFER_DESC ToolPS_PerFrame_BufferDesc;
+	ZeroMemory(&ColorSchemeId_Desc, sizeof(ColorSchemeId_Desc)); //memset(&WVP_Desc, 0, sizeof(WVP_Desc));
+	ColorSchemeId_Desc.Usage = D3D11_USAGE_DEFAULT;
+	ColorSchemeId_Desc.ByteWidth = 16;
+	ColorSchemeId_Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	HR(md3dDevice->CreateBuffer(&ColorSchemeId_Desc, NULL, &m_ToolPS_PerFrame_Buffer));
+
 	// Create test mesh for visual translation control.
 	
 	D3D11_BUFFER_DESC vbd;
@@ -1034,29 +1041,33 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 		mMeshTransTool_xyPlane2_VB;
 
 		// Create obscuring surfaces.
-		posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f; // Transparent.
 
 		// XY plane front surface.
 
 		// Triangle A...
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f; // Transparent.
 		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
-
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
@@ -1064,22 +1075,28 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 		// Triangle A...
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 0.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -0.01f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 		posCol.Pos.x = 1.0f; posCol.Pos.y = 1.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
@@ -1087,23 +1104,29 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 			// Triangle A...
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.01f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
 			// Triangle B...
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = 0.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
@@ -1111,23 +1134,29 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 			// Triangle A...
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = -0.01f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
 			// Triangle B...
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = -1.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = 0.0f; posCol.Pos.y = -1.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.5f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
 			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.0f; posCol.Pos.z = -0.01f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
@@ -1135,141 +1164,178 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 		// Triangle A...
 
-		posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = -0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = -0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = -0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.00f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = -0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
 
-		posCol.Pos.x = -0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = -0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// YZ plane back surface.
 
 		// Triangle A...
 
-		posCol.Pos.x = 0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
-		posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; 
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.01f; posCol.Pos.y = 1.0f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
 			// YZ plane 2 front surface.
 
 			// Triangle A...
 
-			posCol.Pos.x = -0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
 			// Triangle B...
 
-			posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
 			// YZ plane 2 back surface.
 
 			// Triangle A...
 
-			posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
 			// Triangle B...
-			posCol.Pos.x = 0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = -1.0f;
+			vertices.push_back(posCol);
+				
+				posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.01f; posCol.Pos.y = -1.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
-			vertices.push_back(posCol);
-
-			posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 1.0f; posCol.Col.z = 0.5f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.01f; posCol.Pos.y = 0.0f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
 		// ZX plane front surface.
 
 		// Triangle A...
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
 
-		posCol.Pos.x = 1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// ZX plane back surface.
 
 		// Triangle A...
-
-		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
-		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
-
-		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+		
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
 
 		// Triangle B...
-		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
-
-		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+		
+			posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f;
 		vertices.push_back(posCol);
-
-		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+		
+			posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+		posCol.Pos.x = 1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 1.0f;
 		vertices.push_back(posCol);
 
 			// ZX plane 2 front surface.
@@ -1278,47 +1344,59 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 			// Triangle A...
 
-			posCol.Pos.x = -1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = -1.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
 			// Triangle B...
 
-			posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -1.0f; posCol.Pos.y = -0.01f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
 			// ZY plane 2 back surface.
 
 			// Triangle A...
 
-			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 1.0f; posCol.Col.y = 0.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = -1.0f; //posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
 			// Triangle B...
-			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.009f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = -1.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = -1.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.009f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = -1.0f;
 			vertices.push_back(posCol);
 
-			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f; // posCol.Pos.x = 0.99f; posCol.Pos.y = 0.99f; posCol.Pos.z = 0.0f;
+				posCol.Col.x = 0.5f; posCol.Col.y = 0.5f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
+			posCol.Pos.x = 0.0f; posCol.Pos.y = 0.01f; posCol.Pos.z = 0.0f;
 			vertices.push_back(posCol);
 
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -1333,23 +1411,23 @@ void Tool_Scaling::init(ID3D11Device *device, ID3D11DeviceContext *deviceContext
 
 	// View triangle-list rectangle.
 
-	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+		posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 	posCol.Pos.x = -0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f;
+		posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
 	posCol.Pos.x = -0.25f; posCol.Pos.y =  0.25f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+		posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 	posCol.Pos.x =  0.25f; posCol.Pos.y =  0.25f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 	
-	posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f;
+		posCol.Col.x = 0.0f; posCol.Col.y = 0.0f; posCol.Col.z = 0.0f; posCol.Col.w = 0.0f;
 	posCol.Pos.x =  0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
-	posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f;
+		posCol.Col.x = 1.0f; posCol.Col.y = 1.0f; posCol.Col.z = 1.0f; posCol.Col.w = 0.0f;
 	posCol.Pos.x = -0.25f; posCol.Pos.y = -0.25f; posCol.Pos.z = 0.0f;
 	vertices.push_back(posCol);
 
@@ -1653,7 +1731,7 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	UINT stride = sizeof(Vertex::PosCol);
     UINT offset = 0;
 	
-	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;;
+	XMVECTOR rotQuat = activeEntity->fetchData<Data::Transform>()->rotation;
 	XMMATRIX rotation = XMMatrixRotationQuaternion(rotQuat);
 
 	XMFLOAT4X4 toolWorld = getWorld_visual();
@@ -1667,13 +1745,40 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	ID3D11Buffer *buffers[2] = {m_WVPBuffer, m_ColorSchemeIdBuffer};
 	md3dImmediateContext->VSSetConstantBuffers(0, 2, buffers);
 
+	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_ToolPS_PerFrame_Buffer);
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	XMVECTOR camViewVector = entity_camera->fetchData<Data::Camera>()->getLookVector();
+	//camViewVector = XMVector3Transform(camViewVector, worldViewProj);
+	md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 0, NULL, &camViewVector, 0, 0);
+	XMVECTOR toolPos = activeEntity->fetchData<Data::Transform>()->position;
+	md3dImmediateContext->UpdateSubresource(m_ToolPS_PerFrame_Buffer, 1, NULL, &toolPos, 0, 0);
+
+
+	// Draw control boxes.
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	md3dImmediateContext->IASetIndexBuffer(mMeshTransTool_axisBox_IB, DXGI_FORMAT_R32_UINT, offset);
+
+	// Omni-scaling box.
+	if(!isSelected || currentlySelectedHandle == omniScalingAxisHandle)
+	{
+		UINT sampleMask   = 0x0fffffff;
+		md3dImmediateContext->OMSetBlendState(m_blendState, NULL, sampleMask);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.01f };
+		md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
+	}
+
 	// Draw control frames.
 
 	if(!isSelected)
 	{
 		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				
-		UINT sampleMask   = 0xffffffff;
+		UINT sampleMask   = 0x0fffffff;
 		md3dImmediateContext->OMSetBlendState(m_blendState, NULL, sampleMask);
 
 		md3dImmediateContext->UpdateSubresource(m_WVPBuffer, 0, NULL, &worldViewProj, 0, 0);
@@ -1682,7 +1787,7 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_obscuringRectangles_VB, &stride, &offset);
 		md3dImmediateContext->Draw(72, 0);
 			
-		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.01f };
 		md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 	}
 
@@ -1723,11 +1828,17 @@ void Tool_Scaling::draw(XMMATRIX &camView, XMMATRIX &camProj, ID3D11DepthStencil
 	md3dImmediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	// Omni-scaling box.
-	if(!isSelected || currentlySelectedHandle == omniScalingAxisHandle)
-	{
-		md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
-		md3dImmediateContext->DrawIndexed(36, 0, 0);
-	}
+	//if(!isSelected || currentlySelectedHandle == omniScalingAxisHandle)
+	//{
+	//	UINT sampleMask   = 0x0fffffff;
+	//	md3dImmediateContext->OMSetBlendState(m_blendState, NULL, sampleMask);
+
+	//	md3dImmediateContext->IASetVertexBuffers(0, 1, &mMeshTransTool_omniAxisBox_VB, &stride, &offset);
+	//	md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+	//	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.01f };
+	//	md3dImmediateContext->OMSetBlendState(NULL, blendFactor, sampleMask);
+	//}
 
 	md3dImmediateContext->OMSetDepthStencilState(NULL, 0);
 
