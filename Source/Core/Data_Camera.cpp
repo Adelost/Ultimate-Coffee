@@ -10,11 +10,11 @@ DirectX::SimpleMath::Quaternion Data::Camera::rotation()
 	return Quaternion::CreateFromRotationMatrix(m);
 }
 
-DirectX::BoundingFrustum Data::Camera::toFrustum( Vector3& cameraPos, Quaternion& cameraRot )
+DirectX::BoundingFrustum Data::Camera::toFrustum()
 {
 	BoundingFrustum f(m_mat_projection);
-	f.Origin = cameraPos;
-	f.Orientation = cameraRot;
+	f.Origin = m_position;
+	f.Orientation = m_rotation;
 
 	return f;
 }

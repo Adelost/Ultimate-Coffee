@@ -48,6 +48,7 @@ void Sky::draw()
 	{
 		Entity* e = map_sky.nextEntity();
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
+		Data::Render* d_render = e->fetchData<Data::Render>();
 		Matrix world = d_transform->toRotMatrix() * mat_pos;
 		
 		// Set Shaders
@@ -57,6 +58,7 @@ void Sky::draw()
 		m_context->PSSetShaderResources(0, 1, &(m_rv_cubeMap));
 		m_cbuffer.WVP = world * viewProj;
 		m_cbuffer.WVP = m_cbuffer.WVP.Transpose();
+		m_cbuffer.color = d_render->mesh.color;
 		m_context->UpdateSubresource(m_WVPBuffer->getBuffer(), 0, nullptr, &m_cbuffer, 0, 0);
 		
 		// Draw

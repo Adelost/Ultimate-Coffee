@@ -119,7 +119,7 @@ namespace Data
 			p_cameraPos = p_cameraPos + m_up * p_distance;
 		}
 
-		BoundingFrustum toFrustum( Vector3& cameraPos, Quaternion& cameraRot );
+		BoundingFrustum toFrustum();
 
 		BoundingFrustum getSubFrustum(FloatRectangle& window, FloatRectangle& sub_window);
 

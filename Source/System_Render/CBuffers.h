@@ -29,3 +29,9 @@ struct CBSettings
 	bool ambient;
 	bool padding[15];
 };
+
+struct CBSkybox
+{
+	Matrix WVP;
+	Color color;
+};

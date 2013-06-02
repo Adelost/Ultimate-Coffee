@@ -69,12 +69,37 @@ void Data::Bounding::intersect( const BoundingFrustum& frustum, std::vector<Enti
 		Entity* entity = map_bounding.nextEntity();
 		Data::Bounding* d_bounding  = entity->fetchData<Data::Bounding>();
 		Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
-		
+	
 		// Check intersection
-		BoundingSphere sphere(d_transform->position, 1.0f);
+		BoundingOrientedBox sphere(d_transform->position, d_transform->scale*0.5f, d_transform->rotation);
 		if(sphere.Intersects(frustum))
 			entity_list->push_back(entity);
 	}
+}
+
+void Data::Bounding::performFrustumCulling( const BoundingFrustum& frustum )
+{
+	DataMapper<Data::Bounding> map_bounding;
+	while(map_bounding.hasNext())
+	{
+		Entity* entity = map_bounding.nextEntity();
+		Data::Bounding* d_bounding  = entity->fetchData<Data::Bounding>();
+		Data::Transform* d_transform  = entity->fetchData<Data::Transform>();
+		float radius = max(d_transform->scale.x, d_transform->scale.y);
+		radius = max(radius, d_transform->scale.z);
+		radius /= 2;
+
+		// Check intersection
+		//BoundingOrientedBox sphere(d_transform->position, d_transform->scale*0.5f, d_transform->rotation);
+		BoundingSphere sphere(d_transform->position, radius);
+		//BoundingBox sphere(d_transform->position, d_transform->scale*0.5f);
+		d_bounding->insideFrustum = sphere.Intersects(frustum);
+	}
+}
+
+Data::Bounding::Bounding()
+{
+	insideFrustum = true;
 }
 
 void Data::Selected::clearSelection()

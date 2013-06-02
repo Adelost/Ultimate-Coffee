@@ -68,14 +68,17 @@ namespace Data
 	public:
 		Vector3 position;
 		Vector3 size;
+		bool insideFrustum;
 		
 	public:
+		Bounding();
 		/**
 		Returns the Entity intersected with. NULL if
 		no intersection.
 		*/
 		static Entity* intersect(Ray& ray);
 		static void intersect(const BoundingFrustum& frustum, std::vector<Entity*>* entity_list);
+		static void performFrustumCulling(const BoundingFrustum& frustum);
 		bool intersect(Entity* entity, Ray& ray, float* distance);
 	};
 
@@ -123,7 +126,7 @@ namespace Data
 			{
 				id = -1;
 				index = -1;
-				color = Color(0.0f, 1.0f, 1.0f, 1.0f);
+				color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 		};
 

@@ -27,13 +27,15 @@ Entity* Factory_Entity::createEntity(Enum::EntityType type, bool addToHistory)
 	{
 		e->addData(Data::Sky());
 		e->addData(Data::Transform());
+
+		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Pyramid));
+		d_render->invisible = true;
 	}
 
 	if(type == Enum::Entity_Mesh)
 	{
 		// Randomize position
 		Data::Transform* d_transform = e->addData(Data::Transform());
-		
 		e->addData(Data::Bounding());
 		Data::Render* d_render = e->addData(Data::Render(e, Enum::Mesh_Box));
 

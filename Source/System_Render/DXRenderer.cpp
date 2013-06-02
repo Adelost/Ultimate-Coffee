@@ -178,10 +178,12 @@ void DXRenderer::renderFrame()
 		Matrix projection = d_camera->projection();
 		Matrix view = d_camera->view();
 		viewProjection = view * projection;
+
+		// Frustum culling
+		BoundingFrustum frustum = d_camera->toFrustum();
+		Data::Bounding::performFrustumCulling(frustum);
 	}
 	
-	static std::vector<Entity*> wireframe_list;
-	wireframe_list.clear();
 	{
 		Data::Render::Manager* manager = &Data::Render::manager;
 
@@ -202,8 +204,16 @@ void DXRenderer::renderFrame()
 					Entity* e = b->next()->asEntity();
 					Data::Transform* d_transform = e->fetchData<Data::Transform>();
 					Data::Render* d_render = e->fetchData<Data::Render>();
+					
+					bool insideFrustum = true;
+					Data::Bounding* d_bounding = e->fetchData<Data::Bounding>();
+					if(d_bounding)
+					{
+						insideFrustum = d_bounding->insideFrustum;
+					}
+					
 
-					if(!d_render->invisible)
+					if(!d_render->invisible && insideFrustum)
 					{
 						m_CBPerObject.world = d_transform->toWorldMatrix();
 						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
@@ -239,8 +249,15 @@ void DXRenderer::renderFrame()
 					Entity* e = b->next()->asEntity();
 					Data::Transform* d_transform = e->fetchData<Data::Transform>();
 					Data::Render* d_render = e->fetchData<Data::Render>();
+					Data::Bounding* d_bounding = e->fetchData<Data::Bounding>();
 
-					if(d_render->invisible)
+					bool insideFrustum = true;
+					if(d_bounding)
+					{
+						insideFrustum = d_bounding->insideFrustum;
+					}
+
+					if(d_render->invisible && d_bounding && insideFrustum)
 					{
 						m_CBPerObject.world = d_transform->toWorldMatrix();
 						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
@@ -278,13 +295,23 @@ void DXRenderer::renderFrame()
 						Data::Transform* d_transform = e->fetchData<Data::Transform>();
 						Data::Render* d_render = e->fetchData<Data::Render>();
 
-						m_CBPerObject.world = d_transform->toWorldMatrix();
-						m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
-						m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
-						m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
-						m_CBPerObject.color = d_render->mesh.color;
-						m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
-						m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+						bool insideFrustum = true;
+						Data::Bounding* d_bounding = e->fetchData<Data::Bounding>();
+						if(d_bounding)
+						{
+							insideFrustum = d_bounding->insideFrustum;
+						}
+
+						if(insideFrustum)
+						{
+							m_CBPerObject.world = d_transform->toWorldMatrix();
+							m_CBPerObject.WVP = m_CBPerObject.world * viewProjection;
+							m_CBPerObject.WVP = XMMatrixTranspose(m_CBPerObject.WVP);
+							m_CBPerObject.world = XMMatrixTranspose(m_CBPerObject.world);
+							m_CBPerObject.color = d_render->mesh.color;
+							m_dxDeviceContext->UpdateSubresource(m_objectConstantBuffer->getBuffer(), 0, nullptr, &m_CBPerObject, 0, 0);
+							m_dxDeviceContext->DrawIndexed(indexBuffer->count(), 0, 0);
+						}
 					}
 				}
 			}
