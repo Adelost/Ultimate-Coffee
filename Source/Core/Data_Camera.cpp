@@ -31,9 +31,11 @@ void Data::Camera::setLens( float fov_y, float aspectRatio, float nearPlane, flo
 	nearPlane = m_nearPlane * m_scale;
 	farPlane =  m_farPlane * m_scale;
 
-	// Don't shrink far plane
-	if(farPlane < m_farPlane)
-		farPlane = m_farPlane;
+	DEBUGPRINT("Delta zoom: " << nearPlane - farPlane);
+// 
+// 	// Don't shrink far plane
+// 	if(farPlane < m_farPlane)
+// 		farPlane = m_farPlane;
 
 	// Set view
 	m_mat_projection = Matrix::CreatePerspectiveFieldOfView(m_fov, m_aspectRatio, nearPlane, farPlane);

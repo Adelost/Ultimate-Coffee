@@ -87,6 +87,7 @@ void Manager_Tools::setupActions()
 // 	a = createContextIcon("Coffee");
 // 	a->setToolTip("Recreate geometry");
 // 	connect(a, SIGNAL(triggered()), this, SLOT(coffee()));
+
 	a = createContextIcon("preview");
 	a->setToolTip("Preview item browser");
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(previewItemBrowser()));
@@ -114,6 +115,11 @@ void Manager_Tools::setupActions()
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(runSimulation(bool)));
 
+	a = createContextIcon("culling");
+	a->setToolTip("Do frustum culling");
+	a->setCheckable(true);
+	a->setChecked(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(doFrustumCulling(bool)));
 }
 
 void Manager_Tools::action_about()
@@ -299,6 +305,25 @@ void Manager_Tools::homingAsteroids( bool state )
 {
 	Data::Movement_Floating::targetCamera = state;
 }
+
+
+void Manager_Tools::doFrustumCulling( bool state )
+{
+	Data::Bounding::s_doFrustumCulling = state;
+
+	// HACK: Make all culled objects visible when turned off
+	if(!state)
+	{
+		DataMapper<Data::Bounding> map_bounding;
+		while(map_bounding.hasNext())
+		{
+			Entity* entity = map_bounding.nextEntity();
+			Data::Bounding* d_bounding  = entity->fetchData<Data::Bounding>();
+			d_bounding->insideFrustum = true;
+		}
+	}
+}
+
 
 void Manager_Tools::loadImage()
 {

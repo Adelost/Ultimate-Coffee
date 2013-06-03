@@ -66,6 +66,9 @@ namespace Data
 	class Bounding : public Type<Bounding>
 	{
 	public:
+		static bool s_doFrustumCulling;
+
+	public:
 		Vector3 position;
 		Vector3 size;
 		bool insideFrustum;

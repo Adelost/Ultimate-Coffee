@@ -180,8 +180,11 @@ void DXRenderer::renderFrame()
 		viewProjection = view * projection;
 
 		// Frustum culling
-		BoundingFrustum frustum = d_camera->toFrustum();
-		Data::Bounding::performFrustumCulling(frustum);
+		if(Data::Bounding::s_doFrustumCulling)
+		{
+			BoundingFrustum frustum = d_camera->toFrustum();
+			Data::Bounding::performFrustumCulling(frustum);
+		}
 	}
 	
 	{

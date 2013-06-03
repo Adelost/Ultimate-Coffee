@@ -91,7 +91,7 @@ void Data::Bounding::performFrustumCulling( const BoundingFrustum& frustum )
 
 		// Check intersection
 		//BoundingOrientedBox sphere(d_transform->position, d_transform->scale*0.5f, d_transform->rotation);
-		BoundingSphere sphere(d_transform->position, radius);
+		BoundingSphere sphere(d_transform->position, radius + 0.01f);
 		//BoundingBox sphere(d_transform->position, d_transform->scale*0.5f);
 		d_bounding->insideFrustum = sphere.Intersects(frustum);
 	}
@@ -101,6 +101,8 @@ Data::Bounding::Bounding()
 {
 	insideFrustum = true;
 }
+
+bool Data::Bounding::s_doFrustumCulling = true;
 
 void Data::Selected::clearSelection()
 {

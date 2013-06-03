@@ -39,6 +39,8 @@ protected:
 	void keyReleaseEvent(QKeyEvent* p_event);
 	void setKeyState(QKeyEvent* p_event, bool p_pressed);
 	void setMouseState(QMouseEvent* p_event, bool p_pressed);
+	void wheelEvent( QWheelEvent* e );
+
 };
 
 class Tool_MultiSelect : public QObject, public IObserver

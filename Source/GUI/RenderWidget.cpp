@@ -156,28 +156,9 @@ void RenderWidget::mouseMoveEvent( QMouseEvent* e )
 	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
 	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
 
-	// Adjust camera speed
-	if(SETTINGS()->button.key_alt && SETTINGS()->button.mouse_right)
-	{
-		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
-		mousePrev = mouseAnchor;
-
-		// HACK: This is a hack, and you know it
-		static float value = 0.0005; // Magic number makes speed 1
-		value += (dx + dy) * 0.001f;
-
-		// Restore to normal if key is pressed
-		if(SETTINGS()->button.key_left)
-			value = 0.0005;
-
-		float speed = Math::powerOf(2.0f, value);
-
-		// Set scale
-		Window::instance()->ui()->statusBar->showMessage("Camera scale: " + QString::number(1/speed)+":1", 1500);
-		d_camera->setScale(speed);
-	}
+	
 	// ELESE: Adjust camera rotation
-	else if(SETTINGS()->button.mouse_right)
+	if(SETTINGS()->button.mouse_right)
 	{
 		QCursor::setPos(mouseAnchor.x(), mouseAnchor.y()); // anchor mouse again
 		mousePrev = mouseAnchor;
@@ -403,6 +384,39 @@ void RenderWidget::setMouseState( QMouseEvent* p_event, bool p_pressed )
 			SEND_EVENT(&Event_AddToCommandHistory(new Command_CreateEntity(entity), false));
 		}
 	}
+}
+
+void RenderWidget::wheelEvent( QWheelEvent* e )
+{
+	int scroll = 0;
+	if(e->delta() > 0)
+		scroll = 1;
+	if(e->delta() < 0)
+		scroll = -1;
+
+
+	// Adjust camera speed
+
+	// HACK: This is a hack, and you know it
+	static float value = 0.0005; // Magic number makes speed 1
+	value += (scroll) * 1.0f;
+
+	// Restore to normal if key is pressed
+	if(SETTINGS()->button.key_left)
+		value = 0.0005;
+
+	float speed = Math::powerOf(2.0f, value);
+
+	// Set scale
+	Window::instance()->ui()->statusBar->showMessage("Camera scale: " + QString::number(1/speed)+":1", 1500);
+
+	// Fetch camera
+	Entity* entity_camera = CAMERA_ENTITY().asEntity();
+	Data::Transform* d_transform = entity_camera->fetchData<Data::Transform>();
+	Data::Camera* d_camera = entity_camera->fetchData<Data::Camera>();
+
+	d_camera->setScale(speed);
+
 }
 
 Tool_MultiSelect::Tool_MultiSelect( QWidget* parent ) : QObject(parent)
