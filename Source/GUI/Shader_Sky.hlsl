@@ -5,7 +5,7 @@ cbuffer cb_test
 	float4 g_color;
 };
 
-TextureCube cubeMap;
+TextureCube cubeMap : register(t0);
 
 SamplerState samTriLinearSam
 {

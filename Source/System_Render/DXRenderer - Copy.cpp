@@ -117,7 +117,7 @@ bool DXRenderer::init( HWND p_windowHandle )
 	// Init RenderStates
 	RenderStates::InitAll(m_device);
 
-	m_manager_tools = new Manager_3DTools(this->m_device, this->m_context, this->m_screenQuad.dsv, this->m_viewport_screen);
+	m_manager_tools = new Manager_3DTools(this->m_device, this->m_context, this->m_screenQuad.tex_dsv, this->m_viewport_screen);
 
 	m_sky = new Sky(m_device, m_context, "skybox_clearsky.dds", 5000.0f);
 	m_sky2 = new Sky(m_device, m_context, "skybox_redclouds.dds", 5000.0f);
@@ -190,29 +190,28 @@ void DXRenderer::renderFrame()
 
 	// Restore the back and depth buffer to the OM stage.
 	m_context->RSSetViewports(1, m_viewport_screen);
-	
 
 	// HACK: Hackish way to render scene multiple time if multiple render target is used
 	int renderCount;
-	ID3D11RenderTargetView* rtv;
 	ID3D11DepthStencilView* dsv;
+	ID3D11RenderTargetView* rtv;
 	if(SETTINGS()->bOculusRift)
 	{
 		renderCount = 2;
-		rtv =  m_screenQuad.rtv;
-		dsv = m_screenQuad.dsv;
+		rtv = m_screenQuad.tex_rtv;
+		dsv = m_screenQuad.tex_dsv;
+		
 	}
 	else
 	{
 		renderCount = 1;
 		rtv = m_rtv_renderTarget;
-		dsv = m_screenQuad.dsv;
+		dsv = m_dsv_depthStencil;
 	}
-		
+	m_context->OMSetRenderTargets(1, &m_rtv_renderTarget, m_dsv_depthStencil);
 
 	// Clear render target & depth/stencil
-	m_context->OMSetRenderTargets(1, &rtv, dsv);
-	m_context->ClearRenderTargetView(rtv, static_cast<const float*>(Color(0.0f, 0.9f, 0.5f)));
+	m_context->ClearRenderTargetView(m_rtv_renderTarget, static_cast<const float*>(Color(0.0f, 0.9f, 0.5f)));
 	m_context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	while(renderCount > 0)
@@ -445,24 +444,27 @@ void DXRenderer::renderFrame()
 
 		// Draw Tools
 		m_manager_tools->update();
-		m_manager_tools->draw(dsv);
+		m_manager_tools->draw(m_screenQuad.tex_dsv);
 
 		m_context->RSSetState(0);
 		m_context->OMSetDepthStencilState(0, 0);
 	}
 
-	m_context->RSSetViewports(1, m_viewport_screen);
- 	//
 	if(SETTINGS()->bOculusRift)
 	{
-		m_context->OMSetRenderTargets(1, &m_rtv_renderTarget, nullptr);
-		//drawScreenQuad(m_screenQuad.rv_texture);
-		drawScreenQuad(m_screenQuad.srv);
-	}
+		rtv = m_rtv_renderTarget;
+		dsv = m_dsv_depthStencil;
 
+		m_context->OMSetRenderTargets(1, &m_rtv_renderTarget, m_dsv_depthStencil);
+		m_context->RSSetViewports(1, m_viewport_screen);
+		drawScreenQuad(m_screenQuad.tex_srv);
+	}
 
 	// Show the finished frame
 	HR(m_swapChain->Present(0, 0));
+
+	// Restore rtv
+	//m_context->OMSetRenderTargets(1, &m_rtv_renderTarget, m_screenQuad.tex_dsv);
 }
 
 bool DXRenderer::initDX()
@@ -547,9 +549,9 @@ bool DXRenderer::initDX()
 		ID3DBlob *PS_Buffer, *VS_Buffer;
 
 		//hr = D3DReadFileToBlob(L"PixelShader.cso", &PS_Buffer);
-		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_4_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, NULL, &VS_Buffer, NULL));
+		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "vertexMain", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
 		HR(m_device->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_vertexShader));
-		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_4_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, NULL, &PS_Buffer, NULL));
+		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "pixelMain", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
 		HR(m_device->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_pixelShader));
 
 		// Create input layout
@@ -569,9 +571,9 @@ bool DXRenderer::initDX()
 	}
 	{
 		ID3DBlob *PS_Buffer, *VS_Buffer;
-		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "VS", "vs_4_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, NULL, &VS_Buffer, NULL));
+		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "VS", "vs_4_0", NULL, NULL, &VS_Buffer, NULL));
 		HR(m_device->CreateVertexShader( VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &m_screenQuad.shader_vertex));
-		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "PS", "ps_4_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, NULL, &PS_Buffer, NULL));
+		HR(D3DCompileFromFile(L"VertexShader.hlsl", NULL, NULL, "PS", "ps_4_0", NULL, NULL, &PS_Buffer, NULL));
 		HR(m_device->CreatePixelShader( PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &m_screenQuad.shader_pixel));
 
 		{
@@ -753,8 +755,8 @@ void DXRenderer::resizeDX()
 
 	// Create the depth/stencil buffer and view.
 	D3D11_TEXTURE2D_DESC desc_depthStencil; 
-	desc_depthStencil.Width     = (int)(width*m_oculus->DistortionScale);					// width
-	desc_depthStencil.Height    = (int)(height*m_oculus->DistortionScale);					// height
+	desc_depthStencil.Width     = width;					// width
+	desc_depthStencil.Height    = height;					// height
 	desc_depthStencil.MipLevels = 1;								// nr of mipmap levels
 	desc_depthStencil.ArraySize = 1;								// nr of textures in a texture array
 	desc_depthStencil.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;	// format
@@ -798,16 +800,16 @@ void DXRenderer::resizeDX()
 		D3D11_VIEWPORT*	port = m_viewport_stereo[0];
 		port->TopLeftX = 0;
 		port->TopLeftY = 0;
-		port->Width    = static_cast<float>(m_clientWidth * m_oculus->DistortionScale/2.0f);
-		port->Height   = static_cast<float>(m_clientHeight * m_oculus->DistortionScale);
+		port->Width    = static_cast<float>(m_clientWidth/2.0f);
+		port->Height   = static_cast<float>(m_clientHeight);
 		port->MinDepth = 0.0f;
 		port->MaxDepth = 1.0f;
 
 		port = m_viewport_stereo[1];
-		port->TopLeftX = (float)m_clientWidth * m_oculus->DistortionScale/2;
+		port->TopLeftX = (float)m_clientWidth/2;
 		port->TopLeftY = 0;
-		port->Width    = static_cast<float>(m_clientWidth * m_oculus->DistortionScale/2.0f);
-		port->Height   = static_cast<float>(m_clientHeight * m_oculus->DistortionScale);
+		port->Width    = static_cast<float>(m_clientWidth/2.0f);
+		port->Height   = static_cast<float>(m_clientHeight);
 		port->MinDepth = 0.0f;
 		port->MaxDepth = 1.0f;
 	}
@@ -895,7 +897,7 @@ void DXRenderer::drawScreenQuad( ID3D11ShaderResourceView* resource )
 
 	
 	// Draw single
-	if(SETTINGS()->bOculusRift && false)
+	if(!SETTINGS()->bOculusRift)
 	{
 		XMMATRIX world(
 			1.0f, 0.0f, 0.0f, 0.0f,
@@ -909,26 +911,6 @@ void DXRenderer::drawScreenQuad( ID3D11ShaderResourceView* resource )
 	// Draw stereo
 	else
 	{
-		// Right Eye
-		{
-			m_oculus->updateVars(Enum::Direction::Right);
-			m_CBOculus.LensCenter	= m_oculus->LensCenter;
-			m_CBOculus.ScreenCenter = m_oculus->ScreenCenter;
-			
-			m_CBOculus.Scale		= m_oculus->Scale;
-			m_CBOculus.ScaleIn		= m_oculus->ScaleIn;
-			m_CBOculus.HmdWarpParam = m_oculus->HmdWarpParam;
-		
-			XMMATRIX world(
-				1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			m_CBOculus.world = XMMatrixTranspose(world);
-			m_context->UpdateSubresource(m_screenQuad.cb_oculus->getBuffer(), 0, nullptr, &m_CBOculus, 0, 0);
-			m_context->DrawIndexed(6, 0, 0);
-		}
-
 		// Left Eye
 		{
 			m_oculus->updateVars(Enum::Direction::Left);
@@ -947,22 +929,41 @@ void DXRenderer::drawScreenQuad( ID3D11ShaderResourceView* resource )
 			m_context->UpdateSubresource(m_screenQuad.cb_oculus->getBuffer(), 0, nullptr, &m_CBOculus, 0, 0);
 			m_context->DrawIndexed(6, 0, 0);
 		}
+
+
+		{
+			m_oculus->updateVars(Enum::Direction::Right);
+			m_CBOculus.LensCenter	= m_oculus->LensCenter;
+			m_CBOculus.ScreenCenter = m_oculus->ScreenCenter;
+			m_CBOculus.Scale		= m_oculus->Scale;
+			m_CBOculus.ScaleIn		= m_oculus->ScaleIn;
+			m_CBOculus.HmdWarpParam = m_oculus->HmdWarpParam;
+
+			XMMATRIX world(
+				0.5f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.5f, 0.0f, 0.0f, 1.0f);
+			m_CBOculus.world = XMMatrixTranspose(world);
+			m_context->UpdateSubresource(m_screenQuad.cb_oculus->getBuffer(), 0, nullptr, &m_CBOculus, 0, 0);
+			m_context->DrawIndexed(6, 0, 0);
+		}
 	}
 }
 
 void DXRenderer::buildScreenQuad()
 {
-	ReleaseCOM(m_screenQuad.rtv);
-	ReleaseCOM(m_screenQuad.srv);
-	ReleaseCOM(m_screenQuad.dsv);
+	ReleaseCOM(m_screenQuad.tex_rtv);
+	ReleaseCOM(m_screenQuad.tex_srv);
+	ReleaseCOM(m_screenQuad.tex_dsv);
 
 	//
 	// Cubemap is a special texture array with 6 elements.
 	//
 
 	D3D11_TEXTURE2D_DESC texDesc;
-	texDesc.Width = (int)(m_clientWidth * m_oculus->DistortionScale);
-	texDesc.Height = (int)(m_clientHeight * m_oculus->DistortionScale);
+	texDesc.Width = m_clientWidth;
+	texDesc.Height = m_clientHeight;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
 	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -976,8 +977,8 @@ void DXRenderer::buildScreenQuad()
 	ID3D11Texture2D* cubeTex;
 	HR(m_device->CreateTexture2D(&texDesc, nullptr, &cubeTex));
 
-	HR(m_device->CreateRenderTargetView(cubeTex, nullptr, &m_screenQuad.rtv));
-	HR(m_device->CreateShaderResourceView(cubeTex, nullptr, &m_screenQuad.srv));
+	HR(m_device->CreateRenderTargetView(cubeTex, nullptr, &m_screenQuad.tex_rtv));
+	HR(m_device->CreateShaderResourceView(cubeTex, nullptr, &m_screenQuad.tex_srv));
 
 	//
 	// Create a render target view to each cube map face 
@@ -1013,8 +1014,8 @@ void DXRenderer::buildScreenQuad()
 	//
 
 	D3D11_TEXTURE2D_DESC depthTexDesc;
-	depthTexDesc.Width = (int)(m_clientWidth * m_oculus->DistortionScale);
-	depthTexDesc.Height = (int)(m_clientHeight * m_oculus->DistortionScale);
+	depthTexDesc.Width = m_clientWidth;
+	depthTexDesc.Height = m_clientHeight;
 	depthTexDesc.MipLevels = 1;
 	depthTexDesc.ArraySize = 1;
 	depthTexDesc.SampleDesc.Count = 1;
@@ -1045,7 +1046,7 @@ void DXRenderer::buildScreenQuad()
 // 	dsvDesc.Flags  = 0;
 // 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 // 	dsvDesc.Texture2D.MipSlice = 0;
-	HR(m_device->CreateDepthStencilView(depthTex, 0, &m_screenQuad.dsv));
+	HR(m_device->CreateDepthStencilView(depthTex, 0, &m_screenQuad.tex_dsv));
 
 	ReleaseCOM(depthTex);
 }
@@ -1065,14 +1066,14 @@ void DXRenderer::ScreenQuad::clear()
  	ReleaseCOM(shader_vertex);
  	ReleaseCOM(shader_pixel);
 
-	ReleaseCOM(rtv);
-	ReleaseCOM(dsv);
-	ReleaseCOM(srv);
+	ReleaseCOM(tex_rtv);
+	ReleaseCOM(tex_dsv);
+	ReleaseCOM(tex_srv);
 }
 
 DXRenderer::ScreenQuad::ScreenQuad()
 {
-	rtv = nullptr;
-	dsv = nullptr;
-	srv = nullptr;
+	tex_rtv = nullptr;
+	tex_dsv = nullptr;
+	tex_srv = nullptr;
 }

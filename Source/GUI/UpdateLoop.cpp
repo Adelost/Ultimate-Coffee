@@ -8,6 +8,8 @@
 #include <Core/Manager_Entity.h>
 #include <System_Render/System_Render.h>
 
+
+
 UpdateLoop::UpdateLoop()
 {
 	m_updateTimer = new UpdateTimer();
@@ -32,7 +34,7 @@ void UpdateLoop::init()
 	m_world->addSystem(new System::Test());
 
 	
-	// Create Entities
+	// Create entities
 	SETTINGS()->entity_camera = FACTORY_ENTITY()->createEntity(Enum::Entity_Camera)->toPointer();
 	FACTORY_ENTITY()->createEntity(Enum::Entity_Sky);
 

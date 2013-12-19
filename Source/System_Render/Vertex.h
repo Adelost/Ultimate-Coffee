@@ -29,6 +29,13 @@ namespace Vertex
 		XMFLOAT3 Pos;
 		XMFLOAT4 Col;
 	};
+
+	struct PosNormTex
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT3 Normal;
+		XMFLOAT2 Tex;
+	};
 }
 
 class VertexPosNormTanTex

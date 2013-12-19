@@ -120,6 +120,13 @@ void Manager_Tools::setupActions()
 	a->setCheckable(true);
 	a->setChecked(true);
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(doFrustumCulling(bool)));
+
+	a = createContextIcon("oculus");
+	a->setToolTip("Enable Oculus");
+	a->setToolTip("");
+	a->setCheckable(true);
+	a->setChecked(true);
+	connect(a, SIGNAL(triggered(bool)), this, SLOT(toggleOcculus(bool)));
 }
 
 void Manager_Tools::action_about()
@@ -389,4 +396,10 @@ void Manager_Tools::loadImage()
 void Manager_Tools::previewItemBrowser()
 {
 	SEND_EVENT(&Event(EVENT_PREVIEW_ITEMS));
+}
+
+void Manager_Tools::toggleOcculus( bool state )
+{
+	SETTINGS()->bOculusRift = state;
+	SEND_EVENT(&Event_WindowResize(SETTINGS()->windowSize.x, SETTINGS()->windowSize.y));
 }

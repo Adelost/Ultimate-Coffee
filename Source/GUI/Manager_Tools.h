@@ -42,6 +42,7 @@ public slots:
 	void newProject();
 	void runSimulation(bool state);
 	void doFrustumCulling(bool state);
+	void toggleOcculus(bool state);
 	void homingAsteroids(bool state);
 	void loadImage();
 	void previewItemBrowser();

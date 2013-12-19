@@ -13,6 +13,7 @@ Settings::Settings()
 	//showSkybox = true;
 	m_ColorScheme_3DManipulatorWidgets = Enum::ColorScheme::RGB;
 	m_skyboxIndex = 1;
+	bOculusRift = true;
 }
 
 Settings::~Settings()

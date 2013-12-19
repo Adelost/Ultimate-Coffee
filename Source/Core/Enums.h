@@ -60,8 +60,8 @@ namespace Enum
 		case Entity_Mesh:		out = "Mesh";				break;
 		case Entity_Asteroid:	out = "Asteroid";			break;
 		case Entity_Camera:		out = "Camera";				break;
-		case Entity_Pointlight: out = "PointLight";		break;
-		case Entity_DirLight:	out = "DirectionLight";	break;
+		case Entity_Pointlight: out = "PointLight";			break;
+		case Entity_DirLight:	out = "DirectionLight";		break;
 		}
 
 		return out;
@@ -80,5 +80,11 @@ namespace Enum
 		Mesh_Shuttle,
 
 		Mesh_End
+	};
+
+	enum class Direction
+	{
+		Right,
+		Left,
 	};
 }

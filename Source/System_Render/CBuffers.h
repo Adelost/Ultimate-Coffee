@@ -35,3 +35,15 @@ struct CBSkybox
 	Matrix WVP;
 	Color color;
 };
+
+struct CBOculus
+{
+	Matrix world;
+	Vector2 LensCenter;
+	Vector2 ScreenCenter;
+	Vector2 Scale;
+	Vector2 ScaleIn;
+	Vector4 HmdWarpParam;
+	int bStereo;
+	Vector3 pad1;
+};

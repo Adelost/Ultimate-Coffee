@@ -23,6 +23,9 @@
     <Filter Include="Source\Tools\Tools">
       <UniqueIdentifier>{4bbb582b-756d-4f4d-ad40-636e2e19f6ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\hlsl">
+      <UniqueIdentifier>{4dc47829-e052-4476-9dd7-fdbd1289d753}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System_Render.h">
@@ -133,6 +136,9 @@
     <ClInclude Include="MeshData.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="OculusManager.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System_Render.cpp">
@@ -225,5 +231,19 @@
     <ClCompile Include="MeshData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="OculusManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\GUI\Oculus.hlsl">
+      <Filter>Source\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\GUI\VertexShader.hlsl">
+      <Filter>Source\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\GUI\Shader_Sky.hlsl">
+      <Filter>Source\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

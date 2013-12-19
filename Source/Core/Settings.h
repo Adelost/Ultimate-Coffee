@@ -71,6 +71,7 @@ public:
 	Int2 lastMousePosition;
 	
 	Enum::ColorScheme m_ColorScheme_3DManipulatorWidgets;
+	bool bOculusRift;
 
 public:
 	Settings();

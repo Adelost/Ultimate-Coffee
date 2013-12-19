@@ -176,6 +176,7 @@ Window* Window::s_instance = nullptr;
 
 SplashScreen::SplashScreen( Window* parent ) : QDockWidget("Welcome to Ultimate Coffee", parent)
 {
+	setVisible(false);
 	parent->addDockWidget(Qt::RightDockWidgetArea, this);
 	setFloating(true);
 	setAllowedAreas(Qt::NoDockWidgetArea);

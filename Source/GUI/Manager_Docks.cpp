@@ -120,19 +120,19 @@ void Manager_Docks::setupMenu()
 	m_window->centralWidget()->hide();
 	QAction* a;
 
-	// Fullscreen
+	// fullscreen
 	a = createAction("Fullscreen");
 	a->setCheckable(true);
 	a->setShortcut(QKeySequence("F1"));
 	connect(a, SIGNAL(toggled(bool)), m_window, SLOT(setFullscreen(bool)));
 
-	// Maximize scene
+	// maximize scene
 	a = createAction("Maximize Scene");
 	a->setCheckable(true);
 	a->setShortcut(QKeySequence("Ctrl+G"));
 	connect(a, SIGNAL(toggled(bool)), this, SLOT(setMaximizeScene(bool)));
 
-	// Add dock action
+	// add dock action
 	a = new QAction("Create Dock", m_window);
 	a->setShortcut(QKeySequence("Ctrl+Shift+T"));
 	connect(a, SIGNAL(triggered()), this, SLOT(createDockWidget()));
@@ -146,28 +146,28 @@ void Manager_Docks::setupMenu()
 
 	QDockWidget* dock;
 
-	// Scene
+	// scene
 	dock = createDock("Scene", Qt::LeftDockWidgetArea);
 	dock->setWidget(m_window->renderWidget());
 	m_scene = dock;
 
-	// Inspector
+	// inspector
 	dock = createDock("Inspector", Qt::RightDockWidgetArea);
 
-	// Command History
+	// command History
 	dock = createDock("History", Qt::LeftDockWidgetArea);
 	m_commandHistoryListWidget = new ListWidgetWithoutKeyboardInput(dock);
 	connectCommandHistoryListWidget(true);
 	//connect(m_commandHistoryListWidget, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(commandHistoryItemPressed(QListWidgetItem*)));
 	dock->setWidget(m_commandHistoryListWidget);
 
-	// Item Browser
+	// item browser
 	dock = createDock("Item Browser", Qt::LeftDockWidgetArea);
 	dock->setWindowTitle("Item Browser");
 	m_itemBrowser = new ItemBrowser(dock);
 	dock->setWidget(m_itemBrowser);
 
-	// Hierarchy
+	// hierarchy
 	dock = createDock("Hierarchy", Qt::RightDockWidgetArea);
 	QTreeView* tree = new Hierarchy(m_window);
 	m_hierarchy_tree = tree;
@@ -263,7 +263,7 @@ void Manager_Docks::onEvent(Event* e)
 	EventType type = e->type();
 	switch (type) 
 	{
-	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // Add command or commands to the command history list in the GUI
+	case EVENT_ADD_TO_COMMAND_HISTORY_GUI: // add command or commands to the command history list in the GUI
 		{
 			Event_AddToCommandHistoryGUI* commandEvent = static_cast<Event_AddToCommandHistoryGUI*>(e);
 			std::vector<Command*>* commands = commandEvent->commands;

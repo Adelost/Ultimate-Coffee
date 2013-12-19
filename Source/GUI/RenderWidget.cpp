@@ -120,17 +120,6 @@ void RenderWidget::resizeEvent(QResizeEvent* e)
 	int height = this->height();
 	SETTINGS()->windowSize = Int2(width, height);
 
-	// Resize cameras
-	// NOTE: Don't know if this should be here,
-	// but in the meantime...
-	DataMapper<Data::Camera> map_camera;
-	while(map_camera.hasNext())
-	{
-		Data::Camera* d_camera = map_camera.next();
-		float aspectRatio =  static_cast<float>(width)/height;
-		d_camera->setLens(0.25f*Math::Pi, aspectRatio, 0.1f, 5000.0f);
-	}
-
 	// Notify rest of code
 	SEND_EVENT(&Event_WindowResize(width, height));
 }

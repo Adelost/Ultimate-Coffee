@@ -32,6 +32,15 @@ public:
 		return dir;
 	}
 	static float powerOf(float base, float exponent);
+
+	float static radToDegree(float rads) 
+	{ 
+		return rads * 360.0f / Math::Pi2; 
+	}
+	float static degreeToRad(float degree) 
+	{ 
+		return degree / 360.0f * Math::Pi2; 
+	}
 };
 
 class Int2

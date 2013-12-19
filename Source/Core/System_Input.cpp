@@ -180,7 +180,7 @@ void System::Input::updateZoomTo()
 		if(camera != nullptr)
 		{
 			Vector3 look = Vector3::Lerp(d_zoomTo->originLook, direction, d_zoomTo->rotationLerpT);
-			camera->setLookVector(look, Vector3(0.0f, -1.0f, 0.0f));
+			camera->setLookVector(look, Vector3(0.0f, 1.0f, 0.0f));
 			camera->updateViewMatrix(d_transform->position);
 		}
 

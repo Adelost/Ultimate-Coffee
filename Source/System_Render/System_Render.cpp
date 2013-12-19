@@ -2,10 +2,11 @@
 #include "System_Render.h"
 #include "DXRenderer.h"
 
+
+
 System::Render::Render()
 {
 	Data::Render::initClass();
-
 	setupDirectX();
 }
 
@@ -22,15 +23,6 @@ void System::Render::setupDirectX()
 	renderer->init(windowHandle);
 }
 
-void System::Render::process()
-{
-	DataMapper<Data::Transform> m_mapper_position;
-	while(m_mapper_position.hasNext())
-	{
-		Data::Transform* transform = m_mapper_position.next();
-	}
-}
-
 System::Render::~Render()
 {
 	delete renderer;
@@ -38,6 +30,7 @@ System::Render::~Render()
 
 void System::Render::update()
 {
+	// Render
 	renderer->renderFrame();
 }
 

@@ -23,6 +23,10 @@ namespace Data
 		Quaternion m_rotation;
 
 	public:
+		Quaternion m_rotationOffset;
+		Matrix m_matRotationOffset;
+
+	public:
 		Camera()
 		{
 			m_look = Vector3(0.0f, 0.0f, 1.0f);
@@ -31,26 +35,9 @@ namespace Data
 			m_scale = 1.0f;
 		}
 
-		void updateViewMatrix(Vector3& position)
-		{
-			m_position = position;
-
-			// Keep camera's axes orthogonal to each other and of unit length.
-			m_look.Normalize();
-			m_up = m_look.Cross(m_right); m_up.Normalize();
-
-			// Look and Up is already orthogonal
-			// no need to normalize cross product
-			m_right = m_up.Cross(m_look);
-
-			// Create LookAt
-			m_mat_view = Matrix::CreateLookAt(position, position + m_look, m_up);
-
-			m_rotation = rotation();
-		}
+		void updateViewMatrix(Vector3& position);
 
 		void setLens(float p_fov_y, float p_aspectRatio, float p_nearPlane, float p_farPlane);
-
 
 		void rotateX(float p_angle)
 		{
@@ -93,15 +80,15 @@ namespace Data
 		void lookAt(const Vector3& p_cameraPos, const Vector3& p_target, const Vector3& p_up)
 		{
 			m_look = p_target - p_cameraPos; m_look.Normalize();
-			m_right = m_look.Cross(p_up); m_right.Normalize();
-			m_up = m_look.Cross(m_right);
+			m_up = m_look.Cross(m_right); m_up.Normalize();
+			m_right = m_up.Cross(m_look);
 		}
 
 		void setLookVector(const Vector3& p_lookVector, const Vector3& p_up)
 		{
 			m_look = p_lookVector; m_look.Normalize();
-			m_right = m_look.Cross(p_up); m_right.Normalize();
-			m_up = m_look.Cross(m_right);
+			m_up = m_look.Cross(m_right); m_up.Normalize();
+			m_right = m_up.Cross(m_look);
 		}
 
 		void strafe(Vector3& p_cameraPos, float p_distance)

@@ -43,6 +43,7 @@ void Sky::draw()
 	// Find world
 	Matrix viewProj = CAMERA_ENTITY()->fetchData<Data::Camera>()->viewProjection();
 	Matrix mat_pos = CAMERA_ENTITY()->fetchData<Data::Transform>()->toPosMatrix();
+
 	DataMapper<Data::Sky> map_sky;
 	if(map_sky.hasNext())
 	{
@@ -50,7 +51,7 @@ void Sky::draw()
 		Data::Transform* d_transform = e->fetchData<Data::Transform>();
 		Data::Render* d_render = e->fetchData<Data::Render>();
 		Matrix world = d_transform->toRotMatrix() * mat_pos;
-		
+
 		// Set Shaders
 		m_vertexBuffer->setDeviceContextBuffer(m_context);
 		m_indexBuffer->setDeviceContextBuffer(m_context);

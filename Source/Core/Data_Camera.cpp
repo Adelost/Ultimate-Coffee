@@ -74,3 +74,27 @@ void Data::Camera::setScale( float value )
 	// Recalculate lens
 	setLens(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
 }
+
+void Data::Camera::updateViewMatrix( Vector3& position )
+{
+	m_position = position;
+
+	// Keep camera's axes orthogonal to each other and of unit length.
+	m_look.Normalize();
+	m_up = m_look.Cross(m_right); m_up.Normalize();
+	// Look and Up is already orthogonal
+	// no need to normalize cross product
+	m_right = m_up.Cross(m_look);
+
+	// Apply offset orientation
+	Matrix offset = Matrix::CreateFromQuaternion(m_rotationOffset);
+	Vector3 look = Vector3::TransformNormal(m_look, offset);
+	Vector3 up = Vector3::TransformNormal(m_up, offset);
+	Vector3 right = Vector3::TransformNormal(m_right, offset);
+
+	// Create LookAt
+	m_mat_view = Matrix::CreateLookAt(position, position + look, up);
+
+	Matrix oculusOffset = Matrix::CreateFromQuaternion(m_rotationOffset);
+	m_rotation = rotation();
+}

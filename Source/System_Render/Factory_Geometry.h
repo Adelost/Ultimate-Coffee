@@ -533,4 +533,43 @@ public:
 			}
 		}
 	};
+
+	void createFullscreenQuad(MeshData& meshData)
+	{
+		meshData.vertices.resize(4);
+		meshData.indices.resize(6);
+
+		// Position coordinates specified in NDC space.
+		meshData.vertices[0] = VertexPosNormTanTex(
+			-1.0f, -1.0f, 0.0f, 
+			0.0f, 0.0f, -1.0f,
+			1.0f, 0.0f, 0.0f,
+			0.0f, 1.0f);
+
+		meshData.vertices[1] = VertexPosNormTanTex(
+			-1.0f, +1.0f, 0.0f, 
+			0.0f, 0.0f, -1.0f,
+			1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f);
+
+		meshData.vertices[2] = VertexPosNormTanTex(
+			+1.0f, +1.0f, 0.0f, 
+			0.0f, 0.0f, -1.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 0.0f);
+
+		meshData.vertices[3] = VertexPosNormTanTex(
+			+1.0f, -1.0f, 0.0f, 
+			0.0f, 0.0f, -1.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f);
+
+		meshData.indices[0] = 0;
+		meshData.indices[1] = 1;
+		meshData.indices[2] = 2;
+
+		meshData.indices[3] = 0;
+		meshData.indices[4] = 2;
+		meshData.indices[5] = 3;
+	}
 };

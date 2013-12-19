@@ -46,6 +46,11 @@ HRESULT Buffer::init(BufferType p_type, unsigned int p_elementSize, unsigned int
 			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 			break;
 		}
+		case BufferType::CONSTANT_BUFFER:
+			{
+				bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+				break;
+			}
 		default:
 		{
 			//MESSAGEBOX("Error: Invalid buffer type");
@@ -100,6 +105,12 @@ void Buffer::setDeviceContextBuffer(ID3D11DeviceContext* p_deviceContext, unsign
 	case BufferType::PS_CONSTANT_BUFFER:
 		{
 			p_deviceContext->PSSetConstantBuffers(p_constantBufferIndex, 1, &m_buffer);
+		}
+		break;
+	case BufferType::CONSTANT_BUFFER:
+		{
+			p_deviceContext->PSSetConstantBuffers(p_constantBufferIndex, 1, &m_buffer);
+			p_deviceContext->VSSetConstantBuffers(p_constantBufferIndex, 1, &m_buffer);
 		}
 		break;
 	case BufferType::UNINITIALIZED:
