@@ -17,6 +17,6 @@ A game engine / editor made from scratch in C++ with DirectX 11 for 3D-rendering
 
 ### Videos:
 
-[Gravity test:](https://youtu.be/phFJCnl87Is)
+[Gravity test](https://youtu.be/phFJCnl87Is)
 
-[Demonstration:](https://youtu.be/Q745hrIV-dM)
+[Demonstration](https://youtu.be/Q745hrIV-dM)
